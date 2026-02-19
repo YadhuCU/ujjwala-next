@@ -57,4 +57,9 @@ export const queryKeys = {
     all: ["dashboard"] as const,
     detail: (from?: string, to?: string) => ["dashboard", from, to] as const,
   },
+  saleReport: {
+    all: ["sale-report"] as const,
+    list: (params: object) =>
+      ["sale-report", params] as const,
+  },
 };

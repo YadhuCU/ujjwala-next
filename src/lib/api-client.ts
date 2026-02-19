@@ -45,6 +45,56 @@ export const api = {
       .then((r) => r.data);
   },
 
+  getSaleReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/sales?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportSaleReport: async (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    const response = await apiClient.get(
+      `/api/reports/sales/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
   // ─── Mutations ──────────────────────────────────────────
   create: <T>(url: string, data: T) =>
     apiClient.post(url, data).then((r) => r.data),

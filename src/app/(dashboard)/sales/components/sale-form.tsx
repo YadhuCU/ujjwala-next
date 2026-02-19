@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { useStocks, useCustomers } from "@/hooks/use-api";
 import { customerTxnOptions } from "@/lib/query-options";
+import { useEffect } from "react";
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,7 @@ export interface Stock {
 interface Customer {
   id: number;
   name: string | null;
+  discount: string | null;
 }
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -101,6 +103,15 @@ export function SaleForm({
   const selectedCustomerId = form.watch("customerId");
   const saleType = form.watch("saleType");
   const selectedStock = stocks.find((s) => s.id === parseInt(selectedStockId));
+
+  useEffect(() => {
+  if(selectedCustomerId && !defaultValues) {
+    const customer = customers.find((c) => c.id === parseInt(selectedCustomerId));
+    if(customer && customer.discount) {
+      form.setValue("discount", Number(customer.discount));
+    }
+  }
+  },[selectedCustomerId, customers, form, defaultValues])
 
   // Show correct available quantity:
   // In edit mode, add back the original allocation if it's the same stock
