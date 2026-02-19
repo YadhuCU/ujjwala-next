@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserType {
+  id        Int       @id @default(autoincrement())
+  name      String?   @db.VarChar(30)
+  role      String?   @db.VarChar(30)
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  accounts  Account[]
+
+  @@map("user_types")
+}
+
+model Account {
+  id          Int       @id @default(autoincrement())
+  uuid        String    @default(uuid())
+  username    String    @unique @db.VarChar(40)
+  name        String?   @db.VarChar(200)
+  password    String
+  isActive    Boolean   @default(true) @map("is_active")
+  isLogin     Boolean   @default(false) @map("is_login")
+  firstLogin  Boolean   @default(false) @map("first_login")
+  isSuperuser Boolean   @default(false) @map("is_superuser")
+  email       String?   @db.VarChar(50)
+  mobile      String?   @db.VarChar(20)
+  usertypeId  Int?      @map("usertype_id")
+  usertype    UserType? @relation(fields: [usertypeId], references: [id])
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+
+  salesCreated       Sale[]       @relation("SalesCreated")
+  domSalesCreated    DomSale[]    @relation("DomSalesCreated")
+  collectionsCreated Collection[] @relation("CollectionsCreated")
+  expensesCreated    Expense[]    @relation("ExpensesCreated")
+
+  @@map("accounts")
+}
+
+model Location {
+  id        Int        @id @default(autoincrement())
+  name      String?    @unique @db.VarChar(50)
+  district  String?    @db.VarChar(50)
+  pincode   String?    @db.VarChar(10)
+  locality  String?    @db.VarChar(50)
+  isDeleted Boolean    @default(false) @map("is_deleted")
+  createdAt DateTime   @default(now()) @map("created_at")
+  customers Customer[]
+
+  @@map("locations")
+}
+
+model Customer {
+  id                    Int                @id @default(autoincrement())
+  name                  String?            @unique @db.VarChar(50)
+  address               String?
+  phone                 String?            @db.VarChar(10)
+  locationId            Int?               @map("location_id")
+  location              Location?          @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  concernedPerson       String?            @map("concerned_person") @db.VarChar(30)
+  concernedPersonMobile String?            @map("concerned_person_mobile") @db.VarChar(30)
+  discount              String?            @db.VarChar(30)
+  gstNumber             String?            @map("gst_number") @db.VarChar(15)
+  initialCylinderBalance Int               @default(0) @map("initial_cylinder_balance")
+  initialPendingAmount  Decimal            @default(0.00) @map("initial_pending_amount") @db.Decimal(10, 2)
+  isDeleted             Boolean            @default(false) @map("is_deleted")
+  createdAt             DateTime           @default(now()) @map("created_at")
+  sales                 Sale[]
+  collections           Collection[]
+  rentProducts          RentProduct[]
+  rentTransactions      RentTransaction[]
+
+  @@map("customers")
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  name      String?  @unique @db.VarChar(50)
+  type      String?  @db.VarChar(50)
+  weight    String?  @db.VarChar(50)
+  price     String?  @db.VarChar(50)
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  stocks    Stock[]
+  sales     Sale[]
+  domSales  DomSale[]
+
+  @@map("products")
+}
+
+model Stock {
+  id               Int                @id @default(autoincrement())
+  batchNo          String?            @unique @map("batch_no") @db.VarChar(50)
+  productId        Int?               @map("product_id")
+  product          Product?           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  invoiceNo        String?            @map("invoice_no") @db.VarChar(50)
+  quantity         String?            @db.VarChar(50)
+  productCost      String?            @map("product_cost") @db.VarChar(30)
+  salePrice        String?            @map("sale_price") @db.VarChar(30)
+  isDeleted        Boolean            @default(false) @map("is_deleted")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  sales            Sale[]
+  domSales         DomSale[]
+  rentProducts     RentProduct[]
+  rentTransactions RentTransaction[]
+
+  @@map("stocks")
+}
+
+model Sale {
+  id               Int                @id @default(autoincrement())
+  trNo             String?            @map("tr_no") @db.VarChar(30)
+  stockId          Int?               @map("stock_id")
+  stock            Stock?             @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  customerId       Int?               @map("customer_id")
+  customer         Customer?          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  isOffer          Boolean            @default(false) @map("is_offer")
+  discount         Int?
+  productId        Int?               @map("product_id")
+  product          Product?           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity         String?            @db.VarChar(30)
+  productCost      String?            @map("product_cost") @db.VarChar(30)
+  salePrice        String?            @map("sale_price") @db.VarChar(30)
+  netTotal         String?            @map("net_total") @db.VarChar(30)
+  createdById      Int?               @map("created_by_id")
+  createdBy        Account?           @relation("SalesCreated", fields: [createdById], references: [id])
+  isDeleted        Boolean            @default(false) @map("is_deleted")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  rentTransactions RentTransaction[]
+
+  @@map("sales")
+}
+
+model DomSale {
+  id               Int      @id @default(autoincrement())
+  trNo             String?  @map("tr_no") @db.VarChar(30)
+  stockId          Int?     @map("stock_id")
+  stock            Stock?   @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  productId        Int?     @map("product_id")
+  product          Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity         String?  @db.VarChar(30)
+  salePrice        String?  @map("sale_price") @db.VarChar(30)
+  collectionAmount String?  @map("collection_amount") @db.VarChar(30)
+  netTotal         String?  @map("net_total") @db.VarChar(30)
+  createdById      Int?     @map("created_by_id")
+  createdBy        Account? @relation("DomSalesCreated", fields: [createdById], references: [id])
+  isDeleted        Boolean  @default(false) @map("is_deleted")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@map("dom_sales")
+}
+
+model Collection {
+  id          Int       @id @default(autoincrement())
+  trNo        String?   @map("tr_no") @db.VarChar(30)
+  customerId  Int?      @map("customer_id")
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  amount      String?   @db.VarChar(50)
+  createdById Int?      @map("created_by_id")
+  createdBy   Account?  @relation("CollectionsCreated", fields: [createdById], references: [id])
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("collections")
+}
+
+model Expense {
+  id          Int       @id @default(autoincrement())
+  expense     String?   @db.VarChar(30)
+  date        DateTime? @db.Date
+  amount      String?   @db.VarChar(30)
+  createdById Int?      @map("created_by_id")
+  createdBy   Account?  @relation("ExpensesCreated", fields: [createdById], references: [id])
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("expenses")
+}
+
+model RentProduct {
+  id         Int       @id @default(autoincrement())
+  customerId Int?      @map("customer_id")
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  stockId    Int?      @map("stock_id")
+  stock      Stock?    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  quantity   String?   @db.VarChar(30)
+  isDeleted  Boolean   @default(false) @map("is_deleted")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@map("rent_products")
+}
+
+model RentTransaction {
+  id         Int      @id @default(autoincrement())
+  customerId Int      @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id])
+  stockId    Int      @map("stock_id")
+  stock      Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  saleId     Int?     @map("sale_id")
+  sale       Sale?    @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  filledOut  Int      @default(0) @map("filled_out")
+  emptyIn    Int      @default(0) @map("empty_in")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("rent_transactions")
+}

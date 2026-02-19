@@ -1,0 +1,46 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { withAuth } from "@/lib/api-auth";
+
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return withAuth(async () => {
+    const { id } = await params;
+    const domSale = await prisma.domSale.findUnique({
+      where: { id: parseInt(id) },
+      include: { stock: { include: { product: true } } },
+    });
+    if (!domSale) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(domSale);
+  });
+}
+
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return withAuth(async () => {
+    try {
+      const { id } = await params;
+      const data = await request.json();
+      const domSale = await prisma.domSale.update({
+        where: { id: parseInt(id) },
+        data: {
+          stockId: data.stockId ? parseInt(data.stockId) : undefined,
+          quantity: data.quantity != null ? String(data.quantity) : undefined,
+          salePrice: data.salePrice != null ? String(data.salePrice) : undefined,
+          collectionAmount: data.collectionAmount != null ? String(data.collectionAmount) : undefined,
+          netTotal: data.netTotal != null ? String(data.netTotal) : undefined,
+        },
+      });
+      return NextResponse.json(domSale);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to update";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+  }, "admin");
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return withAuth(async () => {
+    const { id } = await params;
+    await prisma.domSale.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
+    return NextResponse.json({ success: true });
+  }, "admin");
+}
