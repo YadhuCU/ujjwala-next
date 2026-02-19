@@ -7,10 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { useUserTypes } from "@/hooks/use-api";
 
@@ -29,7 +38,11 @@ export type UserFormValues = z.infer<typeof userSchema>;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-interface UserType { id: number; name: string | null; role: string | null }
+interface UserType {
+  id: number;
+  name: string | null;
+  role: string | null;
+}
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -54,52 +67,127 @@ export function UserForm({
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: defaultValues ?? {
-      username: "", name: "", password: "", email: "", mobile: "", usertypeId: "",
+      username: "",
+      name: "",
+      password: "",
+      email: "",
+      mobile: "",
+      usertypeId: "",
     },
   });
 
   return (
-    <Card className="max-w-lg">
-      <CardHeader><CardTitle>User Details</CardTitle></CardHeader>
+    <Card className="container mr-auto">
+      <CardHeader>
+        <CardTitle>User Details</CardTitle>
+      </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField control={form.control} name="username" render={({ field }) => (
-              <FormItem><FormLabel>Username</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="password" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{isEditMode ? "Password (leave blank to keep unchanged)" : "Password"}</FormLabel>
-                <FormControl><Input type="password" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="email" render={({ field }) => (
-              <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="mobile" render={({ field }) => (
-              <FormItem><FormLabel>Mobile</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="usertypeId" render={({ field }) => (
-              <FormItem>
-                <FormLabel>User Type</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger className="w-full"><SelectValue placeholder="Select type" /></SelectTrigger></FormControl>
-                  <SelectContent>
-                    {userTypes.map((t) => (
-                      <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )} />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 lg:grid-cols-2 items-start">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {isEditMode
+                      ? "Password (leave blank to keep unchanged)"
+                      : "Password"}
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="mobile"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mobile</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="usertypeId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>User Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {userTypes.map((t) => (
+                        <SelectItem key={t.id} value={String(t.id)}>
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : isEditMode ? "Update" : "Save"}</Button>
-              <Button type="button" variant="outline" onClick={() => window.history.back()}>Cancel</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => window.history.back()}
+              >
+                Cancel
+              </Button>
             </div>
           </form>
         </Form>

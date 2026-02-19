@@ -45,34 +45,86 @@ export function ProductForm({
 }: ProductFormProps) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: defaultValues ?? { name: "", type: "", weight: "", price: "" },
+    defaultValues: defaultValues ?? {
+      name: "",
+      type: "",
+      weight: "",
+      price: "",
+    },
   });
 
   return (
-    <Card className="max-w-lg">
+    <Card className="container mr-auto">
       <CardHeader>
         <CardTitle>Product Details</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="type" render={({ field }) => (
-              <FormItem><FormLabel>Type</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="weight" render={({ field }) => (
-              <FormItem><FormLabel>Weight</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
-            <FormField control={form.control} name="price" render={({ field }) => (
-              <FormItem><FormLabel>Price</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-            )} />
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="grid lg:grid-cols-2 gap-4 items-start"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="weight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Price</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={isPending}>
                 {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => window.history.back()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => window.history.back()}
+              >
                 Cancel
               </Button>
             </div>

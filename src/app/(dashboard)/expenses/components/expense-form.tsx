@@ -52,7 +52,7 @@ export function ExpenseForm({
   });
 
   return (
-    <Card className="max-w-lg">
+    <Card className="container mr-auto">
       <CardHeader>
         <CardTitle>Expense Details</CardTitle>
       </CardHeader>
@@ -60,7 +60,7 @@ export function ExpenseForm({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
+            className="grid lg:grid-cols-2 gap-4 items-start"
           >
             <FormField
               control={form.control}
@@ -108,7 +108,7 @@ export function ExpenseForm({
                 </FormItem>
               )}
             />
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-2 lg:col-span-2">
               <Button type="submit" disabled={isPending}>
                 {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
               </Button>

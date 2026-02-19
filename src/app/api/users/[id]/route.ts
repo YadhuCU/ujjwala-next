@@ -3,6 +3,21 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { withAuth } from "@/lib/api-auth";
 
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  return withAuth(async () => {
+    const { id } = await params;
+    const user = await prisma.account.findUnique({
+      where: { id: parseInt(id) },
+      include: { usertype: true },
+    });
+    if (!user) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    const { password: _, ...safeUser } = user;
+    return NextResponse.json(safeUser);
+  });
+}
+
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   return withAuth(async () => {
     try {

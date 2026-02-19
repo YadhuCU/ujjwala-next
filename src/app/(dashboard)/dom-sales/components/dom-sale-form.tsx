@@ -92,7 +92,7 @@ export function DomSaleForm({
   }, [selectedStockId, stocks, form]);
 
   return (
-    <Card className="max-w-lg">
+    <Card className="container mr-auto">
       <CardHeader>
         <CardTitle>Sale Details</CardTitle>
       </CardHeader>
@@ -100,7 +100,7 @@ export function DomSaleForm({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
+            className="grid lg:grid-cols-2 gap-4 items-start"
           >
             <FormField
               control={form.control}
@@ -110,7 +110,7 @@ export function DomSaleForm({
                   <FormLabel>Stock</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select stock" />
                       </SelectTrigger>
                     </FormControl>

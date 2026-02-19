@@ -7,10 +7,22 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { useStocks, useCustomers } from "@/hooks/use-api";
 import { customerTxnOptions } from "@/lib/query-options";
@@ -94,7 +106,8 @@ export function SaleForm({
   // In edit mode, add back the original allocation if it's the same stock
   const availableQty = selectedStock
     ? parseInt(selectedStock.quantity || "0") +
-      (originalStockAllocation && originalStockAllocation.stockId === parseInt(selectedStockId)
+      (originalStockAllocation &&
+      originalStockAllocation.stockId === parseInt(selectedStockId)
         ? originalStockAllocation.quantity
         : 0)
     : null;
@@ -104,13 +117,17 @@ export function SaleForm({
   const showEmptyReturn = isEditMode ? saleType === "rent" : true;
 
   return (
-    <Card>
-      <CardHeader><CardTitle>Sale Details</CardTitle></CardHeader>
+    <Card className="container mr-auto">
+      <CardHeader>
+        <CardTitle>Sale Details</CardTitle>
+      </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((v) => onSubmit(v, selectedStock))} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
+          <form
+            onSubmit={form.handleSubmit((v) => onSubmit(v, selectedStock))}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               {/* Stock */}
               <FormField
                 control={form.control}
@@ -120,7 +137,7 @@ export function SaleForm({
                     <FormLabel>Stock (Batch)</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select Stock" />
                         </SelectTrigger>
                       </FormControl>
@@ -146,7 +163,7 @@ export function SaleForm({
                     <FormLabel>Customer</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select Customer" />
                         </SelectTrigger>
                       </FormControl>
@@ -171,7 +188,13 @@ export function SaleForm({
                   <FormItem>
                     <FormLabel>Quantity</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.valueAsNumber || 0)} />
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.valueAsNumber || 0)
+                        }
+                      />
                     </FormControl>
                     {availableQty !== null && (
                       <FormDescription>
@@ -191,7 +214,13 @@ export function SaleForm({
                   <FormItem>
                     <FormLabel>Discount (%)</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} onChange={(e) => field.onChange(e.target.valueAsNumber || 0)} />
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.valueAsNumber || 0)
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -217,14 +246,18 @@ export function SaleForm({
                           <label
                             htmlFor="sale-type-sale"
                             className={`text-sm font-medium ${isEditMode ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}`}
-                          >Sale</label>
+                          >
+                            Sale
+                          </label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="rent" id="sale-type-rent" />
                           <label
                             htmlFor="sale-type-rent"
                             className={`text-sm font-medium ${isEditMode ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}`}
-                          >Rent</label>
+                          >
+                            Rent
+                          </label>
                         </div>
                       </RadioGroup>
                     </FormControl>
@@ -246,7 +279,14 @@ export function SaleForm({
                   <FormItem>
                     <FormLabel>Collection Amount</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} onChange={(e) => field.onChange(e.target.valueAsNumber || 0)} />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.valueAsNumber || 0)
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -262,7 +302,13 @@ export function SaleForm({
                     <FormItem>
                       <FormLabel>Empty Returned</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} onChange={(e) => field.onChange(e.target.valueAsNumber || 0)} />
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(e.target.valueAsNumber || 0)
+                          }
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -274,24 +320,40 @@ export function SaleForm({
             {/* Stock Info */}
             {selectedStock && (
               <div className="bg-muted rounded-lg p-4 text-sm space-y-1">
-                <p><strong>Sale Price:</strong> ₹{selectedStock.salePrice}</p>
-                <p><strong>Product Cost:</strong> ₹{selectedStock.productCost}</p>
+                <p>
+                  <strong>Sale Price:</strong> ₹{selectedStock.salePrice}
+                </p>
+                <p>
+                  <strong>Product Cost:</strong> ₹{selectedStock.productCost}
+                </p>
               </div>
             )}
 
             {/* Customer Transaction Info */}
             {txnInfo && (
               <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 text-sm space-y-1 border border-blue-200 dark:border-blue-800">
-                <p><strong>Cylinders In Hand:</strong> {txnInfo.rent_qty}</p>
-                <p><strong>Pending Amount:</strong> ₹{txnInfo.pending_amount}</p>
+                <p>
+                  <strong>Cylinders In Hand:</strong> {txnInfo.rent_qty}
+                </p>
+                <p>
+                  <strong>Pending Amount:</strong> ₹{txnInfo.pending_amount}
+                </p>
               </div>
             )}
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : isEditMode ? "Update Sale" : "Create Sale"}
+                {isPending
+                  ? "Saving..."
+                  : isEditMode
+                    ? "Update Sale"
+                    : "Create Sale"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => window.history.back()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => window.history.back()}
+              >
                 Cancel
               </Button>
             </div>
