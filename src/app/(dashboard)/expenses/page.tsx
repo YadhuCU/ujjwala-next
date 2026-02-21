@@ -22,14 +22,6 @@ import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
 import { PageWrapper } from "@/components/page-wrapper";
 
-interface Expense {
-  id: number;
-  expense: string | null;
-  date: string | null;
-  amount: string | null;
-  createdAt: string;
-}
-
 export default function ExpensesPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -38,7 +30,6 @@ export default function ExpensesPage() {
 
   const { data: expenses = [] } = useQuery({
     ...expensesOptions,
-    select: (data) => data as Expense[],
   });
 
   const deleteMutation = useDeleteMutation({

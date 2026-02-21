@@ -1,4 +1,35 @@
 import axios from "axios";
+import { Prisma } from "@prisma/client";
+import type {
+  Expense,
+  Location,
+  Product,
+  Account,
+  UserType,
+} from "@prisma/client";
+
+// ─── Prisma Payload Types ───────────────────────────────────────────────────
+// These types match exactly what the server endpoints return, including joined relations.
+
+export type SalePayload = Prisma.SaleGetPayload<{
+  include: { stock: true; customer: true; product: true };
+}>;
+
+export type DomSalePayload = Prisma.DomSaleGetPayload<{
+  include: { stock: true; product: true };
+}>;
+
+export type StockPayload = Prisma.StockGetPayload<{
+  include: { product: true };
+}>;
+
+export type CustomerPayload = Prisma.CustomerGetPayload<{
+  include: { location: true };
+}>;
+
+export type UserPayload = Omit<Prisma.AccountGetPayload<{
+  include: { usertype: true };
+}>, "password">;
 
 // ─── Axios Client Instance ──────────────────────────────────────────────────
 // Single axios instance used across the app.
@@ -13,15 +44,15 @@ export const apiClient = axios.create({
 
 export const api = {
   // ─── List (GET all) ─────────────────────────────────────
-  getSales: () => apiClient.get<unknown[]>("/api/sales").then((r) => r.data),
-  getDomSales: () => apiClient.get<unknown[]>("/api/dom-sales").then((r) => r.data),
-  getExpenses: () => apiClient.get<unknown[]>("/api/expenses").then((r) => r.data),
-  getCustomers: () => apiClient.get<unknown[]>("/api/customers").then((r) => r.data),
-  getStocks: () => apiClient.get<unknown[]>("/api/stock").then((r) => r.data),
-  getLocations: () => apiClient.get<unknown[]>("/api/locations").then((r) => r.data),
-  getProducts: () => apiClient.get<unknown[]>("/api/products").then((r) => r.data),
-  getUsers: () => apiClient.get<unknown[]>("/api/users").then((r) => r.data),
-  getUserTypes: () => apiClient.get<unknown[]>("/api/user-types").then((r) => r.data),
+  getSales: () => apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
+  getDomSales: () => apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
+  getExpenses: () => apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
+  getCustomers: () => apiClient.get<CustomerPayload[]>("/api/customers").then((r) => r.data),
+  getStocks: () => apiClient.get<StockPayload[]>("/api/stock").then((r) => r.data),
+  getLocations: () => apiClient.get<Location[]>("/api/locations").then((r) => r.data),
+  getProducts: () => apiClient.get<Product[]>("/api/products").then((r) => r.data),
+  getUsers: () => apiClient.get<UserPayload[]>("/api/users").then((r) => r.data),
+  getUserTypes: () => apiClient.get<UserType[]>("/api/user-types").then((r) => r.data),
 
   // ─── Detail (GET by id) ─────────────────────────────────
   getById: <T>(resource: string, id: string) =>

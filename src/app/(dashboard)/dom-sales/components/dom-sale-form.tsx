@@ -35,16 +35,7 @@ export const domSaleSchema = z.object({
 
 export type DomSaleFormValues = z.infer<typeof domSaleSchema>;
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface Stock {
-  id: number;
-  batchNo: string | null;
-  product: { name: string | null } | null;
-  name: string | null;
-  salePrice: string | null;
-  quantity: string | null;
-}
+import { StockPayload as Stock } from "@/lib/api-client";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -117,7 +108,7 @@ export function DomSaleForm({
                     <SelectContent>
                       {stocks.map((s) => (
                         <SelectItem key={s.id} value={String(s.id)}>
-                          {s.product?.name || s.name} — {s.batchNo}
+                          {s.product?.name || s.batchNo} — {s.batchNo}
                         </SelectItem>
                       ))}
                     </SelectContent>

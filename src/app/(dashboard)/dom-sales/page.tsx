@@ -22,19 +22,7 @@ import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
 import { PageWrapper } from "@/components/page-wrapper";
 
-interface DomSale {
-  id: number;
-  trNo: string | null;
-  quantity: string | null;
-  salePrice: string | null;
-  collectionAmount: string | null;
-  netTotal: string | null;
-  createdAt: string;
-  stock: { batchNo: string | null } | null;
-  batchNo: string | null;
-  product: { name: string | null } | null;
-  name: string | null;
-}
+import { DomSalePayload } from "@/lib/api-client";
 
 export default function DomSalesPage() {
   const router = useRouter();
@@ -44,7 +32,7 @@ export default function DomSalesPage() {
 
   const { data: domSales = [] } = useQuery({
     ...domSalesOptions,
-    select: (data) => data as DomSale[],
+    select: (data) => data as DomSalePayload[],
   });
 
   const deleteMutation = useDeleteMutation({
@@ -89,8 +77,8 @@ export default function DomSalesPage() {
               {domSales.map((s) => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.trNo}</TableCell>
-                  <TableCell>{s.product?.name || s.name}</TableCell>
-                  <TableCell>{s.stock?.batchNo || s.batchNo}</TableCell>
+                  <TableCell>{s.product?.name || "N/A"}</TableCell>
+                  <TableCell>{s.stock?.batchNo || "N/A"}</TableCell>
                   <TableCell>{s.quantity}</TableCell>
                   <TableCell>{s.salePrice ? `₹${s.salePrice}` : ""}</TableCell>
                   <TableCell>

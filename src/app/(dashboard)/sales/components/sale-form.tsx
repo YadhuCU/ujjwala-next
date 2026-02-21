@@ -24,8 +24,9 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { useStocks, useCustomers } from "@/hooks/use-api";
-import { customerTxnOptions } from "@/lib/query-options";
+import { useCustomers } from "@/hooks/use-api";
+import { customerTxnOptions, stocksOptions } from "@/lib/query-options";
+import { StockPayload, CustomerPayload } from "@/lib/api-client";
 import { useEffect } from "react";
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
@@ -44,20 +45,9 @@ export type SaleFormValues = z.infer<typeof saleSchema>;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export interface Stock {
-  id: number;
-  batchNo: string | null;
-  product: { name: string | null } | null;
-  salePrice: string | null;
-  productCost: string | null;
-  quantity: string | null;
-}
+export type Stock = StockPayload;
 
-interface Customer {
-  id: number;
-  name: string | null;
-  discount: string | null;
-}
+export type Customer = CustomerPayload;
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -83,7 +73,10 @@ export function SaleForm({
   onSubmit,
   isPending,
 }: SaleFormProps) {
-  const { data: stocks = [] } = useStocks() as { data: Stock[] };
+  const { data: stocks = [] } = useQuery({
+    ...stocksOptions, 
+    select: res => res.filter(x => x.quantity !== "0")
+  });
   const { data: customers = [] } = useCustomers() as { data: Customer[] };
 
   const form = useForm<SaleFormValues>({

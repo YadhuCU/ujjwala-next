@@ -24,22 +24,6 @@ import { useUsers, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
 import { PageWrapper } from "@/components/page-wrapper";
 
-interface UserType {
-  id: number;
-  name: string | null;
-  role: string | null;
-}
-interface User {
-  id: number;
-  username: string;
-  name: string | null;
-  email: string | null;
-  mobile: string | null;
-  isActive: boolean;
-  usertype: UserType | null;
-  usertypeId: number | null;
-}
-
 export default function UsersPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -47,8 +31,7 @@ export default function UsersPage() {
   const isAdmin = (session?.user as { role?: string })?.role === "admin";
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { data: rawUsers = [] } = useUsers();
-  const users = rawUsers as User[];
+  const { data: users = [] } = useUsers();
 
   const deleteMutation = useDeleteMutation({
     invalidateKeys: [queryKeys.users.all],
