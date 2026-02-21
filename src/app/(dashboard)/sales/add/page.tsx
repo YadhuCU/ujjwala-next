@@ -16,7 +16,7 @@ export default function SaleAddPage() {
   const createSale = useApiMutation({
     url: "/api/sales",
     method: "POST",
-    invalidateKeys: [queryKeys.sales.all, queryKeys.stocks.all],
+    invalidateKeys: [queryKeys.sales.all, queryKeys.stocks.all, queryKeys.customerTxn.all],
     onSuccess: () => {
       toast.success("Sale created successfully");
       router.push("/sales");

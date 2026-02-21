@@ -86,7 +86,7 @@ export function SaleForm({
       customerId: "",
       quantity: 0,
       discount: 0,
-      saleType: "sale",
+      saleType: "rent",
       collection: 0,
       emptyReturn: 0,
     },
@@ -246,21 +246,21 @@ export function SaleForm({
                         disabled={isEditMode}
                       >
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="sale" id="sale-type-sale" />
-                          <label
-                            htmlFor="sale-type-sale"
-                            className={`text-sm font-medium ${isEditMode ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}`}
-                          >
-                            Sale
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
                           <RadioGroupItem value="rent" id="sale-type-rent" />
                           <label
                             htmlFor="sale-type-rent"
                             className={`text-sm font-medium ${isEditMode ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}`}
                           >
                             Rent
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="sale" id="sale-type-sale" />
+                          <label
+                            htmlFor="sale-type-sale"
+                            className={`text-sm font-medium ${isEditMode ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}`}
+                          >
+                            Sale
                           </label>
                         </div>
                       </RadioGroup>
