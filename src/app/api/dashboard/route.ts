@@ -147,11 +147,11 @@ export async function GET(req: NextRequest) {
 
     // ─── Commercial Sales Analytics Configuration ───
     // Threshold in days to flag a customer who hasn't returned empty cylinders
-    const PENDING_CYLINDER_DAYS_THRESHOLD = 1;
+    const PENDING_CYLINDER_DAYS_THRESHOLD = 30;
     // Threshold in days to flag a customer who hasn't made any payment
-    const PENDING_PAYMENT_DAYS_THRESHOLD = 1;
+    const PENDING_PAYMENT_DAYS_THRESHOLD = 30;
     // Threshold amount (in ₹) to flag a customer with a high pending balance
-    const HIGH_BALANCE_AMOUNT_THRESHOLD = 100;
+    const HIGH_BALANCE_AMOUNT_THRESHOLD = 5000;
     // Maximum number of customers to return in each alert category
     const ALERT_CUSTOMER_LIMIT = 5;
 
@@ -167,11 +167,12 @@ export async function GET(req: NextRequest) {
         id: true,
         name: true,
         phone: true,
+        createdAt: true,
         initialCylinderBalance: true,
         initialPendingAmount: true,
         sales: {
           where: { isDeleted: false, saleType: "rent" },
-          select: { netTotal: true }
+          select: { netTotal: true, createdAt: true }
         },
         collections: {
           where: { isDeleted: false },
@@ -195,12 +196,23 @@ export async function GET(req: NextRequest) {
       const totalCollection = c.collections.reduce((sum, col) => sum + parseFloat(col.amount || "0"), 0);
       const pendingAmount = totalSale - totalCollection + Number(c.initialPendingAmount);
 
+      // Determine the reference date for pending cylinders
       const lastReturnTxn = c.rentTransactions.find(rt => rt.emptyIn > 0);
-      const lastReturnDate = lastReturnTxn ? lastReturnTxn.createdAt : null;
-      const daysSinceLastReturn = lastReturnDate ? (nowMs - lastReturnDate.getTime()) / (1000 * 3600 * 24) : Infinity;
+      const oldestRentTxn = c.rentTransactions[c.rentTransactions.length - 1]; // Ordered desc, so last is oldest
+      const referenceReturnDate = lastReturnTxn 
+        ? lastReturnTxn.createdAt 
+        : (oldestRentTxn ? oldestRentTxn.createdAt : c.createdAt);
+      const daysSinceLastReturn = (nowMs - referenceReturnDate.getTime()) / (1000 * 3600 * 24);
 
+      // Determine the reference date for pending payments
       const lastCollection = c.collections[0];
-      const daysSinceLastPayment = lastCollection ? (nowMs - lastCollection.createdAt.getTime()) / (1000 * 3600 * 24) : Infinity;
+      const oldestSale = c.sales.length > 0 
+        ? c.sales.reduce((oldest, s) => s.createdAt < oldest.createdAt ? s : oldest, c.sales[0])
+        : null;
+      const referencePaymentDate = lastCollection 
+        ? lastCollection.createdAt 
+        : (oldestSale ? oldestSale.createdAt : c.createdAt);
+      const daysSinceLastPayment = (nowMs - referencePaymentDate.getTime()) / (1000 * 3600 * 24);
 
       return {
         id: c.id,
