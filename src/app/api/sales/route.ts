@@ -43,6 +43,7 @@ export async function POST(request: Request) {
       const price = parseFloat(salePrice) * parseFloat(quantity);
       const discountAmount = (price * discount) / 100;
       const netTotal = (price - discountAmount).toFixed(2);
+      const saleType = data.saleType;
 
       const sale = await prisma.sale.create({
         data: {
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
           salePrice,
           netTotal,
           createdById: userId,
+          saleType,
         },
       });
 
@@ -104,7 +106,7 @@ export async function POST(request: Request) {
       }
 
       // Create collection if amount provided
-      if (customerId && data.collection && parseFloat(data.collection) > 0) {
+      if (customerId && data.collection && saleType === "rent" && parseFloat(data.collection) > 0) {
         const collTrNo = await generateTrNo("collection");
         await prisma.collection.create({
           data: {

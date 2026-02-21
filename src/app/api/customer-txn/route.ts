@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
     // Total sales
     const sales = await prisma.sale.findMany({
-      where: { customerId, isDeleted: false },
+      where: { customerId, isDeleted: false, saleType: "rent" },
     });
     const totalSale = sales.reduce((sum, s) => sum + parseFloat(s.netTotal || "0"), 0);
 

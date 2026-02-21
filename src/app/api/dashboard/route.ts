@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
         initialCylinderBalance: true,
         initialPendingAmount: true,
         sales: {
-          where: { isDeleted: false },
+          where: { isDeleted: false, saleType: "rent" },
           select: { netTotal: true }
         },
         collections: {
