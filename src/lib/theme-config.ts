@@ -16,7 +16,7 @@ export const themes: ThemeDefinition[] = [
     description: "Clean corporate with white sidebar",
     colors: {
       primary: "#004185",
-      sidebar: "#ffffff",
+      sidebar: "#f8fafc",
       accent: "#e31e24",
     },
   },

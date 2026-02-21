@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# Antigravity
+/public/stitch
+
 # production
 /build
 
