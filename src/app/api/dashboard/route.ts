@@ -145,6 +145,95 @@ export async function GET(req: NextRequest) {
       type: "Commercial" as const,
     }));
 
+    // ─── Commercial Sales Analytics Configuration ───
+    // Threshold in days to flag a customer who hasn't returned empty cylinders
+    const PENDING_CYLINDER_DAYS_THRESHOLD = 1;
+    // Threshold in days to flag a customer who hasn't made any payment
+    const PENDING_PAYMENT_DAYS_THRESHOLD = 1;
+    // Threshold amount (in ₹) to flag a customer with a high pending balance
+    const HIGH_BALANCE_AMOUNT_THRESHOLD = 100;
+    // Maximum number of customers to return in each alert category
+    const ALERT_CUSTOMER_LIMIT = 5;
+
+    // ─── Commercial Sales Analytics ───
+    const thiryDaysAgo = new Date();
+    thiryDaysAgo.setDate(thiryDaysAgo.getDate() - 30);
+    const nowMs = new Date().getTime();
+
+    // Fetch slim customer data to calculate balances
+    const allCustomers = await prisma.customer.findMany({
+      where: { isDeleted: false },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        initialCylinderBalance: true,
+        initialPendingAmount: true,
+        sales: {
+          where: { isDeleted: false },
+          select: { netTotal: true }
+        },
+        collections: {
+          where: { isDeleted: false },
+          select: { amount: true, createdAt: true },
+          orderBy: { createdAt: 'desc' }
+        },
+        rentProducts: {
+          where: { isDeleted: false },
+          select: { quantity: true }
+        },
+        rentTransactions: {
+          select: { emptyIn: true, createdAt: true },
+          orderBy: { createdAt: 'desc' }
+        }
+      }
+    });
+
+    const customerMetrics = allCustomers.map(c => {
+      const rentQty = c.rentProducts.reduce((sum, rp) => sum + parseInt(rp.quantity || "0"), 0) + c.initialCylinderBalance;
+      const totalSale = c.sales.reduce((sum, s) => sum + parseFloat(s.netTotal || "0"), 0);
+      const totalCollection = c.collections.reduce((sum, col) => sum + parseFloat(col.amount || "0"), 0);
+      const pendingAmount = totalSale - totalCollection + Number(c.initialPendingAmount);
+
+      const lastReturnTxn = c.rentTransactions.find(rt => rt.emptyIn > 0);
+      const lastReturnDate = lastReturnTxn ? lastReturnTxn.createdAt : null;
+      const daysSinceLastReturn = lastReturnDate ? (nowMs - lastReturnDate.getTime()) / (1000 * 3600 * 24) : Infinity;
+
+      const lastCollection = c.collections[0];
+      const daysSinceLastPayment = lastCollection ? (nowMs - lastCollection.createdAt.getTime()) / (1000 * 3600 * 24) : Infinity;
+
+      return {
+        id: c.id,
+        name: c.name || "Unknown",
+        phone: c.phone || "N/A",
+        rentQty,
+        pendingAmount: Math.round(pendingAmount),
+        daysSinceLastReturn: Math.round(daysSinceLastReturn),
+        daysSinceLastPayment: Math.round(daysSinceLastPayment),
+      };
+    });
+
+    const pendingCylindersLong = customerMetrics
+      .filter(c => c.rentQty > 0 && c.daysSinceLastReturn > PENDING_CYLINDER_DAYS_THRESHOLD)
+      .sort((a, b) => b.rentQty - a.rentQty)
+      .slice(0, ALERT_CUSTOMER_LIMIT);
+
+    const pendingPaymentLong = customerMetrics
+      .filter(c => c.pendingAmount > 0 && c.daysSinceLastPayment > PENDING_PAYMENT_DAYS_THRESHOLD)
+      .sort((a, b) => b.pendingAmount - a.pendingAmount)
+      .slice(0, ALERT_CUSTOMER_LIMIT);
+
+    const highBalanceCustomers = customerMetrics
+      .filter(c => c.pendingAmount > HIGH_BALANCE_AMOUNT_THRESHOLD)
+      .sort((a, b) => b.pendingAmount - a.pendingAmount)
+      .slice(0, ALERT_CUSTOMER_LIMIT);
+
+    const commercialAnalytics = {
+      pendingCylindersLong,
+      pendingPaymentLong,
+      highBalanceCustomers
+    };
+
     return NextResponse.json({
       role,
       kpis: {
@@ -162,6 +251,7 @@ export async function GET(req: NextRequest) {
       productBreakdown,
       lowStock,
       recentTxns,
+      commercialAnalytics,
     });
   });
 }
