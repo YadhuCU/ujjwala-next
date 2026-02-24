@@ -16,7 +16,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             username: credentials.username as string,
             isDeleted: false,
           },
-          include: { usertype: true },
         });
 
         if (!user || !user.isActive) return null;
@@ -33,7 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           image: null,
-          role: user.isSuperuser ? "admin" : "staff",
+          role: user.role,
         };
       },
     }),

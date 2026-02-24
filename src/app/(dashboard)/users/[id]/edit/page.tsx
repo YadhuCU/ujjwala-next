@@ -9,6 +9,7 @@ import { queryKeys } from "@/lib/query-keys";
 import { UserForm } from "../../components/user-form";
 import type { UserFormValues } from "../../components/user-form";
 import { PageWrapper } from "@/components/page-wrapper";
+import type { UserRole } from "@/lib/constants";
 
 interface UserDetail {
   id: number;
@@ -16,7 +17,7 @@ interface UserDetail {
   name: string;
   email: string;
   mobile: string;
-  usertypeId: number | null;
+  role: UserRole;
 }
 
 export default function EditUserPage() {
@@ -50,7 +51,7 @@ export default function EditUserPage() {
     password: "",
     email: user.email || "",
     mobile: user.mobile || "",
-    usertypeId: user.usertypeId ? String(user.usertypeId) : "",
+    role: user.role || "Sales",
   };
 
   return (

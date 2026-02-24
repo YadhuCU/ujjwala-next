@@ -8,12 +8,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     const user = await prisma.account.findUnique({
       where: { id: parseInt(id) },
-      include: { usertype: true },
     });
     if (!user) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    const { password: _, ...safeUser } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = user;
     return NextResponse.json(safeUser);
   });
 }
@@ -28,7 +28,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         name: data.name,
         email: data.email,
         mobile: data.mobile,
-        usertypeId: data.usertypeId ? parseInt(data.usertypeId) : null,
+        role: data.role,
       };
 
       if (data.password) {
@@ -40,13 +40,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         data: updateData,
       });
 
-      const { password: _, ...safeUser } = user;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...safeUser } = user;
       return NextResponse.json(safeUser);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Failed to update";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -54,7 +55,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { id } = await params;
     await prisma.account.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
     return NextResponse.json({ success: true });
-  }, "admin");
+  }, "Owner");
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -70,5 +71,5 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     return NextResponse.json({ success: true });
-  }, "admin");
+  }, "Owner");
 }

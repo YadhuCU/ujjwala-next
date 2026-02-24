@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       createdAt: { gte: fromDate, lte: toDate },
     };
 
-    if (role === "staff") {
+    if (role !== "Owner") {
       where.createdById = userId;
     } else if (staffId && staffId !== "all") {
       where.createdById = parseInt(staffId);
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       Prisma.sql`created_at <= ${toDate}`,
     ];
 
-    if (role === "staff") {
+    if (role !== "Owner") {
       conditions.push(Prisma.sql`created_by_id = ${userId}`);
     } else if (staffId && staffId !== "all") {
       conditions.push(Prisma.sql`created_by_id = ${parseInt(staffId)}`);

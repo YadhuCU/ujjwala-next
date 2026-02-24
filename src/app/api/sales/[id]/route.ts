@@ -333,7 +333,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const message = error instanceof Error ? error.message : "Failed to update sale";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }
 
 // ─── DELETE (soft delete) ────────────────────────────────────────────────────
@@ -343,5 +343,5 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { id } = await params;
     await prisma.sale.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
     return NextResponse.json({ success: true });
-  }, "admin");
+  }, "Owner");
 }

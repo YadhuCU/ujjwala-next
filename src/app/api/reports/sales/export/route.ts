@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       createdAt: { gte: fromDate, lte: toDate },
     };
 
-    if (role === "staff") {
+    if (role !== "Owner") {
       where.createdById = userId;
     } else if (staffId && staffId !== "all") {
       where.createdById = parseInt(staffId);

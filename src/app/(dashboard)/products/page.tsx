@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/use-permissions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,8 +30,7 @@ interface Product {
 
 export default function ProductsPage() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const isAdmin = (session?.user as { role?: string })?.role === "admin";
+  const { isAdmin } = usePermissions();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data: products = [] } = useProducts() as { data: Product[] };

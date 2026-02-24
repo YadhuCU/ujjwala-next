@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { USER_ROLES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,8 +22,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useUserTypes } from "@/hooks/use-api";
-
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
 export const userSchema = z.object({
@@ -31,18 +30,10 @@ export const userSchema = z.object({
   password: z.string().optional().or(z.literal("")),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   mobile: z.string().optional().or(z.literal("")),
-  usertypeId: z.string().optional().or(z.literal("")),
+  role: z.enum(USER_ROLES),
 });
 
 export type UserFormValues = z.infer<typeof userSchema>;
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface UserType {
-  id: number;
-  name: string | null;
-  role: string | null;
-}
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -61,9 +52,6 @@ export function UserForm({
   onSubmit,
   isPending,
 }: UserFormProps) {
-  const { data: rawUserTypes = [] } = useUserTypes();
-  const userTypes = rawUserTypes as UserType[];
-
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: defaultValues ?? {
@@ -72,7 +60,7 @@ export function UserForm({
       password: "",
       email: "",
       mobile: "",
-      usertypeId: "",
+      role: "Sales",
     },
   });
 
@@ -155,21 +143,19 @@ export function UserForm({
             />
             <FormField
               control={form.control}
-              name="usertypeId"
+              name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User Type</FormLabel>
+                  <FormLabel>Role</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select type" />
+                        <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {userTypes.map((t) => (
-                        <SelectItem key={t.id} value={String(t.id)}>
-                          {t.name}
-                        </SelectItem>
+                      {USER_ROLES.map((role) => (
+                        <SelectItem key={role} value={role}>{role}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

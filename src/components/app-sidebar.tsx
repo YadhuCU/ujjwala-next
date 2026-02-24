@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/use-permissions";
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +25,6 @@ import {
 import {
   LayoutDashboard,
   Users,
-  Shield,
   MapPin,
   BookOpen,
   Package,
@@ -41,7 +40,6 @@ import {
 const mainNavItems = [
   { title: "Dashboard", href: "/", icon: LayoutDashboard, adminOnly: false },
   { title: "Users", href: "/users", icon: Users, adminOnly: true },
-  { title: "User Types", href: "/user-types", icon: Shield, adminOnly: true },
   { title: "Locations", href: "/locations", icon: MapPin, adminOnly: false },
   { title: "Customers", href: "/customers", icon: BookOpen, adminOnly: false },
   { title: "Products", href: "/products", icon: Package, adminOnly: false },
@@ -57,11 +55,10 @@ const reportItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const role = (session?.user as { role?: string })?.role || "staff";
+  const { isAdmin } = usePermissions();
 
   const filteredNavItems = mainNavItems.filter(
-    (item) => !item.adminOnly || role === "admin"
+    (item) => !item.adminOnly || isAdmin
   );
 
   return (

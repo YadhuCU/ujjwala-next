@@ -15,26 +15,11 @@ async function main() {
       name: "Admin",
       isActive: true,
       isSuperuser: true,
+      role: "Owner",
     },
   });
 
   console.log("✅ Admin user created:", admin.username);
-
-  const staffPassword = await bcrypt.hash("staff", 10);
-
-  const staff = await prisma.account.upsert({
-    where: { username: "staff" },
-    update: {},
-    create: {
-      username: "staff",
-      password: staffPassword,
-      name: "Staff User",
-      isActive: true,
-      isSuperuser: false,
-    },
-  });
-
-  console.log("✅ Staff user created:", staff.username);
 }
 
 main()

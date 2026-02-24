@@ -37,7 +37,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const message = error instanceof Error ? error.message : "Failed to update";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -45,5 +45,5 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { id } = await params;
     await prisma.stock.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
     return NextResponse.json({ success: true });
-  }, "admin");
+  }, "Owner");
 }

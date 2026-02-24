@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Staff-scoped filtering
-    const isStaff = role === "staff";
+    const isStaff = role !== "Owner";
     const ownerFilter = isStaff ? { createdById: userId } : {};
 
     // ─── Range data ───

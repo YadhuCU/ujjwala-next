@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import { UserRole } from "./constants";
 
 export const authConfig = {
   pages: {
@@ -19,14 +20,14 @@ export const authConfig = {
 
       if (!isLoggedIn) return false;
 
-      // Admin only pages
-      const ADMIN_ONLY_PAGES = ["/users", "/user-types"];
+      // Owner only pages
+      const ADMIN_ONLY_PAGES = ["/users"];
       const role = (auth?.user as { role?: string })?.role;
       const isGoingToAdminPage = ADMIN_ONLY_PAGES.some(
         (p) => nextUrl.pathname === p || nextUrl.pathname.startsWith(p + "/")
       );
 
-      if (isGoingToAdminPage && role !== "admin") {
+      if (isGoingToAdminPage && role !== "Owner") {
         return Response.redirect(new URL("/", nextUrl));
       }
 
@@ -35,14 +36,14 @@ export const authConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id as string;
-        token.role = (user as { role: string }).role as "admin" | "staff";
+        token.role = (user as { role: string }).role as UserRole;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as "admin" | "staff";
+        session.user.role = token.role as UserRole;
       }
       return session;
     },

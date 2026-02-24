@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/use-permissions";
 import { format } from "date-fns";
 import { CalendarIcon, Download, Search, FileSpreadsheet, FileText, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -91,8 +91,7 @@ export default function SaleReportPage() {
   const [searchTriggered, setSearchTriggered] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  const { data: session } = useSession();
-  const isAdmin = (session?.user as { role?: string })?.role === "admin";
+  const { isAdmin } = usePermissions();
 
   const { data: customers = [] } = useCustomers() as { data: Customer[] };
   const { data: allUsers = [] } = useUsers() as { data: StaffUser[] };

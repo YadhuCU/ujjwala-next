@@ -5,7 +5,7 @@ import { withAuth } from "@/lib/api-auth";
 export async function GET() {
   return withAuth(async ({ userId, role }) => {
     const where: Record<string, unknown> = { isDeleted: false };
-    if (role === "staff") where.createdById = userId;
+    if (role !== "Owner") where.createdById = userId;
 
     const expenses = await prisma.expense.findMany({
       where,

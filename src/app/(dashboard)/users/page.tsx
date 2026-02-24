@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/use-permissions";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
@@ -27,8 +27,7 @@ import { PageWrapper } from "@/components/page-wrapper";
 export default function UsersPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
-  const isAdmin = (session?.user as { role?: string })?.role === "admin";
+  const { isAdmin } = usePermissions();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data: users = [] } = useUsers();
@@ -71,7 +70,7 @@ export default function UsersPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Mobile</TableHead>
-                <TableHead>Type</TableHead>
+                <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 {isAdmin && (
                   <TableHead className="text-right">Actions</TableHead>
@@ -85,7 +84,7 @@ export default function UsersPage() {
                   <TableCell>{u.name}</TableCell>
                   <TableCell>{u.email}</TableCell>
                   <TableCell>{u.mobile}</TableCell>
-                  <TableCell>{u.usertype?.name}</TableCell>
+                  <TableCell>{u.role}</TableCell>
                   <TableCell>
                     <Badge
                       variant={u.isActive ? "default" : "secondary"}

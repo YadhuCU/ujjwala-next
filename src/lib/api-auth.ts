@@ -1,19 +1,20 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { UserRole } from "./constants";
 
 type AuthResult = {
   userId: number;
-  role: "admin" | "staff";
+  role: UserRole;
 };
 
 /**
  * Require authentication for an API route.
  * Returns { userId, role } or throws a NextResponse error.
  *
- * @param requiredRole - If "admin", staff users will get 403
+ * @param requiredRole - If "Owner", Office and Sales users will get 403
  */
 export async function requireAuth(
-  requiredRole?: "admin"
+  requiredRole?: AuthResult["role"]
 ): Promise<AuthResult> {
   const session = await auth();
 
@@ -21,9 +22,9 @@ export async function requireAuth(
     throw NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const role = (session.user as { role?: string }).role === "admin" ? "admin" : "staff";
+  const role = (session.user as { role?: AuthResult["role"] }).role || "Sales";
 
-  if (requiredRole === "admin" && role !== "admin") {
+  if (requiredRole === "Owner" && role !== "Owner") {
     throw NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -36,7 +37,7 @@ export async function requireAuth(
  */
 export async function withAuth(
   handler: (authResult: AuthResult) => Promise<NextResponse>,
-  requiredRole?: "admin"
+  requiredRole?: AuthResult["role"]
 ): Promise<NextResponse> {
   try {
     const authResult = await requireAuth(requiredRole);

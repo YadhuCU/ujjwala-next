@@ -7,36 +7,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model UserType {
-  id        Int       @id @default(autoincrement())
-  name      String?   @db.VarChar(30)
-  role      String?   @db.VarChar(30)
-  isDeleted Boolean   @default(false) @map("is_deleted")
-  accounts  Account[]
+enum PaymentType {
+  cash
+  cheque
+}
 
-  @@map("user_types")
+enum ProductType {
+  ARB
+  Domestic
+  Commercial
+  Other
+}
+
+enum UserRole {
+  Owner
+  Office
+  Sales
 }
 
 model Account {
-  id          Int       @id @default(autoincrement())
-  uuid        String    @default(uuid())
-  username    String    @unique @db.VarChar(40)
-  name        String?   @db.VarChar(200)
+  id          Int      @id @default(autoincrement())
+  uuid        String   @default(uuid())
+  username    String   @unique @db.VarChar(40)
+  name        String?  @db.VarChar(200)
   password    String
-  isActive    Boolean   @default(true) @map("is_active")
-  isLogin     Boolean   @default(false) @map("is_login")
-  firstLogin  Boolean   @default(false) @map("first_login")
-  isSuperuser Boolean   @default(false) @map("is_superuser")
-  email       String?   @db.VarChar(50)
-  mobile      String?   @db.VarChar(20)
-  usertypeId  Int?      @map("usertype_id")
-  usertype    UserType? @relation(fields: [usertypeId], references: [id])
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  isDeleted   Boolean   @default(false) @map("is_deleted")
+  isActive    Boolean  @default(true) @map("is_active")
+  isLogin     Boolean  @default(false) @map("is_login")
+  firstLogin  Boolean  @default(false) @map("first_login")
+  isSuperuser Boolean  @default(false) @map("is_superuser")
+  email       String?  @db.VarChar(50)
+  mobile      String?  @db.VarChar(20)
+  role        UserRole @default(Sales)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
 
   salesCreated       Sale[]       @relation("SalesCreated")
   domSalesCreated    DomSale[]    @relation("DomSalesCreated")
+  arbSalesCreated    ArbSale[]    @relation("ArbSalesCreated")
   collectionsCreated Collection[] @relation("CollectionsCreated")
   expensesCreated    Expense[]    @relation("ExpensesCreated")
 
@@ -57,56 +65,58 @@ model Location {
 }
 
 model Customer {
-  id                    Int                @id @default(autoincrement())
-  name                  String?            @unique @db.VarChar(50)
-  address               String?
-  phone                 String?            @db.VarChar(10)
-  locationId            Int?               @map("location_id")
-  location              Location?          @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  concernedPerson       String?            @map("concerned_person") @db.VarChar(30)
-  concernedPersonMobile String?            @map("concerned_person_mobile") @db.VarChar(30)
-  discount              String?            @db.VarChar(30)
-  gstNumber             String?            @map("gst_number") @db.VarChar(15)
+  id                     Int               @id @default(autoincrement())
+  name                   String?           @unique @db.VarChar(50)
+  address                String?
+  phone                  String?           @db.VarChar(10)
+  locationId             Int?              @map("location_id")
+  location               Location?         @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  concernedPerson        String?           @map("concerned_person") @db.VarChar(30)
+  concernedPersonMobile  String?           @map("concerned_person_mobile") @db.VarChar(30)
+  discount               String?           @db.VarChar(30)
+  gstNumber              String?           @map("gst_number") @db.VarChar(15)
   initialCylinderBalance Int               @default(0) @map("initial_cylinder_balance")
-  initialPendingAmount  Decimal            @default(0.00) @map("initial_pending_amount") @db.Decimal(10, 2)
-  isDeleted             Boolean            @default(false) @map("is_deleted")
-  createdAt             DateTime           @default(now()) @map("created_at")
-  sales                 Sale[]
-  collections           Collection[]
-  rentProducts          RentProduct[]
-  rentTransactions      RentTransaction[]
+  initialPendingAmount   Decimal           @default(0.00) @map("initial_pending_amount") @db.Decimal(10, 2)
+  isDeleted              Boolean           @default(false) @map("is_deleted")
+  createdAt              DateTime          @default(now()) @map("created_at")
+  sales                  Sale[]
+  collections            Collection[]
+  rentProducts           RentProduct[]
+  rentTransactions       RentTransaction[]
 
   @@map("customers")
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
-  name      String?  @unique @db.VarChar(50)
-  type      String?  @db.VarChar(50)
-  weight    String?  @db.VarChar(50)
-  price     String?  @db.VarChar(50)
-  isDeleted Boolean  @default(false) @map("is_deleted")
-  createdAt DateTime @default(now()) @map("created_at")
+  id        Int          @id @default(autoincrement())
+  name      String?      @unique @db.VarChar(50)
+  type      ProductType?
+  weight    String?      @db.VarChar(50)
+  price     String?      @db.VarChar(50)
+  isDeleted Boolean      @default(false) @map("is_deleted")
+  createdAt DateTime     @default(now()) @map("created_at")
   stocks    Stock[]
   sales     Sale[]
   domSales  DomSale[]
+  arbSales  ArbSale[]
 
   @@map("products")
 }
 
 model Stock {
-  id               Int                @id @default(autoincrement())
-  batchNo          String?            @unique @map("batch_no") @db.VarChar(50)
-  productId        Int?               @map("product_id")
-  product          Product?           @relation(fields: [productId], references: [id], onDelete: Cascade)
-  invoiceNo        String?            @map("invoice_no") @db.VarChar(50)
-  quantity         String?            @db.VarChar(50)
-  productCost      String?            @map("product_cost") @db.VarChar(30)
-  salePrice        String?            @map("sale_price") @db.VarChar(30)
-  isDeleted        Boolean            @default(false) @map("is_deleted")
-  createdAt        DateTime           @default(now()) @map("created_at")
+  id               Int               @id @default(autoincrement())
+  batchNo          String?           @unique @map("batch_no") @db.VarChar(50)
+  productId        Int?              @map("product_id")
+  product          Product?          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  invoiceNo        String?           @map("invoice_no") @db.VarChar(50)
+  quantity         String?           @db.VarChar(50)
+  productCost      String?           @map("product_cost") @db.VarChar(30)
+  salePrice        String?           @map("sale_price") @db.VarChar(30)
+  isDeleted        Boolean           @default(false) @map("is_deleted")
+  createdAt        DateTime          @default(now()) @map("created_at")
   sales            Sale[]
   domSales         DomSale[]
+  arbSales         ArbSale[]
   rentProducts     RentProduct[]
   rentTransactions RentTransaction[]
 
@@ -117,27 +127,29 @@ enum SaleType {
   sale
   rent
 }
+
 model Sale {
-  id               Int                @id @default(autoincrement())
-  trNo             String?            @map("tr_no") @db.VarChar(30)
-  stockId          Int?               @map("stock_id")
-  stock            Stock?             @relation(fields: [stockId], references: [id], onDelete: Cascade)
-  customerId       Int?               @map("customer_id")
-  customer         Customer?          @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  isOffer          Boolean            @default(false) @map("is_offer")
+  id               Int               @id @default(autoincrement())
+  trNo             String?           @map("tr_no") @db.VarChar(30)
+  stockId          Int?              @map("stock_id")
+  stock            Stock?            @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  customerId       Int?              @map("customer_id")
+  customer         Customer?         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  isOffer          Boolean           @default(false) @map("is_offer")
   discount         Int?
-  productId        Int?               @map("product_id")
-  product          Product?           @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity         String?            @db.VarChar(30)
-  productCost      String?            @map("product_cost") @db.VarChar(30)
-  salePrice        String?            @map("sale_price") @db.VarChar(30)
-  netTotal         String?            @map("net_total") @db.VarChar(30)
-  createdById      Int?               @map("created_by_id")
-  createdBy        Account?           @relation("SalesCreated", fields: [createdById], references: [id])
-  isDeleted        Boolean            @default(false) @map("is_deleted")
-  createdAt        DateTime           @default(now()) @map("created_at")
+  productId        Int?              @map("product_id")
+  product          Product?          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity         String?           @db.VarChar(30)
+  productCost      String?           @map("product_cost") @db.VarChar(30)
+  salePrice        String?           @map("sale_price") @db.VarChar(30)
+  netTotal         String?           @map("net_total") @db.VarChar(30)
+  createdById      Int?              @map("created_by_id")
+  createdBy        Account?          @relation("SalesCreated", fields: [createdById], references: [id])
+  isDeleted        Boolean           @default(false) @map("is_deleted")
+  createdAt        DateTime          @default(now()) @map("created_at")
   rentTransactions RentTransaction[]
-  saleType         SaleType           @default(rent) @map("sale_type")
+  saleType         SaleType          @default(rent) @map("sale_type")
+  paymentType      PaymentType       @default(cash) @map("payment_type")
 
   @@map("sales")
 }
@@ -214,4 +226,22 @@ model RentTransaction {
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@map("rent_transactions")
+}
+
+model ArbSale {
+  id          Int      @id @default(autoincrement())
+  trNo        String?  @map("tr_no") @db.VarChar(30)
+  stockId     Int?     @map("stock_id")
+  stock       Stock?   @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  productId   Int?     @map("product_id")
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity    String?  @db.VarChar(30)
+  salePrice   String?  @map("sale_price") @db.VarChar(30)
+  netTotal    String?  @map("net_total") @db.VarChar(30)
+  createdById Int?     @map("created_by_id")
+  createdBy   Account? @relation("ArbSalesCreated", fields: [createdById], references: [id])
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("arb_sales")
 }

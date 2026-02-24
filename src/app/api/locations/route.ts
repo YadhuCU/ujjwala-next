@@ -29,5 +29,5 @@ export async function POST(request: Request) {
       const message = error instanceof Error ? error.message : "Failed to create location";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }
