@@ -1,13 +1,12 @@
 -- Safe in-place type conversion: String → Int/Decimal
 -- Uses ALTER COLUMN TYPE ... USING to PRESERVE existing data.
--- PostgreSQL will cast "100" → 100, "99.50" → 99.50 automatically.
--- NULL or empty strings are handled by NULLIF to avoid cast errors.
+-- Integer columns cast through NUMERIC first to handle decimal strings like "1.5"
 
 -- ═══════════════════════════════════════════════════════════════════
 -- arb_sales
 -- ═══════════════════════════════════════════════════════════════════
 ALTER TABLE "arb_sales"
-  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(NULLIF("quantity", '')::INTEGER, 0),
+  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(ROUND(NULLIF("quantity", '')::NUMERIC)::INTEGER, 0),
   ALTER COLUMN "quantity" SET DEFAULT 0,
   ALTER COLUMN "quantity" SET NOT NULL;
 
@@ -27,13 +26,13 @@ ALTER TABLE "collections"
 -- customers
 -- ═══════════════════════════════════════════════════════════════════
 ALTER TABLE "customers"
-  ALTER COLUMN "discount" TYPE INTEGER USING NULLIF("discount", '')::INTEGER;
+  ALTER COLUMN "discount" TYPE INTEGER USING COALESCE(ROUND(NULLIF("discount", '')::NUMERIC)::INTEGER, 0);
 
 -- ═══════════════════════════════════════════════════════════════════
 -- dom_sales
 -- ═══════════════════════════════════════════════════════════════════
 ALTER TABLE "dom_sales"
-  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(NULLIF("quantity", '')::INTEGER, 0),
+  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(ROUND(NULLIF("quantity", '')::NUMERIC)::INTEGER, 0),
   ALTER COLUMN "quantity" SET DEFAULT 0,
   ALTER COLUMN "quantity" SET NOT NULL;
 
@@ -62,7 +61,7 @@ ALTER TABLE "products"
 -- rent_products
 -- ═══════════════════════════════════════════════════════════════════
 ALTER TABLE "rent_products"
-  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(NULLIF("quantity", '')::INTEGER, 0),
+  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(ROUND(NULLIF("quantity", '')::NUMERIC)::INTEGER, 0),
   ALTER COLUMN "quantity" SET DEFAULT 0,
   ALTER COLUMN "quantity" SET NOT NULL;
 
@@ -70,7 +69,7 @@ ALTER TABLE "rent_products"
 -- sales
 -- ═══════════════════════════════════════════════════════════════════
 ALTER TABLE "sales"
-  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(NULLIF("quantity", '')::INTEGER, 0),
+  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(ROUND(NULLIF("quantity", '')::NUMERIC)::INTEGER, 0),
   ALTER COLUMN "quantity" SET DEFAULT 0,
   ALTER COLUMN "quantity" SET NOT NULL;
 
@@ -87,7 +86,7 @@ ALTER TABLE "sales"
 -- stocks
 -- ═══════════════════════════════════════════════════════════════════
 ALTER TABLE "stocks"
-  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(NULLIF("quantity", '')::INTEGER, 0),
+  ALTER COLUMN "quantity" TYPE INTEGER USING COALESCE(ROUND(NULLIF("quantity", '')::NUMERIC)::INTEGER, 0),
   ALTER COLUMN "quantity" SET DEFAULT 0,
   ALTER COLUMN "quantity" SET NOT NULL;
 
