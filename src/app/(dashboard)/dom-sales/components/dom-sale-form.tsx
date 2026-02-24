@@ -29,7 +29,7 @@ import { useStocks } from "@/hooks/use-api";
 export const domSaleSchema = z.object({
   stockId: z.string().min(1, "Stock is required"),
   quantity: z.number().min(1, "Quantity must be at least 1"),
-  salePrice: z.string().optional().or(z.literal("")),
+  salePrice: z.number().min(0).optional(),
   collectionAmount: z.number().min(0),
 });
 
@@ -63,7 +63,7 @@ export function DomSaleForm({
     defaultValues: defaultValues ?? {
       stockId: "",
       quantity: 1,
-      salePrice: "",
+      salePrice: 0,
       collectionAmount: 0,
     },
   });
@@ -74,8 +74,8 @@ export function DomSaleForm({
     if (selectedStockId) {
       const selected = stocks.find((s) => String(s.id) === selectedStockId);
       if (selected) {
-        form.setValue("salePrice", selected.salePrice || "");
-        setAvailableQty(selected.quantity ? parseInt(selected.quantity) : null);
+        form.setValue("salePrice", Number(selected.salePrice) || 0);
+        setAvailableQty(selected.quantity ?? null);
       }
     } else {
       setAvailableQty(null);
@@ -148,7 +148,14 @@ export function DomSaleForm({
                 <FormItem>
                   <FormLabel>Sale Price</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -23,10 +23,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         where: { id: parseInt(id) },
         data: {
           stockId: data.stockId ? parseInt(data.stockId) : undefined,
-          quantity: data.quantity != null ? String(data.quantity) : undefined,
-          salePrice: data.salePrice != null ? String(data.salePrice) : undefined,
-          collectionAmount: data.collectionAmount != null ? String(data.collectionAmount) : undefined,
-          netTotal: data.netTotal != null ? String(data.netTotal) : undefined,
+          quantity: data.quantity != null ? Number(data.quantity) : undefined,
+          salePrice: data.salePrice != null ? Number(data.salePrice) : undefined,
+          collectionAmount: data.collectionAmount != null ? Number(data.collectionAmount) : undefined,
+          netTotal: data.netTotal != null ? Number(data.netTotal) : undefined,
         },
       });
       return NextResponse.json(domSale);
@@ -34,7 +34,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const message = error instanceof Error ? error.message : "Failed to update";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -42,5 +42,5 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { id } = await params;
     await prisma.domSale.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
     return NextResponse.json({ success: true });
-  }, "admin");
+  }, "Owner");
 }

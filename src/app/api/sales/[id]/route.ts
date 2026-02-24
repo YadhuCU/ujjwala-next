@@ -43,7 +43,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       ...sale,
       saleType: isRent ? "rent" : "sale",
       emptyReturn: rentTx?.emptyIn ?? 0,
-      collectionAmount: collection ? parseFloat(collection.amount || "0") : 0,
+      collectionAmount: collection ? Number(collection.amount) || 0 : 0,
       collectionId: collection?.id ?? null,
     });
   });
@@ -69,7 +69,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
       const oldStockId = oldSale.stockId;
       const oldCustomerId = oldSale.customerId;
-      const oldQty = parseInt(oldSale.quantity || "0");
+      const oldQty = oldSale.quantity;
       const isRent = oldSale.rentTransactions.length > 0;
       const oldRentTx = isRent ? oldSale.rentTransactions[0] : null;
       const oldEmptyReturn = oldRentTx?.emptyIn ?? 0;
@@ -77,28 +77,28 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       // ── 2. Resolve new values ──────────────────────────────────────────────
       const newStockId = data.stockId ? parseInt(data.stockId) : null;
       const newCustomerId = data.customerId ? parseInt(data.customerId) : null;
-      const newQty = parseInt(data.quantity || "0");
-      const newEmptyReturn = parseInt(data.emptyReturn || "0");
-      const newDiscount = data.discount ? parseInt(data.discount) : 0;
+      const newQty = Number(data.quantity) || 0;
+      const newEmptyReturn = Number(data.emptyReturn) || 0;
+      const newDiscount = data.discount ?? 0;
 
       // Fetch stock for prices
       let productId = oldSale.productId;
-      let productCost = oldSale.productCost || "0";
-      let salePrice = oldSale.salePrice || "0";
+      let productCost: number = Number(oldSale.productCost) || 0;
+      let salePrice: number = Number(oldSale.salePrice) || 0;
 
       if (newStockId) {
         const stock = await prisma.stock.findUnique({ where: { id: newStockId } });
         if (stock) {
           productId = stock.productId;
-          productCost = stock.productCost || productCost;
-          salePrice = stock.salePrice || salePrice;
+          productCost = Number(stock.productCost) || productCost;
+          salePrice = Number(stock.salePrice) || salePrice;
         }
       }
 
       // ── 3. Recalculate net total ──────────────────────────────────────────
-      const price = parseFloat(salePrice) * newQty;
+      const price = salePrice * newQty;
       const discountAmount = (price * newDiscount) / 100;
-      const netTotal = (price - discountAmount).toFixed(2);
+      const netTotal = Number((price - discountAmount).toFixed(2));
 
       // ── 4. Stock delta adjustment ─────────────────────────────────────────
       const stockChanged = oldStockId !== newStockId;
@@ -108,10 +108,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         if (oldStockId) {
           const oldStock = await prisma.stock.findUnique({ where: { id: oldStockId } });
           if (oldStock) {
-            const restoredQty = parseInt(oldStock.quantity || "0") + oldQty;
+            const restoredQty = oldStock.quantity + oldQty;
             await prisma.stock.update({
               where: { id: oldStockId },
-              data: { quantity: String(restoredQty) },
+              data: { quantity: restoredQty },
             });
           }
         }
@@ -119,7 +119,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         if (newStockId) {
           const newStock = await prisma.stock.findUnique({ where: { id: newStockId } });
           if (newStock) {
-            const availableQty = parseInt(newStock.quantity || "0");
+            const availableQty = newStock.quantity;
             if (newQty > availableQty) {
               return NextResponse.json(
                 { error: `Insufficient stock. Available: ${availableQty}` },
@@ -128,7 +128,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             }
             await prisma.stock.update({
               where: { id: newStockId },
-              data: { quantity: String(availableQty - newQty) },
+              data: { quantity: availableQty - newQty },
             });
           }
         }
@@ -136,7 +136,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         // Same stock, quantity changed — apply delta
         const stock = await prisma.stock.findUnique({ where: { id: oldStockId } });
         if (stock) {
-          const currentStockQty = parseInt(stock.quantity || "0");
+          const currentStockQty = stock.quantity;
           const delta = oldQty - newQty; // positive = qty decreased → stock increases
           const newStockQty = currentStockQty + delta;
           if (newStockQty < 0) {
@@ -147,7 +147,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           }
           await prisma.stock.update({
             where: { id: oldStockId },
-            data: { quantity: String(newStockQty) },
+            data: { quantity: newStockQty },
           });
         }
       }
@@ -163,11 +163,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
               where: { customerId: oldCustomerId, stockId: oldStockId, isDeleted: false },
             });
             if (oldRentProduct) {
-              const oldRentQty = parseInt(oldRentProduct.quantity || "0");
+              const oldRentQty = oldRentProduct.quantity;
               const reversedQty = oldRentQty - oldQty + oldEmptyReturn;
               await prisma.rentProduct.update({
                 where: { id: oldRentProduct.id },
-                data: { quantity: String(Math.max(0, reversedQty)) },
+                data: { quantity: Math.max(0, reversedQty) },
               });
             }
           }
@@ -180,17 +180,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             });
             const newRentQty = newQty - newEmptyReturn;
             if (newRentProduct) {
-              const existingQty = parseInt(newRentProduct.quantity || "0");
+              const existingQty = newRentProduct.quantity;
               await prisma.rentProduct.update({
                 where: { id: newRentProduct.id },
-                data: { quantity: String(existingQty + newRentQty) },
+                data: { quantity: existingQty + newRentQty },
               });
             } else {
               await prisma.rentProduct.create({
                 data: {
                   customerId: newCustomerId,
                   stockId: effectiveStockId,
-                  quantity: String(newRentQty),
+                  quantity: newRentQty,
                 },
               });
             }
@@ -220,11 +220,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
                 where: { customerId: oldCustomerId, stockId: oldStockId, isDeleted: false },
               });
               if (oldRP) {
-                const oldRPQty = parseInt(oldRP.quantity || "0");
+                const oldRPQty = oldRP.quantity;
                 const reversedQty = oldRPQty - oldQty + oldEmptyReturn;
                 await prisma.rentProduct.update({
                   where: { id: oldRP.id },
-                  data: { quantity: String(Math.max(0, reversedQty)) },
+                  data: { quantity: Math.max(0, reversedQty) },
                 });
               }
               // Apply to new stock's RentProduct
@@ -233,17 +233,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
               });
               const newRentQty = newQty - newEmptyReturn;
               if (newRP) {
-                const existingQty = parseInt(newRP.quantity || "0");
+                const existingQty = newRP.quantity;
                 await prisma.rentProduct.update({
                   where: { id: newRP.id },
-                  data: { quantity: String(existingQty + newRentQty) },
+                  data: { quantity: existingQty + newRentQty },
                 });
               } else {
                 await prisma.rentProduct.create({
                   data: {
                     customerId: oldCustomerId,
                     stockId: effectiveStockId,
-                    quantity: String(newRentQty),
+                    quantity: newRentQty,
                   },
                 });
               }
@@ -253,10 +253,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
                 where: { customerId: oldCustomerId, stockId: effectiveStockId, isDeleted: false },
               });
               if (rp) {
-                const currentRPQty = parseInt(rp.quantity || "0");
+                const currentRPQty = rp.quantity;
                 await prisma.rentProduct.update({
                   where: { id: rp.id },
-                  data: { quantity: String(Math.max(0, currentRPQty + rentProductDelta)) },
+                  data: { quantity: Math.max(0, currentRPQty + rentProductDelta) },
                 });
               }
             }
@@ -275,7 +275,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       }
 
       // ── 6. Collection handling ────────────────────────────────────────────
-      const newCollection = parseFloat(data.collection || "0");
+      const newCollection = Number(data.collection) || 0;
       if (newCustomerId && newCollection > 0) {
         // Check if there's an existing collection from the original sale
         const existingCollection = data.collectionId
@@ -288,7 +288,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             where: { id: existingCollection.id },
             data: {
               customerId: newCustomerId,
-              amount: String(newCollection),
+              amount: newCollection,
             },
           });
         } else {
@@ -298,7 +298,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             data: {
               trNo: collTrNo,
               customerId: newCustomerId,
-              amount: String(newCollection),
+              amount: newCollection,
               createdById: userId,
             },
           });
@@ -320,10 +320,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           productId,
           isOffer: data.isOffer || false,
           discount: newDiscount,
-          quantity: String(newQty),
-          productCost: String(productCost),
-          salePrice: String(salePrice),
-          netTotal: String(netTotal),
+          quantity: newQty,
+          productCost,
+          salePrice,
+          netTotal,
         },
         include: { stock: true, customer: true, product: true },
       });
@@ -333,7 +333,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const message = error instanceof Error ? error.message : "Failed to update sale";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }
 
 // ─── DELETE (soft delete) ────────────────────────────────────────────────────
@@ -343,5 +343,5 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { id } = await params;
     await prisma.sale.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
     return NextResponse.json({ success: true });
-  }, "admin");
+  }, "Owner");
 }

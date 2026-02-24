@@ -56,7 +56,7 @@ export default function DashboardPage() {
     );
   }
 
-  const isStaff = data.role === "staff";
+  const isStaff = data.role !== "Owner";
 
   return (
     <div className="space-y-6">

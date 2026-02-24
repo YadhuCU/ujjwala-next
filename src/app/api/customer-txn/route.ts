@@ -21,20 +21,20 @@ export async function GET(request: Request) {
     const rentProducts = await prisma.rentProduct.findMany({
       where: { customerId, isDeleted: false },
     });
-    const rentQty = rentProducts.reduce((sum, rp) => sum + parseInt(rp.quantity || "0"), 0)
+    const rentQty = rentProducts.reduce((sum, rp) => sum + (rp.quantity ?? 0), 0)
       + customer.initialCylinderBalance;
 
     // Total sales
     const sales = await prisma.sale.findMany({
       where: { customerId, isDeleted: false, saleType: "rent" },
     });
-    const totalSale = sales.reduce((sum, s) => sum + parseFloat(s.netTotal || "0"), 0);
+    const totalSale = sales.reduce((sum, s) => sum + Number(s.netTotal ?? 0), 0);
 
     // Total collections
     const collections = await prisma.collection.findMany({
       where: { customerId, isDeleted: false },
     });
-    const totalCollection = collections.reduce((sum, c) => sum + parseFloat(c.amount || "0"), 0);
+    const totalCollection = collections.reduce((sum, c) => sum + Number(c.amount ?? 0), 0);
 
     const pendingAmount = totalSale - totalCollection + Number(customer.initialPendingAmount);
 

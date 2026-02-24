@@ -21,11 +21,11 @@ interface SaleDetail {
   stockId: number | null;
   customerId: number | null;
   productId: number | null;
-  quantity: string | null;
+  quantity: number;
   discount: number | null;
-  salePrice: string | null;
-  productCost: string | null;
-  netTotal: string | null;
+  salePrice: number | null;
+  productCost: number | null;
+  netTotal: number | null;
   saleType: "sale" | "rent";
   emptyReturn: number;
   collectionAmount: number;
@@ -51,7 +51,7 @@ export default function SaleEditPage() {
     return {
       stockId: sale.stockId ? String(sale.stockId) : "",
       customerId: sale.customerId ? String(sale.customerId) : "",
-      quantity: parseInt(sale.quantity || "0"),
+      quantity: sale.quantity ?? 0,
       discount: sale.discount ?? 0,
       saleType: sale.saleType,
       collection: sale.collectionAmount ?? 0,
@@ -91,7 +91,7 @@ export default function SaleEditPage() {
   }
 
   const originalStockAllocation = sale?.stockId
-    ? { stockId: sale.stockId, quantity: parseInt(sale.quantity || "0") }
+    ? { stockId: sale.stockId, quantity: sale.quantity ?? 0 }
     : null;
 
   return (

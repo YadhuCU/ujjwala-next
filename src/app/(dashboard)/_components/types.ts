@@ -1,5 +1,7 @@
+import { UserRole } from "@/lib/constants";
+
 export interface DashboardData {
-  role: "admin" | "staff";
+  role: UserRole;
   kpis: {
     totalRevenue: number;
     totalProfit: number;

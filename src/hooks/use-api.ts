@@ -8,7 +8,6 @@ import {
   locationsOptions,
   productsOptions,
   usersOptions,
-  userTypesOptions,
 } from "@/lib/query-options";
 
 // ─── Custom Query Hooks (reused in ≥2 components) ───────────────────────────
@@ -31,10 +30,6 @@ export function useProducts() {
 
 export function useUsers() {
   return useQuery(usersOptions);
-}
-
-export function useUserTypes() {
-  return useQuery(userTypesOptions);
 }
 
 // ─── Generic Mutation Hook ──────────────────────────────────────────────────

@@ -57,7 +57,7 @@ export function CustomerForm({
       phone: "",
       address: "",
       locationId: "",
-      discount: "",
+      discount: 0,
       concernedPerson: "",
       concernedPersonMobile: "",
       gstNumber: "",
@@ -145,7 +145,13 @@ export function CustomerForm({
                   <FormItem>
                     <FormLabel>Discount (%)</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input
+                        type="number"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.valueAsNumber || 0)
+                        }
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

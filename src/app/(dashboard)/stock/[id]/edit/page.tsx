@@ -15,9 +15,9 @@ interface StockDetail {
   batchNo: string | null;
   productId: number | null;
   invoiceNo: string | null;
-  quantity: string | null;
-  productCost: string | null;
-  salePrice: string | null;
+  quantity: number;
+  productCost: number | null;
+  salePrice: number | null;
 }
 
 export default function EditStockPage() {
@@ -49,9 +49,9 @@ export default function EditStockPage() {
     batchNo: stock.batchNo || "",
     productId: stock.productId ? String(stock.productId) : "",
     invoiceNo: stock.invoiceNo || "",
-    quantity: stock.quantity || "",
-    productCost: stock.productCost || "",
-    salePrice: stock.salePrice || "",
+    quantity: stock.quantity ?? 0,
+    productCost: stock.productCost ?? 0,
+    salePrice: stock.salePrice ?? 0,
   };
 
   return (

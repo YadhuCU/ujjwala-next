@@ -5,7 +5,7 @@ import { withAuth } from "@/lib/api-auth";
 export async function GET() {
   return withAuth(async ({ userId, role }) => {
     const where: Record<string, unknown> = { isDeleted: false };
-    if (role === "staff") where.createdById = userId;
+    if (role !== "Owner") where.createdById = userId;
 
     const expenses = await prisma.expense.findMany({
       where,
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         data: {
           expense: data.expense,
           date: data.date ? new Date(data.date) : new Date(),
-          amount: data.amount,
+          amount: data.amount != null ? Number(data.amount) : null,
           createdById: userId,
         },
       });

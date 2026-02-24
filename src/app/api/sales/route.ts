@@ -6,7 +6,7 @@ import { withAuth } from "@/lib/api-auth";
 export async function GET() {
   return withAuth(async ({ userId, role }) => {
     const where: Record<string, unknown> = { isDeleted: false };
-    if (role === "staff") where.createdById = userId;
+    if (role !== "Owner") where.createdById = userId;
 
     const sales = await prisma.sale.findMany({
       where,
@@ -26,23 +26,23 @@ export async function POST(request: Request) {
       const customerId = data.customerId ? parseInt(data.customerId) : null;
 
       let productId = null;
-      let productCost = data.productCost || "0";
-      let salePrice = data.salePrice || "0";
+      let productCost: number = Number(data.productCost) || 0;
+      let salePrice: number = Number(data.salePrice) || 0;
 
       if (stockId) {
         const stock = await prisma.stock.findUnique({ where: { id: stockId } });
         if (stock) {
           productId = stock.productId;
-          productCost = stock.productCost || productCost;
-          salePrice = stock.salePrice || salePrice;
+          productCost = Number(stock.productCost) || productCost;
+          salePrice = Number(stock.salePrice) || salePrice;
         }
       }
 
-      const quantity = String(data.quantity || "0");
-      const discount = data.discount ? parseInt(data.discount) : 0;
-      const price = parseFloat(salePrice) * parseFloat(quantity);
+      const quantity = Number(data.quantity) || 0;
+      const discount = data.discount ?? 0;
+      const price = salePrice * quantity;
       const discountAmount = (price * discount) / 100;
-      const netTotal = (price - discountAmount).toFixed(2);
+      const netTotal = Number((price - discountAmount).toFixed(2));
       const saleType = data.saleType;
 
       const sale = await prisma.sale.create({
@@ -66,23 +66,23 @@ export async function POST(request: Request) {
       if (stockId) {
         const stock = await prisma.stock.findUnique({ where: { id: stockId } });
         if (stock) {
-          const newQty = parseInt(stock.quantity || "0") - parseInt(quantity);
+          const newQty = stock.quantity - quantity;
           await prisma.stock.update({
             where: { id: stockId },
-            data: { quantity: String(Math.max(0, newQty)) },
+            data: { quantity: Math.max(0, newQty) },
           });
         }
       }
 
       // Create rent transaction if applicable
       if (customerId && stockId && data.saleType === "rent") {
-        const emptyReturn = parseInt(data.emptyReturn || "0");
+        const emptyReturn = Number(data.emptyReturn) || 0;
         await prisma.rentTransaction.create({
           data: {
             customerId,
             stockId,
             saleId: sale.id,
-            filledOut: parseInt(quantity),
+            filledOut: quantity,
             emptyIn: emptyReturn,
           },
         });
@@ -90,29 +90,29 @@ export async function POST(request: Request) {
         const existingRent = await prisma.rentProduct.findFirst({
           where: { customerId, stockId, isDeleted: false },
         });
-        const currentRentQty = parseInt(existingRent?.quantity || "0");
-        const newRentQty = currentRentQty + parseInt(quantity) - emptyReturn;
+        const currentRentQty = existingRent?.quantity ?? 0;
+        const newRentQty = currentRentQty + quantity - emptyReturn;
 
         if (existingRent) {
           await prisma.rentProduct.update({
             where: { id: existingRent.id },
-            data: { quantity: String(newRentQty) },
+            data: { quantity: newRentQty },
           });
         } else {
           await prisma.rentProduct.create({
-            data: { customerId, stockId, quantity: String(newRentQty) },
+            data: { customerId, stockId, quantity: newRentQty },
           });
         }
       }
 
       // Create collection if amount provided
-      if (customerId && data.collection && saleType === "rent" && parseFloat(data.collection) > 0) {
+      if (customerId && data.collection && saleType === "rent" && Number(data.collection) > 0) {
         const collTrNo = await generateTrNo("collection");
         await prisma.collection.create({
           data: {
             trNo: collTrNo,
             customerId,
-            amount: String(data.collection),
+            amount: Number(data.collection),
             createdById: userId,
           },
         });

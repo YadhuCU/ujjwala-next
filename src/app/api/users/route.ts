@@ -7,12 +7,15 @@ export async function GET() {
   return withAuth(async () => {
     const users = await prisma.account.findMany({
       where: { isDeleted: false },
-      include: { usertype: true },
       orderBy: { createdAt: "desc" },
     });
-    const safeUsers = users.map(({ password: _, ...user }) => user);
+    const safeUsers = users.map((user) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...rest } = user;
+      return rest;
+    });
     return NextResponse.json(safeUsers);
-  }, "admin");
+  }, "Owner");
 }
 
 export async function POST(request: Request) {
@@ -27,14 +30,15 @@ export async function POST(request: Request) {
           password: hashedPassword,
           email: data.email,
           mobile: data.mobile,
-          usertypeId: data.usertypeId ? parseInt(data.usertypeId) : null,
+          role: data.role,
         },
       });
-      const { password: _, ...safeUser } = user;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...safeUser } = user;
       return NextResponse.json(safeUser, { status: 201 });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Failed to create user";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }

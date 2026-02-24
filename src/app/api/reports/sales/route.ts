@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       createdAt: { gte: fromDate, lte: toDate },
     };
 
-    if (role === "staff") {
+    if (role !== "Owner") {
       where.createdById = userId;
     } else if (staffId && staffId !== "all") {
       where.createdById = parseInt(staffId);
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       Prisma.sql`created_at <= ${toDate}`,
     ];
 
-    if (role === "staff") {
+    if (role !== "Owner") {
       conditions.push(Prisma.sql`created_by_id = ${userId}`);
     } else if (staffId && staffId !== "all") {
       conditions.push(Prisma.sql`created_by_id = ${parseInt(staffId)}`);
@@ -94,15 +94,15 @@ export async function GET(request: NextRequest) {
     >(Prisma.sql`
       SELECT
         COUNT(*)::bigint AS invoice_count,
-        COALESCE(SUM(CAST(sale_price AS DECIMAL) * CAST(quantity AS DECIMAL)), 0)::text AS total_subtotal,
+        COALESCE(SUM(sale_price * quantity), 0)::text AS total_subtotal,
         COALESCE(SUM(
           CASE
             WHEN discount IS NOT NULL AND discount > 0
-            THEN (CAST(sale_price AS DECIMAL) * CAST(quantity AS DECIMAL) * discount / 100)
+            THEN (sale_price * quantity * discount / 100)
             ELSE 0
           END
         ), 0)::text AS total_discount_amount,
-        COALESCE(SUM(CAST(net_total AS DECIMAL)), 0)::text AS total_net_total
+        COALESCE(SUM(net_total), 0)::text AS total_net_total
       FROM sales
       WHERE ${whereClause}
     `);

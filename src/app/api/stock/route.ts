@@ -22,9 +22,9 @@ export async function POST(request: Request) {
           batchNo: data.batchNo,
           productId: data.productId ? parseInt(data.productId) : null,
           invoiceNo: data.invoiceNo,
-          quantity: data.quantity != null ? String(data.quantity) : null,
-          productCost: data.productCost != null ? String(data.productCost) : null,
-          salePrice: data.salePrice != null ? String(data.salePrice) : null,
+          quantity: data.quantity != null ? Number(data.quantity) : 0,
+          productCost: data.productCost != null ? Number(data.productCost) : null,
+          salePrice: data.salePrice != null ? Number(data.salePrice) : null,
         },
       });
       return NextResponse.json(stock, { status: 201 });
@@ -32,5 +32,5 @@ export async function POST(request: Request) {
       const message = error instanceof Error ? error.message : "Failed to create stock";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "admin");
+  }, "Owner");
 }

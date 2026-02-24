@@ -7,7 +7,7 @@ import { DashboardData } from "./types";
 export function CommercialAlerts({ data }: { data: DashboardData }) {
   const { commercialAnalytics, role } = data;
   
-  if (role === "staff") return null;
+  if (role !== "Owner") return null;
 
   return (
     <div className="space-y-4">

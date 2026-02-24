@@ -11,7 +11,7 @@ import { DashboardData } from "./types";
 
 export function InventoryAndTransactions({ data }: { data: DashboardData }) {
   const { lowStock, recentTxns, role } = data;
-  const isStaff = role === "staff";
+  const isStaff = role !== "Owner";
 
   return (
     <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-2"}`}>

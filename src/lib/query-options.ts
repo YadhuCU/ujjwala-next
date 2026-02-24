@@ -59,7 +59,3 @@ export const usersOptions = queryOptions({
   queryFn: api.getUsers,
 });
 
-export const userTypesOptions = queryOptions({
-  queryKey: queryKeys.userTypes.lists(),
-  queryFn: api.getUserTypes,
-});

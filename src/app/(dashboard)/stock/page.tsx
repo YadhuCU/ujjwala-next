@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/use-permissions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,17 +28,16 @@ interface Stock {
   id: number;
   batchNo: string | null;
   invoiceNo: string | null;
-  quantity: string | null;
-  productCost: string | null;
-  salePrice: string | null;
+  quantity: number;
+  productCost: number | null;
+  salePrice: number | null;
   product: Product | null;
   productId: number | null;
 }
 
 export default function StockPage() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const isAdmin = (session?.user as { role?: string })?.role === "admin";
+  const { isAdmin } = usePermissions();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const { data: rawStocks = [] } = useStocks();

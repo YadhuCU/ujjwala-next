@@ -20,7 +20,7 @@ const salesTypeConfig = {
 
 export function TrendCharts({ data }: { data: DashboardData }) {
   const { dailyTrend, role } = data;
-  const isStaff = role === "staff";
+  const isStaff = role !== "Owner";
 
   return (
     <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-7"}`}>

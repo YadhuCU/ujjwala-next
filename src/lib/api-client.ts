@@ -5,7 +5,6 @@ import type {
   Location,
   Product,
   Account,
-  UserType,
 } from "@prisma/client";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
@@ -27,9 +26,7 @@ export type CustomerPayload = Prisma.CustomerGetPayload<{
   include: { location: true };
 }>;
 
-export type UserPayload = Omit<Prisma.AccountGetPayload<{
-  include: { usertype: true };
-}>, "password">;
+export type UserPayload = Omit<Account, "password">;
 
 // ─── Axios Client Instance ──────────────────────────────────────────────────
 // Single axios instance used across the app.
@@ -52,7 +49,6 @@ export const api = {
   getLocations: () => apiClient.get<Location[]>("/api/locations").then((r) => r.data),
   getProducts: () => apiClient.get<Product[]>("/api/products").then((r) => r.data),
   getUsers: () => apiClient.get<UserPayload[]>("/api/users").then((r) => r.data),
-  getUserTypes: () => apiClient.get<UserType[]>("/api/user-types").then((r) => r.data),
 
   // ─── Detail (GET by id) ─────────────────────────────────
   getById: <T>(resource: string, id: string) =>

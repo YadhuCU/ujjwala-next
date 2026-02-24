@@ -6,7 +6,7 @@ import { withAuth } from "@/lib/api-auth";
 export async function GET() {
   return withAuth(async ({ userId, role }) => {
     const where: Record<string, unknown> = { isDeleted: false };
-    if (role === "staff") where.createdById = userId;
+    if (role !== "Owner") where.createdById = userId;
 
     const domSales = await prisma.domSale.findMany({
       where,
@@ -30,10 +30,10 @@ export async function POST(request: Request) {
         if (stock) productId = stock.productId;
       }
 
-      const quantity = String(data.quantity || "0");
-      const salePrice = String(data.salePrice || "0");
-      const collectionAmount = String(data.collectionAmount || "0");
-      const netTotal = (parseFloat(salePrice) * parseFloat(quantity)).toFixed(2);
+      const quantity = Number(data.quantity) || 0;
+      const salePrice = Number(data.salePrice) || 0;
+      const collectionAmount = Number(data.collectionAmount) || 0;
+      const netTotal = Number((salePrice * quantity).toFixed(2));
 
       const domSale = await prisma.domSale.create({
         data: { trNo, stockId, productId, quantity, salePrice, collectionAmount, netTotal, createdById: userId },
@@ -42,10 +42,10 @@ export async function POST(request: Request) {
       if (stockId) {
         const stock = await prisma.stock.findUnique({ where: { id: stockId } });
         if (stock) {
-          const newQty = parseInt(stock.quantity || "0") - parseInt(quantity);
+          const newQty = stock.quantity - quantity;
           await prisma.stock.update({
             where: { id: stockId },
-            data: { quantity: String(Math.max(0, newQty)) },
+            data: { quantity: Math.max(0, newQty) },
           });
         }
       }

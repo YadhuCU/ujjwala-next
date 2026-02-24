@@ -6,7 +6,7 @@ import { DashboardData } from "./types";
 
 export function KpiCards({ data }: { data: DashboardData }) {
   const { kpis, role } = data;
-  const isStaff = role === "staff";
+  const isStaff = role !== "Owner";
   const profitMargin =
     kpis.totalRevenue > 0
       ? ((kpis.totalProfit / kpis.totalRevenue) * 100).toFixed(1)

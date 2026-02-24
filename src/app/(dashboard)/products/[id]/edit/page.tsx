@@ -15,7 +15,7 @@ interface ProductDetail {
   name: string | null;
   type: string | null;
   weight: string | null;
-  price: string | null;
+  price: number | null;
 }
 
 export default function EditProductPage() {
@@ -47,7 +47,7 @@ export default function EditProductPage() {
     name: product.name || "",
     type: product.type || "",
     weight: product.weight || "",
-    price: product.price || "",
+    price: product.price ?? 0,
   };
 
   return (

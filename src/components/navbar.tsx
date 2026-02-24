@@ -19,6 +19,7 @@ import { ModeSwitcher, ThemeSwitcher } from "@/components/theme-switcher";
 export function Navbar() {
   const { data: session } = useSession();
   const userName = session?.user?.name || "User";
+  const role = session?.user?.role || "Role"
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -60,7 +61,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-end leading-tight hidden sm:flex">
             <span className="text-sm font-semibold">{userName}</span>
-            <span className="text-[10px] opacity-70">Manager</span>
+            <span className="text-[10px] opacity-70">{role}</span>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
