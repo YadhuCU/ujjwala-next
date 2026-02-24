@@ -19,13 +19,13 @@ import { useProducts, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
 import { PageWrapper } from "@/components/page-wrapper";
+import { ProductType } from "@prisma/client";
 
 interface Product {
   id: number;
   name: string | null;
-  type: string | null;
+  type: ProductType | null;
   weight: string | null;
-  price: string | null;
 }
 
 export default function ProductsPage() {
@@ -65,7 +65,6 @@ export default function ProductsPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Weight</TableHead>
-                <TableHead>Price</TableHead>
                 {isAdmin && (
                   <TableHead className="text-right">Actions</TableHead>
                 )}
@@ -77,7 +76,6 @@ export default function ProductsPage() {
                   <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell>{p.type}</TableCell>
                   <TableCell>{p.weight}</TableCell>
-                  <TableCell>{p.price ? `₹${p.price}` : ""}</TableCell>
                   {isAdmin && (
                     <TableCell className="text-right space-x-2">
                       <Button variant="ghost" size="icon" asChild>

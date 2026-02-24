@@ -88,13 +88,13 @@ model Customer {
 }
 
 model Product {
-  id        Int          @id @default(autoincrement())
-  name      String?      @unique @db.VarChar(50)
-  type      ProductType?
-  weight    String?      @db.VarChar(50)
-  price     Decimal?     @db.Decimal(10, 2)
-  isDeleted Boolean      @default(false) @map("is_deleted")
-  createdAt DateTime     @default(now()) @map("created_at")
+  id     Int          @id @default(autoincrement())
+  name   String?      @unique @db.VarChar(50)
+  type   ProductType?
+  weight String?      @db.VarChar(50)
+
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  createdAt DateTime  @default(now()) @map("created_at")
   stocks    Stock[]
   sales     Sale[]
   domSales  DomSale[]

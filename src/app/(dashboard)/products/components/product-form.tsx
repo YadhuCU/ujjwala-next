@@ -14,14 +14,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ProductType } from "@prisma/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
 export const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  type: z.string().optional().or(z.literal("")),
+  type: z.nativeEnum(ProductType).optional().or(z.literal("")),
   weight: z.string().optional().or(z.literal("")),
-  price: z.number().min(0).optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -49,7 +56,6 @@ export function ProductForm({
       name: "",
       type: "",
       weight: "",
-      price: 0,
     },
   });
 
@@ -83,9 +89,23 @@ export function ProductForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.values(ProductType).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -103,27 +123,7 @@ export function ProductForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.valueAsNumber || 0)
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-2 lg:col-span-2">
               <Button type="submit" disabled={isPending}>
                 {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
               </Button>

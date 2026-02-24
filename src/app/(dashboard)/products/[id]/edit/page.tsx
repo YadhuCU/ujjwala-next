@@ -9,13 +9,13 @@ import { queryKeys } from "@/lib/query-keys";
 import { ProductForm } from "../../components/product-form";
 import type { ProductFormValues } from "../../components/product-form";
 import { PageWrapper } from "@/components/page-wrapper";
+import { ProductType } from "@prisma/client";
 
 interface ProductDetail {
   id: number;
   name: string | null;
-  type: string | null;
+  type: ProductType | null;
   weight: string | null;
-  price: number | null;
 }
 
 export default function EditProductPage() {
@@ -45,9 +45,8 @@ export default function EditProductPage() {
 
   const formDefaults: ProductFormValues = {
     name: product.name || "",
-    type: product.type || "",
+    type: (product.type as ProductFormValues["type"]) || "",
     weight: product.weight || "",
-    price: product.price ?? 0,
   };
 
   return (
