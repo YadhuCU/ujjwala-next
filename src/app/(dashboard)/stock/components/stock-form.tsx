@@ -29,9 +29,9 @@ export const stockSchema = z.object({
   batchNo: z.string().min(1, "Batch number is required"),
   productId: z.string().optional().or(z.literal("")),
   invoiceNo: z.string().optional().or(z.literal("")),
-  quantity: z.string().min(1, "Quantity is required"),
-  productCost: z.string().optional().or(z.literal("")),
-  salePrice: z.string().optional().or(z.literal("")),
+  quantity: z.number().int().min(1, "Quantity is required"),
+  productCost: z.number().min(0).optional(),
+  salePrice: z.number().min(0).optional(),
 });
 
 export type StockFormValues = z.infer<typeof stockSchema>;
@@ -69,9 +69,9 @@ export function StockForm({
       batchNo: "",
       productId: "",
       invoiceNo: "",
-      quantity: "",
-      productCost: "",
-      salePrice: "",
+      quantity: 0,
+      productCost: 0,
+      salePrice: 0,
     },
   });
 
@@ -143,7 +143,13 @@ export function StockForm({
                 <FormItem>
                   <FormLabel>Quantity</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -156,7 +162,14 @@ export function StockForm({
                 <FormItem>
                   <FormLabel>Product Cost</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,7 +182,14 @@ export function StockForm({
                 <FormItem>
                   <FormLabel>Sale Price</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -14,9 +14,9 @@ interface DomSaleDetail {
   id: number;
   trNo: string | null;
   stockId: number | null;
-  quantity: string | null;
-  salePrice: string | null;
-  collectionAmount: string | null;
+  quantity: number;
+  salePrice: number | null;
+  collectionAmount: number | null;
 }
 
 export default function EditDomSalePage() {
@@ -50,11 +50,9 @@ export default function EditDomSalePage() {
 
   const formDefaults: DomSaleFormValues = {
     stockId: domSale.stockId ? String(domSale.stockId) : "",
-    quantity: parseInt(domSale.quantity || "0"),
-    salePrice: domSale.salePrice || "",
-    collectionAmount: domSale.collectionAmount
-      ? parseFloat(domSale.collectionAmount)
-      : 0,
+    quantity: domSale.quantity ?? 0,
+    salePrice: domSale.salePrice ?? 0,
+    collectionAmount: domSale.collectionAmount ?? 0,
   };
 
   return (

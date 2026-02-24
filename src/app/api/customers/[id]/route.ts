@@ -30,7 +30,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           locationId: data.locationId ? parseInt(data.locationId) : null,
           concernedPerson: data.concernedPerson,
           concernedPersonMobile: data.concernedPersonMobile,
-          discount: data.discount,
+          discount: data.discount ?? null,
           gstNumber: data.gstNumber,
           initialCylinderBalance: data.initialCylinderBalance ? parseInt(data.initialCylinderBalance) : 0,
           initialPendingAmount: data.initialPendingAmount ? parseFloat(data.initialPendingAmount) : 0,

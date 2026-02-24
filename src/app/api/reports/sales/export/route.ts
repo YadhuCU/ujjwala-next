@@ -54,13 +54,13 @@ export async function GET(request: NextRequest) {
     let totalDiscount = 0;
     let totalNetTotal = 0;
     for (const s of sales) {
-      const price = parseFloat(s.salePrice || "0");
-      const qty = parseFloat(s.quantity || "0");
+      const price = Number(s.salePrice ?? 0);
+      const qty = s.quantity;
       const sub = price * qty;
       const disc = s.discount ? (sub * s.discount) / 100 : 0;
       totalSubtotal += sub;
       totalDiscount += disc;
-      totalNetTotal += parseFloat(s.netTotal || "0");
+      totalNetTotal += Number(s.netTotal ?? 0);
     }
 
     if (format === "pdf") {
@@ -101,10 +101,10 @@ export async function GET(request: NextRequest) {
             s.createdBy?.name || "",
             s.product?.name || "",
             s.stock?.batchNo || "",
-            s.quantity || "",
-            s.salePrice || "",
+            s.quantity.toString(),
+            s.salePrice?.toString() || "0",
             s.discount?.toString() || "0",
-            s.netTotal || "",
+            s.netTotal?.toString() || "0",
           ].join("\t")
         );
       }
@@ -142,10 +142,10 @@ export async function GET(request: NextRequest) {
         s.createdBy?.name || "",
         s.product?.name || "",
         s.stock?.batchNo || "",
-        s.quantity || "",
-        s.salePrice || "",
+        s.quantity.toString(),
+        s.salePrice?.toString() || "0",
         s.discount?.toString() || "0",
-        s.netTotal || "",
+        s.netTotal?.toString() || "0",
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(",")

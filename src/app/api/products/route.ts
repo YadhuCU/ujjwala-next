@@ -17,7 +17,12 @@ export async function POST(request: Request) {
     try {
       const data = await request.json();
       const product = await prisma.product.create({
-        data: { name: data.name, type: data.type, weight: data.weight, price: data.price },
+        data: {
+          name: data.name,
+          type: data.type,
+          weight: data.weight,
+          price: data.price != null ? Number(data.price) : null,
+        },
       });
       return NextResponse.json(product, { status: 201 });
     } catch (error: unknown) {

@@ -14,7 +14,7 @@ interface ExpenseDetail {
   id: number;
   expense: string | null;
   date: string | null;
-  amount: string | null;
+  amount: number | null;
 }
 
 export default function EditExpensePage() {
@@ -51,7 +51,7 @@ export default function EditExpensePage() {
     date: expenseData.date
       ? new Date(expenseData.date).toISOString().split("T")[0]
       : "",
-    amount: expenseData.amount ? parseFloat(expenseData.amount) : 0,
+    amount: expenseData.amount ?? 0,
   };
 
   return (

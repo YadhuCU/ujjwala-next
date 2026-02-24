@@ -16,7 +16,7 @@ interface CustomerDetail {
   phone: string | null;
   address: string | null;
   locationId: number | null;
-  discount: string | null;
+  discount: number | null;
   concernedPerson: string | null;
   concernedPersonMobile: string | null;
   gstNumber: string | null;
@@ -54,7 +54,7 @@ export default function EditCustomerPage() {
     phone: customer.phone || "",
     address: customer.address || "",
     locationId: customer.locationId ? String(customer.locationId) : "",
-    discount: customer.discount || "",
+    discount: customer.discount ?? 0,
     concernedPerson: customer.concernedPerson || "",
     concernedPersonMobile: customer.concernedPersonMobile || "",
     gstNumber: customer.gstNumber || "",

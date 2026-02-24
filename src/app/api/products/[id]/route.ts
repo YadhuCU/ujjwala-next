@@ -22,7 +22,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const data = await request.json();
       const product = await prisma.product.update({
         where: { id: parseInt(id) },
-        data: { name: data.name, type: data.type, weight: data.weight, price: data.price },
+        data: {
+          name: data.name,
+          type: data.type,
+          weight: data.weight,
+          price: data.price != null ? Number(data.price) : null,
+        },
       });
       return NextResponse.json(product);
     } catch (error: unknown) {

@@ -23,7 +23,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         data: {
           expense: data.expense,
           date: data.date ? new Date(data.date) : undefined,
-          amount: data.amount,
+          amount: data.amount != null ? Number(data.amount) : undefined,
         },
       });
       return NextResponse.json(expense);

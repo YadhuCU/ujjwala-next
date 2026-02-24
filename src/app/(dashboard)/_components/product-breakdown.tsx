@@ -20,7 +20,7 @@ const COLORS = [
 
 export function ProductBreakdown({ data }: { data: DashboardData }) {
   const { productBreakdown, role } = data;
-  const isStaff = role === "staff";
+  const isStaff = role !== "Owner";
 
   const productConfig = React.useMemo(() => {
     if (!productBreakdown) return {} as ChartConfig;

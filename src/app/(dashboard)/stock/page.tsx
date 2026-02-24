@@ -28,9 +28,9 @@ interface Stock {
   id: number;
   batchNo: string | null;
   invoiceNo: string | null;
-  quantity: string | null;
-  productCost: string | null;
-  salePrice: string | null;
+  quantity: number;
+  productCost: number | null;
+  salePrice: number | null;
   product: Product | null;
   productId: number | null;
 }

@@ -21,7 +21,7 @@ export const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   type: z.string().optional().or(z.literal("")),
   weight: z.string().optional().or(z.literal("")),
-  price: z.string().optional().or(z.literal("")),
+  price: z.number().min(0).optional(),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -49,7 +49,7 @@ export function ProductForm({
       name: "",
       type: "",
       weight: "",
-      price: "",
+      price: 0,
     },
   });
 
@@ -110,7 +110,14 @@ export function ProductForm({
                 <FormItem>
                   <FormLabel>Price</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.valueAsNumber || 0)
+                      }
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

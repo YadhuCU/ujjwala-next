@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         data: {
           expense: data.expense,
           date: data.date ? new Date(data.date) : new Date(),
-          amount: data.amount,
+          amount: data.amount != null ? Number(data.amount) : null,
           createdById: userId,
         },
       });

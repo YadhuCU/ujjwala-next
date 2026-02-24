@@ -75,7 +75,7 @@ export function SaleForm({
 }: SaleFormProps) {
   const { data: stocks = [] } = useQuery({
     ...stocksOptions, 
-    select: res => res.filter(x => x.quantity !== "0")
+    select: res => res.filter(x => x.quantity !== 0)
   });
   const { data: customers = [] } = useCustomers() as { data: Customer[] };
 
@@ -109,7 +109,7 @@ export function SaleForm({
   // Show correct available quantity:
   // In edit mode, add back the original allocation if it's the same stock
   const availableQty = selectedStock
-    ? parseInt(selectedStock.quantity || "0") +
+    ? selectedStock.quantity +
       (originalStockAllocation &&
       originalStockAllocation.stockId === parseInt(selectedStockId)
         ? originalStockAllocation.quantity
@@ -325,10 +325,10 @@ export function SaleForm({
             {selectedStock && (
               <div className="bg-muted rounded-lg p-4 text-sm space-y-1">
                 <p>
-                  <strong>Sale Price:</strong> ₹{selectedStock.salePrice}
+                  <strong>Sale Price:</strong> ₹{String(selectedStock.salePrice)}
                 </p>
                 <p>
-                  <strong>Product Cost:</strong> ₹{selectedStock.productCost}
+                  <strong>Product Cost:</strong> ₹{String(selectedStock.productCost)}
                 </p>
               </div>
             )}
