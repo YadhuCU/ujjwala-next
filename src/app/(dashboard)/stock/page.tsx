@@ -30,7 +30,6 @@ interface Stock {
   invoiceNo: string | null;
   quantity: number;
   productCost: number | null;
-  salePrice: number | null;
   product: Product | null;
   productId: number | null;
 }
@@ -75,7 +74,6 @@ export default function StockPage() {
                 <TableHead>Invoice No</TableHead>
                 <TableHead>Qty</TableHead>
                 <TableHead>Cost</TableHead>
-                <TableHead>Sale Price</TableHead>
                 {isAdmin && (
                   <TableHead className="text-right">Actions</TableHead>
                 )}
@@ -91,7 +89,6 @@ export default function StockPage() {
                   <TableCell>
                     {s.productCost ? `₹${s.productCost}` : ""}
                   </TableCell>
-                  <TableCell>{s.salePrice ? `₹${s.salePrice}` : ""}</TableCell>
                   {isAdmin && (
                     <TableCell className="text-right space-x-2">
                       <Button variant="ghost" size="icon" asChild>

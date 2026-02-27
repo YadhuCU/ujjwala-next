@@ -30,7 +30,7 @@ export default function SaleAddPage() {
   ) {
     createSale.mutate({
       ...values,
-      salePrice: selectedStock?.salePrice,
+      salePrice: selectedStock?.product?.salePrice,
       productCost: selectedStock?.productCost,
     });
   }

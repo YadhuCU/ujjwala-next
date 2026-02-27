@@ -29,7 +29,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           invoiceNo: data.invoiceNo,
           quantity: data.quantity != null ? Number(data.quantity) : undefined,
           productCost: data.productCost != null ? Number(data.productCost) : undefined,
-          salePrice: data.salePrice != null ? Number(data.salePrice) : undefined,
         },
       });
       return NextResponse.json(stock);

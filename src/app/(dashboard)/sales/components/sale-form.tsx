@@ -325,7 +325,7 @@ export function SaleForm({
             {selectedStock && (
               <div className="bg-muted rounded-lg p-4 text-sm space-y-1">
                 <p>
-                  <strong>Sale Price:</strong> ₹{String(selectedStock.salePrice)}
+                  <strong>Sale Price:</strong> ₹{String(selectedStock.product?.salePrice)}
                 </p>
                 <p>
                   <strong>Product Cost:</strong> ₹{String(selectedStock.productCost)}

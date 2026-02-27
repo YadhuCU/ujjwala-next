@@ -76,7 +76,7 @@ export default function SaleEditPage() {
   ) {
     updateSale.mutate({
       ...values,
-      salePrice: selectedStock?.salePrice,
+      salePrice: selectedStock?.product?.salePrice,
       productCost: selectedStock?.productCost,
       collectionId: sale?.collectionId,
     });

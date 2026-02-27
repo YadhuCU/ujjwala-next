@@ -74,7 +74,7 @@ export function DomSaleForm({
     if (selectedStockId) {
       const selected = stocks.find((s) => String(s.id) === selectedStockId);
       if (selected) {
-        form.setValue("salePrice", Number(selected.salePrice) || 0);
+        form.setValue("salePrice", Number(selected.product?.salePrice) || 0);
         setAvailableQty(selected.quantity ?? null);
       }
     } else {

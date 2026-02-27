@@ -87,11 +87,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       let salePrice: number = Number(oldSale.salePrice) || 0;
 
       if (newStockId) {
-        const stock = await prisma.stock.findUnique({ where: { id: newStockId } });
+        const stock = await prisma.stock.findUnique({
+          where: { id: newStockId },
+          include: { product: true },
+        });
         if (stock) {
           productId = stock.productId;
           productCost = Number(stock.productCost) || productCost;
-          salePrice = Number(stock.salePrice) || salePrice;
+          salePrice = stock.product ? Number(stock.product.salePrice) || salePrice : salePrice;
         }
       }
 

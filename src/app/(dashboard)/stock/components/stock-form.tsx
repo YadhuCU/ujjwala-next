@@ -31,7 +31,6 @@ export const stockSchema = z.object({
   invoiceNo: z.string().optional().or(z.literal("")),
   quantity: z.number().int().min(1, "Quantity is required"),
   productCost: z.number().min(0).optional(),
-  salePrice: z.number().min(0).optional(),
 });
 
 export type StockFormValues = z.infer<typeof stockSchema>;
@@ -71,7 +70,6 @@ export function StockForm({
       invoiceNo: "",
       quantity: 0,
       productCost: 0,
-      salePrice: 0,
     },
   });
 
@@ -161,26 +159,6 @@ export function StockForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Product Cost</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.valueAsNumber || 0)
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="salePrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sale Price</FormLabel>
                   <FormControl>
                     <Input
                       type="number"

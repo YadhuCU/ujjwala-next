@@ -17,7 +17,6 @@ interface StockDetail {
   invoiceNo: string | null;
   quantity: number;
   productCost: number | null;
-  salePrice: number | null;
 }
 
 export default function EditStockPage() {
@@ -51,7 +50,6 @@ export default function EditStockPage() {
     invoiceNo: stock.invoiceNo || "",
     quantity: stock.quantity ?? 0,
     productCost: stock.productCost ?? 0,
-    salePrice: stock.salePrice ?? 0,
   };
 
   return (

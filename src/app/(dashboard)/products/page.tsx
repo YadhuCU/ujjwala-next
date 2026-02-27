@@ -26,6 +26,7 @@ interface Product {
   name: string | null;
   type: ProductType | null;
   weight: string | null;
+  salePrice: number | null;
 }
 
 export default function ProductsPage() {
@@ -65,6 +66,7 @@ export default function ProductsPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Weight</TableHead>
+                <TableHead>Sale Price</TableHead>
                 {isAdmin && (
                   <TableHead className="text-right">Actions</TableHead>
                 )}
@@ -76,6 +78,7 @@ export default function ProductsPage() {
                   <TableCell className="font-medium">{p.name}</TableCell>
                   <TableCell>{p.type}</TableCell>
                   <TableCell>{p.weight}</TableCell>
+                  <TableCell>{p.salePrice ? `₹${p.salePrice}` : ""}</TableCell>
                   {isAdmin && (
                     <TableCell className="text-right space-x-2">
                       <Button variant="ghost" size="icon" asChild>

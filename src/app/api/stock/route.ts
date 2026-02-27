@@ -24,7 +24,6 @@ export async function POST(request: Request) {
           invoiceNo: data.invoiceNo,
           quantity: data.quantity != null ? Number(data.quantity) : 0,
           productCost: data.productCost != null ? Number(data.productCost) : null,
-          salePrice: data.salePrice != null ? Number(data.salePrice) : null,
         },
       });
       return NextResponse.json(stock, { status: 201 });

@@ -25,13 +25,22 @@ export async function POST(request: Request) {
       const stockId = data.stockId ? parseInt(data.stockId) : null;
 
       let productId = null;
+      let salePrice = Number(data.salePrice) || 0;
+
       if (stockId) {
-        const stock = await prisma.stock.findUnique({ where: { id: stockId } });
-        if (stock) productId = stock.productId;
+        const stock = await prisma.stock.findUnique({
+          where: { id: stockId },
+          include: { product: true },
+        });
+        if (stock) {
+            productId = stock.productId;
+            if(!data.salePrice && stock.product) {
+                salePrice = Number(stock.product.salePrice) || 0;
+            }
+        }
       }
 
       const quantity = Number(data.quantity) || 0;
-      const salePrice = Number(data.salePrice) || 0;
       const collectionAmount = Number(data.collectionAmount) || 0;
       const netTotal = Number((salePrice * quantity).toFixed(2));
 

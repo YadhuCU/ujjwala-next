@@ -21,6 +21,7 @@ export async function POST(request: Request) {
           name: data.name,
           type: data.type || null,
           weight: data.weight,
+          salePrice: data.salePrice != null ? Number(data.salePrice) : null,
         },
       });
       return NextResponse.json(product, { status: 201 });

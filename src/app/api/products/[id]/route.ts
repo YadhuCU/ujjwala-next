@@ -26,6 +26,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           name: data.name,
           type: data.type || null,
           weight: data.weight,
+          salePrice: data.salePrice != null ? Number(data.salePrice) : null,
         },
       });
       return NextResponse.json(product);

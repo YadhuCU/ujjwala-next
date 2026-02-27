@@ -30,11 +30,14 @@ export async function POST(request: Request) {
       let salePrice: number = Number(data.salePrice) || 0;
 
       if (stockId) {
-        const stock = await prisma.stock.findUnique({ where: { id: stockId } });
+        const stock = await prisma.stock.findUnique({
+          where: { id: stockId },
+          include: { product: true },
+        });
         if (stock) {
           productId = stock.productId;
           productCost = Number(stock.productCost) || productCost;
-          salePrice = Number(stock.salePrice) || salePrice;
+          salePrice = stock.product ? Number(stock.product.salePrice) || salePrice : salePrice;
         }
       }
 

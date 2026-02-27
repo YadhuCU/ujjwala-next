@@ -92,6 +92,7 @@ model Product {
   name   String?      @unique @db.VarChar(50)
   type   ProductType?
   weight String?      @db.VarChar(50)
+  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
 
   isDeleted Boolean   @default(false) @map("is_deleted")
   createdAt DateTime  @default(now()) @map("created_at")
@@ -111,7 +112,6 @@ model Stock {
   invoiceNo        String?           @map("invoice_no") @db.VarChar(50)
   quantity         Int               @default(0)
   productCost      Decimal?          @map("product_cost") @db.Decimal(10, 2)
-  salePrice        Decimal?          @map("sale_price") @db.Decimal(10, 2)
   isDeleted        Boolean           @default(false) @map("is_deleted")
   createdAt        DateTime          @default(now()) @map("created_at")
   sales            Sale[]
