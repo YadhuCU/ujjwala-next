@@ -35,6 +35,8 @@ import {
   FileText,
   ChevronDown,
   Flame,
+  Truck,
+  ShoppingBag,
 } from "lucide-react";
 
 const mainNavItems = [
@@ -44,6 +46,8 @@ const mainNavItems = [
   { title: "Customers", href: "/customers", icon: BookOpen, adminOnly: false },
   { title: "Products", href: "/products", icon: Package, adminOnly: false },
   { title: "Stock", href: "/stock", icon: BarChart3, adminOnly: false },
+  { title: "Vendors", href: "/vendors", icon: Truck, adminOnly: true },
+  { title: "Purchase", href: "/purchases", icon: ShoppingBag, adminOnly: true },
   { title: "Commercial Sale", href: "/sales", icon: ShoppingCart, adminOnly: false },
   { title: "Domestic Sale", href: "/dom-sales", icon: Home, adminOnly: false },
   { title: "Expense", href: "/expenses", icon: Wallet, adminOnly: false },

@@ -5,6 +5,7 @@ import type {
   Location,
   Product,
   Account,
+  Vendor,
 } from "@prisma/client";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
@@ -19,11 +20,15 @@ export type DomSalePayload = Prisma.DomSaleGetPayload<{
 }>;
 
 export type StockPayload = Prisma.StockGetPayload<{
-  include: { product: true };
+  include: { product: true; vendor: true };
 }>;
 
 export type CustomerPayload = Prisma.CustomerGetPayload<{
   include: { location: true };
+}>;
+
+export type PurchasePayload = Prisma.PurchaseGetPayload<{
+  include: { vendor: true; items: { include: { product: true } } };
 }>;
 
 export type UserPayload = Omit<Account, "password">;
@@ -49,6 +54,8 @@ export const api = {
   getLocations: () => apiClient.get<Location[]>("/api/locations").then((r) => r.data),
   getProducts: () => apiClient.get<Product[]>("/api/products").then((r) => r.data),
   getUsers: () => apiClient.get<UserPayload[]>("/api/users").then((r) => r.data),
+  getVendors: () => apiClient.get<Vendor[]>("/api/vendors").then((r) => r.data),
+  getPurchases: () => apiClient.get<PurchasePayload[]>("/api/purchases").then((r) => r.data),
 
   // ─── Detail (GET by id) ─────────────────────────────────
   getById: <T>(resource: string, id: string) =>

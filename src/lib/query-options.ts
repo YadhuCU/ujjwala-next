@@ -59,3 +59,13 @@ export const usersOptions = queryOptions({
   queryFn: api.getUsers,
 });
 
+export const vendorsOptions = queryOptions({
+  queryKey: queryKeys.vendors.lists(),
+  queryFn: api.getVendors,
+});
+
+export const purchasesOptions = queryOptions({
+  queryKey: queryKeys.purchases.lists(),
+  queryFn: api.getPurchases,
+});
+

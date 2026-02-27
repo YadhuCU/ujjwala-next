@@ -6,7 +6,7 @@ export async function GET() {
   return withAuth(async () => {
     const stocks = await prisma.stock.findMany({
       where: { isDeleted: false },
-      include: { product: true },
+      include: { product: true, vendor: true },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(stocks);

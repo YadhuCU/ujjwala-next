@@ -24,6 +24,10 @@ interface Product {
   id: number;
   name: string | null;
 }
+interface Vendor {
+  id: number;
+  name: string;
+}
 interface Stock {
   id: number;
   batchNo: string | null;
@@ -32,6 +36,8 @@ interface Stock {
   productCost: number | null;
   product: Product | null;
   productId: number | null;
+  vendor: Vendor | null;
+  purchaseId: number | null;
 }
 
 export default function StockPage() {
@@ -71,6 +77,7 @@ export default function StockPage() {
               <TableRow>
                 <TableHead>Batch No</TableHead>
                 <TableHead>Product</TableHead>
+                <TableHead>Vendor</TableHead>
                 <TableHead>Invoice No</TableHead>
                 <TableHead>Qty</TableHead>
                 <TableHead>Cost</TableHead>
@@ -84,6 +91,7 @@ export default function StockPage() {
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.batchNo}</TableCell>
                   <TableCell>{s.product?.name}</TableCell>
+                  <TableCell>{s.vendor?.name || "—"}</TableCell>
                   <TableCell>{s.invoiceNo}</TableCell>
                   <TableCell>{s.quantity}</TableCell>
                   <TableCell>
@@ -91,18 +99,24 @@ export default function StockPage() {
                   </TableCell>
                   {isAdmin && (
                     <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/stock/${s.id}/edit`}>
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteId(s.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                      {!s.purchaseId ? (
+                        <>
+                          <Button variant="ghost" size="icon" asChild>
+                            <Link href={`/stock/${s.id}/edit`}>
+                              <Pencil className="w-4 h-4" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteId(s.id)}
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </>
+                      ) : (
+                        <span className="text-xs text-muted-foreground pr-2 italic">Linked to Purchase</span>
+                      )}
                     </TableCell>
                   )}
                 </TableRow>

@@ -94,12 +94,13 @@ model Product {
   weight String?      @db.VarChar(50)
   salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
 
-  isDeleted Boolean   @default(false) @map("is_deleted")
-  createdAt DateTime  @default(now()) @map("created_at")
-  stocks    Stock[]
-  sales     Sale[]
-  domSales  DomSale[]
-  arbSales  ArbSale[]
+  isDeleted     Boolean        @default(false) @map("is_deleted")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  stocks        Stock[]
+  sales         Sale[]
+  domSales      DomSale[]
+  arbSales      ArbSale[]
+  purchaseItems PurchaseItem[]
 
   @@map("products")
 }
@@ -112,6 +113,10 @@ model Stock {
   invoiceNo        String?           @map("invoice_no") @db.VarChar(50)
   quantity         Int               @default(0)
   productCost      Decimal?          @map("product_cost") @db.Decimal(10, 2)
+  vendorId         Int?              @map("vendor_id")
+  vendor           Vendor?           @relation(fields: [vendorId], references: [id])
+  purchaseId       Int?              @map("purchase_id")
+  purchase         Purchase?         @relation(fields: [purchaseId], references: [id])
   isDeleted        Boolean           @default(false) @map("is_deleted")
   createdAt        DateTime          @default(now()) @map("created_at")
   sales            Sale[]
@@ -244,4 +249,51 @@ model ArbSale {
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("arb_sales")
+}
+
+model Vendor {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(100)
+  phone     String?  @db.VarChar(20)
+  address   String?
+  gstNumber String?  @map("gst_number") @db.VarChar(15)
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  purchases Purchase[]
+  stocks    Stock[]
+
+  @@map("vendors")
+}
+
+model Purchase {
+  id           Int      @id @default(autoincrement())
+  invoiceNo    String?  @unique @map("invoice_no") @db.VarChar(50)
+  vendorId     Int      @map("vendor_id")
+  vendor       Vendor   @relation(fields: [vendorId], references: [id])
+  totalAmount  Decimal? @map("total_amount") @db.Decimal(10, 2)
+  purchaseDate DateTime @default(now()) @map("purchase_date")
+  notes        String?
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  items  PurchaseItem[]
+  stocks Stock[]
+
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id         Int      @id @default(autoincrement())
+  purchaseId Int      @map("purchase_id")
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId  Int      @map("product_id")
+  product    Product  @relation(fields: [productId], references: [id])
+  batchNo    String   @map("batch_no") @db.VarChar(50)
+  quantity   Int      @default(0)
+  unitCost   Decimal? @map("unit_cost") @db.Decimal(10, 2)
+  totalCost  Decimal? @map("total_cost") @db.Decimal(10, 2)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("purchase_items")
 }
