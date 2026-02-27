@@ -25,10 +25,22 @@ export function QuickActions() {
               New Domestic Sale
             </Link>
           </Button>
+          <Button asChild variant="secondary">
+            <Link href="/arb-sales/add">
+              <Plus className="w-4 h-4 mr-2" />
+              New ARB Sale
+            </Link>
+          </Button>
           <Button asChild variant="outline">
             <Link href="/expenses/add">
               <Plus className="w-4 h-4 mr-2" />
               Add Expense
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/purchases/add">
+              <Plus className="w-4 h-4 mr-2" />
+              New Purchase
             </Link>
           </Button>
           <Button asChild variant="outline">

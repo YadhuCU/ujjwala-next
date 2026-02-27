@@ -76,6 +76,8 @@ export default function DashboardPage() {
         />
       </div>
 
+      <QuickActions />
+
       <KpiCards data={data} />
       
       <TrendCharts data={data} />
@@ -88,7 +90,6 @@ export default function DashboardPage() {
       
       <CommercialAlerts data={data} />
       
-      <QuickActions />
     </div>
   );
 }
