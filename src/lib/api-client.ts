@@ -134,6 +134,190 @@ export const api = {
     URL.revokeObjectURL(url);
   },
 
+  getExpenseReport: (params: {
+    from: string;
+    to: string;
+    staffId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/expense?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportExpenseReport: async (params: {
+    from: string;
+    to: string;
+    staffId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    const response = await apiClient.get(
+      `/api/reports/expense/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `expense_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  getArbSaleReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/arb-sale?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportArbSaleReport: async (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    const response = await apiClient.get(
+      `/api/reports/arb-sale/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `arb_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  getPurchaseReport: (params: {
+    from: string;
+    to: string;
+    vendorId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.vendorId) sp.set("vendorId", params.vendorId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/purchase?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportPurchaseReport: async (params: {
+    from: string;
+    to: string;
+    vendorId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.vendorId) sp.set("vendorId", params.vendorId);
+    const response = await apiClient.get(
+      `/api/reports/purchase/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `purchase_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  getSaleByProductReport: (params: {
+    from: string;
+    to: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/sale-by-product?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportSaleByProductReport: async (params: {
+    from: string;
+    to: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    const response = await apiClient.get(
+      `/api/reports/sale-by-product/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `sale_by_product_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
   // ─── Mutations ──────────────────────────────────────────
   create: <T>(url: string, data: T) =>
     apiClient.post(url, data).then((r) => r.data),

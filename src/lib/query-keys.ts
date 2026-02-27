@@ -77,4 +77,24 @@ export const queryKeys = {
     list: (params: object) =>
       ["sale-report", params] as const,
   },
+  expenseReport: {
+    all: ["expense-report"] as const,
+    list: (params: object) =>
+      ["expense-report", params] as const,
+  },
+  arbSaleReport: {
+    all: ["arb-sale-report"] as const,
+    list: (params: object) =>
+      ["arb-sale-report", params] as const,
+  },
+  purchaseReport: {
+    all: ["purchase-report"] as const,
+    list: (params: object) =>
+      ["purchase-report", params] as const,
+  },
+  saleByProductReport: {
+    all: ["sale-by-product-report"] as const,
+    list: (params: object) =>
+      ["sale-by-product-report", params] as const,
+  },
 };

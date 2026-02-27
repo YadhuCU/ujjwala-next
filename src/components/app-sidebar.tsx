@@ -56,6 +56,10 @@ const mainNavItems = [
 
 const reportItems = [
   { title: "Sale Report", href: "/reports/sales" },
+  { title: "Expense Report", href: "/reports/expense" },
+  { title: "Arb Sale Report", href: "/reports/arb-sale" },
+  { title: "Purchase Report", href: "/reports/purchase" },
+  { title: "Sale by Product Report", href: "/reports/sale-by-product" },
 ];
 
 export function AppSidebar() {
