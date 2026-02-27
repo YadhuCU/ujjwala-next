@@ -62,6 +62,7 @@ export async function POST(request: Request) {
           netTotal,
           createdById: userId,
           saleType,
+          paymentType: data.paymentType || "cash",
         },
       });
 

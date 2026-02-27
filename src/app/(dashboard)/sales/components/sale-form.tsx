@@ -37,6 +37,7 @@ export const saleSchema = z.object({
   quantity: z.number().min(1, "Quantity must be at least 1"),
   discount: z.number().min(0),
   saleType: z.enum(["sale", "rent"], { message: "Select sale type" }),
+  paymentType: z.enum(["cash", "cheque"], { message: "Select payment type" }),
   collection: z.number().min(0),
   emptyReturn: z.number().min(0),
 });
@@ -87,6 +88,7 @@ export function SaleForm({
       quantity: 0,
       discount: 0,
       saleType: "rent",
+      paymentType: "cash",
       collection: 0,
       emptyReturn: 0,
     },
@@ -270,6 +272,38 @@ export function SaleForm({
                         Sale type cannot be changed after creation.
                       </FormDescription>
                     )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Payment Type */}
+              <FormField
+                control={form.control}
+                name="paymentType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment Type</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="cash" id="payment-type-cash" />
+                          <label htmlFor="payment-type-cash" className="text-sm font-medium cursor-pointer">
+                            Cash
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="cheque" id="payment-type-cheque" />
+                          <label htmlFor="payment-type-cheque" className="text-sm font-medium cursor-pointer">
+                            Cheque
+                          </label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

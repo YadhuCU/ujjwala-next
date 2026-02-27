@@ -27,6 +27,7 @@ interface SaleDetail {
   productCost: number | null;
   netTotal: number | null;
   saleType: "sale" | "rent";
+  paymentType: "cash" | "cheque";
   emptyReturn: number;
   collectionAmount: number;
   collectionId: number | null;
@@ -54,6 +55,7 @@ export default function SaleEditPage() {
       quantity: sale.quantity ?? 0,
       discount: sale.discount ?? 0,
       saleType: sale.saleType,
+      paymentType: sale.paymentType,
       collection: sale.collectionAmount ?? 0,
       emptyReturn: sale.emptyReturn ?? 0,
     };

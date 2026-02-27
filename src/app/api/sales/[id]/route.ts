@@ -327,6 +327,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           productCost,
           salePrice,
           netTotal,
+          paymentType: data.paymentType || "cash",
         },
         include: { stock: true, customer: true, product: true },
       });
