@@ -20,6 +20,7 @@ export function ModeSwitcher() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -68,6 +69,7 @@ export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     setColorTheme(getStoredTheme());
   }, []);
