@@ -19,6 +19,10 @@ export type DomSalePayload = Prisma.DomSaleGetPayload<{
   include: { stock: true; product: true };
 }>;
 
+export type ArbSalePayload = Prisma.ArbSaleGetPayload<{
+  include: { customer: true; items: { include: { stock: true; product: true } } };
+}>;
+
 export type StockPayload = Prisma.StockGetPayload<{
   include: { product: true; vendor: true };
 }>;
@@ -48,6 +52,7 @@ export const api = {
   // ─── List (GET all) ─────────────────────────────────────
   getSales: () => apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
   getDomSales: () => apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
+  getArbSales: () => apiClient.get<{ data: ArbSalePayload[], pagination: any }>("/api/arb-sales").then((r) => r.data.data),
   getExpenses: () => apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
   getCustomers: () => apiClient.get<CustomerPayload[]>("/api/customers").then((r) => r.data),
   getStocks: () => apiClient.get<StockPayload[]>("/api/stock").then((r) => r.data),

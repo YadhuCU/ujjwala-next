@@ -14,6 +14,11 @@ export const queryKeys = {
     lists: () => ["dom-sales"] as const,
     detail: (id: string) => ["dom-sales", id] as const,
   },
+  arbSales: {
+    all: ["arb-sales"] as const,
+    lists: () => ["arb-sales"] as const,
+    detail: (id: string) => ["arb-sales", id] as const,
+  },
   expenses: {
     all: ["expenses"] as const,
     lists: () => ["expenses"] as const,

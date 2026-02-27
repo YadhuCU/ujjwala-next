@@ -10,6 +10,7 @@ import {
   usersOptions,
   vendorsOptions,
   purchasesOptions,
+  arbSalesOptions,
 } from "@/lib/query-options";
 
 // ─── Custom Query Hooks (reused in ≥2 components) ───────────────────────────
@@ -42,6 +43,10 @@ export function usePurchases() {
   return useQuery(purchasesOptions);
 }
 
+export function useArbSales() {
+  return useQuery(arbSalesOptions);
+}
+
 // ─── Generic Mutation Hook ──────────────────────────────────────────────────
 
 interface MutationOptions {
@@ -51,6 +56,7 @@ interface MutationOptions {
   /** Query keys to invalidate on success */
   invalidateKeys?: readonly (readonly string[])[];
   onSuccess?: () => void;
+  onError?: (error: unknown) => void;
 }
 
 function getAxiosError(error: unknown): string {
@@ -66,6 +72,7 @@ export function useApiMutation<T = Record<string, unknown>>({
   method = "POST",
   invalidateKeys = [],
   onSuccess,
+  onError,
 }: MutationOptions) {
   const queryClient = useQueryClient();
 
@@ -85,7 +92,8 @@ export function useApiMutation<T = Record<string, unknown>>({
       onSuccess?.();
     },
     onError: (error: Error) => {
-      toast.error(getAxiosError(error));
+      if (onError) onError(error);
+      else toast.error(getAxiosError(error));
     },
   });
 }

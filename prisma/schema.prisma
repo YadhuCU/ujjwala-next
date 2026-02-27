@@ -83,23 +83,24 @@ model Customer {
   collections            Collection[]
   rentProducts           RentProduct[]
   rentTransactions       RentTransaction[]
+  arbSales               ArbSale[]
 
   @@map("customers")
 }
 
 model Product {
-  id     Int          @id @default(autoincrement())
-  name   String?      @unique @db.VarChar(50)
-  type   ProductType?
-  weight String?      @db.VarChar(50)
-  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
+  id        Int          @id @default(autoincrement())
+  name      String?      @unique @db.VarChar(50)
+  type      ProductType?
+  weight    String?      @db.VarChar(50)
+  salePrice Decimal?     @map("sale_price") @db.Decimal(10, 2)
 
   isDeleted     Boolean        @default(false) @map("is_deleted")
   createdAt     DateTime       @default(now()) @map("created_at")
   stocks        Stock[]
   sales         Sale[]
   domSales      DomSale[]
-  arbSales      ArbSale[]
+  arbSaleItems  ArbSaleItem[]
   purchaseItems PurchaseItem[]
 
   @@map("products")
@@ -121,7 +122,7 @@ model Stock {
   createdAt        DateTime          @default(now()) @map("created_at")
   sales            Sale[]
   domSales         DomSale[]
-  arbSales         ArbSale[]
+  arbSaleItems     ArbSaleItem[]
   rentProducts     RentProduct[]
   rentTransactions RentTransaction[]
 
@@ -234,21 +235,37 @@ model RentTransaction {
 }
 
 model ArbSale {
-  id          Int      @id @default(autoincrement())
-  trNo        String?  @map("tr_no") @db.VarChar(30)
-  stockId     Int?     @map("stock_id")
-  stock       Stock?   @relation(fields: [stockId], references: [id], onDelete: Cascade)
-  productId   Int?     @map("product_id")
-  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity    Int      @default(0)
-  salePrice   Decimal? @map("sale_price") @db.Decimal(10, 2)
-  netTotal    Decimal? @map("net_total") @db.Decimal(10, 2)
-  createdById Int?     @map("created_by_id")
-  createdBy   Account? @relation("ArbSalesCreated", fields: [createdById], references: [id])
-  isDeleted   Boolean  @default(false) @map("is_deleted")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id          Int         @id @default(autoincrement())
+  trNo        String?     @map("tr_no") @db.VarChar(30)
+  totalAmount Decimal?    @map("total_amount") @db.Decimal(10, 2)
+  customerId  Int?        @map("customer_id")
+  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  paymentType PaymentType @default(cash) @map("payment_type")
+  discount    Decimal?    @db.Decimal(10, 2)
+  notes       String?
+  createdById Int?        @map("created_by_id")
+  createdBy   Account?    @relation("ArbSalesCreated", fields: [createdById], references: [id])
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  items ArbSaleItem[]
 
   @@map("arb_sales")
+}
+
+model ArbSaleItem {
+  id        Int      @id @default(autoincrement())
+  arbSaleId Int      @map("arb_sale_id")
+  arbSale   ArbSale  @relation(fields: [arbSaleId], references: [id], onDelete: Cascade)
+  stockId   Int?     @map("stock_id")
+  stock     Stock?   @relation(fields: [stockId], references: [id])
+  productId Int?     @map("product_id")
+  product   Product? @relation(fields: [productId], references: [id])
+  quantity  Int      @default(0)
+  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
+  netTotal  Decimal? @map("net_total") @db.Decimal(10, 2)
+
+  @@map("arb_sale_items")
 }
 
 model Vendor {
