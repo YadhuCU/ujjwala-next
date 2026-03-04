@@ -3,6 +3,8 @@
 // Each entity provides: .all (for invalidation), .lists() (for list queries),
 // and .detail(id) (for single-item queries).
 
+import { ProductType } from "@prisma/client";
+
 export const queryKeys = {
   sales: {
     all: ["sales"] as const,
@@ -35,7 +37,7 @@ export const queryKeys = {
   },
   stocks: {
     all: ["stocks"] as const,
-    lists: () => ["stocks"] as const,
+    lists: (type?: ProductType) => ["stocks", type] as const,
     detail: (id: string) => ["stocks", id] as const,
   },
   vendors: {
@@ -55,7 +57,7 @@ export const queryKeys = {
   },
   products: {
     all: ["products"] as const,
-    lists: () => ["products"] as const,
+    lists: (type?: ProductType) => ["products", type] as const,
     detail: (id: string) => ["products", id] as const,
   },
   users: {

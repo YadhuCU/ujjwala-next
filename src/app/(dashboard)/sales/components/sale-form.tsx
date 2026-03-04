@@ -133,6 +133,17 @@ export function SaleForm({
             onSubmit={form.handleSubmit((v) => onSubmit(v, selectedStock))}
             className="space-y-4"
           >
+            {/* Customer Transaction Info */}
+            {txnInfo && (
+              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 text-sm space-y-1 border border-blue-200 dark:border-blue-800">
+                <p>
+                  <strong>Cylinders In Hand:</strong> {txnInfo.rent_qty}
+                </p>
+                <p>
+                  <strong>Pending Amount:</strong> ₹{txnInfo.pending_amount}
+                </p>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               {/* Stock */}
               <FormField
@@ -355,29 +366,6 @@ export function SaleForm({
               )}
             </div>
 
-            {/* Stock Info */}
-            {selectedStock && (
-              <div className="bg-muted rounded-lg p-4 text-sm space-y-1">
-                <p>
-                  <strong>Sale Price:</strong> ₹{String(selectedStock.product?.salePrice)}
-                </p>
-                <p>
-                  <strong>Product Cost:</strong> ₹{String(selectedStock.productCost)}
-                </p>
-              </div>
-            )}
-
-            {/* Customer Transaction Info */}
-            {txnInfo && (
-              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 text-sm space-y-1 border border-blue-200 dark:border-blue-800">
-                <p>
-                  <strong>Cylinders In Hand:</strong> {txnInfo.rent_qty}
-                </p>
-                <p>
-                  <strong>Pending Amount:</strong> ₹{txnInfo.pending_amount}
-                </p>
-              </div>
-            )}
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isPending}>

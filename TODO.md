@@ -37,3 +37,17 @@ Office User Type Changes,
 [ ] Dashboard | Pie chart Expence, and Sale
 [ ] Dashboard | Pie chart Sale by Proeduct.
 [ ] Dashboard | Change Revenue name to Sale
+
+
+## 03/03/2026
+
+[x] Filter product query for each pages (Commercial, Domestic, ARB).
+[ ] Customer initial balance with new balance mismatching.
+[ ] Customerwise Report.
+[x] Move the pending amount to Top section.
+[ ] When updating time, the pending amount and cylinder id wrong.
+[ ] Empty Sale entry.
+[ ] Add Customer option in both ARB & Domestic Sale.
+[ ] Edit option for ARB Sale.
+[ ] Report | Customer Pending Report(Or Customer Outstanding Report Or Customer Dues Report) - To view the closing balace of the customers.
+[ ] Dashboard | Add ARB Sales
