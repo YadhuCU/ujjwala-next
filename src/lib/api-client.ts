@@ -6,6 +6,7 @@ import type {
   Product,
   Account,
   Vendor,
+  ProductType,
 } from "@prisma/client";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
@@ -55,9 +56,9 @@ export const api = {
   getArbSales: () => apiClient.get<{ data: ArbSalePayload[], pagination: unknown }>("/api/arb-sales").then((r) => r.data.data),
   getExpenses: () => apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
   getCustomers: () => apiClient.get<CustomerPayload[]>("/api/customers").then((r) => r.data),
-  getStocks: () => apiClient.get<StockPayload[]>("/api/stock").then((r) => r.data),
+  getStocks: (type?: ProductType) => apiClient.get<StockPayload[]>("/api/stock", { params: { type } }).then((r) => r.data),
   getLocations: () => apiClient.get<Location[]>("/api/locations").then((r) => r.data),
-  getProducts: () => apiClient.get<Product[]>("/api/products").then((r) => r.data),
+  getProducts: (type?: ProductType) => apiClient.get<Product[]>("/api/products", { params: { type } }).then((r) => r.data),
   getUsers: () => apiClient.get<UserPayload[]>("/api/users").then((r) => r.data),
   getVendors: () => apiClient.get<Vendor[]>("/api/vendors").then((r) => r.data),
   getPurchases: () => apiClient.get<PurchasePayload[]>("/api/purchases").then((r) => r.data),

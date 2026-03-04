@@ -54,7 +54,7 @@ export function DomSaleForm({
   onSubmit,
   isPending,
 }: DomSaleFormProps) {
-  const { data: rawStocks = [] } = useStocks();
+  const { data: rawStocks = [] } = useStocks("Domestic");
   const stocks = rawStocks as Stock[];
   const [availableQty, setAvailableQty] = useState<number | null>(null);
 

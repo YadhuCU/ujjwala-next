@@ -75,7 +75,7 @@ export function SaleForm({
   isPending,
 }: SaleFormProps) {
   const { data: stocks = [] } = useQuery({
-    ...stocksOptions, 
+    ...stocksOptions("Commercial"), 
     select: res => res.filter(x => x.quantity !== 0)
   });
   const { data: customers = [] } = useCustomers() as { data: Customer[] };

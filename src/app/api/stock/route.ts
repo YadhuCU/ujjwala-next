@@ -1,11 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { ProductType } from "@prisma/client";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   return withAuth(async () => {
+    const type = req.nextUrl.searchParams.get("type") as ProductType | null;
     const stocks = await prisma.stock.findMany({
-      where: { isDeleted: false },
+      where: { isDeleted: false, ...(type && { product: { type } }) },
       include: { product: true, vendor: true },
       orderBy: { createdAt: "desc" },
     });

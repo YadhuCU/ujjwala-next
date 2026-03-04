@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
+import { ProductType } from "@prisma/client";
 
 // ─── Query Options (single-use, consumed inline via useQuery) ────────────────
 
@@ -39,10 +40,11 @@ export const dashboardOptions = (from?: string, to?: string) =>
 
 // ─── Reusable Query Options (used in custom hooks) ──────────────────────────
 
-export const stocksOptions = queryOptions({
-  queryKey: queryKeys.stocks.lists(),
-  queryFn: api.getStocks,
-});
+export const stocksOptions = (type?: ProductType) =>
+  queryOptions({
+    queryKey: queryKeys.stocks.lists(type),
+    queryFn: () => api.getStocks(type),
+  });
 
 export const customersOptions = queryOptions({
   queryKey: queryKeys.customers.lists(),
@@ -54,10 +56,11 @@ export const locationsOptions = queryOptions({
   queryFn: api.getLocations,
 });
 
-export const productsOptions = queryOptions({
-  queryKey: queryKeys.products.lists(),
-  queryFn: api.getProducts,
-});
+export const productsOptions = (type?: ProductType) =>
+  queryOptions({
+    queryKey: queryKeys.products.lists(type),
+    queryFn: () => api.getProducts(type),
+  });
 
 export const usersOptions = queryOptions({
   queryKey: queryKeys.users.lists(),

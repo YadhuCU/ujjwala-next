@@ -1,9 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
 import { useApiMutation } from "@/hooks/use-api";
 import { queryKeys } from "@/lib/query-keys";
 import { SaleForm } from "../components/sale-form";

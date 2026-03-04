@@ -69,7 +69,7 @@ export function ArbSaleForm({
   isPending,
 }: ArbSaleFormProps) {
   // Only fetch stocks with available quantity for new sales
-  const { data: rawStocks = [] } = useStocks();
+  const { data: rawStocks = [] } = useStocks("ARB");
   const stocks = rawStocks as StockPayload[];
   const availableStocks = stocks.filter(s => s.quantity > 0);
 

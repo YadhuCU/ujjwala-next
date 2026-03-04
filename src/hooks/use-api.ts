@@ -12,11 +12,12 @@ import {
   purchasesOptions,
   arbSalesOptions,
 } from "@/lib/query-options";
+import { ProductType } from "@prisma/client";
 
 // ─── Custom Query Hooks (reused in ≥2 components) ───────────────────────────
 
-export function useStocks() {
-  return useQuery(stocksOptions);
+export function useStocks(type?: ProductType) {
+  return useQuery(stocksOptions(type));
 }
 
 export function useCustomers() {
@@ -27,8 +28,8 @@ export function useLocations() {
   return useQuery(locationsOptions);
 }
 
-export function useProducts() {
-  return useQuery(productsOptions);
+export function useProducts(type?: ProductType) {
+  return useQuery(productsOptions(type));
 }
 
 export function useUsers() {
