@@ -6,14 +6,8 @@ import { usePermissions } from "@/hooks/use-permissions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useLocations, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
@@ -40,6 +34,39 @@ export default function LocationsPage() {
     onSuccess: () => router.refresh(),
   });
 
+  const columns: ColumnDef<Location>[] = [
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "district", header: "District" },
+    { accessorKey: "pincode", header: "Pincode" },
+    { accessorKey: "locality", header: "Locality" },
+  ];
+
+  if (isAdmin) {
+    columns.push({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const loc = row.original;
+        return (
+          <div className="text-right space-x-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/locations/${loc.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(loc.id)}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          </div>
+        );
+      },
+    });
+  }
+
   return (
     <PageWrapper
       title="Locations"
@@ -60,45 +87,7 @@ export default function LocationsPage() {
           <CardTitle>Location List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>District</TableHead>
-                <TableHead>Pincode</TableHead>
-                <TableHead>Locality</TableHead>
-                {isAdmin && (
-                  <TableHead className="text-right">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {locations.map((loc) => (
-                <TableRow key={loc.id}>
-                  <TableCell className="font-medium">{loc.name}</TableCell>
-                  <TableCell>{loc.district}</TableCell>
-                  <TableCell>{loc.pincode}</TableCell>
-                  <TableCell>{loc.locality}</TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/locations/${loc.id}/edit`}>
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteId(loc.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={locations} searchPlaceholder="Search locations..." />
         </CardContent>
       </Card>
 

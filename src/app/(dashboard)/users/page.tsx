@@ -9,14 +9,8 @@ import { queryKeys } from "@/lib/query-keys";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -43,6 +37,56 @@ export default function UsersPage() {
     queryClient.invalidateQueries({ queryKey: [...queryKeys.users.all] });
   }
 
+  const columns: ColumnDef<any>[] = [
+    { accessorKey: "username", header: "Username" },
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "mobile", header: "Mobile" },
+    { accessorKey: "role", header: "Role" },
+    {
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => {
+        const u = row.original;
+        return (
+          <Badge
+            variant={u.isActive ? "default" : "secondary"}
+            className={isAdmin ? "cursor-pointer" : ""}
+            onClick={() => isAdmin && toggleActive(u.id, u.isActive)}
+          >
+            {u.isActive ? "Active" : "Inactive"}
+          </Badge>
+        );
+      },
+    },
+  ];
+
+  if (isAdmin) {
+    columns.push({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const u = row.original;
+        return (
+          <div className="text-right space-x-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/users/${u.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(u.id)}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          </div>
+        );
+      },
+    });
+  }
+
   return (
     <PageWrapper
       title="Users"
@@ -63,57 +107,7 @@ export default function UsersPage() {
           <CardTitle>User List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Username</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Mobile</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                {isAdmin && (
-                  <TableHead className="text-right">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((u) => (
-                <TableRow key={u.id}>
-                  <TableCell className="font-medium">{u.username}</TableCell>
-                  <TableCell>{u.name}</TableCell>
-                  <TableCell>{u.email}</TableCell>
-                  <TableCell>{u.mobile}</TableCell>
-                  <TableCell>{u.role}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={u.isActive ? "default" : "secondary"}
-                      className="cursor-pointer"
-                      onClick={() => isAdmin && toggleActive(u.id, u.isActive)}
-                    >
-                      {u.isActive ? "Active" : "Inactive"}
-                    </Badge>
-                  </TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/users/${u.id}/edit`}>
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteId(u.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={users} searchPlaceholder="Search users..." />
         </CardContent>
       </Card>
 

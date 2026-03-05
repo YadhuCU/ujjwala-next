@@ -6,14 +6,8 @@ import { usePermissions } from "@/hooks/use-permissions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useStocks, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
@@ -53,6 +47,60 @@ export default function StockPage() {
     onSuccess: () => router.refresh(),
   });
 
+  const columns: ColumnDef<Stock>[] = [
+    { accessorKey: "batchNo", header: "Batch No" },
+    { accessorKey: "product.name", header: "Product" },
+    {
+      accessorKey: "vendor.name",
+      header: "Vendor",
+      cell: ({ row }) => {
+        return row.original.vendor?.name || "—";
+      },
+    },
+    { accessorKey: "invoiceNo", header: "Invoice No" },
+    { accessorKey: "quantity", header: "Qty" },
+    {
+      accessorKey: "productCost",
+      header: "Cost",
+      cell: ({ row }) => {
+        const cost = row.original.productCost;
+        return cost ? `₹${cost}` : "";
+      },
+    },
+  ];
+
+  if (isAdmin) {
+    columns.push({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const s = row.original;
+        return (
+          <div className="text-right space-x-2">
+            {!s.purchaseId ? (
+              <>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href={`/stock/${s.id}/edit`}>
+                    <Pencil className="w-4 h-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setDeleteId(s.id)}
+                >
+                  <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
+              </>
+            ) : (
+              <span className="text-xs text-muted-foreground pr-2 italic">Linked to Purchase</span>
+            )}
+          </div>
+        );
+      },
+    });
+  }
+
   return (
     <PageWrapper
       title="Stock"
@@ -72,57 +120,7 @@ export default function StockPage() {
           <CardTitle>Stock List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Batch No</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Vendor</TableHead>
-                <TableHead>Invoice No</TableHead>
-                <TableHead>Qty</TableHead>
-                <TableHead>Cost</TableHead>
-                {isAdmin && (
-                  <TableHead className="text-right">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {stocks.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell className="font-medium">{s.batchNo}</TableCell>
-                  <TableCell>{s.product?.name}</TableCell>
-                  <TableCell>{s.vendor?.name || "—"}</TableCell>
-                  <TableCell>{s.invoiceNo}</TableCell>
-                  <TableCell>{s.quantity}</TableCell>
-                  <TableCell>
-                    {s.productCost ? `₹${s.productCost}` : ""}
-                  </TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right space-x-2">
-                      {!s.purchaseId ? (
-                        <>
-                          <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/stock/${s.id}/edit`}>
-                              <Pencil className="w-4 h-4" />
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteId(s.id)}
-                          >
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </>
-                      ) : (
-                        <span className="text-xs text-muted-foreground pr-2 italic">Linked to Purchase</span>
-                      )}
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={stocks} searchPlaceholder="Search stock..." />
         </CardContent>
       </Card>
 

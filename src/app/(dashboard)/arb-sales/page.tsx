@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye, Trash2 } from "lucide-react";
+import { Plus, Eye, Trash2, Pencil } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { usePermissions } from "@/hooks/use-permissions";
@@ -19,10 +19,64 @@ import { useState } from "react";
 import { useApiMutation } from "@/hooks/use-api";
 import { queryKeys } from "@/lib/query-keys";
 import { DeleteAlert } from "@/components/delete-alert";
+import { ColumnDef } from "@tanstack/react-table";
+import { ArbSale } from "@prisma/client";
+import { ArbSalePayload } from "@/lib/api-client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/data-table";
 
 export default function ArbSalesPage() {
-  const { data: arbSales = [], isLoading } = useArbSales();
   const { isAdmin } = usePermissions();
+
+  const columns: ColumnDef<ArbSalePayload>[] = [
+    {
+      accessorKey: "trNo",
+      header: "TR No",
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Date',
+      cell: (info) => new Date(info.getValue() as string).toLocaleDateString('en-IN'),
+    },
+    {
+      accessorFn: (row) => row.customer?.name ?? "",
+      id: "customer",
+      header: "Customer",
+    },
+    {
+      accessorKey: "paymentType",
+      header: "Payment Type",
+    },
+    {
+      accessorKey: "totalAmount",
+      header: "Net Total",
+      cell: (info) => (info.getValue() ? `₹${info.getValue()}` : ""),
+    },
+    {
+      id: "actions",
+      header: isAdmin ? "Actions" : undefined,
+      cell: ({ row }) =>
+        isAdmin ? (
+          <div className="flex justify-center gap-1">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/arb-sales/${row.original.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(row.original.id)}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          </div>
+        ) : null,
+    },
+  ];
+
+  const { data: arbSales = [], isLoading } = useArbSales();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const deleteMutation = useApiMutation({
@@ -43,63 +97,14 @@ export default function ArbSalesPage() {
         </Button>
       }
     >
-      <div className="border rounded-lg bg-card text-card-foreground shadow-sm">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>TR No</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Payment</TableHead>
-              <TableHead>Total Amount</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : arbSales.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  No ARB sales found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              arbSales.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell className="font-medium">{s.trNo || "-"}</TableCell>
-                  <TableCell>
-                    {format(new Date(s.createdAt), "dd MMM yyyy")}
-                  </TableCell>
-                  <TableCell>{s.customer?.name || "-"}</TableCell>
-                  <TableCell className="capitalize">{s.paymentType}</TableCell>
-                  <TableCell>₹{Number(s.totalAmount || 0).toFixed(2)}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link href={`/arb-sales/${s.id}/edit`}>
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                    </Button>
-                    {isAdmin && !s.isDeleted && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteId(s.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>ARB Sales List</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable columns={columns} data={arbSales} />
+        </CardContent>
+      </Card>
 
       <DeleteAlert
         open={deleteId !== null}

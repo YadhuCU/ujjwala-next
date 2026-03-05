@@ -6,14 +6,8 @@ import { useRouter } from "next/navigation";
 import { usePermissions } from "@/hooks/use-permissions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
@@ -39,6 +33,48 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
     onSuccess: () => router.refresh(),
   });
 
+  const columns: ColumnDef<Customer>[] = [
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "address", header: "Address" },
+    { accessorKey: "location.name", header: "Location" },
+    {
+      accessorKey: "discount",
+      header: "Discount",
+      cell: ({ row }) => {
+        const d = row.original.discount;
+        return d ? `${d}%` : "";
+      },
+    },
+    { accessorKey: "phone", header: "Phone" },
+  ];
+
+  if (isAdmin) {
+    columns.push({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const c = row.original;
+        return (
+          <div className="text-right space-x-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/customers/${c.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(c.id)}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          </div>
+        );
+      },
+    });
+  }
+
   return (
     <PageWrapper
       title="Customers"
@@ -57,59 +93,7 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
           <CardTitle>Customer List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Discount</TableHead>
-                <TableHead>Phone</TableHead>
-                {isAdmin && (
-                  <TableHead className="text-right">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="text-center text-muted-foreground"
-                  >
-                    No customers found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                customers.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.name}</TableCell>
-                    <TableCell>{c.address}</TableCell>
-                    <TableCell>{c.location?.name}</TableCell>
-                    <TableCell>{c.discount ? `${c.discount}%` : ""}</TableCell>
-                    <TableCell>{c.phone}</TableCell>
-                    {isAdmin && (
-                      <TableCell className="text-right space-x-2">
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/customers/${c.id}/edit`}>
-                            <Pencil className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteId(c.id)}
-                          disabled={deleteMutation.isPending}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={customers} searchPlaceholder="Search customers..." />
         </CardContent>
       </Card>
 

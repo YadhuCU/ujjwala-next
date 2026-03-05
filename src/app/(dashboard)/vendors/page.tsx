@@ -6,14 +6,8 @@ import { usePermissions } from "@/hooks/use-permissions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useVendors, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
@@ -41,6 +35,39 @@ export default function VendorsPage() {
     onSuccess: () => router.refresh(),
   });
 
+  const columns: ColumnDef<Vendor>[] = [
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "phone", header: "Phone" },
+    { accessorKey: "gstNumber", header: "GST Number" },
+    { accessorKey: "address", header: "Address" },
+  ];
+
+  if (isAdmin) {
+    columns.push({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const v = row.original;
+        return (
+          <div className="text-right space-x-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/vendors/${v.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(v.id)}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          </div>
+        );
+      },
+    });
+  }
+
   return (
     <PageWrapper
       title="Vendors"
@@ -60,47 +87,7 @@ export default function VendorsPage() {
           <CardTitle>Vendor List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>GST Number</TableHead>
-                <TableHead>Address</TableHead>
-                {isAdmin && (
-                  <TableHead className="text-right">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {vendors.map((v) => (
-                <TableRow key={v.id}>
-                  <TableCell className="font-medium">{v.name}</TableCell>
-                  <TableCell>{v.phone}</TableCell>
-                  <TableCell>{v.gstNumber}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">
-                    {v.address}
-                  </TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/vendors/${v.id}/edit`}>
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteId(v.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={vendors} searchPlaceholder="Search vendors..." />
         </CardContent>
       </Card>
 

@@ -6,14 +6,8 @@ import { usePermissions } from "@/hooks/use-permissions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useProducts, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
@@ -41,6 +35,46 @@ export default function ProductsPage() {
     onSuccess: () => router.refresh(),
   });
 
+  const columns: ColumnDef<Product>[] = [
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "type", header: "Type" },
+    { accessorKey: "weight", header: "Weight" },
+    {
+      accessorKey: "salePrice",
+      header: "Sale Price",
+      cell: ({ row }) => {
+        const price = row.original.salePrice;
+        return price ? `₹${price}` : "";
+      },
+    },
+  ];
+
+  if (isAdmin) {
+    columns.push({
+      id: "actions",
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const p = row.original;
+        return (
+          <div className="text-right space-x-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/products/${p.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(p.id)}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          </div>
+        );
+      },
+    });
+  }
+
   return (
     <PageWrapper
       title="Products"
@@ -60,45 +94,7 @@ export default function ProductsPage() {
           <CardTitle>Product List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Weight</TableHead>
-                <TableHead>Sale Price</TableHead>
-                {isAdmin && (
-                  <TableHead className="text-right">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell>{p.type}</TableCell>
-                  <TableCell>{p.weight}</TableCell>
-                  <TableCell>{p.salePrice ? `₹${p.salePrice}` : ""}</TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/products/${p.id}/edit`}>
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteId(p.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={products} searchPlaceholder="Search products..." />
         </CardContent>
       </Card>
 

@@ -6,14 +6,8 @@ import { useRouter } from "next/navigation";
 import { usePermissions } from "@/hooks/use-permissions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable } from "@/components/data-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
@@ -42,6 +36,69 @@ export function SalesClient({ sales }: { sales: Sale[] }) {
     onSuccess: () => router.refresh(),
   });
 
+  const columns: ColumnDef<Sale, any>[] = [
+    {
+      accessorKey: 'trNo',
+      header: 'TR No',
+    },
+    {
+      accessorFn: (row) => row.customer?.name ?? '',
+      id: 'customer',
+      header: 'Customer',
+    },
+    {
+      accessorFn: (row) => row.product?.name ?? '',
+      id: 'product',
+      header: 'Product',
+    },
+    {
+      accessorFn: (row) => row.stock?.batchNo ?? '',
+      id: 'batch',
+      header: 'Batch',
+    },
+    {
+      accessorKey: 'quantity',
+      header: 'Qty',
+    },
+    {
+      accessorKey: 'salePrice',
+      header: 'Price',
+      cell: (info) => (info.getValue() ? `₹${info.getValue()}` : ''),
+    },
+    {
+      accessorKey: 'netTotal',
+      header: 'Net Total',
+      cell: (info) => (info.getValue() ? `₹${info.getValue()}` : ''),
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Date',
+      cell: (info) => new Date(info.getValue() as string).toLocaleDateString('en-IN'),
+    },
+    {
+      id: 'actions',
+      header: isAdmin ? 'Actions' : undefined,
+      cell: ({ row }) =>
+        isAdmin ? (
+          <div className="flex justify-center gap-1">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/sales/${row.original.id}/edit`}>
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setDeleteId(row.original.id)}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          </div>
+        ) : null,
+    },
+  ];
+
   return (
     <PageWrapper
       title="Commercial Sales"
@@ -59,73 +116,7 @@ export function SalesClient({ sales }: { sales: Sale[] }) {
           <CardTitle>Sales List</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>TR No</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Batch</TableHead>
-                <TableHead>Qty</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Net Total</TableHead>
-                <TableHead>Date</TableHead>
-                {isAdmin && (
-                  <TableHead className="text-right">Actions</TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sales.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="text-center text-muted-foreground"
-                  >
-                    No sales found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                sales.map((s) => (
-                  <TableRow key={s.id}>
-                    <TableCell className="font-medium">{s.trNo}</TableCell>
-                    <TableCell>{s.customer?.name}</TableCell>
-                    <TableCell>{s.product?.name}</TableCell>
-                    <TableCell>{s.stock?.batchNo}</TableCell>
-                    <TableCell>{s.quantity}</TableCell>
-                    <TableCell>
-                      {s.salePrice ? `₹${s.salePrice}` : ""}
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      {s.netTotal ? `₹${s.netTotal}` : ""}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(s.createdAt).toLocaleDateString("en-IN")}
-                    </TableCell>
-                    {isAdmin && (
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/sales/${s.id}/edit`}>
-                              <Pencil className="w-4 h-4" />
-                            </Link>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteId(s.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+          <DataTable columns={columns} data={sales} />
         </CardContent>
       </Card>
 
