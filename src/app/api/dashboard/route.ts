@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     });
     const rangeDomSales = await prisma.domSale.findMany({
       where: { createdAt: { gte: startDate, lte: endDate }, isDeleted: false, ...ownerFilter },
-      include: { product: true, stock: true },
+      include: { items: { include: { stock: true, product: true } } },
     });
     const rangeExpenses = isStaff ? [] : await prisma.expense.findMany({
       where: { date: { gte: startDate, lte: endDate }, isDeleted: false },
@@ -42,21 +42,27 @@ export async function GET(req: NextRequest) {
 
     // ─── KPIs ───
     const totalRevenue = rangeSales.reduce((s, r) => s + Number(r.netTotal ?? 0), 0)
-      + rangeDomSales.reduce((s, r) => s + Number(r.netTotal ?? 0), 0);
+      + rangeDomSales.reduce((s, r) => s + Number(r.totalAmount ?? 0), 0);
     const totalCost = rangeSales.reduce((s, r) => s + r.quantity * Number(r.productCost ?? 0), 0)
-      + rangeDomSales.reduce((s, r) => s + r.quantity * Number(r.stock?.productCost ?? 0), 0);
+      + rangeDomSales.reduce((s, r) => {
+          return s + r.items.reduce((itemSum, item) => {
+            return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
+          }, 0);
+        }, 0);
     const totalExpenses = rangeExpenses.reduce((s, r) => s + Number(r.amount ?? 0), 0);
     const totalProfit = totalRevenue - totalCost - totalExpenses;
     const totalCollections = rangeCollections.reduce((s, r) => s + Number(r.amount ?? 0), 0);
     const totalQtySold = rangeSales.reduce((s, r) => s + r.quantity, 0)
-      + rangeDomSales.reduce((s, r) => s + r.quantity, 0);
+      + rangeDomSales.reduce((s, r) => {
+          return s + r.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
+        }, 0);
     const customerCount = isStaff ? 0 : await prisma.customer.count({ where: { isDeleted: false } });
 
     // ─── Today KPIs ───
     const todaySales = rangeSales.filter(s => s.createdAt >= today && s.createdAt < tomorrow);
     const todayDomSales = rangeDomSales.filter(s => s.createdAt >= today && s.createdAt < tomorrow);
     const todayRevenue = todaySales.reduce((s, r) => s + Number(r.netTotal ?? 0), 0)
-      + todayDomSales.reduce((s, r) => s + Number(r.netTotal ?? 0), 0);
+      + todayDomSales.reduce((s, r) => s + Number(r.totalAmount ?? 0), 0);
 
     // ─── Daily trend data ───
     const dailyMap: Record<string, { revenue: number; cost: number; expense: number; collections: number; comSales: number; domSales: number }> = {};
@@ -74,8 +80,10 @@ export async function GET(req: NextRequest) {
     for (const s of rangeDomSales) {
       const k = s.createdAt.toISOString().split("T")[0];
       if (dailyMap[k]) {
-        dailyMap[k].revenue += Number(s.netTotal ?? 0);
-        dailyMap[k].cost += s.quantity * Number(s.stock?.productCost ?? 0);
+        dailyMap[k].revenue += Number(s.totalAmount ?? 0);
+        dailyMap[k].cost += s.items.reduce((itemSum, item) => {
+          return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
+        }, 0);
         dailyMap[k].domSales++;
       }
     }
@@ -110,10 +118,12 @@ export async function GET(req: NextRequest) {
         productMap[name].qty += s.quantity;
       }
       for (const s of rangeDomSales) {
-        const name = s.product?.name || "Unknown";
-        if (!productMap[name]) productMap[name] = { name, revenue: 0, qty: 0 };
-        productMap[name].revenue += Number(s.netTotal ?? 0);
-        productMap[name].qty += s.quantity;
+        for (const item of s.items) {
+          const name = item.product?.name || "Unknown";
+          if (!productMap[name]) productMap[name] = { name, revenue: 0, qty: 0 };
+          productMap[name].revenue += Number(item.netTotal ?? 0);
+          productMap[name].qty += item.quantity;
+        }
       }
       return Object.values(productMap)
         .sort((a, b) => b.revenue - a.revenue)

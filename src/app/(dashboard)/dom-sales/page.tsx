@@ -22,17 +22,14 @@ import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
 import { PageWrapper } from "@/components/page-wrapper";
 
-import { DomSalePayload } from "@/lib/api-client";
-
 export default function DomSalesPage() {
   const router = useRouter();
   const { isAdmin } = usePermissions();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { data: domSales = [] } = useQuery({
-    ...domSalesOptions,
-    select: (data) => data as DomSalePayload[],
-  });
+  const { data: response } = useQuery(domSalesOptions);
+  // Handle both old array format and new paginated format
+  const domSales = (Array.isArray(response) ? response : ((response as any)?.data || [])) as any[];
 
   const deleteMutation = useDeleteMutation({
     invalidateKeys: [queryKeys.domSales.all],
@@ -60,12 +57,10 @@ export default function DomSalesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Tr No</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Batch</TableHead>
-                <TableHead>Qty</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Collection</TableHead>
-                <TableHead>Net Total</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Payment Type</TableHead>
+                <TableHead>Total Amount</TableHead>
                 <TableHead>Date</TableHead>
                 {isAdmin && (
                   <TableHead className="text-right">Actions</TableHead>
@@ -73,17 +68,27 @@ export default function DomSalesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {domSales.map((s) => (
+              {domSales.map((s: any) => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.trNo}</TableCell>
-                  <TableCell>{s.product?.name || "N/A"}</TableCell>
-                  <TableCell>{s.stock?.batchNo || "N/A"}</TableCell>
-                  <TableCell>{s.quantity}</TableCell>
-                  <TableCell>{s.salePrice ? `₹${s.salePrice}` : ""}</TableCell>
+                  <TableCell>{s.customer?.name || "Walk-in"}</TableCell>
                   <TableCell>
-                    {s.collectionAmount ? `₹${s.collectionAmount}` : ""}
+                    {s.items?.length > 0 ? (
+                      <div className="text-sm">
+                        {s.items.map((item: any, idx: number) => (
+                          <div key={idx}>
+                            {item.product?.name} x {item.quantity}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      "No items"
+                    )}
                   </TableCell>
-                  <TableCell>{s.netTotal ? `₹${s.netTotal}` : ""}</TableCell>
+                  <TableCell className="capitalize">{s.paymentType}</TableCell>
+                  <TableCell>
+                    {s.totalAmount ? `₹${Number(s.totalAmount).toFixed(2)}` : "-"}
+                  </TableCell>
                   <TableCell>
                     {new Date(s.createdAt).toLocaleDateString("en-IN")}
                   </TableCell>

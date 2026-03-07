@@ -17,7 +17,7 @@ export type SalePayload = Prisma.SaleGetPayload<{
 }>;
 
 export type DomSalePayload = Prisma.DomSaleGetPayload<{
-  include: { stock: true; product: true };
+  include: { customer: true; items: { include: { stock: true; product: true } } };
 }>;
 
 export type ArbSalePayload = Prisma.ArbSaleGetPayload<{
