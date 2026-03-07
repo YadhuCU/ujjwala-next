@@ -10,13 +10,32 @@ import { DomSaleForm } from "../../components/dom-sale-form";
 import type { DomSaleFormValues } from "../../components/dom-sale-form";
 import { PageWrapper } from "@/components/page-wrapper";
 
+interface DomSaleItem {
+  id: number;
+  stockId: number | null;
+  productId: number | null;
+  quantity: number;
+  salePrice: number | null;
+  netTotal: number | null;
+  stock?: {
+    id: number;
+    batchNo: string | null;
+  };
+  product?: {
+    id: number;
+    name: string | null;
+  };
+}
+
 interface DomSaleDetail {
   id: number;
   trNo: string | null;
-  stockId: number | null;
-  quantity: number;
-  salePrice: number | null;
-  collectionAmount: number | null;
+  totalAmount: number | null;
+  customerId: number | null;
+  paymentType: "cash" | "cheque";
+  discount: number | null;
+  notes: string | null;
+  items: DomSaleItem[];
 }
 
 export default function EditDomSalePage() {
@@ -49,10 +68,18 @@ export default function EditDomSalePage() {
   }
 
   const formDefaults: DomSaleFormValues = {
-    stockId: domSale.stockId ? String(domSale.stockId) : "",
-    quantity: domSale.quantity ?? 0,
-    salePrice: domSale.salePrice ?? 0,
-    collectionAmount: domSale.collectionAmount ?? 0,
+    customerId: domSale.customerId ? String(domSale.customerId) : null,
+    paymentType: domSale.paymentType || "cash",
+    discount: domSale.discount ? Number(domSale.discount) : 0,
+    notes: domSale.notes || "",
+    totalAmount: domSale.totalAmount ? Number(domSale.totalAmount) : 0,
+    items: domSale.items.map((item) => ({
+      stockId: item.stockId ? String(item.stockId) : "",
+      productId: item.productId ?? undefined,
+      quantity: item.quantity ?? 0,
+      salePrice: item.salePrice ? Number(item.salePrice) : 0,
+      netTotal: item.netTotal ? Number(item.netTotal) : 0,
+    })),
   };
 
   return (

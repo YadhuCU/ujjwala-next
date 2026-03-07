@@ -1,19 +1,48 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { generateTrNo } from "@/lib/generate-tr-no";
 import { withAuth } from "@/lib/api-auth";
+import { generateTrNo } from "@/lib/generate-tr-no";
 
-export async function GET() {
-  return withAuth(async ({ userId, role }) => {
-    const where: Record<string, unknown> = { isDeleted: false };
-    if (role !== "Owner") where.createdById = userId;
+export async function GET(request: Request) {
+  return withAuth(async () => {
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
 
-    const domSales = await prisma.domSale.findMany({
-      where,
-      include: { stock: true, product: true },
-      orderBy: { createdAt: "desc" },
+    const where = {
+      isDeleted: false,
+      ...(search && {
+        OR: [
+          { trNo: { contains: search, mode: "insensitive" as const } },
+        ],
+      }),
+    };
+
+    const [total, domSales] = await Promise.all([
+      prisma.domSale.count({ where }),
+      prisma.domSale.findMany({
+        where,
+        include: {
+          customer: true,
+          items: {
+            include: {
+              product: true,
+              stock: true,
+            },
+          },
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+      }),
+    ]);
+
+    return NextResponse.json({
+      data: domSales,
+      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
-    return NextResponse.json(domSales);
   });
 }
 
@@ -21,48 +50,88 @@ export async function POST(request: Request) {
   return withAuth(async ({ userId }) => {
     try {
       const data = await request.json();
-      const trNo = data.trNo || (await generateTrNo("dom_sale"));
-      const stockId = data.stockId ? parseInt(data.stockId) : null;
 
-      let productId = null;
-      let salePrice = Number(data.salePrice) || 0;
-
-      if (stockId) {
-        const stock = await prisma.stock.findUnique({
-          where: { id: stockId },
-          include: { product: true },
-        });
-        if (stock) {
-            productId = stock.productId;
-            if(!data.salePrice && stock.product) {
-                salePrice = Number(stock.product.salePrice) || 0;
-            }
-        }
+      if (!data.items || data.items.length === 0) {
+        return NextResponse.json(
+          { error: "At least one item is required for Domestic Sale" },
+          { status: 400 }
+        );
       }
 
-      const quantity = Number(data.quantity) || 0;
-      const collectionAmount = Number(data.collectionAmount) || 0;
-      const netTotal = Number((salePrice * quantity).toFixed(2));
+      const trNo = await generateTrNo("dom_sale");
 
-      const domSale = await prisma.domSale.create({
-        data: { trNo, stockId, productId, quantity, salePrice, collectionAmount, netTotal, createdById: userId },
-      });
+      const result = await prisma.$transaction(async (tx) => {
+        // 1. Create the DomSale header
+        const domSale = await tx.domSale.create({
+          data: {
+            trNo,
+            totalAmount: data.totalAmount,
+            customerId: data.customerId ? parseInt(data.customerId) : null,
+            paymentType: data.paymentType || "cash",
+            discount: data.discount ? Number(data.discount) : null,
+            notes: data.notes,
+            createdById: userId,
+          },
+        });
 
-      if (stockId) {
-        const stock = await prisma.stock.findUnique({ where: { id: stockId } });
-        if (stock) {
-          const newQty = stock.quantity - quantity;
-          await prisma.stock.update({
-            where: { id: stockId },
-            data: { quantity: Math.max(0, newQty) },
+        // 2. Create items and adjust stock
+        for (const item of data.items) {
+          const quantity = Number(item.quantity) || 0;
+
+          if (!item.stockId || quantity <= 0) {
+            throw new Error(`Invalid stock or quantity for product ID ${item.productId}`);
+          }
+
+          // Fetch the stock to ensure it exists and has enough quantity
+          const stock = await tx.stock.findUnique({
+            where: { id: parseInt(item.stockId) },
+            include: { product: true },
+          });
+
+          if (!stock) {
+            throw new Error(`Stock ID ${item.stockId} not found`);
+          }
+
+          if (stock.quantity < quantity) {
+            throw new Error(
+              `Insufficient stock for batch ${stock.batchNo || "Unknown"} of ${stock.product?.name || "Unknown Product"}. Available: ${stock.quantity}`
+            );
+          }
+
+          // Deduct from stock
+          await tx.stock.update({
+            where: { id: parseInt(item.stockId) },
+            data: { quantity: stock.quantity - quantity },
+          });
+
+          // Create DomSaleItem
+          await tx.domSaleItem.create({
+            data: {
+              domSaleId: domSale.id,
+              stockId: parseInt(item.stockId),
+              productId: stock.productId, // Pull securely from stock
+              quantity: quantity,
+              salePrice: item.salePrice,
+              netTotal: item.netTotal,
+            },
           });
         }
-      }
 
-      return NextResponse.json(domSale, { status: 201 });
+        return tx.domSale.findUnique({
+          where: { id: domSale.id },
+          include: {
+            items: {
+              include: { product: true, stock: true },
+            },
+          },
+        });
+      });
+
+      return NextResponse.json(result);
     } catch (error: unknown) {
+      console.error("[DOM_SALE_POST]", error);
       const message = error instanceof Error ? error.message : "Failed to create domestic sale";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  });
+  }, "Owner");
 }
