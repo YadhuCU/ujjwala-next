@@ -70,9 +70,16 @@ export const api = {
   // ─── Custom GET endpoints ───────────────────────────────
   getCustomerTxn: (custId: string) =>
     apiClient
-      .get<{ rent_qty: number; pending_amount: number }>(
-        `/api/customer-txn?cust_id=${custId}`
-      )
+      .get<{
+        rent_qty: number;
+        pending_amount: number;
+        breakdown?: {
+          commercial: number;
+          domestic: number;
+          arb: number;
+          initial: number;
+        };
+      }>(`/api/customer-txn?cust_id=${custId}`)
       .then((r) => r.data),
 
   getDashboard: (from?: string, to?: string) => {
@@ -318,6 +325,13 @@ export const api = {
     a.click();
     URL.revokeObjectURL(url);
   },
+
+  // ─── Payment Methods ──────────────────────────────────────
+  recordDomSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
+    apiClient.post(`/api/dom-sales/${id}/payment`, payload).then(r => r.data),
+
+  recordArbSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
+    apiClient.post(`/api/arb-sales/${id}/payment`, payload).then(r => r.data),
 
   // ─── Mutations ──────────────────────────────────────────
   create: <T>(url: string, data: T) =>

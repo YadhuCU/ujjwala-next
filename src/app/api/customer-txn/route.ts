@@ -17,33 +17,67 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Customer not found" }, { status: 404 });
     }
 
-    // Rent quantity (cylinders in hand)
-    const rentProducts = await prisma.rentProduct.findMany({
+  // Rent quantity (cylinders in hand)
+    const rentProducts = await prisma.rentProduct.aggregate({
       where: { customerId, isDeleted: false },
+      _sum: { quantity: true },
     });
-    const rentQty = rentProducts.reduce((sum, rp) => sum + (rp.quantity ?? 0), 0)
-      + customer.initialCylinderBalance;
+    const rentQty =
+      Number(rentProducts._sum.quantity ?? 0) +
+      Number(customer.initialCylinderBalance ?? 0);
 
-    // Total sales
-    const sales = await prisma.sale.findMany({
-      where: { customerId, isDeleted: false, saleType: "rent" },
+    // Total commercial sales
+    const rentSales = await prisma.sale.aggregate({
+      where: { customerId, saleType: "rent", isDeleted: false },
+      _sum: { netTotal: true },
     });
-    const totalSale = sales.reduce((sum, s) => sum + Number(s.netTotal ?? 0), 0);
 
-    // Total collections
-    const collections = await prisma.collection.findMany({
+    // Total commercial collections
+    const commercialCollections = await prisma.collection.aggregate({
+      where: { customerId, isDeleted: false, domSaleId: null, arbSaleId: null },
+      _sum: { amount: true },
+    });
+
+    // DomSale pending
+    const domSales = await prisma.domSale.aggregate({
       where: { customerId, isDeleted: false },
+      _sum: { totalAmount: true, paidAmount: true },
     });
-    const totalCollection = collections.reduce((sum, c) => sum + Number(c.amount ?? 0), 0);
 
-    const pendingAmount = totalSale - totalCollection + Number(customer.initialPendingAmount);
+    // ArbSale pending
+    const arbSales = await prisma.arbSale.aggregate({
+      where: { customerId, isDeleted: false },
+      _sum: { totalAmount: true, paidAmount: true },
+    });
+
+    const commercialPending =
+      Number(rentSales._sum.netTotal ?? 0) -
+      Number(commercialCollections._sum.amount ?? 0);
+
+    const domPending =
+      Number(domSales._sum.totalAmount ?? 0) -
+      Number(domSales._sum.paidAmount ?? 0);
+
+    const arbPending =
+      Number(arbSales._sum.totalAmount ?? 0) -
+      Number(arbSales._sum.paidAmount ?? 0);
+
+    const pendingAmount =
+      commercialPending +
+      domPending +
+      arbPending +
+      Number(customer.initialPendingAmount ?? 0);
 
     return NextResponse.json({
       success: true,
       rent_qty: rentQty,
-      total_sale: Math.round(totalSale * 100) / 100,
-      total_collection: Math.round(totalCollection * 100) / 100,
-      pending_amount: Math.round(pendingAmount * 100) / 100,
+      pending_amount: pendingAmount,
+      breakdown: {
+        commercial: commercialPending,
+        domestic: domPending,
+        arb: arbPending,
+        initial: Number(customer.initialPendingAmount ?? 0),
+      },
     });
   });
 }

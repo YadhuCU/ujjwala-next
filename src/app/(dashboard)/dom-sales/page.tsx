@@ -22,6 +22,7 @@ import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
 import { PageWrapper } from "@/components/page-wrapper";
 
+
 export default function DomSalesPage() {
   const router = useRouter();
   const { isAdmin } = usePermissions();
@@ -35,6 +36,7 @@ export default function DomSalesPage() {
     invalidateKeys: [queryKeys.domSales.all],
     onSuccess: () => router.refresh(),
   });
+
 
   return (
     <PageWrapper
@@ -93,7 +95,7 @@ export default function DomSalesPage() {
                     {new Date(s.createdAt).toLocaleDateString("en-IN")}
                   </TableCell>
                   {isAdmin && (
-                    <TableCell className="text-right">
+                    <TableCell className="text-right flex items-center justify-end gap-2">
                       <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="icon" asChild>
                           <Link href={`/dom-sales/${s.id}/edit`}>
@@ -130,6 +132,7 @@ export default function DomSalesPage() {
         }}
         isPending={deleteMutation.isPending}
       />
+
     </PageWrapper>
   );
 }

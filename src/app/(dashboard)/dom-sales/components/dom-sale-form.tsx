@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,13 +30,14 @@ import {
 import { useStocks, useCustomers } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
 import type { StockPayload, CustomerPayload } from "@/lib/api-client";
+import { customerTxnOptions } from "@/lib/query-options";
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
 const domSaleItemSchema = z.object({
-  stockId: z.string().min(1, "Stock selection is required"),
+  stockId: z.string().optional().default(""),
   productId: z.number().optional(), // Inferred from stock
-  quantity: z.number().int().min(1, "Qty must be ≥ 1"),
+  quantity: z.number().int().min(0, "Qty must be ≥ 0"),
   salePrice: z.number().min(0, "Price must be ≥ 0"),
   netTotal: z.number().min(0).optional(),
 });
@@ -45,8 +47,9 @@ export const domSaleSchema = z.object({
   paymentType: z.enum(["cash", "cheque"]).optional(),
   discount: z.number().min(0).optional(),
   notes: z.string().optional().or(z.literal("")),
+  paidAmount: z.number().min(0).optional(),
   totalAmount: z.number().min(0).optional(),
-  items: z.array(domSaleItemSchema).min(1, "At least one item is required"),
+  items: z.array(domSaleItemSchema).default([]),
 });
 
 export type DomSaleFormValues = z.infer<typeof domSaleSchema>;
@@ -83,6 +86,7 @@ export function DomSaleForm({
       paymentType: "cash",
       discount: 0,
       notes: "",
+      paidAmount: 0,
       items: [{ stockId: "", quantity: 0, salePrice: 0 }],
       totalAmount: undefined,
     },
@@ -96,6 +100,12 @@ export function DomSaleForm({
   const watchedItems = form.watch("items");
 
   const watchedDiscount = form.watch("discount") || 0;
+  const selectedCustomerId = form.watch("customerId");
+
+  const { data: txnInfo } = useQuery({
+    ...customerTxnOptions(selectedCustomerId || ""),
+    enabled: !!selectedCustomerId
+  });
 
   const calculateDerivedTotal = () => {
     return watchedItems.reduce((sum, item) => {
@@ -107,6 +117,7 @@ export function DomSaleForm({
 
   const derivedTotal = calculateDerivedTotal();
   const previousDerivedTotal = useRef(derivedTotal);
+  const isCollectionOnly = watchedItems.length === 0;
 
   useEffect(() => {
     const currentTotalAmount = form.getValues("totalAmount");
@@ -145,7 +156,37 @@ export function DomSaleForm({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            {/* ─── Header Fields ──────────────────── */}
+            {/* Customer Transaction Info */}
+            {txnInfo && (
+              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 text-sm space-y-1 border border-blue-200 dark:border-blue-800">
+                <p>
+                  <strong>Cylinders In Hand:</strong> {txnInfo.rent_qty}
+                </p>
+                <p>
+                  <strong>Total Pending Amount:</strong> ₹{txnInfo.pending_amount}
+                </p>
+                {/*txnInfo.breakdown && (
+                  <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
+                    <p>Commercial: ₹{txnInfo.breakdown.commercial}</p>
+                    <p>Domestic: ₹{txnInfo.breakdown.domestic}</p>
+                    <p>ARB: ₹{txnInfo.breakdown.arb}</p>
+                    <p>Initial: ₹{txnInfo.breakdown.initial}</p>
+                  </div>
+                )*/}
+              </div>
+            )}
+
+            {/* Collection-Only Banner */}
+            {isCollectionOnly && (
+              <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-4 text-sm border border-amber-200 dark:border-amber-700 flex items-start gap-3">
+                <span className="text-amber-600 dark:text-amber-400 text-lg leading-none">⚡</span>
+                <div>
+                  <p className="font-semibold text-amber-800 dark:text-amber-300">Collection-Only Invoice</p>
+                  <p className="text-amber-700 dark:text-amber-400 mt-0.5">No products will be dispatched. Enter the collected amount in the <strong>Paid Amount</strong> field below to record a lump-sum payment against this customer&apos;s pending balance.</p>
+                </div>
+              </div>
+            )}
+
             <div className="grid gap-4 lg:grid-cols-3 items-start">
               <FormField
                 control={form.control}
@@ -212,6 +253,26 @@ export function DomSaleForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Discount (₹)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e.target.valueAsNumber || 0);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="paidAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Paid Amount (₹)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -405,9 +466,11 @@ export function DomSaleForm({
             {/* ─── Grand Total ──────────────────── */}
             <div className="flex flex-col items-end pt-4 border-t space-y-2">
               <div className="flex items-center gap-4">
-                <Button type="button" variant="outline" size="sm" onClick={handleRecalculate}>
-                  Recalculate Total
-                </Button>
+                {!isCollectionOnly && (
+                  <Button type="button" variant="outline" size="sm" onClick={handleRecalculate}>
+                    Recalculate Total
+                  </Button>
+                )}
                 <div className="flex items-center gap-2">
                   <span className="text-xl font-bold">Grand Total: ₹</span>
                   <FormField
@@ -419,6 +482,7 @@ export function DomSaleForm({
                           <Input
                             type="number"
                             step="0.01"
+                            readOnly={!isCollectionOnly}
                             className="text-xl font-bold text-right"
                             {...field}
                             value={field.value ?? ""}
@@ -430,18 +494,22 @@ export function DomSaleForm({
                   />
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground mr-2">
-                Derived Total before edits: ₹{derivedTotal.toFixed(2)}
-              </p>
+              {!isCollectionOnly && (
+                <p className="text-xs text-muted-foreground mr-2">
+                  Derived Total before edits: ₹{derivedTotal.toFixed(2)}
+                </p>
+              )}
             </div>
 
             <div className="flex gap-3">
-              <Button type="submit" disabled={isPending || watchedItems.length === 0}>
+              <Button type="submit" disabled={isPending}>
                 {isPending
                   ? "Saving..."
                   : isEditMode
                     ? "Update Notes"
-                    : "Create Sale"}
+                    : isCollectionOnly
+                      ? "Record Collection"
+                      : "Create Sale"}
               </Button>
               <Button
                 type="button"

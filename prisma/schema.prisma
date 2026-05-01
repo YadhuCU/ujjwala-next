@@ -174,8 +174,10 @@ model DomSale {
   createdBy   Account?      @relation("DomSalesCreated", fields: [createdById], references: [id])
   isDeleted   Boolean       @default(false) @map("is_deleted")
   createdAt   DateTime      @default(now()) @map("created_at")
+  paidAmount  Decimal       @default(0) @map("paid_amount") @db.Decimal(10, 2)
 
-  items DomSaleItem[]
+  items       DomSaleItem[]
+  collections Collection[]
 
   @@map("dom_sales")
 }
@@ -200,6 +202,10 @@ model Collection {
   trNo        String?   @map("tr_no") @db.VarChar(30)
   customerId  Int?      @map("customer_id")
   customer    Customer? @relation(fields: [customerId], references: [id])
+  domSaleId   Int?      @map("dom_sale_id")
+  domSale     DomSale?  @relation(fields: [domSaleId], references: [id])
+  arbSaleId   Int?      @map("arb_sale_id")
+  arbSale     ArbSale?  @relation(fields: [arbSaleId], references: [id])
   amount      Decimal?  @db.Decimal(10, 2)
   createdById Int?      @map("created_by_id")
   createdBy   Account?  @relation("CollectionsCreated", fields: [createdById], references: [id])
@@ -263,8 +269,10 @@ model ArbSale {
   createdBy   Account?    @relation("ArbSalesCreated", fields: [createdById], references: [id])
   isDeleted   Boolean     @default(false) @map("is_deleted")
   createdAt   DateTime    @default(now()) @map("created_at")
+  paidAmount  Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
 
-  items ArbSaleItem[]
+  items       ArbSaleItem[]
+  collections Collection[]
 
   @@map("arb_sales")
 }

@@ -140,8 +140,16 @@ export function SaleForm({
                   <strong>Cylinders In Hand:</strong> {txnInfo.rent_qty}
                 </p>
                 <p>
-                  <strong>Pending Amount:</strong> ₹{txnInfo.pending_amount}
+                  <strong>Total Pending Amount:</strong> ₹{txnInfo.pending_amount}
                 </p>
+                {/*txnInfo.breakdown && (
+                  <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
+                    <p>Commercial: ₹{txnInfo.breakdown.commercial}</p>
+                    <p>Domestic: ₹{txnInfo.breakdown.domestic}</p>
+                    <p>ARB: ₹{txnInfo.breakdown.arb}</p>
+                    <p>Initial: ₹{txnInfo.breakdown.initial}</p>
+                  </div>
+                )*/}
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">

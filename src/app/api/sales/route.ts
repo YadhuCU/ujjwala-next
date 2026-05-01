@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       }
 
       // Create rent transaction if applicable
-      if (customerId && stockId && data.saleType === "rent") {
+      if (customerId && stockId) {
         const emptyReturn = Number(data.emptyReturn) || 0;
         await prisma.rentTransaction.create({
           data: {
