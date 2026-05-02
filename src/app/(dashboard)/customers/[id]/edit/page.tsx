@@ -62,6 +62,7 @@ export default function EditCustomerPage() {
     initialPendingAmount: customer.initialPendingAmount
       ? parseFloat(customer.initialPendingAmount)
       : 0,
+    initialCylinderBalances: [],
   };
 
   return (

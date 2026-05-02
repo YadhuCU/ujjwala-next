@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { Resolver } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ export function DomSaleForm({
   const customers = rawCustomers as CustomerPayload[];
 
   const form = useForm<DomSaleFormValues>({
-    resolver: zodResolver(domSaleSchema),
+    resolver: zodResolver(domSaleSchema) as Resolver<DomSaleFormValues>,
     defaultValues: defaultValues ?? {
       customerId: null,
       paymentType: "cash",
