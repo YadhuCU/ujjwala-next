@@ -33,6 +33,14 @@ export async function GET(req: NextRequest) {
       where: { createdAt: { gte: startDate, lte: endDate }, isDeleted: false, ...ownerFilter },
       include: { items: { include: { stock: true, product: true } } },
     });
+    const rangeArbSales = await prisma.arbSale.findMany({
+      where: { createdAt: { gte: startDate, lte: endDate }, isDeleted: false, ...ownerFilter },
+      include: { items: { include: { stock: { include: { product: true } } } } },
+    });
+    const rangeNewComSales = await prisma.commercialSale.findMany({
+      where: { createdAt: { gte: startDate, lte: endDate }, isDeleted: false, ...ownerFilter },
+      include: { items: { include: { stock: { include: { product: true } } } } },
+    });
     const rangeExpenses = isStaff ? [] : await prisma.expense.findMany({
       where: { date: { gte: startDate, lte: endDate }, isDeleted: false },
     });
@@ -42,9 +50,21 @@ export async function GET(req: NextRequest) {
 
     // ─── KPIs ───
     const totalRevenue = rangeSales.reduce((s, r) => s + Number(r.netTotal ?? 0), 0)
-      + rangeDomSales.reduce((s, r) => s + Number(r.totalAmount ?? 0), 0);
+      + rangeDomSales.reduce((s, r) => s + Number(r.totalAmount ?? 0), 0)
+      + rangeArbSales.reduce((s, r) => s + Number(r.totalAmount ?? 0), 0)
+      + rangeNewComSales.reduce((s, r) => s + Number(r.totalAmount ?? 0), 0);
     const totalCost = rangeSales.reduce((s, r) => s + r.quantity * Number(r.productCost ?? 0), 0)
       + rangeDomSales.reduce((s, r) => {
+          return s + r.items.reduce((itemSum, item) => {
+            return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
+          }, 0);
+        }, 0)
+      + rangeArbSales.reduce((s, r) => {
+          return s + r.items.reduce((itemSum, item) => {
+            return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
+          }, 0);
+        }, 0)
+      + rangeNewComSales.reduce((s, r) => {
           return s + r.items.reduce((itemSum, item) => {
             return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
           }, 0);
@@ -54,6 +74,12 @@ export async function GET(req: NextRequest) {
     const totalCollections = rangeCollections.reduce((s, r) => s + Number(r.amount ?? 0), 0);
     const totalQtySold = rangeSales.reduce((s, r) => s + r.quantity, 0)
       + rangeDomSales.reduce((s, r) => {
+          return s + r.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
+        }, 0)
+      + rangeArbSales.reduce((s, r) => {
+          return s + r.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
+        }, 0)
+      + rangeNewComSales.reduce((s, r) => {
           return s + r.items.reduce((itemSum, item) => itemSum + item.quantity, 0);
         }, 0);
     const customerCount = isStaff ? 0 : await prisma.customer.count({ where: { isDeleted: false } });
@@ -65,16 +91,16 @@ export async function GET(req: NextRequest) {
       + todayDomSales.reduce((s, r) => s + Number(r.totalAmount ?? 0), 0);
 
     // ─── Daily trend data ───
-    const dailyMap: Record<string, { revenue: number; cost: number; expense: number; collections: number; comSales: number; domSales: number }> = {};
+    const dailyMap: Record<string, { revenue: number; cost: number; expense: number; collections: number; oldComSales: number; domSales: number; arbSales: number; newComSales: number }> = {};
     for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      dailyMap[d.toISOString().split("T")[0]] = { revenue: 0, cost: 0, expense: 0, collections: 0, comSales: 0, domSales: 0 };
+      dailyMap[d.toISOString().split("T")[0]] = { revenue: 0, cost: 0, expense: 0, collections: 0, oldComSales: 0, domSales: 0, arbSales: 0, newComSales: 0 };
     }
     for (const s of rangeSales) {
       const k = s.createdAt.toISOString().split("T")[0];
       if (dailyMap[k]) {
         dailyMap[k].revenue += Number(s.netTotal ?? 0);
         dailyMap[k].cost += s.quantity * Number(s.productCost ?? 0);
-        dailyMap[k].comSales++;
+        dailyMap[k].oldComSales++;
       }
     }
     for (const s of rangeDomSales) {
@@ -85,6 +111,26 @@ export async function GET(req: NextRequest) {
           return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
         }, 0);
         dailyMap[k].domSales++;
+      }
+    }
+    for (const s of rangeArbSales) {
+      const k = s.createdAt.toISOString().split("T")[0];
+      if (dailyMap[k]) {
+        dailyMap[k].revenue += Number(s.totalAmount ?? 0);
+        dailyMap[k].cost += s.items.reduce((itemSum, item) => {
+          return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
+        }, 0);
+        dailyMap[k].arbSales++;
+      }
+    }
+    for (const s of rangeNewComSales) {
+      const k = s.createdAt.toISOString().split("T")[0];
+      if (dailyMap[k]) {
+        dailyMap[k].revenue += Number(s.totalAmount ?? 0);
+        dailyMap[k].cost += s.items.reduce((itemSum, item) => {
+          return itemSum + item.quantity * Number(item.stock?.productCost ?? 0);
+        }, 0);
+        dailyMap[k].newComSales++;
       }
     }
     for (const e of rangeExpenses) {
@@ -104,8 +150,10 @@ export async function GET(req: NextRequest) {
       expense: Math.round(v.expense),
       profit: Math.round(v.revenue - v.cost - v.expense),
       collections: Math.round(v.collections),
-      comSales: v.comSales,
+      oldComSales: v.oldComSales,
       domSales: v.domSales,
+      arbSales: v.arbSales,
+      newComSales: v.newComSales,
     }));
 
     // ─── Product breakdown (admin only) ───
@@ -123,6 +171,22 @@ export async function GET(req: NextRequest) {
           if (!productMap[name]) productMap[name] = { name, revenue: 0, qty: 0 };
           productMap[name].revenue += Number(item.netTotal ?? 0);
           productMap[name].qty += item.quantity;
+        }
+      }
+      for (const s of rangeArbSales) {
+        for (const item of s.items) {
+          const stockName = item.stock?.product?.name || "Unknown";
+          if (!productMap[stockName]) productMap[stockName] = { name: stockName, revenue: 0, qty: 0 };
+          productMap[stockName].revenue += Number(item.netTotal ?? 0);
+          productMap[stockName].qty += item.quantity;
+        }
+      }
+      for (const s of rangeNewComSales) {
+        for (const item of s.items) {
+          const stockName = item.stock?.product?.name || "Unknown";
+          if (!productMap[stockName]) productMap[stockName] = { name: stockName, revenue: 0, qty: 0 };
+          productMap[stockName].revenue += Number(item.netTotal ?? 0);
+          productMap[stockName].qty += item.quantity;
         }
       }
       return Object.values(productMap)
@@ -266,8 +330,10 @@ export async function GET(req: NextRequest) {
         totalQtySold,
         customerCount,
         todayRevenue: Math.round(todayRevenue),
-        comSaleCount: rangeSales.length,
+        oldComSaleCount: rangeSales.length,
         domSaleCount: rangeDomSales.length,
+        arbSaleCount: rangeArbSales.length,
+        newComSaleCount: rangeNewComSales.length,
       },
       dailyTrend,
       productBreakdown,

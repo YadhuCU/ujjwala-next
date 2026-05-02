@@ -14,8 +14,9 @@ const trendConfig = {
 } satisfies ChartConfig;
 
 const salesTypeConfig = {
-  comSales: { label: "Commercial", color: "hsl(221, 83%, 53%)" },
-  domSales: { label: "Domestic", color: "hsl(160, 60%, 45%)" },
+  newComSales: { label: "Commercial", color: "hsl(221, 83%, 53%)" },
+  domSales:    { label: "Domestic",   color: "hsl(160, 60%, 45%)" },
+  arbSales:    { label: "ARB",        color: "hsl(35, 90%, 55%)"  },
 } satisfies ChartConfig;
 
 export function TrendCharts({ data }: { data: DashboardData }) {
@@ -139,7 +140,7 @@ export function TrendCharts({ data }: { data: DashboardData }) {
               Sales by Type
             </CardTitle>
             <CardDescription>
-              Commercial vs. Domestic sales distribution
+              Commercial, Domestic &amp; ARB sales distribution
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -166,15 +167,21 @@ export function TrendCharts({ data }: { data: DashboardData }) {
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 <Bar
-                  dataKey="comSales"
+                  dataKey="newComSales"
                   stackId="s"
-                  fill="var(--color-comSales)"
+                  fill="var(--color-newComSales)"
                   radius={[0, 0, 0, 0]}
                 />
                 <Bar
                   dataKey="domSales"
                   stackId="s"
                   fill="var(--color-domSales)"
+                  radius={[0, 0, 0, 0]}
+                />
+                <Bar
+                  dataKey="arbSales"
+                  stackId="s"
+                  fill="var(--color-arbSales)"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
