@@ -249,6 +249,106 @@ export const api = {
     URL.revokeObjectURL(url);
   },
 
+  getCommercialSaleReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/commercial-sale?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportCommercialSaleReport: async (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    const response = await apiClient.get(
+      `/api/reports/commercial-sale/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `commercial_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  getDomSaleReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/dom-sale?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportDomSaleReport: async (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    const response = await apiClient.get(
+      `/api/reports/dom-sale/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `dom_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
   getPurchaseReport: (params: {
     from: string;
     to: string;

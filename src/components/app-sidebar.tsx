@@ -56,11 +56,12 @@ const mainNavItems = [
 ];
 
 const reportItems = [
-  { title: "Sale Report", href: "/reports/sales" },
-  { title: "Expense Report", href: "/reports/expense" },
+  { title: "Commercial Sale Report", href: "/reports/sales" },
+  { title: "Domestic Sale Report", href: "/reports/dom-sale" },
   { title: "Arb Sale Report", href: "/reports/arb-sale" },
-  { title: "Purchase Report", href: "/reports/purchase" },
   { title: "Sale by Product Report", href: "/reports/sale-by-product" },
+  { title: "Expense Report", href: "/reports/expense" },
+  { title: "Purchase Report", href: "/reports/purchase" },
 ];
 
 export function AppSidebar() {

@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Calendar } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCustomers, useUsers } from "@/hooks/use-api";
-import { useCommercialSaleReport } from "@/hooks/use-commercial-sale-report";
+import { useDomSaleReport } from "@/hooks/use-dom-sale-report";
 import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ function formatCurrency(v: number) { return `₹${v.toLocaleString("en-IN", { mi
 interface Customer { id: number; name: string | null; }
 interface StaffUser { id: number; name: string | null; }
 
-export default function CommercialSaleReportPage() {
+export default function DomSaleReportPage() {
   const [fromDate, setFromDate] = useState(todayStr());
   const [toDate, setToDate] = useState(todayStr());
   const [activePreset, setActivePreset] = useState(0);
@@ -45,7 +45,7 @@ export default function CommercialSaleReportPage() {
   const { data: allUsers = [] } = useUsers() as { data: StaffUser[] };
   const staffUsers = isAdmin ? allUsers : [];
   const queryParams = { from: fromDate, to: toDate, customerId: customerId !== "all" ? customerId : undefined, staffId: staffId !== "all" ? staffId : undefined, page, limit: PAGE_LIMIT };
-  const { data: report, isLoading, isFetching } = useCommercialSaleReport(queryParams, searchTriggered);
+  const { data: report, isLoading, isFetching } = useDomSaleReport(queryParams, searchTriggered);
   const summary = report?.summary;
   const sales = report?.data ?? [];
   const pagination = report?.pagination;
@@ -61,14 +61,14 @@ export default function CommercialSaleReportPage() {
     if (!fromDate || !toDate) return;
     setExporting(true);
     try {
-      await api.exportCommercialSaleReport({ from: fromDate, to: toDate, customerId: customerId !== "all" ? customerId : undefined, staffId: staffId !== "all" ? staffId : undefined, format: exportFormat });
+      await api.exportDomSaleReport({ from: fromDate, to: toDate, customerId: customerId !== "all" ? customerId : undefined, staffId: staffId !== "all" ? staffId : undefined, format: exportFormat });
       toast.success(`Report exported as ${exportFormat === "excel" ? "Excel" : "PDF"}`);
     } catch { toast.error("Export failed"); } finally { setExporting(false); }
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Commercial Sale Report</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Domestic Sale Report</h1>
       <Card>
         <CardHeader><CardTitle>Filters</CardTitle></CardHeader>
         <CardContent className="space-y-4">
@@ -171,7 +171,7 @@ export default function CommercialSaleReportPage() {
                   <TableHead>Customer</TableHead>
                   <TableHead>Staff</TableHead>
                   <TableHead>Products (Qty)</TableHead>
-                  <TableHead>Sale Type</TableHead>
+                  <TableHead>Batches</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead className="text-right">Discount</TableHead>
                   <TableHead className="text-right">Net Total</TableHead>
@@ -192,7 +192,7 @@ export default function CommercialSaleReportPage() {
                       <TableCell>{s.customer?.name ?? "—"}</TableCell>
                       <TableCell>{s.createdBy?.name ?? "—"}</TableCell>
                       <TableCell>{s.items.map((i) => `${i.product?.name ?? ""} (${i.quantity})`).join(", ")}</TableCell>
-                      <TableCell className="capitalize">{[...new Set(s.items.map((i) => i.saleType))].join(", ") || "—"}</TableCell>
+                      <TableCell>{s.items.map((i) => i.stock?.batchNo ?? "").filter(Boolean).join(", ") || "—"}</TableCell>
                       <TableCell className="text-right">{s.totalAmount ? `₹${s.totalAmount}` : "—"}</TableCell>
                       <TableCell className="text-right">{s.discount ? `₹${s.discount}` : "—"}</TableCell>
                       <TableCell className="text-right font-semibold">₹{(Number(s.totalAmount ?? 0) - Number(s.discount ?? 0)).toFixed(2)}</TableCell>
