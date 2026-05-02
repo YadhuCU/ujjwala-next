@@ -24,6 +24,10 @@ export type ArbSalePayload = Prisma.ArbSaleGetPayload<{
   include: { customer: true; items: { include: { stock: true; product: true } } };
 }>;
 
+export type CommercialSalePayload = Prisma.CommercialSaleGetPayload<{
+  include: { customer: true; items: { include: { stock: true; product: true } } };
+}>;
+
 export type StockPayload = Prisma.StockGetPayload<{
   include: { product: true; vendor: true };
 }>;
@@ -54,6 +58,7 @@ export const api = {
   getSales: () => apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
   getDomSales: () => apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
   getArbSales: () => apiClient.get<{ data: ArbSalePayload[], pagination: unknown }>("/api/arb-sales").then((r) => r.data.data),
+  getCommercialSales: () => apiClient.get<{ data: CommercialSalePayload[], pagination: unknown }>("/api/commercial-sales").then((r) => r.data.data),
   getExpenses: () => apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
   getCustomers: () => apiClient.get<CustomerPayload[]>("/api/customers").then((r) => r.data),
   getStocks: (type?: ProductType) => apiClient.get<StockPayload[]>("/api/stock", { params: { type } }).then((r) => r.data),
@@ -73,6 +78,12 @@ export const api = {
       .get<{
         rent_qty: number;
         pending_amount: number;
+        cylinder_breakdown?: {
+          stockId: number | null;
+          stockBatchNo: string | null;
+          productName: string;
+          quantity: number;
+        }[];
         breakdown?: {
           commercial: number;
           domestic: number;

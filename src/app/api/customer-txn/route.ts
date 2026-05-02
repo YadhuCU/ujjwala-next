@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
 
+/** Round to 2 decimal places to avoid floating-point drift in sums */
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
 export async function GET(request: Request) {
   return withAuth(async () => {
     const { searchParams } = new URL(request.url);
@@ -17,66 +20,113 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Customer not found" }, { status: 404 });
     }
 
-  // Rent quantity (cylinders in hand)
-    const rentProducts = await prisma.rentProduct.aggregate({
+    // ── Cylinder counts aggregated by product ──────────────────────────────
+    // 1. Rent product rows (per stock batch)
+    const rentProductRows = await prisma.rentProduct.findMany({
       where: { customerId, isDeleted: false },
-      _sum: { quantity: true },
+      include: { stock: { include: { product: true } } },
     });
-    const rentQty =
-      Number(rentProducts._sum.quantity ?? 0) +
-      Number(customer.initialCylinderBalance ?? 0);
 
-    // Total commercial sales
+    // 2. Opening cylinder balances (per product)
+    const initialBalances = await prisma.customerInitialCylinderBalance.findMany({
+      where: { customerId },
+      include: { product: true },
+    });
+
+    // Aggregate both into a per-product map
+    const cylinderMap: Record<number, { productName: string; quantity: number }> = {};
+
+    for (const r of rentProductRows) {
+      const pid = r.stock?.productId;
+      if (!pid) continue;
+      if (!cylinderMap[pid]) {
+        cylinderMap[pid] = { productName: r.stock?.product?.name ?? "Unknown", quantity: 0 };
+      }
+      cylinderMap[pid].quantity += r.quantity;
+    }
+
+    for (const ib of initialBalances) {
+      const pid = ib.productId;
+      if (!cylinderMap[pid]) {
+        cylinderMap[pid] = { productName: ib.product?.name ?? "Unknown", quantity: 0 };
+      }
+      cylinderMap[pid].quantity += ib.quantity;
+    }
+
+    const cylinderBreakdown = Object.entries(cylinderMap).map(([pid, v]) => ({
+      productId: Number(pid),
+      productName: v.productName,
+      quantity: v.quantity,
+    }));
+
+    const rentQty = cylinderBreakdown.reduce((s, b) => s + b.quantity, 0)
+      + Number(customer.initialCylinderBalance ?? 0); // legacy compat
+
+    // ── Pending amount calculation ─────────────────────────────────────────
+    // Old commercial sales (legacy Sale model)
     const rentSales = await prisma.sale.aggregate({
       where: { customerId, saleType: "rent", isDeleted: false },
       _sum: { netTotal: true },
     });
 
-    // Total commercial collections
-    const commercialCollections = await prisma.collection.aggregate({
-      where: { customerId, isDeleted: false, domSaleId: null, arbSaleId: null },
+    // Old collections not linked to dom/arb/commercial sale
+    const legacyCollections = await prisma.collection.aggregate({
+      where: {
+        customerId,
+        isDeleted: false,
+        domSaleId: null,
+        arbSaleId: null,
+        commercialSaleId: null,
+      },
       _sum: { amount: true },
     });
 
-    // DomSale pending
     const domSales = await prisma.domSale.aggregate({
       where: { customerId, isDeleted: false },
       _sum: { totalAmount: true, paidAmount: true },
     });
 
-    // ArbSale pending
     const arbSales = await prisma.arbSale.aggregate({
       where: { customerId, isDeleted: false },
       _sum: { totalAmount: true, paidAmount: true },
     });
 
-    const commercialPending =
-      Number(rentSales._sum.netTotal ?? 0) -
-      Number(commercialCollections._sum.amount ?? 0);
+    const commercialSales = await prisma.commercialSale.aggregate({
+      where: { customerId, isDeleted: false },
+      _sum: { totalAmount: true, paidAmount: true },
+    });
 
-    const domPending =
-      Number(domSales._sum.totalAmount ?? 0) -
-      Number(domSales._sum.paidAmount ?? 0);
+    const oldCommercialPending = round2(
+      Number(rentSales._sum.netTotal ?? 0) - Number(legacyCollections._sum.amount ?? 0)
+    );
+    const newCommercialPending = round2(
+      Number(commercialSales._sum.totalAmount ?? 0) - Number(commercialSales._sum.paidAmount ?? 0)
+    );
+    const domPending = round2(
+      Number(domSales._sum.totalAmount ?? 0) - Number(domSales._sum.paidAmount ?? 0)
+    );
+    const arbPending = round2(
+      Number(arbSales._sum.totalAmount ?? 0) - Number(arbSales._sum.paidAmount ?? 0)
+    );
 
-    const arbPending =
-      Number(arbSales._sum.totalAmount ?? 0) -
-      Number(arbSales._sum.paidAmount ?? 0);
-
-    const pendingAmount =
-      commercialPending +
+    const pendingAmount = round2(
+      oldCommercialPending +
+      newCommercialPending +
       domPending +
       arbPending +
-      Number(customer.initialPendingAmount ?? 0);
+      round2(Number(customer.initialPendingAmount ?? 0))
+    );
 
     return NextResponse.json({
       success: true,
       rent_qty: rentQty,
       pending_amount: pendingAmount,
+      cylinder_breakdown: cylinderBreakdown,
       breakdown: {
-        commercial: commercialPending,
+        commercial: round2(oldCommercialPending + newCommercialPending),
         domestic: domPending,
         arb: arbPending,
-        initial: Number(customer.initialPendingAmount ?? 0),
+        initial: round2(Number(customer.initialPendingAmount ?? 0)),
       },
     });
   });

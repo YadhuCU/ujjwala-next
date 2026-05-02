@@ -20,6 +20,11 @@ export const arbSalesOptions = queryOptions({
   queryFn: api.getArbSales,
 });
 
+export const commercialSalesOptions = queryOptions({
+  queryKey: queryKeys.commercialSales.lists(),
+  queryFn: api.getCommercialSales,
+});
+
 export const expensesOptions = queryOptions({
   queryKey: queryKeys.expenses.lists(),
   queryFn: api.getExpenses,

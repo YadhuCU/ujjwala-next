@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
  * Format: PREFIX-YYYYMMDD-NNN (e.g., CS-20260214-001)
  */
 export async function generateTrNo(
-  transactionType: "sale" | "dom_sale" | "collection" | "arbSale"
+  transactionType: "sale" | "dom_sale" | "collection" | "arbSale" | "commercialSale"
 ): Promise<string> {
   const now = new Date();
   const dateStr =
@@ -18,6 +18,7 @@ export async function generateTrNo(
     dom_sale: "DS",
     collection: "CL",
     arbSale: "AS",
+    commercialSale: "CM",
   };
 
   const prefix = prefixMap[transactionType];
@@ -54,6 +55,15 @@ export async function generateTrNo(
     }
   } else if (transactionType === "arbSale") {
     const last = await prisma.arbSale.findFirst({
+      where: { trNo: { startsWith: pattern } },
+      orderBy: { trNo: "desc" },
+    });
+    if (last?.trNo) {
+      const parts = last.trNo.split("-");
+      lastNo = parseInt(parts[parts.length - 1]) || 0;
+    }
+  } else if (transactionType === "commercialSale") {
+    const last = await prisma.commercialSale.findFirst({
       where: { trNo: { startsWith: pattern } },
       orderBy: { trNo: "desc" },
     });

@@ -11,6 +11,7 @@ import {
   vendorsOptions,
   purchasesOptions,
   arbSalesOptions,
+  commercialSalesOptions,
 } from "@/lib/query-options";
 import { ProductType } from "@prisma/client";
 
@@ -46,6 +47,10 @@ export function usePurchases() {
 
 export function useArbSales() {
   return useQuery(arbSalesOptions);
+}
+
+export function useCommercialSales() {
+  return useQuery(commercialSalesOptions);
 }
 
 // ─── Generic Mutation Hook ──────────────────────────────────────────────────
