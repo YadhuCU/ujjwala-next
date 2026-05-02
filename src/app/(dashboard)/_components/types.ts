@@ -10,8 +10,10 @@ export interface DashboardData {
     totalQtySold: number;
     customerCount: number;
     todayRevenue: number;
-    comSaleCount: number;
+    oldComSaleCount: number;   // legacy Sale model (rent)
     domSaleCount: number;
+    arbSaleCount: number;
+    newComSaleCount: number;   // new CommercialSale model
   };
   dailyTrend: {
     date: string;
@@ -20,8 +22,10 @@ export interface DashboardData {
     expense: number;
     profit: number;
     collections: number;
-    comSales: number;
+    oldComSales: number;   // legacy Sale model count
     domSales: number;
+    arbSales: number;
+    newComSales: number;   // new CommercialSale model count
   }[];
   productBreakdown: {
     name: string;

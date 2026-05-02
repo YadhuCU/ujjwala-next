@@ -25,6 +25,7 @@ import { ArbSalePayload } from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 
+
 export default function ArbSalesPage() {
   const { isAdmin } = usePermissions();
 
@@ -55,24 +56,27 @@ export default function ArbSalesPage() {
     {
       id: "actions",
       header: isAdmin ? "Actions" : undefined,
-      cell: ({ row }) =>
-        isAdmin ? (
-          <div className="flex justify-center gap-1">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={`/arb-sales/${row.original.id}/edit`}>
-                <Pencil className="w-4 h-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteId(row.original.id)}
-              disabled={deleteMutation.isPending}
-            >
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
+      cell: ({ row }) => {
+        return isAdmin ? (
+          <div className="flex items-center justify-end gap-2">
+            <div className="flex justify-end gap-1">
+              <Button variant="ghost" size="icon" asChild>
+                <Link href={`/arb-sales/${row.original.id}/edit`}>
+                  <Pencil className="w-4 h-4" />
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDeleteId(row.original.id)}
+                disabled={deleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </Button>
+            </div>
           </div>
-        ) : null,
+        ) : null;
+      },
     },
   ];
 
@@ -119,6 +123,7 @@ export default function ArbSalesPage() {
         }}
         isPending={deleteMutation.isPending}
       />
+
     </PageWrapper>
   );
 }

@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
 import { LogOut, Settings, Search, Bell, Flame } from "lucide-react";
 import { ModeSwitcher, ThemeSwitcher } from "@/components/theme-switcher";
 
@@ -28,7 +27,7 @@ export function Navbar() {
     .slice(0, 2);
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-primary px-4 shrink-0 text-white">
+    <header className="flex h-14 items-center gap-4 border-b bg-linear-to-r from-(--sidebar-active-border) to-primary  px-4 shrink-0 text-white">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1 text-white hover:bg-white/10" />
         <div className="flex flex-col ml-1 leading-tight hidden lg:flex">
@@ -37,17 +36,8 @@ export function Navbar() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center ml-4">
-        <div className="relative max-w-sm w-full hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60" />
-          <Input
-            placeholder="Search data, reports, or inventory..."
-            className="pl-9 h-9 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-offset-0 focus-visible:ring-white/30"
-          />
-        </div>
-      </div>
 
-      <div className="flex items-center gap-1">
+      <div className="ml-auto flex items-center gap-1">
         <ThemeSwitcher />
         <ModeSwitcher />
 

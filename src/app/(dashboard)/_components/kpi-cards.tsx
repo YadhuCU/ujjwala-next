@@ -38,7 +38,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
     {
       title: "Total Expenses",
       value: `₹${kpis.totalExpenses.toLocaleString("en-IN")}`,
-      subtitle: `${kpis.comSaleCount + kpis.domSaleCount} total sales`,
+      subtitle: `${kpis.oldComSaleCount + kpis.domSaleCount + kpis.arbSaleCount + kpis.newComSaleCount} total sales`,
       icon: Wallet,
       gradient: "from-rose-500 to-pink-600",
       shadow: "shadow-rose-500/20",

@@ -48,18 +48,20 @@ const mainNavItems = [
   { title: "Stock", href: "/stock", icon: BarChart3, adminOnly: false },
   { title: "Vendors", href: "/vendors", icon: Truck, adminOnly: true },
   { title: "Purchase", href: "/purchases", icon: ShoppingBag, adminOnly: true },
-  { title: "Commercial Sale", href: "/sales", icon: ShoppingCart, adminOnly: false },
+  { title: "Commercial Sale (Old)", href: "/sales", icon: ShoppingCart, adminOnly: false },
+  { title: "Commercial Sale", href: "/commercial-sales", icon: ShoppingCart, adminOnly: false },
   { title: "Domestic Sale", href: "/dom-sales", icon: Home, adminOnly: false },
   { title: "ARB Sale", href: "/arb-sales", icon: ShoppingCart, adminOnly: false },
   { title: "Expense", href: "/expenses", icon: Wallet, adminOnly: false },
 ];
 
 const reportItems = [
-  { title: "Sale Report", href: "/reports/sales" },
-  { title: "Expense Report", href: "/reports/expense" },
+  { title: "Commercial Sale Report", href: "/reports/sales" },
+  { title: "Domestic Sale Report", href: "/reports/dom-sale" },
   { title: "Arb Sale Report", href: "/reports/arb-sale" },
-  { title: "Purchase Report", href: "/reports/purchase" },
   { title: "Sale by Product Report", href: "/reports/sale-by-product" },
+  { title: "Expense Report", href: "/reports/expense" },
+  { title: "Purchase Report", href: "/reports/purchase" },
 ];
 
 export function AppSidebar() {

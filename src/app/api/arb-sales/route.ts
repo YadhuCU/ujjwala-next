@@ -50,12 +50,7 @@ export async function POST(request: Request) {
     try {
       const data = await request.json();
 
-      if (!data.items || data.items.length === 0) {
-        return NextResponse.json(
-          { error: "At least one item is required for Arb Sale" },
-          { status: 400 }
-        );
-      }
+      // items may be empty for a collection-only invoice
 
       const trNo = await generateTrNo("arbSale");
 
@@ -65,6 +60,7 @@ export async function POST(request: Request) {
           data: {
             trNo,
             totalAmount: data.totalAmount,
+            paidAmount: data.paidAmount ? Number(data.paidAmount) : 0,
             customerId: data.customerId ? parseInt(data.customerId) : null,
             paymentType: data.paymentType || "cash",
             discount: data.discount ? Number(data.discount) : null,
@@ -72,14 +68,27 @@ export async function POST(request: Request) {
             createdById: userId,
           },
         });
+        
+        // 1.5 Create Collection record if paidAmount provided
+        if (data.customerId && data.paidAmount && Number(data.paidAmount) > 0) {
+          const collTrNo = await generateTrNo("collection");
+          await tx.collection.create({
+            data: {
+              trNo: collTrNo,
+              customerId: parseInt(data.customerId),
+              arbSaleId: arbSale.id,
+              amount: Number(data.paidAmount),
+              createdById: userId,
+            },
+          });
+        }
 
-        // 2. Create items and adjust stock
-        for (const item of data.items) {
+        // 2. Create items and adjust stock (skipped for collection-only invoices)
+        for (const item of (data.items || [])) {
           const quantity = Number(item.quantity) || 0;
-          
-          if (!item.stockId || quantity <= 0) {
-            throw new Error(`Invalid stock or quantity for product ID ${item.productId}`);
-          }
+
+          // Skip items with no stock or zero quantity (collection-only rows)
+          if (!item.stockId || quantity <= 0) continue;
 
           // Fetch the stock to ensure it exists and has enough quantity
           const stock = await tx.stock.findUnique({

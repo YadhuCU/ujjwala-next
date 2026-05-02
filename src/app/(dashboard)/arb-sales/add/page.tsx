@@ -25,13 +25,7 @@ export default function AddArbSalePage() {
   });
 
   const handleSubmit = (values: ArbSaleFormValues) => {
-    // Only submit items with quantity > 0
-    const filteredItems = values.items.filter((item) => Number(item.quantity) > 0);
-    if (filteredItems.length === 0) {
-      toast.error("Please add at least one valid item");
-      return;
-    }
-    createMutation.mutate({ ...values, items: filteredItems });
+    createMutation.mutate(values);
   };
 
   return (

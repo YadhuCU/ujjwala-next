@@ -24,6 +24,10 @@ export type ArbSalePayload = Prisma.ArbSaleGetPayload<{
   include: { customer: true; items: { include: { stock: true; product: true } } };
 }>;
 
+export type CommercialSalePayload = Prisma.CommercialSaleGetPayload<{
+  include: { customer: true; items: { include: { stock: true; product: true } } };
+}>;
+
 export type StockPayload = Prisma.StockGetPayload<{
   include: { product: true; vendor: true };
 }>;
@@ -54,6 +58,7 @@ export const api = {
   getSales: () => apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
   getDomSales: () => apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
   getArbSales: () => apiClient.get<{ data: ArbSalePayload[], pagination: unknown }>("/api/arb-sales").then((r) => r.data.data),
+  getCommercialSales: () => apiClient.get<{ data: CommercialSalePayload[], pagination: unknown }>("/api/commercial-sales").then((r) => r.data.data),
   getExpenses: () => apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
   getCustomers: () => apiClient.get<CustomerPayload[]>("/api/customers").then((r) => r.data),
   getStocks: (type?: ProductType) => apiClient.get<StockPayload[]>("/api/stock", { params: { type } }).then((r) => r.data),
@@ -70,9 +75,22 @@ export const api = {
   // ─── Custom GET endpoints ───────────────────────────────
   getCustomerTxn: (custId: string) =>
     apiClient
-      .get<{ rent_qty: number; pending_amount: number }>(
-        `/api/customer-txn?cust_id=${custId}`
-      )
+      .get<{
+        rent_qty: number;
+        pending_amount: number;
+        cylinder_breakdown?: {
+          stockId: number | null;
+          stockBatchNo: string | null;
+          productName: string;
+          quantity: number;
+        }[];
+        breakdown?: {
+          commercial: number;
+          domestic: number;
+          arb: number;
+          initial: number;
+        };
+      }>(`/api/customer-txn?cust_id=${custId}`)
       .then((r) => r.data),
 
   getDashboard: (from?: string, to?: string) => {
@@ -231,6 +249,106 @@ export const api = {
     URL.revokeObjectURL(url);
   },
 
+  getCommercialSaleReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/commercial-sale?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportCommercialSaleReport: async (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    const response = await apiClient.get(
+      `/api/reports/commercial-sale/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `commercial_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  getDomSaleReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get(`/api/reports/dom-sale?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportDomSaleReport: async (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    staffId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams();
+    sp.set("from", params.from);
+    sp.set("to", params.to);
+    sp.set("format", params.format);
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.staffId) sp.set("staffId", params.staffId);
+    const response = await apiClient.get(
+      `/api/reports/dom-sale/export?${sp.toString()}`,
+      { responseType: "blob" }
+    );
+    const disposition = response.headers["content-disposition"] || "";
+    const match = disposition.match(/filename="?(.+?)"?$/);
+    const fallbackExt = params.format === "excel" ? "csv" : "txt";
+    const filename =
+      match?.[1] || `dom_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+    const url = URL.createObjectURL(response.data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
   getPurchaseReport: (params: {
     from: string;
     to: string;
@@ -318,6 +436,13 @@ export const api = {
     a.click();
     URL.revokeObjectURL(url);
   },
+
+  // ─── Payment Methods ──────────────────────────────────────
+  recordDomSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
+    apiClient.post(`/api/dom-sales/${id}/payment`, payload).then(r => r.data),
+
+  recordArbSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
+    apiClient.post(`/api/arb-sales/${id}/payment`, payload).then(r => r.data),
 
   // ─── Mutations ──────────────────────────────────────────
   create: <T>(url: string, data: T) =>
