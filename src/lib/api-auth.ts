@@ -1,49 +1,37 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
-import { UserRole } from "./constants";
+import { Permission } from "./permissions";
 
-type AuthResult = {
-  userId: number;
-  role: UserRole;
-};
-
-/**
- * Require authentication for an API route.
- * Returns { userId, role } or throws a NextResponse error.
- *
- * @param requiredRole - If "Owner", Office and Sales users will get 403
- */
-export async function requireAuth(
-  requiredRole?: AuthResult["role"]
-): Promise<AuthResult> {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    throw NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const role = (session.user as { role?: AuthResult["role"] }).role || "Sales";
-
-  if (requiredRole === "Owner" && role !== "Owner") {
-    throw NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  return { userId: parseInt(session.user.id), role };
-}
 
 /**
  * Wrapper to use requireAuth in route handlers.
  * Catches the thrown NextResponse and returns it.
  */
 export async function withAuth(
-  handler: (authResult: AuthResult) => Promise<NextResponse>,
-  requiredRole?: AuthResult["role"]
+  handler: () => Promise<NextResponse>,
+  requiredPermissions: Permission[] = []
 ): Promise<NextResponse> {
   try {
-    const authResult = await requireAuth(requiredRole);
-    return handler(authResult);
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userPermissions = session.user.permissions ?? [];
+
+    // Permission validation
+    const hasPermission = requiredPermissions.every(permission => userPermissions.includes(permission))
+
+    if(!hasPermission) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403})
+    }
+
+    return handler();
+
   } catch (error) {
     if (error instanceof NextResponse) return error;
+    console.error(error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

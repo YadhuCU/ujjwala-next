@@ -1,12 +1,54 @@
-import { PrismaClient } from "@prisma/client";
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
+import { PrismaClient } from "@/generated/client";
+import { PERMISSIONS } from "@/lib/permissions";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  const permissions = Object.values(PERMISSIONS)
+
+  // Creating permission table.
+  for (let permission of permissions) {
+    await prisma.permission.upsert({
+      where: { code: permission },
+      create: { code: permission },
+      update: {}
+    })
+  }
+
+  // Creating Role Table.
+  const adminRole = await prisma.role.upsert({
+    where: { name: "OWNER" },
+    create: { name: "OWNER" },
+    update: {}
+  })
+
+
+  const allPermissions = await prisma.permission.findMany()
+
+  for (let p of allPermissions) {
+    await prisma.rolePermission.upsert({
+      where: {
+        roleId_permissionId: {
+          permissionId: p.id,
+          roleId: adminRole.id
+        }
+      },
+      create: {
+        permissionId: p.id,
+        roleId: adminRole.id
+      },
+      update: {}
+    })
+  }
+
+  // Creating Admin User
   const hashedPassword = await bcrypt.hash("admin", 10);
 
-  const admin = await prisma.account.upsert({
+  const admin = await prisma.user.upsert({
     where: { username: "admin" },
     update: {},
     create: {
@@ -14,8 +56,7 @@ async function main() {
       password: hashedPassword,
       name: "Admin",
       isActive: true,
-      isSuperuser: true,
-      role: "Owner",
+      roleId: adminRole.id
     },
   });
 

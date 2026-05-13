@@ -5,7 +5,7 @@ import { withAuth } from "@/lib/api-auth";
 
 export async function GET() {
   return withAuth(async () => {
-    const users = await prisma.account.findMany({
+    const users = await prisma.user.findMany({
       where: { isDeleted: false },
       orderBy: { createdAt: "desc" },
     });
@@ -15,7 +15,7 @@ export async function GET() {
       return rest;
     });
     return NextResponse.json(safeUsers);
-  }, "Owner");
+  }, ["user:read"]);
 }
 
 export async function POST(request: Request) {
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     try {
       const data = await request.json();
       const hashedPassword = await bcrypt.hash(data.password, 10);
-      const user = await prisma.account.create({
+      const user = await prisma.user.create({
         data: {
           username: data.username,
           name: data.name,
@@ -40,5 +40,5 @@ export async function POST(request: Request) {
       const message = error instanceof Error ? error.message : "Failed to create user";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "Owner");
+  }, ["user:create"]);
 }
