@@ -38,6 +38,7 @@ export async function PUT(
 
     const body = await request.json();
     const data = UpdateCustomerSchema.parse(body);
+    console.log({ data });
 
     const customerId = parseInt(id);
 

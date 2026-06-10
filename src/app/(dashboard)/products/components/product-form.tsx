@@ -139,8 +139,12 @@ export function ProductForm({
               )}
             />
             <div className="flex gap-3 pt-2 lg:col-span-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
+              <Button
+                type="submit"
+                disabled={!form.formState.isDirty}
+                isLoading={isPending}
+              >
+                {isEditMode ? "Update" : "Save"}
               </Button>
               <Button
                 type="button"

@@ -319,12 +319,12 @@ export function CustomerForm({
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending
-                  ? "Saving..."
-                  : isEditMode
-                    ? "Update Customer"
-                    : "Save Customer"}
+              <Button
+                type="submit"
+                disabled={!form.formState.isDirty}
+                isLoading={isPending}
+              >
+                {isEditMode ? "Update Customer" : "Save Customer"}
               </Button>
               <Button
                 type="button"

@@ -88,16 +88,14 @@ function normalizeUpdateCustomer(
           ? data.locationId
           : null
         : undefined,
-
-    initialPendingAmount:
-      data.initialPendingAmount !== undefined
-        ? Math.round(data.initialPendingAmount * 100) / 100
-        : undefined,
   };
 }
 
-export const UpdateCustomerSchema = CustomerFormSchema.partial().transform(
-  normalizeUpdateCustomer,
-);
+export const UpdateCustomerSchema = CustomerFormSchema.omit({
+  initialPendingAmount: true,
+  initialCylinderBalances: true,
+})
+  .partial()
+  .transform(normalizeUpdateCustomer);
 
 export type UpdateCustomerInput = z.infer<typeof UpdateCustomerSchema>;
