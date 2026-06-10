@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { USER_ROLES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { rolesOptions } from "@/lib/query-options";
+import { useSuspenseQuery } from "@tanstack/react-query";
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
 export const userSchema = z.object({
@@ -30,7 +31,7 @@ export const userSchema = z.object({
   password: z.string().optional().or(z.literal("")),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   mobile: z.string().optional().or(z.literal("")),
-  role: z.enum(USER_ROLES),
+  userRoles: z.array(z.number()).min(1, "User role is required"),
 });
 
 export type UserFormValues = z.infer<typeof userSchema>;
@@ -52,6 +53,13 @@ export function UserForm({
   onSubmit,
   isPending,
 }: UserFormProps) {
+  const { data: roles } = useSuspenseQuery({
+    ...rolesOptions,
+    select: (res) => {
+      return res.data.map((x) => ({ label: x.name, value: x.id }));
+    },
+  });
+
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: defaultValues ?? {
@@ -60,7 +68,7 @@ export function UserForm({
       password: "",
       email: "",
       mobile: "",
-      role: "Sales",
+      userRoles: [],
     },
   });
 
@@ -71,7 +79,10 @@ export function UserForm({
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 lg:grid-cols-2 items-start">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="grid gap-4 lg:grid-cols-2 items-start"
+          >
             <FormField
               control={form.control}
               name="username"
@@ -143,19 +154,24 @@ export function UserForm({
             />
             <FormField
               control={form.control}
-              name="role"
+              name="userRoles"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => field.onChange([Number(value)])}
+                    value={String(field.value[0] ?? "")}
+                  >
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {USER_ROLES.map((role) => (
-                        <SelectItem key={role} value={role}>{role}</SelectItem>
+                      {roles.map((role) => (
+                        <SelectItem key={role.value} value={String(role.value)}>
+                          {role.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

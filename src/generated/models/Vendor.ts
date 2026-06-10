@@ -42,6 +42,7 @@ export type VendorMinAggregateOutputType = {
   gstNumber: string | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type VendorMaxAggregateOutputType = {
@@ -52,6 +53,7 @@ export type VendorMaxAggregateOutputType = {
   gstNumber: string | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type VendorCountAggregateOutputType = {
@@ -62,6 +64,7 @@ export type VendorCountAggregateOutputType = {
   gstNumber: number
   isDeleted: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -82,6 +85,7 @@ export type VendorMinAggregateInputType = {
   gstNumber?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type VendorMaxAggregateInputType = {
@@ -92,6 +96,7 @@ export type VendorMaxAggregateInputType = {
   gstNumber?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type VendorCountAggregateInputType = {
@@ -102,6 +107,7 @@ export type VendorCountAggregateInputType = {
   gstNumber?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -199,6 +205,7 @@ export type VendorGroupByOutputType = {
   gstNumber: string | null
   isDeleted: boolean
   createdAt: Date
+  updatedAt: Date
   _count: VendorCountAggregateOutputType | null
   _avg: VendorAvgAggregateOutputType | null
   _sum: VendorSumAggregateOutputType | null
@@ -232,6 +239,7 @@ export type VendorWhereInput = {
   gstNumber?: Prisma.StringNullableFilter<"Vendor"> | string | null
   isDeleted?: Prisma.BoolFilter<"Vendor"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Vendor"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Vendor"> | Date | string
   purchases?: Prisma.PurchaseListRelationFilter
   stocks?: Prisma.StockListRelationFilter
 }
@@ -244,6 +252,7 @@ export type VendorOrderByWithRelationInput = {
   gstNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   purchases?: Prisma.PurchaseOrderByRelationAggregateInput
   stocks?: Prisma.StockOrderByRelationAggregateInput
 }
@@ -259,6 +268,7 @@ export type VendorWhereUniqueInput = Prisma.AtLeast<{
   gstNumber?: Prisma.StringNullableFilter<"Vendor"> | string | null
   isDeleted?: Prisma.BoolFilter<"Vendor"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Vendor"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Vendor"> | Date | string
   purchases?: Prisma.PurchaseListRelationFilter
   stocks?: Prisma.StockListRelationFilter
 }, "id" | "name">
@@ -271,6 +281,7 @@ export type VendorOrderByWithAggregationInput = {
   gstNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.VendorCountOrderByAggregateInput
   _avg?: Prisma.VendorAvgOrderByAggregateInput
   _max?: Prisma.VendorMaxOrderByAggregateInput
@@ -289,6 +300,7 @@ export type VendorScalarWhereWithAggregatesInput = {
   gstNumber?: Prisma.StringNullableWithAggregatesFilter<"Vendor"> | string | null
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Vendor"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Vendor"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Vendor"> | Date | string
 }
 
 export type VendorCreateInput = {
@@ -298,6 +310,7 @@ export type VendorCreateInput = {
   gstNumber?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   purchases?: Prisma.PurchaseCreateNestedManyWithoutVendorInput
   stocks?: Prisma.StockCreateNestedManyWithoutVendorInput
 }
@@ -310,6 +323,7 @@ export type VendorUncheckedCreateInput = {
   gstNumber?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutVendorInput
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutVendorInput
 }
@@ -321,6 +335,7 @@ export type VendorUpdateInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   purchases?: Prisma.PurchaseUpdateManyWithoutVendorNestedInput
   stocks?: Prisma.StockUpdateManyWithoutVendorNestedInput
 }
@@ -333,6 +348,7 @@ export type VendorUncheckedUpdateInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutVendorNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutVendorNestedInput
 }
@@ -345,6 +361,7 @@ export type VendorCreateManyInput = {
   gstNumber?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type VendorUpdateManyMutationInput = {
@@ -354,6 +371,7 @@ export type VendorUpdateManyMutationInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VendorUncheckedUpdateManyInput = {
@@ -364,11 +382,7 @@ export type VendorUncheckedUpdateManyInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type VendorNullableScalarRelationFilter = {
-  is?: Prisma.VendorWhereInput | null
-  isNot?: Prisma.VendorWhereInput | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VendorCountOrderByAggregateInput = {
@@ -379,6 +393,7 @@ export type VendorCountOrderByAggregateInput = {
   gstNumber?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type VendorAvgOrderByAggregateInput = {
@@ -393,6 +408,7 @@ export type VendorMaxOrderByAggregateInput = {
   gstNumber?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type VendorMinOrderByAggregateInput = {
@@ -403,10 +419,16 @@ export type VendorMinOrderByAggregateInput = {
   gstNumber?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type VendorSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+}
+
+export type VendorNullableScalarRelationFilter = {
+  is?: Prisma.VendorWhereInput | null
+  isNot?: Prisma.VendorWhereInput | null
 }
 
 export type VendorScalarRelationFilter = {
@@ -451,6 +473,7 @@ export type VendorCreateWithoutStocksInput = {
   gstNumber?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   purchases?: Prisma.PurchaseCreateNestedManyWithoutVendorInput
 }
 
@@ -462,6 +485,7 @@ export type VendorUncheckedCreateWithoutStocksInput = {
   gstNumber?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   purchases?: Prisma.PurchaseUncheckedCreateNestedManyWithoutVendorInput
 }
 
@@ -488,6 +512,7 @@ export type VendorUpdateWithoutStocksInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   purchases?: Prisma.PurchaseUpdateManyWithoutVendorNestedInput
 }
 
@@ -499,6 +524,7 @@ export type VendorUncheckedUpdateWithoutStocksInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   purchases?: Prisma.PurchaseUncheckedUpdateManyWithoutVendorNestedInput
 }
 
@@ -509,6 +535,7 @@ export type VendorCreateWithoutPurchasesInput = {
   gstNumber?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   stocks?: Prisma.StockCreateNestedManyWithoutVendorInput
 }
 
@@ -520,6 +547,7 @@ export type VendorUncheckedCreateWithoutPurchasesInput = {
   gstNumber?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutVendorInput
 }
 
@@ -546,6 +574,7 @@ export type VendorUpdateWithoutPurchasesInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.StockUpdateManyWithoutVendorNestedInput
 }
 
@@ -557,6 +586,7 @@ export type VendorUncheckedUpdateWithoutPurchasesInput = {
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.StockUncheckedUpdateManyWithoutVendorNestedInput
 }
 
@@ -608,6 +638,7 @@ export type VendorSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   gstNumber?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   purchases?: boolean | Prisma.Vendor$purchasesArgs<ExtArgs>
   stocks?: boolean | Prisma.Vendor$stocksArgs<ExtArgs>
   _count?: boolean | Prisma.VendorCountOutputTypeDefaultArgs<ExtArgs>
@@ -621,6 +652,7 @@ export type VendorSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   gstNumber?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["vendor"]>
 
 export type VendorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -631,6 +663,7 @@ export type VendorSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   gstNumber?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["vendor"]>
 
 export type VendorSelectScalar = {
@@ -641,9 +674,10 @@ export type VendorSelectScalar = {
   gstNumber?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type VendorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "address" | "gstNumber" | "isDeleted" | "createdAt", ExtArgs["result"]["vendor"]>
+export type VendorOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "address" | "gstNumber" | "isDeleted" | "createdAt" | "updatedAt", ExtArgs["result"]["vendor"]>
 export type VendorInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   purchases?: boolean | Prisma.Vendor$purchasesArgs<ExtArgs>
   stocks?: boolean | Prisma.Vendor$stocksArgs<ExtArgs>
@@ -666,6 +700,7 @@ export type $VendorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     gstNumber: string | null
     isDeleted: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["vendor"]>
   composites: {}
 }
@@ -1098,6 +1133,7 @@ export interface VendorFieldRefs {
   readonly gstNumber: Prisma.FieldRef<"Vendor", 'String'>
   readonly isDeleted: Prisma.FieldRef<"Vendor", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Vendor", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Vendor", 'DateTime'>
 }
     
 

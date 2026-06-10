@@ -3,7 +3,7 @@
 // Each entity provides: .all (for invalidation), .lists() (for list queries),
 // and .detail(id) (for single-item queries).
 
-import { ProductType } from "@prisma/client";
+import { ProductType } from "@/generated/enums";
 
 export const queryKeys = {
   sales: {
@@ -81,37 +81,35 @@ export const queryKeys = {
   },
   saleReport: {
     all: ["sale-report"] as const,
-    list: (params: object) =>
-      ["sale-report", params] as const,
+    list: (params: object) => ["sale-report", params] as const,
   },
   expenseReport: {
     all: ["expense-report"] as const,
-    list: (params: object) =>
-      ["expense-report", params] as const,
+    list: (params: object) => ["expense-report", params] as const,
   },
   arbSaleReport: {
     all: ["arb-sale-report"] as const,
-    list: (params: object) =>
-      ["arb-sale-report", params] as const,
+    list: (params: object) => ["arb-sale-report", params] as const,
   },
   commercialSaleReport: {
     all: ["commercial-sale-report"] as const,
-    list: (params: object) =>
-      ["commercial-sale-report", params] as const,
+    list: (params: object) => ["commercial-sale-report", params] as const,
   },
   domSaleReport: {
     all: ["dom-sale-report"] as const,
-    list: (params: object) =>
-      ["dom-sale-report", params] as const,
+    list: (params: object) => ["dom-sale-report", params] as const,
   },
   purchaseReport: {
     all: ["purchase-report"] as const,
-    list: (params: object) =>
-      ["purchase-report", params] as const,
+    list: (params: object) => ["purchase-report", params] as const,
   },
   saleByProductReport: {
     all: ["sale-by-product-report"] as const,
-    list: (params: object) =>
-      ["sale-by-product-report", params] as const,
+    list: (params: object) => ["sale-by-product-report", params] as const,
+  },
+  roles: {
+    all: ["roles"] as const,
+    lists: () => ["roles"] as const,
+    detail: (id: string) => ["roles", id] as const,
   },
 };

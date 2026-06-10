@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   return withAuth(async () => {
@@ -22,7 +23,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     }
 
     return NextResponse.json(arbSale);
-  });
+  }, [PERMISSIONS.ARB_SALE_READ]);
 }
 
 // NOTE: ArbSales are strict and directly modify stock. 
@@ -50,7 +51,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     });
 
     return NextResponse.json(updatedSale);
-  }, "Owner");
+  },[PERMISSIONS.ARB_SALE_UPDATE]);
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -97,5 +98,5 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     });
 
     return NextResponse.json({ success: true });
-  }, "Owner");
+  },[PERMISSIONS.ARB_SALE_DELETE]);
 }

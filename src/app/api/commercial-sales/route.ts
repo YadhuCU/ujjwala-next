@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
 import { generateTrNo } from "@/lib/generate-tr-no";
+import { PERMISSIONS } from "@/lib/permissions";
 
 export async function GET(request: Request) {
   return withAuth(async () => {
@@ -36,11 +37,13 @@ export async function GET(request: Request) {
       data: commercialSales,
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
-  });
+  }, [PERMISSIONS.COMMERCIAL_SALE_READ]);
 }
 
 export async function POST(request: Request) {
-  return withAuth(async ({ userId }) => {
+  return withAuth(async (user) => {
+    const userId = user.id
+
     try {
       const data = await request.json();
       const trNo = await generateTrNo("commercialSale");
@@ -204,5 +207,5 @@ export async function POST(request: Request) {
         error instanceof Error ? error.message : "Failed to create commercial sale";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "Owner");
+  },[PERMISSIONS.COMMERCIAL_SALE_CREATE]);
 }

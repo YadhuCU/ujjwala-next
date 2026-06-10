@@ -29,8 +29,8 @@ export type AggregateDomSaleItem = {
 export type DomSaleItemAvgAggregateOutputType = {
   id: number | null
   domSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
@@ -39,8 +39,8 @@ export type DomSaleItemAvgAggregateOutputType = {
 export type DomSaleItemSumAggregateOutputType = {
   id: number | null
   domSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
@@ -49,31 +49,37 @@ export type DomSaleItemSumAggregateOutputType = {
 export type DomSaleItemMinAggregateOutputType = {
   id: number | null
   domSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type DomSaleItemMaxAggregateOutputType = {
   id: number | null
   domSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type DomSaleItemCountAggregateOutputType = {
   id: number
   domSaleId: number
-  stockId: number
   productId: number
+  stockId: number
   quantity: number
   salePrice: number
   netTotal: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -81,8 +87,8 @@ export type DomSaleItemCountAggregateOutputType = {
 export type DomSaleItemAvgAggregateInputType = {
   id?: true
   domSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
@@ -91,8 +97,8 @@ export type DomSaleItemAvgAggregateInputType = {
 export type DomSaleItemSumAggregateInputType = {
   id?: true
   domSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
@@ -101,31 +107,37 @@ export type DomSaleItemSumAggregateInputType = {
 export type DomSaleItemMinAggregateInputType = {
   id?: true
   domSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type DomSaleItemMaxAggregateInputType = {
   id?: true
   domSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type DomSaleItemCountAggregateInputType = {
   id?: true
   domSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -218,11 +230,13 @@ export type DomSaleItemGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type DomSaleItemGroupByOutputType = {
   id: number
   domSaleId: number
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  createdAt: Date
+  updatedAt: Date
   _count: DomSaleItemCountAggregateOutputType | null
   _avg: DomSaleItemAvgAggregateOutputType | null
   _sum: DomSaleItemSumAggregateOutputType | null
@@ -251,27 +265,31 @@ export type DomSaleItemWhereInput = {
   NOT?: Prisma.DomSaleItemWhereInput | Prisma.DomSaleItemWhereInput[]
   id?: Prisma.IntFilter<"DomSaleItem"> | number
   domSaleId?: Prisma.IntFilter<"DomSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
+  stockId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
   quantity?: Prisma.IntFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
   domSale?: Prisma.XOR<Prisma.DomSaleScalarRelationFilter, Prisma.DomSaleWhereInput>
-  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
 }
 
 export type DomSaleItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   domSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   domSale?: Prisma.DomSaleOrderByWithRelationInput
-  stock?: Prisma.StockOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
+  stock?: Prisma.StockOrderByWithRelationInput
 }
 
 export type DomSaleItemWhereUniqueInput = Prisma.AtLeast<{
@@ -280,24 +298,28 @@ export type DomSaleItemWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DomSaleItemWhereInput[]
   NOT?: Prisma.DomSaleItemWhereInput | Prisma.DomSaleItemWhereInput[]
   domSaleId?: Prisma.IntFilter<"DomSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
+  stockId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
   quantity?: Prisma.IntFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
   domSale?: Prisma.XOR<Prisma.DomSaleScalarRelationFilter, Prisma.DomSaleWhereInput>
-  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
 }, "id">
 
 export type DomSaleItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   domSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.DomSaleItemCountOrderByAggregateInput
   _avg?: Prisma.DomSaleItemAvgOrderByAggregateInput
   _max?: Prisma.DomSaleItemMaxOrderByAggregateInput
@@ -311,75 +333,91 @@ export type DomSaleItemScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DomSaleItemScalarWhereWithAggregatesInput | Prisma.DomSaleItemScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"DomSaleItem"> | number
   domSaleId?: Prisma.IntWithAggregatesFilter<"DomSaleItem"> | number
-  stockId?: Prisma.IntNullableWithAggregatesFilter<"DomSaleItem"> | number | null
   productId?: Prisma.IntNullableWithAggregatesFilter<"DomSaleItem"> | number | null
+  stockId?: Prisma.IntNullableWithAggregatesFilter<"DomSaleItem"> | number | null
   quantity?: Prisma.IntWithAggregatesFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableWithAggregatesFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableWithAggregatesFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"DomSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DomSaleItem"> | Date | string
 }
 
 export type DomSaleItemCreateInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   domSale: Prisma.DomSaleCreateNestedOneWithoutItemsInput
-  stock?: Prisma.StockCreateNestedOneWithoutDomSaleItemsInput
   product?: Prisma.ProductCreateNestedOneWithoutDomSaleItemsInput
+  stock?: Prisma.StockCreateNestedOneWithoutDomSaleItemsInput
 }
 
 export type DomSaleItemUncheckedCreateInput = {
   id?: number
   domSaleId: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemUpdateInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSale?: Prisma.DomSaleUpdateOneRequiredWithoutItemsNestedInput
-  stock?: Prisma.StockUpdateOneWithoutDomSaleItemsNestedInput
   product?: Prisma.ProductUpdateOneWithoutDomSaleItemsNestedInput
+  stock?: Prisma.StockUpdateOneWithoutDomSaleItemsNestedInput
 }
 
 export type DomSaleItemUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   domSaleId?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemCreateManyInput = {
   id?: number
   domSaleId: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemUpdateManyMutationInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   domSaleId?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemListRelationFilter = {
@@ -395,18 +433,20 @@ export type DomSaleItemOrderByRelationAggregateInput = {
 export type DomSaleItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   domSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type DomSaleItemAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   domSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
@@ -415,28 +455,32 @@ export type DomSaleItemAvgOrderByAggregateInput = {
 export type DomSaleItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   domSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type DomSaleItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   domSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type DomSaleItemSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   domSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
@@ -572,6 +616,8 @@ export type DomSaleItemCreateWithoutProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   domSale: Prisma.DomSaleCreateNestedOneWithoutItemsInput
   stock?: Prisma.StockCreateNestedOneWithoutDomSaleItemsInput
 }
@@ -583,6 +629,8 @@ export type DomSaleItemUncheckedCreateWithoutProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemCreateOrConnectWithoutProductInput = {
@@ -617,17 +665,21 @@ export type DomSaleItemScalarWhereInput = {
   NOT?: Prisma.DomSaleItemScalarWhereInput | Prisma.DomSaleItemScalarWhereInput[]
   id?: Prisma.IntFilter<"DomSaleItem"> | number
   domSaleId?: Prisma.IntFilter<"DomSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
+  stockId?: Prisma.IntNullableFilter<"DomSaleItem"> | number | null
   quantity?: Prisma.IntFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
 }
 
 export type DomSaleItemCreateWithoutStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   domSale: Prisma.DomSaleCreateNestedOneWithoutItemsInput
   product?: Prisma.ProductCreateNestedOneWithoutDomSaleItemsInput
 }
@@ -639,6 +691,8 @@ export type DomSaleItemUncheckedCreateWithoutStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemCreateOrConnectWithoutStockInput = {
@@ -671,17 +725,21 @@ export type DomSaleItemCreateWithoutDomSaleInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  stock?: Prisma.StockCreateNestedOneWithoutDomSaleItemsInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
   product?: Prisma.ProductCreateNestedOneWithoutDomSaleItemsInput
+  stock?: Prisma.StockCreateNestedOneWithoutDomSaleItemsInput
 }
 
 export type DomSaleItemUncheckedCreateWithoutDomSaleInput = {
   id?: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemCreateOrConnectWithoutDomSaleInput = {
@@ -717,12 +775,16 @@ export type DomSaleItemCreateManyProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemUpdateWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSale?: Prisma.DomSaleUpdateOneRequiredWithoutItemsNestedInput
   stock?: Prisma.StockUpdateOneWithoutDomSaleItemsNestedInput
 }
@@ -734,6 +796,8 @@ export type DomSaleItemUncheckedUpdateWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemUncheckedUpdateManyWithoutProductInput = {
@@ -743,6 +807,8 @@ export type DomSaleItemUncheckedUpdateManyWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemCreateManyStockInput = {
@@ -752,12 +818,16 @@ export type DomSaleItemCreateManyStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemUpdateWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSale?: Prisma.DomSaleUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneWithoutDomSaleItemsNestedInput
 }
@@ -769,6 +839,8 @@ export type DomSaleItemUncheckedUpdateWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemUncheckedUpdateManyWithoutStockInput = {
@@ -778,41 +850,51 @@ export type DomSaleItemUncheckedUpdateManyWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemCreateManyDomSaleInput = {
   id?: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type DomSaleItemUpdateWithoutDomSaleInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  stock?: Prisma.StockUpdateOneWithoutDomSaleItemsNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneWithoutDomSaleItemsNestedInput
+  stock?: Prisma.StockUpdateOneWithoutDomSaleItemsNestedInput
 }
 
 export type DomSaleItemUncheckedUpdateWithoutDomSaleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DomSaleItemUncheckedUpdateManyWithoutDomSaleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -820,84 +902,94 @@ export type DomSaleItemUncheckedUpdateManyWithoutDomSaleInput = {
 export type DomSaleItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   domSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.DomSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["domSaleItem"]>
 
 export type DomSaleItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   domSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.DomSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["domSaleItem"]>
 
 export type DomSaleItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   domSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.DomSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["domSaleItem"]>
 
 export type DomSaleItemSelectScalar = {
   id?: boolean
   domSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type DomSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "domSaleId" | "stockId" | "productId" | "quantity" | "salePrice" | "netTotal", ExtArgs["result"]["domSaleItem"]>
+export type DomSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "domSaleId" | "productId" | "stockId" | "quantity" | "salePrice" | "netTotal" | "createdAt" | "updatedAt", ExtArgs["result"]["domSaleItem"]>
 export type DomSaleItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.DomSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
 }
 export type DomSaleItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.DomSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
 }
 export type DomSaleItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.DomSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.DomSaleItem$stockArgs<ExtArgs>
 }
 
 export type $DomSaleItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DomSaleItem"
   objects: {
     domSale: Prisma.$DomSalePayload<ExtArgs>
-    stock: Prisma.$StockPayload<ExtArgs> | null
     product: Prisma.$ProductPayload<ExtArgs> | null
+    stock: Prisma.$StockPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     domSaleId: number
-    stockId: number | null
     productId: number | null
+    stockId: number | null
     quantity: number
     salePrice: runtime.Decimal | null
     netTotal: runtime.Decimal | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["domSaleItem"]>
   composites: {}
 }
@@ -1293,8 +1385,8 @@ readonly fields: DomSaleItemFieldRefs;
 export interface Prisma__DomSaleItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   domSale<T extends Prisma.DomSaleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DomSaleDefaultArgs<ExtArgs>>): Prisma.Prisma__DomSaleClient<runtime.Types.Result.GetResult<Prisma.$DomSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  stock<T extends Prisma.DomSaleItem$stockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DomSaleItem$stockArgs<ExtArgs>>): Prisma.Prisma__StockClient<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   product<T extends Prisma.DomSaleItem$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DomSaleItem$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  stock<T extends Prisma.DomSaleItem$stockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DomSaleItem$stockArgs<ExtArgs>>): Prisma.Prisma__StockClient<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1326,11 +1418,13 @@ export interface Prisma__DomSaleItemClient<T, Null = never, ExtArgs extends runt
 export interface DomSaleItemFieldRefs {
   readonly id: Prisma.FieldRef<"DomSaleItem", 'Int'>
   readonly domSaleId: Prisma.FieldRef<"DomSaleItem", 'Int'>
-  readonly stockId: Prisma.FieldRef<"DomSaleItem", 'Int'>
   readonly productId: Prisma.FieldRef<"DomSaleItem", 'Int'>
+  readonly stockId: Prisma.FieldRef<"DomSaleItem", 'Int'>
   readonly quantity: Prisma.FieldRef<"DomSaleItem", 'Int'>
   readonly salePrice: Prisma.FieldRef<"DomSaleItem", 'Decimal'>
   readonly netTotal: Prisma.FieldRef<"DomSaleItem", 'Decimal'>
+  readonly createdAt: Prisma.FieldRef<"DomSaleItem", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"DomSaleItem", 'DateTime'>
 }
     
 
@@ -1732,25 +1826,6 @@ export type DomSaleItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * DomSaleItem.stock
- */
-export type DomSaleItem$stockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Stock
-   */
-  select?: Prisma.StockSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Stock
-   */
-  omit?: Prisma.StockOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.StockInclude<ExtArgs> | null
-  where?: Prisma.StockWhereInput
-}
-
-/**
  * DomSaleItem.product
  */
 export type DomSaleItem$productArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1767,6 +1842,25 @@ export type DomSaleItem$productArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.ProductInclude<ExtArgs> | null
   where?: Prisma.ProductWhereInput
+}
+
+/**
+ * DomSaleItem.stock
+ */
+export type DomSaleItem$stockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Stock
+   */
+  select?: Prisma.StockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Stock
+   */
+  omit?: Prisma.StockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockInclude<ExtArgs> | null
+  where?: Prisma.StockWhereInput
 }
 
 /**

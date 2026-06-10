@@ -3,7 +3,15 @@
 import { useState, useCallback } from "react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { format } from "date-fns";
-import { CalendarIcon, Download, Search, FileSpreadsheet, FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  CalendarIcon,
+  Download,
+  Search,
+  FileSpreadsheet,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,11 +81,6 @@ interface Customer {
   name: string | null;
 }
 
-interface StaffUser {
-  id: number;
-  name: string | null;
-}
-
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ArbSaleReportPage() {
@@ -94,7 +97,7 @@ export default function ArbSaleReportPage() {
   const { isAdmin } = usePermissions();
 
   const { data: customers = [] } = useCustomers() as { data: Customer[] };
-  const { data: allUsers = [] } = useUsers() as { data: StaffUser[] };
+  const { data: allUsers = [] } = useUsers();
   const staffUsers = isAdmin ? allUsers : [];
 
   // Query params object
@@ -107,7 +110,11 @@ export default function ArbSaleReportPage() {
     limit: PAGE_LIMIT,
   };
 
-  const { data: report, isLoading, isFetching } = useArbSaleReport(queryParams, searchTriggered);
+  const {
+    data: report,
+    isLoading,
+    isFetching,
+  } = useArbSaleReport(queryParams, searchTriggered);
 
   const summary = report?.summary;
   const sales = report?.data ?? [];
@@ -138,7 +145,9 @@ export default function ArbSaleReportPage() {
         staffId: staffId !== "all" ? staffId : undefined,
         format: exportFormat,
       });
-      toast.success(`Report exported as ${exportFormat === "excel" ? "Excel" : "PDF"}`);
+      toast.success(
+        `Report exported as ${exportFormat === "excel" ? "Excel" : "PDF"}`,
+      );
     } catch {
       toast.error("Export failed");
     } finally {
@@ -180,7 +189,7 @@ export default function ArbSaleReportPage() {
           <div
             className={cn(
               "grid grid-cols-1 gap-4",
-              isAdmin ? "md:grid-cols-5" : "md:grid-cols-4"
+              isAdmin ? "md:grid-cols-5" : "md:grid-cols-4",
             )}
           >
             {/* From Date */}
@@ -192,7 +201,7 @@ export default function ArbSaleReportPage() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !fromDate && "text-muted-foreground"
+                      !fromDate && "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -225,7 +234,7 @@ export default function ArbSaleReportPage() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !toDate && "text-muted-foreground"
+                      !toDate && "text-muted-foreground",
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
@@ -414,10 +423,17 @@ export default function ArbSaleReportPage() {
                       <TableCell>{s.customer?.name ?? "—"}</TableCell>
                       <TableCell>{s.createdBy?.name ?? "—"}</TableCell>
                       <TableCell>
-                        {s.items.map((i) => `${i.product?.name ?? ""} (${i.quantity})`).join(", ")}
+                        {s.items
+                          .map(
+                            (i) => `${i.product?.name ?? ""} (${i.quantity})`,
+                          )
+                          .join(", ")}
                       </TableCell>
                       <TableCell>
-                        {s.items.map((i) => i.stock?.batchNo ?? "").filter(Boolean).join(", ") || "—"}
+                        {s.items
+                          .map((i) => i.stock?.batchNo ?? "")
+                          .filter(Boolean)
+                          .join(", ") || "—"}
                       </TableCell>
                       <TableCell className="text-right">
                         {s.totalAmount ? `₹${s.totalAmount}` : "—"}
@@ -426,7 +442,10 @@ export default function ArbSaleReportPage() {
                         {s.discount ? `₹${s.discount}` : "—"}
                       </TableCell>
                       <TableCell className="text-right font-semibold">
-                        ₹{(Number(s.totalAmount ?? 0) - Number(s.discount ?? 0)).toFixed(2)}
+                        ₹
+                        {(
+                          Number(s.totalAmount ?? 0) - Number(s.discount ?? 0)
+                        ).toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))
@@ -493,12 +512,7 @@ function SummaryCard({
         {loading ? (
           <Skeleton className="mt-1 h-7 w-24" />
         ) : (
-          <p
-            className={cn(
-              "text-2xl font-bold",
-              highlight && "text-primary"
-            )}
-          >
+          <p className={cn("text-2xl font-bold", highlight && "text-primary")}>
             {value != null ? fmt(value) : "—"}
           </p>
         )}

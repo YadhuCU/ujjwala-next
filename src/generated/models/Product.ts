@@ -44,6 +44,7 @@ export type ProductMinAggregateOutputType = {
   salePrice: runtime.Decimal | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type ProductMaxAggregateOutputType = {
   salePrice: runtime.Decimal | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ProductCountAggregateOutputType = {
@@ -64,6 +66,7 @@ export type ProductCountAggregateOutputType = {
   salePrice: number
   isDeleted: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type ProductMinAggregateInputType = {
   salePrice?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductMaxAggregateInputType = {
@@ -96,6 +100,7 @@ export type ProductMaxAggregateInputType = {
   salePrice?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ProductCountAggregateInputType = {
@@ -106,6 +111,7 @@ export type ProductCountAggregateInputType = {
   salePrice?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -197,12 +203,13 @@ export type ProductGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type ProductGroupByOutputType = {
   id: number
-  name: string | null
-  type: $Enums.ProductType | null
+  name: string
+  type: $Enums.ProductType
   weight: string | null
   salePrice: runtime.Decimal | null
   isDeleted: boolean
   createdAt: Date
+  updatedAt: Date
   _count: ProductCountAggregateOutputType | null
   _avg: ProductAvgAggregateOutputType | null
   _sum: ProductSumAggregateOutputType | null
@@ -230,36 +237,44 @@ export type ProductWhereInput = {
   OR?: Prisma.ProductWhereInput[]
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   id?: Prisma.IntFilter<"Product"> | number
-  name?: Prisma.StringNullableFilter<"Product"> | string | null
-  type?: Prisma.EnumProductTypeNullableFilter<"Product"> | $Enums.ProductType | null
+  name?: Prisma.StringFilter<"Product"> | string
+  type?: Prisma.EnumProductTypeFilter<"Product"> | $Enums.ProductType
   weight?: Prisma.StringNullableFilter<"Product"> | string | null
   salePrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFilter<"Product"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   stocks?: Prisma.StockListRelationFilter
-  sales?: Prisma.SaleListRelationFilter
   domSaleItems?: Prisma.DomSaleItemListRelationFilter
   arbSaleItems?: Prisma.ArbSaleItemListRelationFilter
   commercialSaleItems?: Prisma.CommercialSaleItemListRelationFilter
   purchaseItems?: Prisma.PurchaseItemListRelationFilter
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
+  stockAdjustments?: Prisma.StockAdjustmentListRelationFilter
+  godownInventory?: Prisma.XOR<Prisma.GodownInventoryNullableScalarRelationFilter, Prisma.GodownInventoryWhereInput> | null
+  cylinderTransactions?: Prisma.CylinderTransactionListRelationFilter
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerListRelationFilter
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
 }
 
 export type ProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrderInput | Prisma.SortOrder
-  type?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   weight?: Prisma.SortOrderInput | Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   stocks?: Prisma.StockOrderByRelationAggregateInput
-  sales?: Prisma.SaleOrderByRelationAggregateInput
   domSaleItems?: Prisma.DomSaleItemOrderByRelationAggregateInput
   arbSaleItems?: Prisma.ArbSaleItemOrderByRelationAggregateInput
   commercialSaleItems?: Prisma.CommercialSaleItemOrderByRelationAggregateInput
   purchaseItems?: Prisma.PurchaseItemOrderByRelationAggregateInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceOrderByRelationAggregateInput
+  stockAdjustments?: Prisma.StockAdjustmentOrderByRelationAggregateInput
+  godownInventory?: Prisma.GodownInventoryOrderByWithRelationInput
+  cylinderTransactions?: Prisma.CylinderTransactionOrderByRelationAggregateInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerOrderByRelationAggregateInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceOrderByRelationAggregateInput
 }
 
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
@@ -268,28 +283,33 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   OR?: Prisma.ProductWhereInput[]
   NOT?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
-  type?: Prisma.EnumProductTypeNullableFilter<"Product"> | $Enums.ProductType | null
+  type?: Prisma.EnumProductTypeFilter<"Product"> | $Enums.ProductType
   weight?: Prisma.StringNullableFilter<"Product"> | string | null
   salePrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFilter<"Product"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   stocks?: Prisma.StockListRelationFilter
-  sales?: Prisma.SaleListRelationFilter
   domSaleItems?: Prisma.DomSaleItemListRelationFilter
   arbSaleItems?: Prisma.ArbSaleItemListRelationFilter
   commercialSaleItems?: Prisma.CommercialSaleItemListRelationFilter
   purchaseItems?: Prisma.PurchaseItemListRelationFilter
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
+  stockAdjustments?: Prisma.StockAdjustmentListRelationFilter
+  godownInventory?: Prisma.XOR<Prisma.GodownInventoryNullableScalarRelationFilter, Prisma.GodownInventoryWhereInput> | null
+  cylinderTransactions?: Prisma.CylinderTransactionListRelationFilter
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerListRelationFilter
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
 }, "id" | "name">
 
 export type ProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrderInput | Prisma.SortOrder
-  type?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   weight?: Prisma.SortOrderInput | Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
   _avg?: Prisma.ProductAvgOrderByAggregateInput
   _max?: Prisma.ProductMaxOrderByAggregateInput
@@ -302,107 +322,132 @@ export type ProductScalarWhereWithAggregatesInput = {
   OR?: Prisma.ProductScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProductScalarWhereWithAggregatesInput | Prisma.ProductScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Product"> | number
-  name?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
-  type?: Prisma.EnumProductTypeNullableWithAggregatesFilter<"Product"> | $Enums.ProductType | null
+  name?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  type?: Prisma.EnumProductTypeWithAggregatesFilter<"Product"> | $Enums.ProductType
   weight?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   salePrice?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
 }
 
 export type ProductCreateInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
+  name: string
+  type: $Enums.ProductType
   weight?: string | null
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   stocks?: Prisma.StockCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleCreateNestedManyWithoutProductInput
   domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
   arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
   commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
   purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
   id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
+  name: string
+  type: $Enums.ProductType
   weight?: string | null
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutProductInput
   domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
   purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductUpdateInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutProductNestedInput
   domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
   purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutProductNestedInput
   domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
   purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
   id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
+  name: string
+  type: $Enums.ProductType
   weight?: string | null
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ProductUpdateManyMutationInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProductUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductScalarRelationFilter = {
+  is?: Prisma.ProductWhereInput
+  isNot?: Prisma.ProductWhereInput
 }
 
 export type ProductCountOrderByAggregateInput = {
@@ -413,6 +458,7 @@ export type ProductCountOrderByAggregateInput = {
   salePrice?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductAvgOrderByAggregateInput = {
@@ -428,6 +474,7 @@ export type ProductMaxOrderByAggregateInput = {
   salePrice?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductMinOrderByAggregateInput = {
@@ -438,6 +485,7 @@ export type ProductMinOrderByAggregateInput = {
   salePrice?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ProductSumOrderByAggregateInput = {
@@ -450,13 +498,22 @@ export type ProductNullableScalarRelationFilter = {
   isNot?: Prisma.ProductWhereInput | null
 }
 
-export type ProductScalarRelationFilter = {
-  is?: Prisma.ProductWhereInput
-  isNot?: Prisma.ProductWhereInput
+export type ProductCreateNestedOneWithoutCustomerInitialCylinderBalancesInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCustomerInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutCustomerInitialCylinderBalancesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCustomerInitialCylinderBalancesInput
+  connect?: Prisma.ProductWhereUniqueInput
 }
 
-export type NullableEnumProductTypeFieldUpdateOperationsInput = {
-  set?: $Enums.ProductType | null
+export type ProductUpdateOneRequiredWithoutCustomerInitialCylinderBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCustomerInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutCustomerInitialCylinderBalancesInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCustomerInitialCylinderBalancesInput
+  upsert?: Prisma.ProductUpsertWithoutCustomerInitialCylinderBalancesInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutCustomerInitialCylinderBalancesInput, Prisma.ProductUpdateWithoutCustomerInitialCylinderBalancesInput>, Prisma.ProductUncheckedUpdateWithoutCustomerInitialCylinderBalancesInput>
+}
+
+export type EnumProductTypeFieldUpdateOperationsInput = {
+  set?: $Enums.ProductType
 }
 
 export type NullableDecimalFieldUpdateOperationsInput = {
@@ -465,6 +522,34 @@ export type NullableDecimalFieldUpdateOperationsInput = {
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type ProductCreateNestedOneWithoutGodownInventoryInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutGodownInventoryInput, Prisma.ProductUncheckedCreateWithoutGodownInventoryInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutGodownInventoryInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutGodownInventoryNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutGodownInventoryInput, Prisma.ProductUncheckedCreateWithoutGodownInventoryInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutGodownInventoryInput
+  upsert?: Prisma.ProductUpsertWithoutGodownInventoryInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutGodownInventoryInput, Prisma.ProductUpdateWithoutGodownInventoryInput>, Prisma.ProductUncheckedUpdateWithoutGodownInventoryInput>
+}
+
+export type ProductCreateNestedOneWithoutCylinderTransactionsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCylinderTransactionsInput, Prisma.ProductUncheckedCreateWithoutCylinderTransactionsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCylinderTransactionsInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutCylinderTransactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCylinderTransactionsInput, Prisma.ProductUncheckedCreateWithoutCylinderTransactionsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCylinderTransactionsInput
+  upsert?: Prisma.ProductUpsertWithoutCylinderTransactionsInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutCylinderTransactionsInput, Prisma.ProductUpdateWithoutCylinderTransactionsInput>, Prisma.ProductUncheckedUpdateWithoutCylinderTransactionsInput>
 }
 
 export type ProductCreateNestedOneWithoutStocksInput = {
@@ -483,20 +568,32 @@ export type ProductUpdateOneWithoutStocksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutStocksInput, Prisma.ProductUpdateWithoutStocksInput>, Prisma.ProductUncheckedUpdateWithoutStocksInput>
 }
 
-export type ProductCreateNestedOneWithoutSalesInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutSalesInput, Prisma.ProductUncheckedCreateWithoutSalesInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutSalesInput
+export type ProductCreateNestedOneWithoutPurchaseItemsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutPurchaseItemsInput, Prisma.ProductUncheckedCreateWithoutPurchaseItemsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutPurchaseItemsInput
   connect?: Prisma.ProductWhereUniqueInput
 }
 
-export type ProductUpdateOneWithoutSalesNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutSalesInput, Prisma.ProductUncheckedCreateWithoutSalesInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutSalesInput
-  upsert?: Prisma.ProductUpsertWithoutSalesInput
-  disconnect?: Prisma.ProductWhereInput | boolean
-  delete?: Prisma.ProductWhereInput | boolean
+export type ProductUpdateOneRequiredWithoutPurchaseItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutPurchaseItemsInput, Prisma.ProductUncheckedCreateWithoutPurchaseItemsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutPurchaseItemsInput
+  upsert?: Prisma.ProductUpsertWithoutPurchaseItemsInput
   connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutSalesInput, Prisma.ProductUpdateWithoutSalesInput>, Prisma.ProductUncheckedUpdateWithoutSalesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutPurchaseItemsInput, Prisma.ProductUpdateWithoutPurchaseItemsInput>, Prisma.ProductUncheckedUpdateWithoutPurchaseItemsInput>
+}
+
+export type ProductCreateNestedOneWithoutStockAdjustmentsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutStockAdjustmentsInput, Prisma.ProductUncheckedCreateWithoutStockAdjustmentsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutStockAdjustmentsInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutStockAdjustmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutStockAdjustmentsInput, Prisma.ProductUncheckedCreateWithoutStockAdjustmentsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutStockAdjustmentsInput
+  upsert?: Prisma.ProductUpsertWithoutStockAdjustmentsInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutStockAdjustmentsInput, Prisma.ProductUpdateWithoutStockAdjustmentsInput>, Prisma.ProductUncheckedUpdateWithoutStockAdjustmentsInput>
 }
 
 export type ProductCreateNestedOneWithoutDomSaleItemsInput = {
@@ -547,63 +644,339 @@ export type ProductUpdateOneWithoutCommercialSaleItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutCommercialSaleItemsInput, Prisma.ProductUpdateWithoutCommercialSaleItemsInput>, Prisma.ProductUncheckedUpdateWithoutCommercialSaleItemsInput>
 }
 
-export type ProductCreateNestedOneWithoutInitialCylinderBalancesInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutInitialCylinderBalancesInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutInitialCylinderBalancesInput
+export type ProductCreateNestedOneWithoutCustomerCylinderLedgersInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCustomerCylinderLedgersInput, Prisma.ProductUncheckedCreateWithoutCustomerCylinderLedgersInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCustomerCylinderLedgersInput
   connect?: Prisma.ProductWhereUniqueInput
 }
 
-export type ProductUpdateOneRequiredWithoutInitialCylinderBalancesNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutInitialCylinderBalancesInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutInitialCylinderBalancesInput
-  upsert?: Prisma.ProductUpsertWithoutInitialCylinderBalancesInput
+export type ProductUpdateOneRequiredWithoutCustomerCylinderLedgersNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutCustomerCylinderLedgersInput, Prisma.ProductUncheckedCreateWithoutCustomerCylinderLedgersInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutCustomerCylinderLedgersInput
+  upsert?: Prisma.ProductUpsertWithoutCustomerCylinderLedgersInput
   connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutInitialCylinderBalancesInput, Prisma.ProductUpdateWithoutInitialCylinderBalancesInput>, Prisma.ProductUncheckedUpdateWithoutInitialCylinderBalancesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutCustomerCylinderLedgersInput, Prisma.ProductUpdateWithoutCustomerCylinderLedgersInput>, Prisma.ProductUncheckedUpdateWithoutCustomerCylinderLedgersInput>
 }
 
-export type ProductCreateNestedOneWithoutPurchaseItemsInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutPurchaseItemsInput, Prisma.ProductUncheckedCreateWithoutPurchaseItemsInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutPurchaseItemsInput
-  connect?: Prisma.ProductWhereUniqueInput
-}
-
-export type ProductUpdateOneRequiredWithoutPurchaseItemsNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductCreateWithoutPurchaseItemsInput, Prisma.ProductUncheckedCreateWithoutPurchaseItemsInput>
-  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutPurchaseItemsInput
-  upsert?: Prisma.ProductUpsertWithoutPurchaseItemsInput
-  connect?: Prisma.ProductWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutPurchaseItemsInput, Prisma.ProductUpdateWithoutPurchaseItemsInput>, Prisma.ProductUncheckedUpdateWithoutPurchaseItemsInput>
-}
-
-export type ProductCreateWithoutStocksInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
+export type ProductCreateWithoutCustomerInitialCylinderBalancesInput = {
+  name: string
+  type: $Enums.ProductType
   weight?: string | null
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleCreateNestedManyWithoutProductInput
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
   domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
   arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
   commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
   purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
 }
 
-export type ProductUncheckedCreateWithoutStocksInput = {
+export type ProductUncheckedCreateWithoutCustomerInitialCylinderBalancesInput = {
   id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
+  name: string
+  type: $Enums.ProductType
   weight?: string | null
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutProductInput
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
   domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
   purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutCustomerInitialCylinderBalancesInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCustomerInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutCustomerInitialCylinderBalancesInput>
+}
+
+export type ProductUpsertWithoutCustomerInitialCylinderBalancesInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutCustomerInitialCylinderBalancesInput, Prisma.ProductUncheckedUpdateWithoutCustomerInitialCylinderBalancesInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCustomerInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutCustomerInitialCylinderBalancesInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutCustomerInitialCylinderBalancesInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutCustomerInitialCylinderBalancesInput, Prisma.ProductUncheckedUpdateWithoutCustomerInitialCylinderBalancesInput>
+}
+
+export type ProductUpdateWithoutCustomerInitialCylinderBalancesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutCustomerInitialCylinderBalancesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutGodownInventoryInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutGodownInventoryInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutGodownInventoryInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutGodownInventoryInput, Prisma.ProductUncheckedCreateWithoutGodownInventoryInput>
+}
+
+export type ProductUpsertWithoutGodownInventoryInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutGodownInventoryInput, Prisma.ProductUncheckedUpdateWithoutGodownInventoryInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutGodownInventoryInput, Prisma.ProductUncheckedCreateWithoutGodownInventoryInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutGodownInventoryInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutGodownInventoryInput, Prisma.ProductUncheckedUpdateWithoutGodownInventoryInput>
+}
+
+export type ProductUpdateWithoutGodownInventoryInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutGodownInventoryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutCylinderTransactionsInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutCylinderTransactionsInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutCylinderTransactionsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCylinderTransactionsInput, Prisma.ProductUncheckedCreateWithoutCylinderTransactionsInput>
+}
+
+export type ProductUpsertWithoutCylinderTransactionsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutCylinderTransactionsInput, Prisma.ProductUncheckedUpdateWithoutCylinderTransactionsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCylinderTransactionsInput, Prisma.ProductUncheckedCreateWithoutCylinderTransactionsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutCylinderTransactionsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutCylinderTransactionsInput, Prisma.ProductUncheckedUpdateWithoutCylinderTransactionsInput>
+}
+
+export type ProductUpdateWithoutCylinderTransactionsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutCylinderTransactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutStocksInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutStocksInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutStocksInput = {
@@ -623,455 +996,81 @@ export type ProductUpdateToOneWithWhereWithoutStocksInput = {
 }
 
 export type ProductUpdateWithoutStocksInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUpdateManyWithoutProductNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
   purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutStocksInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutProductNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
   purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductCreateWithoutSalesInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutSalesInput = {
-  id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutSalesInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutSalesInput, Prisma.ProductUncheckedCreateWithoutSalesInput>
-}
-
-export type ProductUpsertWithoutSalesInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutSalesInput, Prisma.ProductUncheckedUpdateWithoutSalesInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutSalesInput, Prisma.ProductUncheckedCreateWithoutSalesInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutSalesInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutSalesInput, Prisma.ProductUncheckedUpdateWithoutSalesInput>
-}
-
-export type ProductUpdateWithoutSalesInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutSalesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductCreateWithoutDomSaleItemsInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutDomSaleItemsInput = {
-  id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutDomSaleItemsInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutDomSaleItemsInput, Prisma.ProductUncheckedCreateWithoutDomSaleItemsInput>
-}
-
-export type ProductUpsertWithoutDomSaleItemsInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutDomSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutDomSaleItemsInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutDomSaleItemsInput, Prisma.ProductUncheckedCreateWithoutDomSaleItemsInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutDomSaleItemsInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutDomSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutDomSaleItemsInput>
-}
-
-export type ProductUpdateWithoutDomSaleItemsInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutDomSaleItemsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductCreateWithoutArbSaleItemsInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutArbSaleItemsInput = {
-  id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutArbSaleItemsInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutArbSaleItemsInput, Prisma.ProductUncheckedCreateWithoutArbSaleItemsInput>
-}
-
-export type ProductUpsertWithoutArbSaleItemsInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutArbSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutArbSaleItemsInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutArbSaleItemsInput, Prisma.ProductUncheckedCreateWithoutArbSaleItemsInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutArbSaleItemsInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutArbSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutArbSaleItemsInput>
-}
-
-export type ProductUpdateWithoutArbSaleItemsInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutArbSaleItemsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductCreateWithoutCommercialSaleItemsInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutCommercialSaleItemsInput = {
-  id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutCommercialSaleItemsInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedCreateWithoutCommercialSaleItemsInput>
-}
-
-export type ProductUpsertWithoutCommercialSaleItemsInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutCommercialSaleItemsInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedCreateWithoutCommercialSaleItemsInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutCommercialSaleItemsInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutCommercialSaleItemsInput>
-}
-
-export type ProductUpdateWithoutCommercialSaleItemsInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutCommercialSaleItemsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
-}
-
-export type ProductCreateWithoutInitialCylinderBalancesInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
-}
-
-export type ProductUncheckedCreateWithoutInitialCylinderBalancesInput = {
-  id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
-  weight?: string | null
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutProductInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
-}
-
-export type ProductCreateOrConnectWithoutInitialCylinderBalancesInput = {
-  where: Prisma.ProductWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductCreateWithoutInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutInitialCylinderBalancesInput>
-}
-
-export type ProductUpsertWithoutInitialCylinderBalancesInput = {
-  update: Prisma.XOR<Prisma.ProductUpdateWithoutInitialCylinderBalancesInput, Prisma.ProductUncheckedUpdateWithoutInitialCylinderBalancesInput>
-  create: Prisma.XOR<Prisma.ProductCreateWithoutInitialCylinderBalancesInput, Prisma.ProductUncheckedCreateWithoutInitialCylinderBalancesInput>
-  where?: Prisma.ProductWhereInput
-}
-
-export type ProductUpdateToOneWithWhereWithoutInitialCylinderBalancesInput = {
-  where?: Prisma.ProductWhereInput
-  data: Prisma.XOR<Prisma.ProductUpdateWithoutInitialCylinderBalancesInput, Prisma.ProductUncheckedUpdateWithoutInitialCylinderBalancesInput>
-}
-
-export type ProductUpdateWithoutInitialCylinderBalancesInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
-}
-
-export type ProductUncheckedUpdateWithoutInitialCylinderBalancesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
-  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutProductNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutPurchaseItemsInput = {
-  name?: string | null
-  type?: $Enums.ProductType | null
+  name: string
+  type: $Enums.ProductType
   weight?: string | null
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   stocks?: Prisma.StockCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleCreateNestedManyWithoutProductInput
   domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
   arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
   commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutPurchaseItemsInput = {
   id?: number
-  name?: string | null
-  type?: $Enums.ProductType | null
+  name: string
+  type: $Enums.ProductType
   weight?: string | null
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutProductInput
   domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutPurchaseItemsInput = {
@@ -1091,34 +1090,512 @@ export type ProductUpdateToOneWithWhereWithoutPurchaseItemsInput = {
 }
 
 export type ProductUpdateWithoutPurchaseItemsInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutProductNestedInput
   domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutPurchaseItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.NullableEnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
   weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutProductNestedInput
   domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutStockAdjustmentsInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutStockAdjustmentsInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutStockAdjustmentsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutStockAdjustmentsInput, Prisma.ProductUncheckedCreateWithoutStockAdjustmentsInput>
+}
+
+export type ProductUpsertWithoutStockAdjustmentsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutStockAdjustmentsInput, Prisma.ProductUncheckedUpdateWithoutStockAdjustmentsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutStockAdjustmentsInput, Prisma.ProductUncheckedCreateWithoutStockAdjustmentsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutStockAdjustmentsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutStockAdjustmentsInput, Prisma.ProductUncheckedUpdateWithoutStockAdjustmentsInput>
+}
+
+export type ProductUpdateWithoutStockAdjustmentsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutStockAdjustmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutDomSaleItemsInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutDomSaleItemsInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutDomSaleItemsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutDomSaleItemsInput, Prisma.ProductUncheckedCreateWithoutDomSaleItemsInput>
+}
+
+export type ProductUpsertWithoutDomSaleItemsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutDomSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutDomSaleItemsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutDomSaleItemsInput, Prisma.ProductUncheckedCreateWithoutDomSaleItemsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutDomSaleItemsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutDomSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutDomSaleItemsInput>
+}
+
+export type ProductUpdateWithoutDomSaleItemsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutDomSaleItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutArbSaleItemsInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutArbSaleItemsInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutArbSaleItemsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutArbSaleItemsInput, Prisma.ProductUncheckedCreateWithoutArbSaleItemsInput>
+}
+
+export type ProductUpsertWithoutArbSaleItemsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutArbSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutArbSaleItemsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutArbSaleItemsInput, Prisma.ProductUncheckedCreateWithoutArbSaleItemsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutArbSaleItemsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutArbSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutArbSaleItemsInput>
+}
+
+export type ProductUpdateWithoutArbSaleItemsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutArbSaleItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutCommercialSaleItemsInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutCommercialSaleItemsInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutCommercialSaleItemsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedCreateWithoutCommercialSaleItemsInput>
+}
+
+export type ProductUpsertWithoutCommercialSaleItemsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutCommercialSaleItemsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedCreateWithoutCommercialSaleItemsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutCommercialSaleItemsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutCommercialSaleItemsInput, Prisma.ProductUncheckedUpdateWithoutCommercialSaleItemsInput>
+}
+
+export type ProductUpdateWithoutCommercialSaleItemsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutCommercialSaleItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutCustomerCylinderLedgersInput = {
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutCustomerCylinderLedgersInput = {
+  id?: number
+  name: string
+  type: $Enums.ProductType
+  weight?: string | null
+  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutProductInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutProductInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutProductInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutProductInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutProductInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutProductInput
+  godownInventory?: Prisma.GodownInventoryUncheckedCreateNestedOneWithoutProductInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedCreateNestedManyWithoutProductInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutCustomerCylinderLedgersInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCustomerCylinderLedgersInput, Prisma.ProductUncheckedCreateWithoutCustomerCylinderLedgersInput>
+}
+
+export type ProductUpsertWithoutCustomerCylinderLedgersInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutCustomerCylinderLedgersInput, Prisma.ProductUncheckedUpdateWithoutCustomerCylinderLedgersInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutCustomerCylinderLedgersInput, Prisma.ProductUncheckedCreateWithoutCustomerCylinderLedgersInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutCustomerCylinderLedgersInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutCustomerCylinderLedgersInput, Prisma.ProductUncheckedUpdateWithoutCustomerCylinderLedgersInput>
+}
+
+export type ProductUpdateWithoutCustomerCylinderLedgersInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutCustomerCylinderLedgersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumProductTypeFieldUpdateOperationsInput | $Enums.ProductType
+  weight?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutProductNestedInput
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutProductNestedInput
+  purchaseItems?: Prisma.PurchaseItemUncheckedUpdateManyWithoutProductNestedInput
+  stockAdjustments?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutProductNestedInput
+  godownInventory?: Prisma.GodownInventoryUncheckedUpdateOneWithoutProductNestedInput
+  cylinderTransactions?: Prisma.CylinderTransactionUncheckedUpdateManyWithoutProductNestedInput
+  customerInitialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNestedInput
 }
 
 
@@ -1128,22 +1605,26 @@ export type ProductUncheckedUpdateWithoutPurchaseItemsInput = {
 
 export type ProductCountOutputType = {
   stocks: number
-  sales: number
   domSaleItems: number
   arbSaleItems: number
   commercialSaleItems: number
   purchaseItems: number
-  initialCylinderBalances: number
+  stockAdjustments: number
+  cylinderTransactions: number
+  customerCylinderLedgers: number
+  customerInitialCylinderBalances: number
 }
 
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   stocks?: boolean | ProductCountOutputTypeCountStocksArgs
-  sales?: boolean | ProductCountOutputTypeCountSalesArgs
   domSaleItems?: boolean | ProductCountOutputTypeCountDomSaleItemsArgs
   arbSaleItems?: boolean | ProductCountOutputTypeCountArbSaleItemsArgs
   commercialSaleItems?: boolean | ProductCountOutputTypeCountCommercialSaleItemsArgs
   purchaseItems?: boolean | ProductCountOutputTypeCountPurchaseItemsArgs
-  initialCylinderBalances?: boolean | ProductCountOutputTypeCountInitialCylinderBalancesArgs
+  stockAdjustments?: boolean | ProductCountOutputTypeCountStockAdjustmentsArgs
+  cylinderTransactions?: boolean | ProductCountOutputTypeCountCylinderTransactionsArgs
+  customerCylinderLedgers?: boolean | ProductCountOutputTypeCountCustomerCylinderLedgersArgs
+  customerInitialCylinderBalances?: boolean | ProductCountOutputTypeCountCustomerInitialCylinderBalancesArgs
 }
 
 /**
@@ -1161,13 +1642,6 @@ export type ProductCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
  */
 export type ProductCountOutputTypeCountStocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.StockWhereInput
-}
-
-/**
- * ProductCountOutputType without action
- */
-export type ProductCountOutputTypeCountSalesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SaleWhereInput
 }
 
 /**
@@ -1201,7 +1675,28 @@ export type ProductCountOutputTypeCountPurchaseItemsArgs<ExtArgs extends runtime
 /**
  * ProductCountOutputType without action
  */
-export type ProductCountOutputTypeCountInitialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductCountOutputTypeCountStockAdjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockAdjustmentWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountCylinderTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CylinderTransactionWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountCustomerCylinderLedgersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerCylinderLedgerWhereInput
+}
+
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountCustomerInitialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CustomerInitialCylinderBalanceWhereInput
 }
 
@@ -1214,13 +1709,17 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   salePrice?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   stocks?: boolean | Prisma.Product$stocksArgs<ExtArgs>
-  sales?: boolean | Prisma.Product$salesArgs<ExtArgs>
   domSaleItems?: boolean | Prisma.Product$domSaleItemsArgs<ExtArgs>
   arbSaleItems?: boolean | Prisma.Product$arbSaleItemsArgs<ExtArgs>
   commercialSaleItems?: boolean | Prisma.Product$commercialSaleItemsArgs<ExtArgs>
   purchaseItems?: boolean | Prisma.Product$purchaseItemsArgs<ExtArgs>
-  initialCylinderBalances?: boolean | Prisma.Product$initialCylinderBalancesArgs<ExtArgs>
+  stockAdjustments?: boolean | Prisma.Product$stockAdjustmentsArgs<ExtArgs>
+  godownInventory?: boolean | Prisma.Product$godownInventoryArgs<ExtArgs>
+  cylinderTransactions?: boolean | Prisma.Product$cylinderTransactionsArgs<ExtArgs>
+  customerCylinderLedgers?: boolean | Prisma.Product$customerCylinderLedgersArgs<ExtArgs>
+  customerInitialCylinderBalances?: boolean | Prisma.Product$customerInitialCylinderBalancesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -1232,6 +1731,7 @@ export type ProductSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   salePrice?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1242,6 +1742,7 @@ export type ProductSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   salePrice?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["product"]>
 
 export type ProductSelectScalar = {
@@ -1252,17 +1753,21 @@ export type ProductSelectScalar = {
   salePrice?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "weight" | "salePrice" | "isDeleted" | "createdAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "weight" | "salePrice" | "isDeleted" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   stocks?: boolean | Prisma.Product$stocksArgs<ExtArgs>
-  sales?: boolean | Prisma.Product$salesArgs<ExtArgs>
   domSaleItems?: boolean | Prisma.Product$domSaleItemsArgs<ExtArgs>
   arbSaleItems?: boolean | Prisma.Product$arbSaleItemsArgs<ExtArgs>
   commercialSaleItems?: boolean | Prisma.Product$commercialSaleItemsArgs<ExtArgs>
   purchaseItems?: boolean | Prisma.Product$purchaseItemsArgs<ExtArgs>
-  initialCylinderBalances?: boolean | Prisma.Product$initialCylinderBalancesArgs<ExtArgs>
+  stockAdjustments?: boolean | Prisma.Product$stockAdjustmentsArgs<ExtArgs>
+  godownInventory?: boolean | Prisma.Product$godownInventoryArgs<ExtArgs>
+  cylinderTransactions?: boolean | Prisma.Product$cylinderTransactionsArgs<ExtArgs>
+  customerCylinderLedgers?: boolean | Prisma.Product$customerCylinderLedgersArgs<ExtArgs>
+  customerInitialCylinderBalances?: boolean | Prisma.Product$customerInitialCylinderBalancesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1272,21 +1777,34 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Product"
   objects: {
     stocks: Prisma.$StockPayload<ExtArgs>[]
-    sales: Prisma.$SalePayload<ExtArgs>[]
     domSaleItems: Prisma.$DomSaleItemPayload<ExtArgs>[]
     arbSaleItems: Prisma.$ArbSaleItemPayload<ExtArgs>[]
     commercialSaleItems: Prisma.$CommercialSaleItemPayload<ExtArgs>[]
     purchaseItems: Prisma.$PurchaseItemPayload<ExtArgs>[]
-    initialCylinderBalances: Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>[]
+    stockAdjustments: Prisma.$StockAdjustmentPayload<ExtArgs>[]
+    /**
+     * MATERIALIZED CACHE — source of truth is CylinderTransaction.
+     */
+    godownInventory: Prisma.$GodownInventoryPayload<ExtArgs> | null
+    cylinderTransactions: Prisma.$CylinderTransactionPayload<ExtArgs>[]
+    customerCylinderLedgers: Prisma.$CustomerCylinderLedgerPayload<ExtArgs>[]
+    customerInitialCylinderBalances: Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    name: string | null
-    type: $Enums.ProductType | null
+    name: string
+    type: $Enums.ProductType
+    /**
+     * Human-readable weight label, e.g. "14.2 kg", "19 kg".
+     */
     weight: string | null
+    /**
+     * Default sale price; can be overridden at invoice-item level.
+     */
     salePrice: runtime.Decimal | null
     isDeleted: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["product"]>
   composites: {}
 }
@@ -1682,12 +2200,15 @@ readonly fields: ProductFieldRefs;
 export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   stocks<T extends Prisma.Product$stocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$stocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  sales<T extends Prisma.Product$salesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$salesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domSaleItems<T extends Prisma.Product$domSaleItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$domSaleItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   arbSaleItems<T extends Prisma.Product$arbSaleItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$arbSaleItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commercialSaleItems<T extends Prisma.Product$commercialSaleItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$commercialSaleItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   purchaseItems<T extends Prisma.Product$purchaseItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$purchaseItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  initialCylinderBalances<T extends Prisma.Product$initialCylinderBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$initialCylinderBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stockAdjustments<T extends Prisma.Product$stockAdjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$stockAdjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  godownInventory<T extends Prisma.Product$godownInventoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$godownInventoryArgs<ExtArgs>>): Prisma.Prisma__GodownInventoryClient<runtime.Types.Result.GetResult<Prisma.$GodownInventoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cylinderTransactions<T extends Prisma.Product$cylinderTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$cylinderTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CylinderTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerCylinderLedgers<T extends Prisma.Product$customerCylinderLedgersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$customerCylinderLedgersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerCylinderLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerInitialCylinderBalances<T extends Prisma.Product$customerInitialCylinderBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$customerInitialCylinderBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1724,6 +2245,7 @@ export interface ProductFieldRefs {
   readonly salePrice: Prisma.FieldRef<"Product", 'Decimal'>
   readonly isDeleted: Prisma.FieldRef<"Product", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Product", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Product", 'DateTime'>
 }
     
 
@@ -1947,7 +2469,7 @@ export type ProductCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * The data needed to create a Product.
    */
-  data?: Prisma.XOR<Prisma.ProductCreateInput, Prisma.ProductUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.ProductCreateInput, Prisma.ProductUncheckedCreateInput>
 }
 
 /**
@@ -2141,30 +2663,6 @@ export type Product$stocksArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Product.sales
- */
-export type Product$salesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Sale
-   */
-  select?: Prisma.SaleSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Sale
-   */
-  omit?: Prisma.SaleOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SaleInclude<ExtArgs> | null
-  where?: Prisma.SaleWhereInput
-  orderBy?: Prisma.SaleOrderByWithRelationInput | Prisma.SaleOrderByWithRelationInput[]
-  cursor?: Prisma.SaleWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SaleScalarFieldEnum | Prisma.SaleScalarFieldEnum[]
-}
-
-/**
  * Product.domSaleItems
  */
 export type Product$domSaleItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2261,9 +2759,100 @@ export type Product$purchaseItemsArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * Product.initialCylinderBalances
+ * Product.stockAdjustments
  */
-export type Product$initialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Product$stockAdjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockAdjustment
+   */
+  select?: Prisma.StockAdjustmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockAdjustment
+   */
+  omit?: Prisma.StockAdjustmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockAdjustmentInclude<ExtArgs> | null
+  where?: Prisma.StockAdjustmentWhereInput
+  orderBy?: Prisma.StockAdjustmentOrderByWithRelationInput | Prisma.StockAdjustmentOrderByWithRelationInput[]
+  cursor?: Prisma.StockAdjustmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockAdjustmentScalarFieldEnum | Prisma.StockAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * Product.godownInventory
+ */
+export type Product$godownInventoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GodownInventory
+   */
+  select?: Prisma.GodownInventorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GodownInventory
+   */
+  omit?: Prisma.GodownInventoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GodownInventoryInclude<ExtArgs> | null
+  where?: Prisma.GodownInventoryWhereInput
+}
+
+/**
+ * Product.cylinderTransactions
+ */
+export type Product$cylinderTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CylinderTransaction
+   */
+  select?: Prisma.CylinderTransactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CylinderTransaction
+   */
+  omit?: Prisma.CylinderTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CylinderTransactionInclude<ExtArgs> | null
+  where?: Prisma.CylinderTransactionWhereInput
+  orderBy?: Prisma.CylinderTransactionOrderByWithRelationInput | Prisma.CylinderTransactionOrderByWithRelationInput[]
+  cursor?: Prisma.CylinderTransactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CylinderTransactionScalarFieldEnum | Prisma.CylinderTransactionScalarFieldEnum[]
+}
+
+/**
+ * Product.customerCylinderLedgers
+ */
+export type Product$customerCylinderLedgersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerCylinderLedger
+   */
+  select?: Prisma.CustomerCylinderLedgerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerCylinderLedger
+   */
+  omit?: Prisma.CustomerCylinderLedgerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerCylinderLedgerInclude<ExtArgs> | null
+  where?: Prisma.CustomerCylinderLedgerWhereInput
+  orderBy?: Prisma.CustomerCylinderLedgerOrderByWithRelationInput | Prisma.CustomerCylinderLedgerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerCylinderLedgerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerCylinderLedgerScalarFieldEnum | Prisma.CustomerCylinderLedgerScalarFieldEnum[]
+}
+
+/**
+ * Product.customerInitialCylinderBalances
+ */
+export type Product$customerInitialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the CustomerInitialCylinderBalance
    */

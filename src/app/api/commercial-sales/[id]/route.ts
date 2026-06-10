@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
 
 export async function GET(
   _request: Request,
@@ -28,7 +29,7 @@ export async function GET(
     }
 
     return NextResponse.json(commercialSale);
-  });
+  }, [PERMISSIONS.COMMERCIAL_SALE_READ]);
 }
 
 /**
@@ -55,7 +56,7 @@ export async function PUT(
     });
 
     return NextResponse.json(updatedSale);
-  }, "Owner");
+  },[PERMISSIONS.COMMERCIAL_SALE_UPDATE]);
 }
 
 export async function DELETE(
@@ -130,5 +131,5 @@ export async function DELETE(
 
 
     return NextResponse.json({ success: true });
-  }, "Owner");
+  },[PERMISSIONS.COMMERCIAL_SALE_DELETE]);
 }

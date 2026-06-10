@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { usePermissions } from "@/hooks/use-permissions";
+import { usePermission } from "@/hooks/use-permissions";
 import {
   Sidebar,
   SidebarContent,
@@ -38,40 +38,112 @@ import {
   Truck,
   ShoppingBag,
 } from "lucide-react";
+import { Permission, PERMISSIONS } from "@/lib/permissions";
 
-const mainNavItems = [
-  { title: "Dashboard", href: "/", icon: LayoutDashboard, adminOnly: false },
-  { title: "Users", href: "/users", icon: Users, adminOnly: true },
-  { title: "Locations", href: "/locations", icon: MapPin, adminOnly: false },
-  { title: "Customers", href: "/customers", icon: BookOpen, adminOnly: false },
-  { title: "Products", href: "/products", icon: Package, adminOnly: false },
-  { title: "Stock", href: "/stock", icon: BarChart3, adminOnly: false },
-  { title: "Vendors", href: "/vendors", icon: Truck, adminOnly: true },
-  { title: "Purchase", href: "/purchases", icon: ShoppingBag, adminOnly: true },
-  { title: "Commercial Sale (Old)", href: "/sales", icon: ShoppingCart, adminOnly: false },
-  { title: "Commercial Sale", href: "/commercial-sales", icon: ShoppingCart, adminOnly: false },
-  { title: "Domestic Sale", href: "/dom-sales", icon: Home, adminOnly: false },
-  { title: "ARB Sale", href: "/arb-sales", icon: ShoppingCart, adminOnly: false },
-  { title: "Expense", href: "/expenses", icon: Wallet, adminOnly: false },
-];
+type NavItem = {
+  title: string;
+  href: string;
+  requiredPermissions?: Permission[];
+  icon?: any;
+  sub?: NavItem[];
+};
 
-const reportItems = [
-  { title: "Commercial Sale Report", href: "/reports/sales" },
-  { title: "Domestic Sale Report", href: "/reports/dom-sale" },
-  { title: "Arb Sale Report", href: "/reports/arb-sale" },
-  { title: "Sale by Product Report", href: "/reports/sale-by-product" },
-  { title: "Expense Report", href: "/reports/expense" },
-  { title: "Purchase Report", href: "/reports/purchase" },
+const sidebarMenu: NavItem[] = [
+  {
+    title: "Dashboard",
+    href: "/",
+    icon: LayoutDashboard,
+    requiredPermissions: [],
+  },
+  {
+    title: "Users",
+    href: "/users",
+    icon: Users,
+    requiredPermissions: [PERMISSIONS.USER_READ],
+  },
+  {
+    title: "Locations",
+    href: "/locations",
+    icon: MapPin,
+    requiredPermissions: [PERMISSIONS.LOCATION_READ],
+  },
+  {
+    title: "Customers",
+    href: "/customers",
+    icon: BookOpen,
+    requiredPermissions: [PERMISSIONS.CUSTOMER_READ],
+  },
+  {
+    title: "Products",
+    href: "/products",
+    icon: Package,
+    requiredPermissions: [PERMISSIONS.PRODUCT_READ],
+  },
+  {
+    title: "Stock",
+    href: "/stock",
+    icon: BarChart3,
+    requiredPermissions: [PERMISSIONS.STOCK_READ],
+  },
+  {
+    title: "Vendors",
+    href: "/vendors",
+    icon: Truck,
+    requiredPermissions: [PERMISSIONS.VENDOR_READ],
+  },
+  {
+    title: "Purchase",
+    href: "/purchases",
+    icon: ShoppingBag,
+    requiredPermissions: [PERMISSIONS.PURCHASE_READ],
+  },
+  {
+    title: "Commercial Sale (Old)",
+    href: "/sales",
+    icon: ShoppingCart,
+    requiredPermissions: [PERMISSIONS.COMMERCIAL_SALE_READ],
+  },
+  {
+    title: "Commercial Sale",
+    href: "/commercial-sales",
+    icon: ShoppingCart,
+    requiredPermissions: [PERMISSIONS.COMMERCIAL_SALE_READ],
+  },
+  {
+    title: "Domestic Sale",
+    href: "/dom-sales",
+    icon: Home,
+    requiredPermissions: [PERMISSIONS.DOMESTIC_SALE_READ],
+  },
+  {
+    title: "ARB Sale",
+    href: "/arb-sales",
+    icon: ShoppingCart,
+    requiredPermissions: [PERMISSIONS.ARB_SALE_READ],
+  },
+  {
+    title: "Expense",
+    href: "/expenses",
+    icon: Wallet,
+    requiredPermissions: [PERMISSIONS.EXPENSE_READ],
+  },
+  {
+    title: "Repors",
+    href: "/reports",
+    icon: Wallet,
+    requiredPermissions: [],
+    sub: [
+      { title: "Commercial Sale Report", href: "/reports/sales" },
+      { title: "Domestic Sale Report", href: "/reports/dom-sale" },
+      { title: "Arb Sale Report", href: "/reports/arb-sale" },
+      { title: "Sale by Product Report", href: "/reports/sale-by-product" },
+      { title: "Expense Report", href: "/reports/expense" },
+      { title: "Purchase Report", href: "/reports/purchase" },
+    ],
+  },
 ];
 
 export function AppSidebar() {
-  const pathname = usePathname();
-  const { isAdmin } = usePermissions();
-
-  const filteredNavItems = mainNavItems.filter(
-    (item) => !item.adminOnly || isAdmin
-  );
-
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border px-6 py-4">
@@ -89,54 +161,95 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredNavItems.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={
-                        item.href === "/"
-                          ? pathname === "/"
-                          : pathname.startsWith(item.href)
-                      }
-                      className="data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
-                    >
-                      <Link href={item.href}>
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-              ))}
-
-              <Collapsible defaultOpen className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      <FileText className="w-4 h-4" />
-                      <span>Reports</span>
-                      <ChevronDown className="ml-auto w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {reportItems.map((item) => (
-                        <SidebarMenuSubItem key={item.href}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={pathname === item.href}
-                          >
-                            <Link href={item.href}>{item.title}</Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
+              {sidebarMenu.map((item) => {
+                if (item.sub && item.sub.length > 0) {
+                  return <SubNavbarItemComponent {...item} key={item.href} />;
+                }
+                return <NavbarItemComponent {...item} key={item.href} />;
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
+  );
+}
+
+type NavbarItemComponentProps = Omit<NavItem, "sub">;
+
+function NavbarItemComponent({
+  href,
+  title,
+  requiredPermissions,
+  ...props
+}: NavbarItemComponentProps) {
+  const { hasAnyPermission } = usePermission();
+
+  const pathname = usePathname();
+  const hasPermission = hasAnyPermission(requiredPermissions ?? []);
+
+  if (requiredPermissions && requiredPermissions.length > 0 && !hasPermission) {
+    return null;
+  }
+
+  return (
+    <SidebarMenuItem key={href}>
+      <SidebarMenuButton
+        asChild
+        isActive={href === "/" ? pathname === "/" : pathname.startsWith(href)}
+        className="data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
+      >
+        <Link href={href}>
+          <props.icon className="w-4 h-4" />
+          <span>{title}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+type SubNavbarItemComponentProps = NavItem;
+
+function SubNavbarItemComponent({
+  title,
+  requiredPermissions,
+  sub,
+}: SubNavbarItemComponentProps) {
+  const { hasAnyPermission } = usePermission();
+
+  const pathname = usePathname();
+  const hasPermission = hasAnyPermission(requiredPermissions ?? []);
+
+  if (requiredPermissions && requiredPermissions.length > 0 && !hasPermission) {
+    return null;
+  }
+
+  if (!sub || sub.length === 0) {
+    return null;
+  }
+
+  return (
+    <Collapsible defaultOpen className="group/collapsible">
+      <SidebarMenuItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton>
+            <FileText className="w-4 h-4" />
+            <span>{title}</span>
+            <ChevronDown className="ml-auto w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub>
+            {sub.map((item) => (
+              <SidebarMenuSubItem key={item.href}>
+                <SidebarMenuSubButton asChild isActive={pathname === item.href}>
+                  <Link href={item.href}>{item.title}</Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
   );
 }

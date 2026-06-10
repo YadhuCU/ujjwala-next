@@ -21,7 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useProducts } from "@/hooks/use-api";
+import { productsOptions } from "@/lib/query-options";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
@@ -59,8 +60,7 @@ export function StockForm({
   onSubmit,
   isPending,
 }: StockFormProps) {
-  const { data: rawProducts = [] } = useProducts();
-  const products = rawProducts as Product[];
+  const { data: products = [] } = useSuspenseQuery({ ...productsOptions() });
 
   const form = useForm<StockFormValues>({
     resolver: zodResolver(stockSchema),

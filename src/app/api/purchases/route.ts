@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
 
 export async function GET() {
   return withAuth(async () => {
@@ -13,7 +14,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(purchases);
-  });
+  }, [PERMISSIONS.PURCHASE_READ]);
 }
 
 interface PurchaseItemInput {
@@ -80,5 +81,5 @@ export async function POST(request: Request) {
         error instanceof Error ? error.message : "Failed to create purchase";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "Owner");
+  },[PERMISSIONS.PURCHASE_CREATE]);
 }

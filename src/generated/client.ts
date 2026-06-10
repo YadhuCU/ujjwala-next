@@ -47,6 +47,11 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
+ * Model UserRole
+ * 
+ */
+export type UserRole = Prisma.UserRoleModel
+/**
  * Model Role
  * 
  */
@@ -72,20 +77,78 @@ export type Location = Prisma.LocationModel
  */
 export type Customer = Prisma.CustomerModel
 /**
+ * Model CustomerInitialCylinderBalance
+ * 
+ */
+export type CustomerInitialCylinderBalance = Prisma.CustomerInitialCylinderBalanceModel
+/**
  * Model Product
  * 
  */
 export type Product = Prisma.ProductModel
 /**
- * Model Stock
+ * Model Vendor
  * 
+ */
+export type Vendor = Prisma.VendorModel
+/**
+ * Model GodownInventory
+ * Materialized snapshot of godown cylinder stock per product.
+ * 
+ * DO NOT write to this table from business logic directly.
+ * Always recompute it by summing CylinderTransaction.filledDelta / emptyDelta
+ * for refType = PURCHASE or INVOICE (godown side only).
+ * 
+ * Formula:
+ * filledQty = SUM(filledDelta) across all CylinderTransactions for this product
+ * emptyQty  = SUM(emptyDelta)  across all CylinderTransactions for this product
+ */
+export type GodownInventory = Prisma.GodownInventoryModel
+/**
+ * Model CylinderTransaction
+ * Append-only ledger recording every cylinder movement.
+ * 
+ * This is the canonical record for all stock changes.
+ * GodownInventory and CustomerCylinderLedger are derived from it.
+ * 
+ * RULES:
+ * • Never UPDATE or DELETE rows — treat as immutable.
+ * • To correct a mistake, write a reversal row and set voidedTxnId
+ * to point to the row being corrected.
+ * • To apply a manual correction, use TxnType.ADJUSTMENT and create
+ * a corresponding StockAdjustment record (refType=MANUAL, refId=StockAdjustment.id).
+ * 
+ * Delta semantics (from the GODOWN perspective):
+ * filledDelta > 0  → filled cylinders arrived in godown
+ * filledDelta < 0  → filled cylinders left godown
+ * emptyDelta  > 0  → empty cylinders arrived in godown
+ * emptyDelta  < 0  → empty cylinders left godown
+ */
+export type CylinderTransaction = Prisma.CylinderTransactionModel
+/**
+ * Model Stock
+ * A physical batch of cylinders received from a vendor in a purchase.
+ * Links a PurchaseItem to the sale items that drew from it.
+ * Enables batch-level traceability (which batch went to which customer).
  */
 export type Stock = Prisma.StockModel
 /**
- * Model Sale
+ * Model Purchase
  * 
  */
-export type Sale = Prisma.SaleModel
+export type Purchase = Prisma.PurchaseModel
+/**
+ * Model PurchaseItem
+ * 
+ */
+export type PurchaseItem = Prisma.PurchaseItemModel
+/**
+ * Model StockAdjustment
+ * Every ADJUSTMENT CylinderTransaction must have a matching StockAdjustment.
+ * refType=MANUAL, refId=StockAdjustment.id in the corresponding CylinderTransaction.
+ * This ensures adjustments are never anonymous — they always carry a reason and an owner.
+ */
+export type StockAdjustment = Prisma.StockAdjustmentModel
 /**
  * Model DomSale
  * 
@@ -96,26 +159,6 @@ export type DomSale = Prisma.DomSaleModel
  * 
  */
 export type DomSaleItem = Prisma.DomSaleItemModel
-/**
- * Model Collection
- * 
- */
-export type Collection = Prisma.CollectionModel
-/**
- * Model Expense
- * 
- */
-export type Expense = Prisma.ExpenseModel
-/**
- * Model RentProduct
- * 
- */
-export type RentProduct = Prisma.RentProductModel
-/**
- * Model RentTransaction
- * 
- */
-export type RentTransaction = Prisma.RentTransactionModel
 /**
  * Model ArbSale
  * 
@@ -137,22 +180,56 @@ export type CommercialSale = Prisma.CommercialSaleModel
  */
 export type CommercialSaleItem = Prisma.CommercialSaleItemModel
 /**
- * Model CustomerInitialCylinderBalance
+ * Model Expense
  * 
  */
-export type CustomerInitialCylinderBalance = Prisma.CustomerInitialCylinderBalanceModel
+export type Expense = Prisma.ExpenseModel
 /**
- * Model Vendor
+ * Model CustomerPaymentLedger
+ * Append-only ledger for all customer money events.
  * 
+ * This is the canonical record for customer balances.
+ * CustomerBalance is derived from this by summing amount per customer.
+ * 
+ * RULES:
+ * • Never UPDATE or DELETE rows.
+ * • To reverse a charge, append a new row with a negative amount of the same type.
+ * • amount > 0 means the customer owes more (debit).
+ * • amount < 0 means the customer has paid / credit applied (credit).
+ * 
+ * On every new sale:   append entryType=SALE_CHARGE, amount=totalAmount-paidAmount, refType=INVOICE, refId=<sale id>
+ * On every payment:    append entryType=PAYMENT,     amount=-paymentAmount,         refType=MANUAL,  refId=<payment record>
+ * On opening balance:  append entryType=OPENING,     amount=initialPendingAmount,   refType=MANUAL,  refId=Customer.id
  */
-export type Vendor = Prisma.VendorModel
+export type CustomerPaymentLedger = Prisma.CustomerPaymentLedgerModel
 /**
- * Model Purchase
+ * Model CustomerBalance
+ * Materialized running total for quick balance look-up.
  * 
+ * pendingAmount = SUM(CustomerPaymentLedger.amount) for this customer.
+ * pendingAmount > 0 → customer owes money.
+ * pendingAmount < 0 → customer has a credit balance.
+ * 
+ * Rebuild query:
+ * UPDATE customer_balances cb
+ * SET pending_amount = (
+ * SELECT COALESCE(SUM(amount), 0)
+ * FROM customer_payment_ledger
+ * WHERE customer_id = cb.customer_id
+ * )
  */
-export type Purchase = Prisma.PurchaseModel
+export type CustomerBalance = Prisma.CustomerBalanceModel
 /**
- * Model PurchaseItem
+ * Model CustomerCylinderLedger
+ * Materialized per-product cylinder balance per customer.
  * 
+ * pendingCylinder = net cylinders dispatched but not yet returned by this customer
+ * = SUM(cylindersDispatched) - SUM(cylindersReturned)
+ * from CommercialSaleItem for this customer+product.
+ * 
+ * pendingCylinder > 0 → customer holds cylinders that haven't been returned.
+ * 
+ * This is ONLY updated for commercial-rent flows; domestic/ARB flows don't track
+ * per-customer cylinder custody (cylinders are sold outright).
  */
-export type PurchaseItem = Prisma.PurchaseItemModel
+export type CustomerCylinderLedger = Prisma.CustomerCylinderLedgerModel

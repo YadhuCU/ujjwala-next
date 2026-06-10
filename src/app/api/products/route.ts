@@ -1,7 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
-import { ProductType } from "@prisma/client";
+import { PERMISSIONS } from "@/lib/permissions";
+import { ProductType } from "@/generated/enums";
+import { CreateProductSchema } from "@/module/product/product.schema";
+import { serializeProduct } from "@/module/product/product.serializer";
+import { formatResponse } from "@/lib/response";
 
 export async function GET(req: NextRequest) {
   return withAuth(async () => {
@@ -10,26 +14,25 @@ export async function GET(req: NextRequest) {
       where: { isDeleted: false, ...(type && { type }) },
       orderBy: { createdAt: "desc" },
     });
-    return NextResponse.json(products);
-  });
+
+    return formatResponse({
+      data: products.map(serializeProduct),
+      message: "",
+    });
+  }, [PERMISSIONS.PRODUCT_READ]);
 }
 
 export async function POST(request: Request) {
   return withAuth(async () => {
-    try {
-      const data = await request.json();
-      const product = await prisma.product.create({
-        data: {
-          name: data.name,
-          type: data.type || null,
-          weight: data.weight,
-          salePrice: data.salePrice != null ? Number(data.salePrice) : null,
-        },
-      });
-      return NextResponse.json(product, { status: 201 });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to create product";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, "Owner");
+    const body = await request.json();
+    const data = CreateProductSchema.parse(body);
+
+    const product = await prisma.product.create({ data });
+
+    return formatResponse({
+      data: serializeProduct(product),
+      message: "Product created successfully",
+      status: 201,
+    });
+  }, [PERMISSIONS.PRODUCT_CREATE]);
 }

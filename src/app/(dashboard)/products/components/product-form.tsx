@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { ProductType } from "@prisma/client";
 import {
   Select,
   SelectContent,
@@ -22,24 +20,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-export const productSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  type: z.nativeEnum(ProductType).optional().or(z.literal("")),
-  weight: z.string().optional().or(z.literal("")),
-  salePrice: z.number().min(0).optional(),
-});
-
-export type ProductFormValues = z.infer<typeof productSchema>;
+import {
+  CreateProductInput,
+  CreateProductSchema,
+} from "@/module/product/product.schema";
+import { ProductType } from "@/generated/enums";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
 interface ProductFormProps {
-  defaultValues?: ProductFormValues;
+  defaultValues?: CreateProductInput;
   isEditMode?: boolean;
-  onSubmit: (values: ProductFormValues) => void;
+  onSubmit: (values: CreateProductInput) => void;
   isPending: boolean;
 }
 
@@ -51,14 +43,9 @@ export function ProductForm({
   onSubmit,
   isPending,
 }: ProductFormProps) {
-  const form = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
-    defaultValues: defaultValues ?? {
-      name: "",
-      type: "",
-      weight: "",
-      salePrice: 0,
-    },
+  const form = useForm<CreateProductInput>({
+    resolver: zodResolver(CreateProductSchema),
+    defaultValues: defaultValues ?? {},
   });
 
   return (
@@ -79,7 +66,7 @@ export function ProductForm({
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="Enter product name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,7 +106,7 @@ export function ProductForm({
                 <FormItem>
                   <FormLabel>Weight</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="Enter weight" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -136,9 +123,15 @@ export function ProductForm({
                       type="number"
                       step="0.01"
                       {...field}
+                      value={field.value ?? ""}
                       onChange={(e) =>
-                        field.onChange(e.target.valueAsNumber || 0)
+                        field.onChange(
+                          e.target.value === ""
+                            ? undefined
+                            : Number(e.target.value),
+                        )
                       }
+                      placeholder="Enter product price"
                     />
                   </FormControl>
                   <FormMessage />

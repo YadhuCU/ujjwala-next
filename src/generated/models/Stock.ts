@@ -14,7 +14,9 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Stock
- * 
+ * A physical batch of cylinders received from a vendor in a purchase.
+ * Links a PurchaseItem to the sale items that drew from it.
+ * Enables batch-level traceability (which batch went to which customer).
  */
 export type StockModel = runtime.Types.Result.DefaultSelection<Prisma.$StockPayload>
 
@@ -55,6 +57,7 @@ export type StockMinAggregateOutputType = {
   purchaseId: number | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type StockMaxAggregateOutputType = {
@@ -68,6 +71,7 @@ export type StockMaxAggregateOutputType = {
   purchaseId: number | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type StockCountAggregateOutputType = {
@@ -81,6 +85,7 @@ export type StockCountAggregateOutputType = {
   purchaseId: number
   isDeleted: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -114,6 +119,7 @@ export type StockMinAggregateInputType = {
   purchaseId?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type StockMaxAggregateInputType = {
@@ -127,6 +133,7 @@ export type StockMaxAggregateInputType = {
   purchaseId?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type StockCountAggregateInputType = {
@@ -140,6 +147,7 @@ export type StockCountAggregateInputType = {
   purchaseId?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -231,7 +239,7 @@ export type StockGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 
 export type StockGroupByOutputType = {
   id: number
-  batchNo: string | null
+  batchNo: string
   productId: number | null
   invoiceNo: string | null
   quantity: number
@@ -240,6 +248,7 @@ export type StockGroupByOutputType = {
   purchaseId: number | null
   isDeleted: boolean
   createdAt: Date
+  updatedAt: Date
   _count: StockCountAggregateOutputType | null
   _avg: StockAvgAggregateOutputType | null
   _sum: StockSumAggregateOutputType | null
@@ -267,7 +276,7 @@ export type StockWhereInput = {
   OR?: Prisma.StockWhereInput[]
   NOT?: Prisma.StockWhereInput | Prisma.StockWhereInput[]
   id?: Prisma.IntFilter<"Stock"> | number
-  batchNo?: Prisma.StringNullableFilter<"Stock"> | string | null
+  batchNo?: Prisma.StringFilter<"Stock"> | string
   productId?: Prisma.IntNullableFilter<"Stock"> | number | null
   invoiceNo?: Prisma.StringNullableFilter<"Stock"> | string | null
   quantity?: Prisma.IntFilter<"Stock"> | number
@@ -276,20 +285,18 @@ export type StockWhereInput = {
   purchaseId?: Prisma.IntNullableFilter<"Stock"> | number | null
   isDeleted?: Prisma.BoolFilter<"Stock"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Stock"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Stock"> | Date | string
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
   purchase?: Prisma.XOR<Prisma.PurchaseNullableScalarRelationFilter, Prisma.PurchaseWhereInput> | null
-  sales?: Prisma.SaleListRelationFilter
   domSaleItems?: Prisma.DomSaleItemListRelationFilter
   arbSaleItems?: Prisma.ArbSaleItemListRelationFilter
   commercialSaleItems?: Prisma.CommercialSaleItemListRelationFilter
-  rentProducts?: Prisma.RentProductListRelationFilter
-  rentTransactions?: Prisma.RentTransactionListRelationFilter
 }
 
 export type StockOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  batchNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  batchNo?: Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   invoiceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
@@ -298,15 +305,13 @@ export type StockOrderByWithRelationInput = {
   purchaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   product?: Prisma.ProductOrderByWithRelationInput
   vendor?: Prisma.VendorOrderByWithRelationInput
   purchase?: Prisma.PurchaseOrderByWithRelationInput
-  sales?: Prisma.SaleOrderByRelationAggregateInput
   domSaleItems?: Prisma.DomSaleItemOrderByRelationAggregateInput
   arbSaleItems?: Prisma.ArbSaleItemOrderByRelationAggregateInput
   commercialSaleItems?: Prisma.CommercialSaleItemOrderByRelationAggregateInput
-  rentProducts?: Prisma.RentProductOrderByRelationAggregateInput
-  rentTransactions?: Prisma.RentTransactionOrderByRelationAggregateInput
 }
 
 export type StockWhereUniqueInput = Prisma.AtLeast<{
@@ -323,20 +328,18 @@ export type StockWhereUniqueInput = Prisma.AtLeast<{
   purchaseId?: Prisma.IntNullableFilter<"Stock"> | number | null
   isDeleted?: Prisma.BoolFilter<"Stock"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Stock"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Stock"> | Date | string
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   vendor?: Prisma.XOR<Prisma.VendorNullableScalarRelationFilter, Prisma.VendorWhereInput> | null
   purchase?: Prisma.XOR<Prisma.PurchaseNullableScalarRelationFilter, Prisma.PurchaseWhereInput> | null
-  sales?: Prisma.SaleListRelationFilter
   domSaleItems?: Prisma.DomSaleItemListRelationFilter
   arbSaleItems?: Prisma.ArbSaleItemListRelationFilter
   commercialSaleItems?: Prisma.CommercialSaleItemListRelationFilter
-  rentProducts?: Prisma.RentProductListRelationFilter
-  rentTransactions?: Prisma.RentTransactionListRelationFilter
 }, "id" | "batchNo">
 
 export type StockOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  batchNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  batchNo?: Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
   invoiceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
@@ -345,6 +348,7 @@ export type StockOrderByWithAggregationInput = {
   purchaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.StockCountOrderByAggregateInput
   _avg?: Prisma.StockAvgOrderByAggregateInput
   _max?: Prisma.StockMaxOrderByAggregateInput
@@ -357,7 +361,7 @@ export type StockScalarWhereWithAggregatesInput = {
   OR?: Prisma.StockScalarWhereWithAggregatesInput[]
   NOT?: Prisma.StockScalarWhereWithAggregatesInput | Prisma.StockScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Stock"> | number
-  batchNo?: Prisma.StringNullableWithAggregatesFilter<"Stock"> | string | null
+  batchNo?: Prisma.StringWithAggregatesFilter<"Stock"> | string
   productId?: Prisma.IntNullableWithAggregatesFilter<"Stock"> | number | null
   invoiceNo?: Prisma.StringNullableWithAggregatesFilter<"Stock"> | string | null
   quantity?: Prisma.IntWithAggregatesFilter<"Stock"> | number
@@ -366,29 +370,28 @@ export type StockScalarWhereWithAggregatesInput = {
   purchaseId?: Prisma.IntNullableWithAggregatesFilter<"Stock"> | number | null
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Stock"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Stock"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Stock"> | Date | string
 }
 
 export type StockCreateInput = {
-  batchNo?: string | null
+  batchNo: string
   invoiceNo?: string | null
   quantity?: number
   productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   product?: Prisma.ProductCreateNestedOneWithoutStocksInput
   vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
   purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
   domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
 }
 
 export type StockUncheckedCreateInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
   productId?: number | null
   invoiceNo?: string | null
   quantity?: number
@@ -397,35 +400,31 @@ export type StockUncheckedCreateInput = {
   purchaseId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
+  updatedAt?: Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
 }
 
 export type StockUpdateInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
   vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
   purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
   domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
 }
 
 export type StockUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
@@ -434,17 +433,15 @@ export type StockUncheckedUpdateInput = {
   purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
 }
 
 export type StockCreateManyInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
   productId?: number | null
   invoiceNo?: string | null
   quantity?: number
@@ -453,20 +450,22 @@ export type StockCreateManyInput = {
   purchaseId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockUpdateManyMutationInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
@@ -475,6 +474,7 @@ export type StockUncheckedUpdateManyInput = {
   purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockListRelationFilter = {
@@ -498,6 +498,7 @@ export type StockCountOrderByAggregateInput = {
   purchaseId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type StockAvgOrderByAggregateInput = {
@@ -520,6 +521,7 @@ export type StockMaxOrderByAggregateInput = {
   purchaseId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type StockMinOrderByAggregateInput = {
@@ -533,6 +535,7 @@ export type StockMinOrderByAggregateInput = {
   purchaseId?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type StockSumOrderByAggregateInput = {
@@ -547,11 +550,6 @@ export type StockSumOrderByAggregateInput = {
 export type StockNullableScalarRelationFilter = {
   is?: Prisma.StockWhereInput | null
   isNot?: Prisma.StockWhereInput | null
-}
-
-export type StockScalarRelationFilter = {
-  is?: Prisma.StockWhereInput
-  isNot?: Prisma.StockWhereInput
 }
 
 export type StockCreateNestedManyWithoutProductInput = {
@@ -594,100 +592,6 @@ export type StockUncheckedUpdateManyWithoutProductNestedInput = {
   update?: Prisma.StockUpdateWithWhereUniqueWithoutProductInput | Prisma.StockUpdateWithWhereUniqueWithoutProductInput[]
   updateMany?: Prisma.StockUpdateManyWithWhereWithoutProductInput | Prisma.StockUpdateManyWithWhereWithoutProductInput[]
   deleteMany?: Prisma.StockScalarWhereInput | Prisma.StockScalarWhereInput[]
-}
-
-export type StockCreateNestedOneWithoutSalesInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutSalesInput, Prisma.StockUncheckedCreateWithoutSalesInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutSalesInput
-  connect?: Prisma.StockWhereUniqueInput
-}
-
-export type StockUpdateOneWithoutSalesNestedInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutSalesInput, Prisma.StockUncheckedCreateWithoutSalesInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutSalesInput
-  upsert?: Prisma.StockUpsertWithoutSalesInput
-  disconnect?: Prisma.StockWhereInput | boolean
-  delete?: Prisma.StockWhereInput | boolean
-  connect?: Prisma.StockWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutSalesInput, Prisma.StockUpdateWithoutSalesInput>, Prisma.StockUncheckedUpdateWithoutSalesInput>
-}
-
-export type StockCreateNestedOneWithoutDomSaleItemsInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutDomSaleItemsInput
-  connect?: Prisma.StockWhereUniqueInput
-}
-
-export type StockUpdateOneWithoutDomSaleItemsNestedInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutDomSaleItemsInput
-  upsert?: Prisma.StockUpsertWithoutDomSaleItemsInput
-  disconnect?: Prisma.StockWhereInput | boolean
-  delete?: Prisma.StockWhereInput | boolean
-  connect?: Prisma.StockWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutDomSaleItemsInput, Prisma.StockUpdateWithoutDomSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutDomSaleItemsInput>
-}
-
-export type StockCreateNestedOneWithoutRentProductsInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutRentProductsInput, Prisma.StockUncheckedCreateWithoutRentProductsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutRentProductsInput
-  connect?: Prisma.StockWhereUniqueInput
-}
-
-export type StockUpdateOneWithoutRentProductsNestedInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutRentProductsInput, Prisma.StockUncheckedCreateWithoutRentProductsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutRentProductsInput
-  upsert?: Prisma.StockUpsertWithoutRentProductsInput
-  disconnect?: Prisma.StockWhereInput | boolean
-  delete?: Prisma.StockWhereInput | boolean
-  connect?: Prisma.StockWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutRentProductsInput, Prisma.StockUpdateWithoutRentProductsInput>, Prisma.StockUncheckedUpdateWithoutRentProductsInput>
-}
-
-export type StockCreateNestedOneWithoutRentTransactionsInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutRentTransactionsInput, Prisma.StockUncheckedCreateWithoutRentTransactionsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutRentTransactionsInput
-  connect?: Prisma.StockWhereUniqueInput
-}
-
-export type StockUpdateOneRequiredWithoutRentTransactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutRentTransactionsInput, Prisma.StockUncheckedCreateWithoutRentTransactionsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutRentTransactionsInput
-  upsert?: Prisma.StockUpsertWithoutRentTransactionsInput
-  connect?: Prisma.StockWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutRentTransactionsInput, Prisma.StockUpdateWithoutRentTransactionsInput>, Prisma.StockUncheckedUpdateWithoutRentTransactionsInput>
-}
-
-export type StockCreateNestedOneWithoutArbSaleItemsInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutArbSaleItemsInput
-  connect?: Prisma.StockWhereUniqueInput
-}
-
-export type StockUpdateOneWithoutArbSaleItemsNestedInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutArbSaleItemsInput
-  upsert?: Prisma.StockUpsertWithoutArbSaleItemsInput
-  disconnect?: Prisma.StockWhereInput | boolean
-  delete?: Prisma.StockWhereInput | boolean
-  connect?: Prisma.StockWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutArbSaleItemsInput, Prisma.StockUpdateWithoutArbSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutArbSaleItemsInput>
-}
-
-export type StockCreateNestedOneWithoutCommercialSaleItemsInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutCommercialSaleItemsInput
-  connect?: Prisma.StockWhereUniqueInput
-}
-
-export type StockUpdateOneWithoutCommercialSaleItemsNestedInput = {
-  create?: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
-  connectOrCreate?: Prisma.StockCreateOrConnectWithoutCommercialSaleItemsInput
-  upsert?: Prisma.StockUpsertWithoutCommercialSaleItemsInput
-  disconnect?: Prisma.StockWhereInput | boolean
-  delete?: Prisma.StockWhereInput | boolean
-  connect?: Prisma.StockWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutCommercialSaleItemsInput, Prisma.StockUpdateWithoutCommercialSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutCommercialSaleItemsInput>
 }
 
 export type StockCreateNestedManyWithoutVendorInput = {
@@ -774,26 +678,72 @@ export type StockUncheckedUpdateManyWithoutPurchaseNestedInput = {
   deleteMany?: Prisma.StockScalarWhereInput | Prisma.StockScalarWhereInput[]
 }
 
+export type StockCreateNestedOneWithoutDomSaleItemsInput = {
+  create?: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
+  connectOrCreate?: Prisma.StockCreateOrConnectWithoutDomSaleItemsInput
+  connect?: Prisma.StockWhereUniqueInput
+}
+
+export type StockUpdateOneWithoutDomSaleItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
+  connectOrCreate?: Prisma.StockCreateOrConnectWithoutDomSaleItemsInput
+  upsert?: Prisma.StockUpsertWithoutDomSaleItemsInput
+  disconnect?: Prisma.StockWhereInput | boolean
+  delete?: Prisma.StockWhereInput | boolean
+  connect?: Prisma.StockWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutDomSaleItemsInput, Prisma.StockUpdateWithoutDomSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutDomSaleItemsInput>
+}
+
+export type StockCreateNestedOneWithoutArbSaleItemsInput = {
+  create?: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
+  connectOrCreate?: Prisma.StockCreateOrConnectWithoutArbSaleItemsInput
+  connect?: Prisma.StockWhereUniqueInput
+}
+
+export type StockUpdateOneWithoutArbSaleItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
+  connectOrCreate?: Prisma.StockCreateOrConnectWithoutArbSaleItemsInput
+  upsert?: Prisma.StockUpsertWithoutArbSaleItemsInput
+  disconnect?: Prisma.StockWhereInput | boolean
+  delete?: Prisma.StockWhereInput | boolean
+  connect?: Prisma.StockWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutArbSaleItemsInput, Prisma.StockUpdateWithoutArbSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutArbSaleItemsInput>
+}
+
+export type StockCreateNestedOneWithoutCommercialSaleItemsInput = {
+  create?: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
+  connectOrCreate?: Prisma.StockCreateOrConnectWithoutCommercialSaleItemsInput
+  connect?: Prisma.StockWhereUniqueInput
+}
+
+export type StockUpdateOneWithoutCommercialSaleItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
+  connectOrCreate?: Prisma.StockCreateOrConnectWithoutCommercialSaleItemsInput
+  upsert?: Prisma.StockUpsertWithoutCommercialSaleItemsInput
+  disconnect?: Prisma.StockWhereInput | boolean
+  delete?: Prisma.StockWhereInput | boolean
+  connect?: Prisma.StockWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutCommercialSaleItemsInput, Prisma.StockUpdateWithoutCommercialSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutCommercialSaleItemsInput>
+}
+
 export type StockCreateWithoutProductInput = {
-  batchNo?: string | null
+  batchNo: string
   invoiceNo?: string | null
   quantity?: number
   productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
   purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
   domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
 }
 
 export type StockUncheckedCreateWithoutProductInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
   invoiceNo?: string | null
   quantity?: number
   productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -801,12 +751,10 @@ export type StockUncheckedCreateWithoutProductInput = {
   purchaseId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
+  updatedAt?: Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
 }
 
 export type StockCreateOrConnectWithoutProductInput = {
@@ -840,7 +788,7 @@ export type StockScalarWhereInput = {
   OR?: Prisma.StockScalarWhereInput[]
   NOT?: Prisma.StockScalarWhereInput | Prisma.StockScalarWhereInput[]
   id?: Prisma.IntFilter<"Stock"> | number
-  batchNo?: Prisma.StringNullableFilter<"Stock"> | string | null
+  batchNo?: Prisma.StringFilter<"Stock"> | string
   productId?: Prisma.IntNullableFilter<"Stock"> | number | null
   invoiceNo?: Prisma.StringNullableFilter<"Stock"> | string | null
   quantity?: Prisma.IntFilter<"Stock"> | number
@@ -849,544 +797,27 @@ export type StockScalarWhereInput = {
   purchaseId?: Prisma.IntNullableFilter<"Stock"> | number | null
   isDeleted?: Prisma.BoolFilter<"Stock"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Stock"> | Date | string
-}
-
-export type StockCreateWithoutSalesInput = {
-  batchNo?: string | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
-  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
-  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
-}
-
-export type StockUncheckedCreateWithoutSalesInput = {
-  id?: number
-  batchNo?: string | null
-  productId?: number | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: number | null
-  purchaseId?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
-}
-
-export type StockCreateOrConnectWithoutSalesInput = {
-  where: Prisma.StockWhereUniqueInput
-  create: Prisma.XOR<Prisma.StockCreateWithoutSalesInput, Prisma.StockUncheckedCreateWithoutSalesInput>
-}
-
-export type StockUpsertWithoutSalesInput = {
-  update: Prisma.XOR<Prisma.StockUpdateWithoutSalesInput, Prisma.StockUncheckedUpdateWithoutSalesInput>
-  create: Prisma.XOR<Prisma.StockCreateWithoutSalesInput, Prisma.StockUncheckedCreateWithoutSalesInput>
-  where?: Prisma.StockWhereInput
-}
-
-export type StockUpdateToOneWithWhereWithoutSalesInput = {
-  where?: Prisma.StockWhereInput
-  data: Prisma.XOR<Prisma.StockUpdateWithoutSalesInput, Prisma.StockUncheckedUpdateWithoutSalesInput>
-}
-
-export type StockUpdateWithoutSalesInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
-  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
-  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
-}
-
-export type StockUncheckedUpdateWithoutSalesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
-}
-
-export type StockCreateWithoutDomSaleItemsInput = {
-  batchNo?: string | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
-  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
-  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
-}
-
-export type StockUncheckedCreateWithoutDomSaleItemsInput = {
-  id?: number
-  batchNo?: string | null
-  productId?: number | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: number | null
-  purchaseId?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
-}
-
-export type StockCreateOrConnectWithoutDomSaleItemsInput = {
-  where: Prisma.StockWhereUniqueInput
-  create: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
-}
-
-export type StockUpsertWithoutDomSaleItemsInput = {
-  update: Prisma.XOR<Prisma.StockUpdateWithoutDomSaleItemsInput, Prisma.StockUncheckedUpdateWithoutDomSaleItemsInput>
-  create: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
-  where?: Prisma.StockWhereInput
-}
-
-export type StockUpdateToOneWithWhereWithoutDomSaleItemsInput = {
-  where?: Prisma.StockWhereInput
-  data: Prisma.XOR<Prisma.StockUpdateWithoutDomSaleItemsInput, Prisma.StockUncheckedUpdateWithoutDomSaleItemsInput>
-}
-
-export type StockUpdateWithoutDomSaleItemsInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
-  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
-  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
-}
-
-export type StockUncheckedUpdateWithoutDomSaleItemsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
-}
-
-export type StockCreateWithoutRentProductsInput = {
-  batchNo?: string | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
-  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
-  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
-}
-
-export type StockUncheckedCreateWithoutRentProductsInput = {
-  id?: number
-  batchNo?: string | null
-  productId?: number | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: number | null
-  purchaseId?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
-}
-
-export type StockCreateOrConnectWithoutRentProductsInput = {
-  where: Prisma.StockWhereUniqueInput
-  create: Prisma.XOR<Prisma.StockCreateWithoutRentProductsInput, Prisma.StockUncheckedCreateWithoutRentProductsInput>
-}
-
-export type StockUpsertWithoutRentProductsInput = {
-  update: Prisma.XOR<Prisma.StockUpdateWithoutRentProductsInput, Prisma.StockUncheckedUpdateWithoutRentProductsInput>
-  create: Prisma.XOR<Prisma.StockCreateWithoutRentProductsInput, Prisma.StockUncheckedCreateWithoutRentProductsInput>
-  where?: Prisma.StockWhereInput
-}
-
-export type StockUpdateToOneWithWhereWithoutRentProductsInput = {
-  where?: Prisma.StockWhereInput
-  data: Prisma.XOR<Prisma.StockUpdateWithoutRentProductsInput, Prisma.StockUncheckedUpdateWithoutRentProductsInput>
-}
-
-export type StockUpdateWithoutRentProductsInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
-  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
-  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
-}
-
-export type StockUncheckedUpdateWithoutRentProductsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
-}
-
-export type StockCreateWithoutRentTransactionsInput = {
-  batchNo?: string | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
-  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
-  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-}
-
-export type StockUncheckedCreateWithoutRentTransactionsInput = {
-  id?: number
-  batchNo?: string | null
-  productId?: number | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: number | null
-  purchaseId?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-}
-
-export type StockCreateOrConnectWithoutRentTransactionsInput = {
-  where: Prisma.StockWhereUniqueInput
-  create: Prisma.XOR<Prisma.StockCreateWithoutRentTransactionsInput, Prisma.StockUncheckedCreateWithoutRentTransactionsInput>
-}
-
-export type StockUpsertWithoutRentTransactionsInput = {
-  update: Prisma.XOR<Prisma.StockUpdateWithoutRentTransactionsInput, Prisma.StockUncheckedUpdateWithoutRentTransactionsInput>
-  create: Prisma.XOR<Prisma.StockCreateWithoutRentTransactionsInput, Prisma.StockUncheckedCreateWithoutRentTransactionsInput>
-  where?: Prisma.StockWhereInput
-}
-
-export type StockUpdateToOneWithWhereWithoutRentTransactionsInput = {
-  where?: Prisma.StockWhereInput
-  data: Prisma.XOR<Prisma.StockUpdateWithoutRentTransactionsInput, Prisma.StockUncheckedUpdateWithoutRentTransactionsInput>
-}
-
-export type StockUpdateWithoutRentTransactionsInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
-  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
-  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-}
-
-export type StockUncheckedUpdateWithoutRentTransactionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-}
-
-export type StockCreateWithoutArbSaleItemsInput = {
-  batchNo?: string | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
-  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
-  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
-}
-
-export type StockUncheckedCreateWithoutArbSaleItemsInput = {
-  id?: number
-  batchNo?: string | null
-  productId?: number | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: number | null
-  purchaseId?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
-}
-
-export type StockCreateOrConnectWithoutArbSaleItemsInput = {
-  where: Prisma.StockWhereUniqueInput
-  create: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
-}
-
-export type StockUpsertWithoutArbSaleItemsInput = {
-  update: Prisma.XOR<Prisma.StockUpdateWithoutArbSaleItemsInput, Prisma.StockUncheckedUpdateWithoutArbSaleItemsInput>
-  create: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
-  where?: Prisma.StockWhereInput
-}
-
-export type StockUpdateToOneWithWhereWithoutArbSaleItemsInput = {
-  where?: Prisma.StockWhereInput
-  data: Prisma.XOR<Prisma.StockUpdateWithoutArbSaleItemsInput, Prisma.StockUncheckedUpdateWithoutArbSaleItemsInput>
-}
-
-export type StockUpdateWithoutArbSaleItemsInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
-  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
-  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
-}
-
-export type StockUncheckedUpdateWithoutArbSaleItemsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
-}
-
-export type StockCreateWithoutCommercialSaleItemsInput = {
-  batchNo?: string | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
-  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
-  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
-}
-
-export type StockUncheckedCreateWithoutCommercialSaleItemsInput = {
-  id?: number
-  batchNo?: string | null
-  productId?: number | null
-  invoiceNo?: string | null
-  quantity?: number
-  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: number | null
-  purchaseId?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
-}
-
-export type StockCreateOrConnectWithoutCommercialSaleItemsInput = {
-  where: Prisma.StockWhereUniqueInput
-  create: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
-}
-
-export type StockUpsertWithoutCommercialSaleItemsInput = {
-  update: Prisma.XOR<Prisma.StockUpdateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedUpdateWithoutCommercialSaleItemsInput>
-  create: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
-  where?: Prisma.StockWhereInput
-}
-
-export type StockUpdateToOneWithWhereWithoutCommercialSaleItemsInput = {
-  where?: Prisma.StockWhereInput
-  data: Prisma.XOR<Prisma.StockUpdateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedUpdateWithoutCommercialSaleItemsInput>
-}
-
-export type StockUpdateWithoutCommercialSaleItemsInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
-  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
-  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
-}
-
-export type StockUncheckedUpdateWithoutCommercialSaleItemsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
-  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
+  updatedAt?: Prisma.DateTimeFilter<"Stock"> | Date | string
 }
 
 export type StockCreateWithoutVendorInput = {
-  batchNo?: string | null
+  batchNo: string
   invoiceNo?: string | null
   quantity?: number
   productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   product?: Prisma.ProductCreateNestedOneWithoutStocksInput
   purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
   domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
 }
 
 export type StockUncheckedCreateWithoutVendorInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
   productId?: number | null
   invoiceNo?: string | null
   quantity?: number
@@ -1394,12 +825,10 @@ export type StockUncheckedCreateWithoutVendorInput = {
   purchaseId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
+  updatedAt?: Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
 }
 
 export type StockCreateOrConnectWithoutVendorInput = {
@@ -1429,25 +858,23 @@ export type StockUpdateManyWithWhereWithoutVendorInput = {
 }
 
 export type StockCreateWithoutPurchaseInput = {
-  batchNo?: string | null
+  batchNo: string
   invoiceNo?: string | null
   quantity?: number
   productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   product?: Prisma.ProductCreateNestedOneWithoutStocksInput
   vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
-  sales?: Prisma.SaleCreateNestedManyWithoutStockInput
   domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutStockInput
 }
 
 export type StockUncheckedCreateWithoutPurchaseInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
   productId?: number | null
   invoiceNo?: string | null
   quantity?: number
@@ -1455,12 +882,10 @@ export type StockUncheckedCreateWithoutPurchaseInput = {
   vendorId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutStockInput
+  updatedAt?: Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutStockInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutStockInput
 }
 
 export type StockCreateOrConnectWithoutPurchaseInput = {
@@ -1489,9 +914,25 @@ export type StockUpdateManyWithWhereWithoutPurchaseInput = {
   data: Prisma.XOR<Prisma.StockUpdateManyMutationInput, Prisma.StockUncheckedUpdateManyWithoutPurchaseInput>
 }
 
-export type StockCreateManyProductInput = {
+export type StockCreateWithoutDomSaleItemsInput = {
+  batchNo: string
+  invoiceNo?: string | null
+  quantity?: number
+  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
+  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
+  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
+}
+
+export type StockUncheckedCreateWithoutDomSaleItemsInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
+  productId?: number | null
   invoiceNo?: string | null
   quantity?: number
   productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1499,28 +940,245 @@ export type StockCreateManyProductInput = {
   purchaseId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
 }
 
-export type StockUpdateWithoutProductInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+export type StockCreateOrConnectWithoutDomSaleItemsInput = {
+  where: Prisma.StockWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
+}
+
+export type StockUpsertWithoutDomSaleItemsInput = {
+  update: Prisma.XOR<Prisma.StockUpdateWithoutDomSaleItemsInput, Prisma.StockUncheckedUpdateWithoutDomSaleItemsInput>
+  create: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
+  where?: Prisma.StockWhereInput
+}
+
+export type StockUpdateToOneWithWhereWithoutDomSaleItemsInput = {
+  where?: Prisma.StockWhereInput
+  data: Prisma.XOR<Prisma.StockUpdateWithoutDomSaleItemsInput, Prisma.StockUncheckedUpdateWithoutDomSaleItemsInput>
+}
+
+export type StockUpdateWithoutDomSaleItemsInput = {
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
   vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
   purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
+}
+
+export type StockUncheckedUpdateWithoutDomSaleItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
+}
+
+export type StockCreateWithoutArbSaleItemsInput = {
+  batchNo: string
+  invoiceNo?: string | null
+  quantity?: number
+  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
+  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
+  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
+  commercialSaleItems?: Prisma.CommercialSaleItemCreateNestedManyWithoutStockInput
+}
+
+export type StockUncheckedCreateWithoutArbSaleItemsInput = {
+  id?: number
+  batchNo: string
+  productId?: number | null
+  invoiceNo?: string | null
+  quantity?: number
+  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vendorId?: number | null
+  purchaseId?: number | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutStockInput
+}
+
+export type StockCreateOrConnectWithoutArbSaleItemsInput = {
+  where: Prisma.StockWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
+}
+
+export type StockUpsertWithoutArbSaleItemsInput = {
+  update: Prisma.XOR<Prisma.StockUpdateWithoutArbSaleItemsInput, Prisma.StockUncheckedUpdateWithoutArbSaleItemsInput>
+  create: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
+  where?: Prisma.StockWhereInput
+}
+
+export type StockUpdateToOneWithWhereWithoutArbSaleItemsInput = {
+  where?: Prisma.StockWhereInput
+  data: Prisma.XOR<Prisma.StockUpdateWithoutArbSaleItemsInput, Prisma.StockUncheckedUpdateWithoutArbSaleItemsInput>
+}
+
+export type StockUpdateWithoutArbSaleItemsInput = {
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
+  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
+  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
+}
+
+export type StockUncheckedUpdateWithoutArbSaleItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
+  commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
+}
+
+export type StockCreateWithoutCommercialSaleItemsInput = {
+  batchNo: string
+  invoiceNo?: string | null
+  quantity?: number
+  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  product?: Prisma.ProductCreateNestedOneWithoutStocksInput
+  vendor?: Prisma.VendorCreateNestedOneWithoutStocksInput
+  purchase?: Prisma.PurchaseCreateNestedOneWithoutStocksInput
+  domSaleItems?: Prisma.DomSaleItemCreateNestedManyWithoutStockInput
+  arbSaleItems?: Prisma.ArbSaleItemCreateNestedManyWithoutStockInput
+}
+
+export type StockUncheckedCreateWithoutCommercialSaleItemsInput = {
+  id?: number
+  batchNo: string
+  productId?: number | null
+  invoiceNo?: string | null
+  quantity?: number
+  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vendorId?: number | null
+  purchaseId?: number | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domSaleItems?: Prisma.DomSaleItemUncheckedCreateNestedManyWithoutStockInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutStockInput
+}
+
+export type StockCreateOrConnectWithoutCommercialSaleItemsInput = {
+  where: Prisma.StockWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
+}
+
+export type StockUpsertWithoutCommercialSaleItemsInput = {
+  update: Prisma.XOR<Prisma.StockUpdateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedUpdateWithoutCommercialSaleItemsInput>
+  create: Prisma.XOR<Prisma.StockCreateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedCreateWithoutCommercialSaleItemsInput>
+  where?: Prisma.StockWhereInput
+}
+
+export type StockUpdateToOneWithWhereWithoutCommercialSaleItemsInput = {
+  where?: Prisma.StockWhereInput
+  data: Prisma.XOR<Prisma.StockUpdateWithoutCommercialSaleItemsInput, Prisma.StockUncheckedUpdateWithoutCommercialSaleItemsInput>
+}
+
+export type StockUpdateWithoutCommercialSaleItemsInput = {
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
+  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
+  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
+  domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
+}
+
+export type StockUncheckedUpdateWithoutCommercialSaleItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
+  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
+  arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
+}
+
+export type StockCreateManyProductInput = {
+  id?: number
+  batchNo: string
+  invoiceNo?: string | null
+  quantity?: number
+  productCost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  vendorId?: number | null
+  purchaseId?: number | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockUpdateWithoutProductInput = {
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
+  purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
   domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
 }
 
 export type StockUncheckedUpdateWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1528,17 +1186,15 @@ export type StockUncheckedUpdateWithoutProductInput = {
   purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
 }
 
 export type StockUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1546,11 +1202,12 @@ export type StockUncheckedUpdateManyWithoutProductInput = {
   purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockCreateManyVendorInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
   productId?: number | null
   invoiceNo?: string | null
   quantity?: number
@@ -1558,28 +1215,27 @@ export type StockCreateManyVendorInput = {
   purchaseId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockUpdateWithoutVendorInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
   purchase?: Prisma.PurchaseUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
   domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
 }
 
 export type StockUncheckedUpdateWithoutVendorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1587,17 +1243,15 @@ export type StockUncheckedUpdateWithoutVendorInput = {
   purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
 }
 
 export type StockUncheckedUpdateManyWithoutVendorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1605,11 +1259,12 @@ export type StockUncheckedUpdateManyWithoutVendorInput = {
   purchaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type StockCreateManyPurchaseInput = {
   id?: number
-  batchNo?: string | null
+  batchNo: string
   productId?: number | null
   invoiceNo?: string | null
   quantity?: number
@@ -1617,28 +1272,27 @@ export type StockCreateManyPurchaseInput = {
   vendorId?: number | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type StockUpdateWithoutPurchaseInput = {
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   productCost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneWithoutStocksNestedInput
   vendor?: Prisma.VendorUpdateOneWithoutStocksNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutStockNestedInput
   domSaleItems?: Prisma.DomSaleItemUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutStockNestedInput
 }
 
 export type StockUncheckedUpdateWithoutPurchaseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1646,17 +1300,15 @@ export type StockUncheckedUpdateWithoutPurchaseInput = {
   vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutStockNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSaleItems?: Prisma.DomSaleItemUncheckedUpdateManyWithoutStockNestedInput
   arbSaleItems?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutStockNestedInput
   commercialSaleItems?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutStockNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutStockNestedInput
 }
 
 export type StockUncheckedUpdateManyWithoutPurchaseInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  batchNo?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1664,6 +1316,7 @@ export type StockUncheckedUpdateManyWithoutPurchaseInput = {
   vendorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1672,21 +1325,15 @@ export type StockUncheckedUpdateManyWithoutPurchaseInput = {
  */
 
 export type StockCountOutputType = {
-  sales: number
   domSaleItems: number
   arbSaleItems: number
   commercialSaleItems: number
-  rentProducts: number
-  rentTransactions: number
 }
 
 export type StockCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  sales?: boolean | StockCountOutputTypeCountSalesArgs
   domSaleItems?: boolean | StockCountOutputTypeCountDomSaleItemsArgs
   arbSaleItems?: boolean | StockCountOutputTypeCountArbSaleItemsArgs
   commercialSaleItems?: boolean | StockCountOutputTypeCountCommercialSaleItemsArgs
-  rentProducts?: boolean | StockCountOutputTypeCountRentProductsArgs
-  rentTransactions?: boolean | StockCountOutputTypeCountRentTransactionsArgs
 }
 
 /**
@@ -1697,13 +1344,6 @@ export type StockCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extens
    * Select specific fields to fetch from the StockCountOutputType
    */
   select?: Prisma.StockCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * StockCountOutputType without action
- */
-export type StockCountOutputTypeCountSalesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SaleWhereInput
 }
 
 /**
@@ -1727,20 +1367,6 @@ export type StockCountOutputTypeCountCommercialSaleItemsArgs<ExtArgs extends run
   where?: Prisma.CommercialSaleItemWhereInput
 }
 
-/**
- * StockCountOutputType without action
- */
-export type StockCountOutputTypeCountRentProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RentProductWhereInput
-}
-
-/**
- * StockCountOutputType without action
- */
-export type StockCountOutputTypeCountRentTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RentTransactionWhereInput
-}
-
 
 export type StockSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1753,15 +1379,13 @@ export type StockSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   purchaseId?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   product?: boolean | Prisma.Stock$productArgs<ExtArgs>
   vendor?: boolean | Prisma.Stock$vendorArgs<ExtArgs>
   purchase?: boolean | Prisma.Stock$purchaseArgs<ExtArgs>
-  sales?: boolean | Prisma.Stock$salesArgs<ExtArgs>
   domSaleItems?: boolean | Prisma.Stock$domSaleItemsArgs<ExtArgs>
   arbSaleItems?: boolean | Prisma.Stock$arbSaleItemsArgs<ExtArgs>
   commercialSaleItems?: boolean | Prisma.Stock$commercialSaleItemsArgs<ExtArgs>
-  rentProducts?: boolean | Prisma.Stock$rentProductsArgs<ExtArgs>
-  rentTransactions?: boolean | Prisma.Stock$rentTransactionsArgs<ExtArgs>
   _count?: boolean | Prisma.StockCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["stock"]>
 
@@ -1776,6 +1400,7 @@ export type StockSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   purchaseId?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   product?: boolean | Prisma.Stock$productArgs<ExtArgs>
   vendor?: boolean | Prisma.Stock$vendorArgs<ExtArgs>
   purchase?: boolean | Prisma.Stock$purchaseArgs<ExtArgs>
@@ -1792,6 +1417,7 @@ export type StockSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   purchaseId?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   product?: boolean | Prisma.Stock$productArgs<ExtArgs>
   vendor?: boolean | Prisma.Stock$vendorArgs<ExtArgs>
   purchase?: boolean | Prisma.Stock$purchaseArgs<ExtArgs>
@@ -1808,19 +1434,17 @@ export type StockSelectScalar = {
   purchaseId?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type StockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchNo" | "productId" | "invoiceNo" | "quantity" | "productCost" | "vendorId" | "purchaseId" | "isDeleted" | "createdAt", ExtArgs["result"]["stock"]>
+export type StockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchNo" | "productId" | "invoiceNo" | "quantity" | "productCost" | "vendorId" | "purchaseId" | "isDeleted" | "createdAt" | "updatedAt", ExtArgs["result"]["stock"]>
 export type StockInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.Stock$productArgs<ExtArgs>
   vendor?: boolean | Prisma.Stock$vendorArgs<ExtArgs>
   purchase?: boolean | Prisma.Stock$purchaseArgs<ExtArgs>
-  sales?: boolean | Prisma.Stock$salesArgs<ExtArgs>
   domSaleItems?: boolean | Prisma.Stock$domSaleItemsArgs<ExtArgs>
   arbSaleItems?: boolean | Prisma.Stock$arbSaleItemsArgs<ExtArgs>
   commercialSaleItems?: boolean | Prisma.Stock$commercialSaleItemsArgs<ExtArgs>
-  rentProducts?: boolean | Prisma.Stock$rentProductsArgs<ExtArgs>
-  rentTransactions?: boolean | Prisma.Stock$rentTransactionsArgs<ExtArgs>
   _count?: boolean | Prisma.StockCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StockIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1840,16 +1464,17 @@ export type $StockPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     product: Prisma.$ProductPayload<ExtArgs> | null
     vendor: Prisma.$VendorPayload<ExtArgs> | null
     purchase: Prisma.$PurchasePayload<ExtArgs> | null
-    sales: Prisma.$SalePayload<ExtArgs>[]
     domSaleItems: Prisma.$DomSaleItemPayload<ExtArgs>[]
     arbSaleItems: Prisma.$ArbSaleItemPayload<ExtArgs>[]
     commercialSaleItems: Prisma.$CommercialSaleItemPayload<ExtArgs>[]
-    rentProducts: Prisma.$RentProductPayload<ExtArgs>[]
-    rentTransactions: Prisma.$RentTransactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    batchNo: string | null
+    /**
+     * Vendor batch / lot number. Unique because the same batch number
+     * should never arrive twice — if it does, create a new Stock row.
+     */
+    batchNo: string
     productId: number | null
     invoiceNo: string | null
     quantity: number
@@ -1858,6 +1483,7 @@ export type $StockPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     purchaseId: number | null
     isDeleted: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["stock"]>
   composites: {}
 }
@@ -2255,12 +1881,9 @@ export interface Prisma__StockClient<T, Null = never, ExtArgs extends runtime.Ty
   product<T extends Prisma.Stock$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   vendor<T extends Prisma.Stock$vendorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$vendorArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   purchase<T extends Prisma.Stock$purchaseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$purchaseArgs<ExtArgs>>): Prisma.Prisma__PurchaseClient<runtime.Types.Result.GetResult<Prisma.$PurchasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  sales<T extends Prisma.Stock$salesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$salesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domSaleItems<T extends Prisma.Stock$domSaleItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$domSaleItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   arbSaleItems<T extends Prisma.Stock$arbSaleItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$arbSaleItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commercialSaleItems<T extends Prisma.Stock$commercialSaleItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$commercialSaleItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  rentProducts<T extends Prisma.Stock$rentProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$rentProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RentProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  rentTransactions<T extends Prisma.Stock$rentTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Stock$rentTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RentTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2300,6 +1923,7 @@ export interface StockFieldRefs {
   readonly purchaseId: Prisma.FieldRef<"Stock", 'Int'>
   readonly isDeleted: Prisma.FieldRef<"Stock", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Stock", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Stock", 'DateTime'>
 }
     
 
@@ -2523,7 +2147,7 @@ export type StockCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   /**
    * The data needed to create a Stock.
    */
-  data?: Prisma.XOR<Prisma.StockCreateInput, Prisma.StockUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.StockCreateInput, Prisma.StockUncheckedCreateInput>
 }
 
 /**
@@ -2758,30 +2382,6 @@ export type Stock$purchaseArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Stock.sales
- */
-export type Stock$salesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Sale
-   */
-  select?: Prisma.SaleSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Sale
-   */
-  omit?: Prisma.SaleOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SaleInclude<ExtArgs> | null
-  where?: Prisma.SaleWhereInput
-  orderBy?: Prisma.SaleOrderByWithRelationInput | Prisma.SaleOrderByWithRelationInput[]
-  cursor?: Prisma.SaleWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SaleScalarFieldEnum | Prisma.SaleScalarFieldEnum[]
-}
-
-/**
  * Stock.domSaleItems
  */
 export type Stock$domSaleItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2851,54 +2451,6 @@ export type Stock$commercialSaleItemsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.CommercialSaleItemScalarFieldEnum | Prisma.CommercialSaleItemScalarFieldEnum[]
-}
-
-/**
- * Stock.rentProducts
- */
-export type Stock$rentProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the RentProduct
-   */
-  select?: Prisma.RentProductSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the RentProduct
-   */
-  omit?: Prisma.RentProductOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RentProductInclude<ExtArgs> | null
-  where?: Prisma.RentProductWhereInput
-  orderBy?: Prisma.RentProductOrderByWithRelationInput | Prisma.RentProductOrderByWithRelationInput[]
-  cursor?: Prisma.RentProductWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RentProductScalarFieldEnum | Prisma.RentProductScalarFieldEnum[]
-}
-
-/**
- * Stock.rentTransactions
- */
-export type Stock$rentTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the RentTransaction
-   */
-  select?: Prisma.RentTransactionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the RentTransaction
-   */
-  omit?: Prisma.RentTransactionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RentTransactionInclude<ExtArgs> | null
-  where?: Prisma.RentTransactionWhereInput
-  orderBy?: Prisma.RentTransactionOrderByWithRelationInput | Prisma.RentTransactionOrderByWithRelationInput[]
-  cursor?: Prisma.RentTransactionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RentTransactionScalarFieldEnum | Prisma.RentTransactionScalarFieldEnum[]
 }
 
 /**

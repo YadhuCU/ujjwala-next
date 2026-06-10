@@ -1,66 +1,276 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
+
 import bcrypt from "bcryptjs";
+
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/client";
+
 import { PERMISSIONS } from "@/lib/permissions";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+const prisma = new PrismaClient({
+  adapter,
+});
+
+// =========================================================
+// ROLE DEFINITIONS
+// =========================================================
+
+const ROLE_PERMISSIONS = {
+  OWNER: Object.values(PERMISSIONS),
+
+  OFFICE_STAFF: [
+    // Dashboard
+    PERMISSIONS.DASHBOARD_READ,
+
+    // Customer
+    PERMISSIONS.CUSTOMER_CREATE,
+    PERMISSIONS.CUSTOMER_READ,
+
+    // Vendor
+    PERMISSIONS.VENDOR_READ,
+
+    // Expense
+    PERMISSIONS.EXPENSE_CREATE,
+    PERMISSIONS.EXPENSE_READ,
+    PERMISSIONS.EXPENSE_READ_OWN,
+
+    // Commercial Sale
+    PERMISSIONS.COMMERCIAL_SALE_CREATE,
+    PERMISSIONS.COMMERCIAL_SALE_READ,
+    PERMISSIONS.COMMERCIAL_SALE_READ_OWN,
+
+    // Domestic Sale
+    PERMISSIONS.DOMESTIC_SALE_CREATE,
+    PERMISSIONS.DOMESTIC_SALE_READ,
+    PERMISSIONS.DOMESTIC_SALE_READ_OWN,
+
+    // Arb Sale
+    PERMISSIONS.ARB_SALE_CREATE,
+    PERMISSIONS.ARB_SALE_READ,
+    PERMISSIONS.ARB_SALE_READ_OWN,
+
+    // Product
+    PERMISSIONS.PRODUCT_READ,
+
+    // Stock
+    PERMISSIONS.STOCK_READ,
+
+    // Reports
+    PERMISSIONS.REPORT_READ,
+  ],
+
+  FIELD_STAFF: [
+    // Dashboard
+    PERMISSIONS.DASHBOARD_READ,
+
+    // Customer
+    PERMISSIONS.CUSTOMER_READ,
+
+    // Expense
+    PERMISSIONS.EXPENSE_CREATE,
+    PERMISSIONS.EXPENSE_READ,
+    PERMISSIONS.EXPENSE_READ_OWN,
+
+    // Sales
+    PERMISSIONS.COMMERCIAL_SALE_READ,
+    PERMISSIONS.COMMERCIAL_SALE_READ_OWN,
+
+    PERMISSIONS.DOMESTIC_SALE_READ,
+    PERMISSIONS.DOMESTIC_SALE_READ_OWN,
+
+    PERMISSIONS.ARB_SALE_READ,
+    PERMISSIONS.ARB_SALE_READ_OWN,
+
+    // Location
+    PERMISSIONS.LOCATION_READ,
+  ],
+} as const;
+
+// =========================================================
+// USERS
+// =========================================================
+
+const USERS = [
+  {
+    username: "owner",
+    password: "owner123",
+    name: "Owner User",
+    roles: ["OWNER"],
+  },
+
+  {
+    username: "office",
+    password: "office123",
+    name: "Office Staff",
+    roles: ["OFFICE_STAFF"],
+  },
+
+  {
+    username: "field",
+    password: "field123",
+    name: "Field Staff",
+    roles: ["FIELD_STAFF"],
+  },
+] as const;
+
+// =========================================================
+// MAIN
+// =========================================================
 
 async function main() {
-  const permissions = Object.values(PERMISSIONS)
+  console.log("🌱 Starting seed...");
 
-  // Creating permission table.
-  for (let permission of permissions) {
+  // =========================================================
+  // CREATE ALL PERMISSIONS
+  // =========================================================
+
+  const permissions = Object.values(PERMISSIONS);
+
+  for (const permission of permissions) {
     await prisma.permission.upsert({
-      where: { code: permission },
-      create: { code: permission },
-      update: {}
-    })
-  }
-
-  // Creating Role Table.
-  const adminRole = await prisma.role.upsert({
-    where: { name: "OWNER" },
-    create: { name: "OWNER" },
-    update: {}
-  })
-
-
-  const allPermissions = await prisma.permission.findMany()
-
-  for (let p of allPermissions) {
-    await prisma.rolePermission.upsert({
       where: {
-        roleId_permissionId: {
-          permissionId: p.id,
-          roleId: adminRole.id
-        }
+        code: permission,
       },
+
       create: {
-        permissionId: p.id,
-        roleId: adminRole.id
+        code: permission,
       },
-      update: {}
-    })
+
+      update: {},
+    });
   }
 
-  // Creating Admin User
-  const hashedPassword = await bcrypt.hash("admin", 10);
+  console.log("✅ Permissions synced");
 
-  const admin = await prisma.user.upsert({
-    where: { username: "admin" },
-    update: {},
-    create: {
-      username: "admin",
-      password: hashedPassword,
-      name: "Admin",
-      isActive: true,
-      roleId: adminRole.id
-    },
-  });
+  // =========================================================
+  // CREATE ROLES
+  // =========================================================
 
-  console.log("✅ Admin user created:", admin.username);
+  const rolesMap: Record<string, number> = {};
+
+  for (const roleName of Object.keys(ROLE_PERMISSIONS)) {
+    const role = await prisma.role.upsert({
+      where: {
+        name: roleName,
+      },
+
+      create: {
+        name: roleName,
+      },
+
+      update: {},
+    });
+
+    rolesMap[roleName] = role.id;
+  }
+
+  console.log("✅ Roles synced");
+
+  // =========================================================
+  // FETCH ALL DB PERMISSIONS
+  // =========================================================
+
+  const dbPermissions = await prisma.permission.findMany();
+
+  const permissionMap = new Map(
+    dbPermissions.map((p) => [p.code, p.id])
+  );
+
+  // =========================================================
+  // ASSIGN ROLE PERMISSIONS
+  // =========================================================
+
+  for (const [roleName, permissions] of Object.entries(
+    ROLE_PERMISSIONS
+  )) {
+    const roleId = rolesMap[roleName];
+
+    for (const permissionCode of permissions) {
+      const permissionId =
+        permissionMap.get(permissionCode);
+
+      if (!permissionId) {
+        continue;
+      }
+
+      await prisma.rolePermission.upsert({
+        where: {
+          roleId_permissionId: {
+            roleId,
+            permissionId,
+          },
+        },
+
+        create: {
+          roleId,
+          permissionId,
+        },
+
+        update: {},
+      });
+    }
+  }
+
+  console.log("✅ Role permissions synced");
+
+  // =========================================================
+  // CREATE USERS
+  // =========================================================
+
+  for (const user of USERS) {
+    const hashedPassword = await bcrypt.hash(
+      user.password,
+      10
+    );
+
+    const createdUser = await prisma.user.upsert({
+      where: {
+        username: user.username,
+      },
+
+      update: {
+        name: user.name,
+        isActive: true,
+      },
+
+      create: {
+        username: user.username,
+        password: hashedPassword,
+        name: user.name,
+        isActive: true,
+      },
+    });
+
+    // =====================================================
+    // ASSIGN USER ROLES
+    // =====================================================
+
+    for (const roleName of user.roles) {
+      await prisma.userRole.upsert({
+        where: {
+          roleId_userId: {
+            roleId: rolesMap[roleName],
+            userId: createdUser.id,
+          },
+        },
+
+        create: {
+          roleId: rolesMap[roleName],
+          userId: createdUser.id,
+        },
+
+        update: {},
+      });
+    }
+  }
+
+  console.log("✅ Users synced");
+
+  console.log("🎉 Seed completed");
 }
 
 main()
@@ -68,4 +278,6 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(() => prisma.$disconnect());
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

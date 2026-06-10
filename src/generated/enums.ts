@@ -10,8 +10,8 @@
 */
 
 export const PaymentType = {
-  cash: 'cash',
-  cheque: 'cheque'
+  CASH: 'CASH',
+  CHEQUE: 'CHEQUE'
 } as const
 
 export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]
@@ -19,17 +19,56 @@ export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]
 
 export const ProductType = {
   ARB: 'ARB',
-  Domestic: 'Domestic',
-  Commercial: 'Commercial',
-  Other: 'Other'
+  DOMESTIC: 'DOMESTIC',
+  COMMERCIAL: 'COMMERCIAL',
+  OTHER: 'OTHER'
 } as const
 
 export type ProductType = (typeof ProductType)[keyof typeof ProductType]
 
 
-export const SaleType = {
-  sale: 'sale',
-  rent: 'rent'
+export const TxnType = {
+  PURCHASE_FILL: 'PURCHASE_FILL',
+  PURCHASE_FULL: 'PURCHASE_FULL',
+  SALE_OUT: 'SALE_OUT',
+  RENT_DELIVERY: 'RENT_DELIVERY',
+  CYLINDER_RETURN: 'CYLINDER_RETURN',
+  ADJUSTMENT: 'ADJUSTMENT'
 } as const
 
-export type SaleType = (typeof SaleType)[keyof typeof SaleType]
+export type TxnType = (typeof TxnType)[keyof typeof TxnType]
+
+
+export const RefType = {
+  PURCHASE: 'PURCHASE',
+  INVOICE: 'INVOICE',
+  MANUAL: 'MANUAL'
+} as const
+
+export type RefType = (typeof RefType)[keyof typeof RefType]
+
+
+export const PurchaseType = {
+  FILL: 'FILL',
+  FULL: 'FULL'
+} as const
+
+export type PurchaseType = (typeof PurchaseType)[keyof typeof PurchaseType]
+
+
+export const CommercialSaleType = {
+  RENT: 'RENT',
+  SALE: 'SALE'
+} as const
+
+export type CommercialSaleType = (typeof CommercialSaleType)[keyof typeof CommercialSaleType]
+
+
+export const LedgerEntryType = {
+  SALE_CHARGE: 'SALE_CHARGE',
+  PAYMENT: 'PAYMENT',
+  ADJUSTMENT: 'ADJUSTMENT',
+  OPENING: 'OPENING'
+} as const
+
+export type LedgerEntryType = (typeof LedgerEntryType)[keyof typeof LedgerEntryType]

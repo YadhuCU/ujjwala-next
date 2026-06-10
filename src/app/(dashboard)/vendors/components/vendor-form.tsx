@@ -15,24 +15,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-export const vendorSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  phone: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  gstNumber: z.string().optional().or(z.literal("")),
-});
-
-export type VendorFormValues = z.infer<typeof vendorSchema>;
-
-// ─── Props ───────────────────────────────────────────────────────────────────
+import {
+  VendorCreateInput,
+  VendorCreateSchema,
+} from "@/module/vendor/vendor.schema";
 
 interface VendorFormProps {
-  defaultValues?: VendorFormValues;
+  defaultValues?: VendorCreateInput;
   isEditMode?: boolean;
-  onSubmit: (values: VendorFormValues) => void;
+  onSubmit: (values: VendorCreateInput) => void;
   isPending: boolean;
 }
 
@@ -44,14 +35,9 @@ export function VendorForm({
   onSubmit,
   isPending,
 }: VendorFormProps) {
-  const form = useForm<VendorFormValues>({
-    resolver: zodResolver(vendorSchema),
-    defaultValues: defaultValues ?? {
-      name: "",
-      phone: "",
-      address: "",
-      gstNumber: "",
-    },
+  const form = useForm<VendorCreateInput>({
+    resolver: zodResolver(VendorCreateSchema),
+    defaultValues: defaultValues ?? {},
   });
 
   return (

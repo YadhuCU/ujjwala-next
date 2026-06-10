@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { api, apiClient } from "@/lib/api-client";
@@ -6,14 +11,13 @@ import {
   stocksOptions,
   customersOptions,
   locationsOptions,
-  productsOptions,
   usersOptions,
   vendorsOptions,
   purchasesOptions,
   arbSalesOptions,
   commercialSalesOptions,
 } from "@/lib/query-options";
-import { ProductType } from "@prisma/client";
+import { ProductType } from "@/generated/enums";
 
 // ─── Custom Query Hooks (reused in ≥2 components) ───────────────────────────
 
@@ -22,15 +26,11 @@ export function useStocks(type?: ProductType) {
 }
 
 export function useCustomers() {
-  return useQuery(customersOptions);
+  return useSuspenseQuery(customersOptions);
 }
 
 export function useLocations() {
-  return useQuery(locationsOptions);
-}
-
-export function useProducts(type?: ProductType) {
-  return useQuery(productsOptions(type));
+  return useSuspenseQuery(locationsOptions);
 }
 
 export function useUsers() {
@@ -38,7 +38,7 @@ export function useUsers() {
 }
 
 export function useVendors() {
-  return useQuery(vendorsOptions);
+  return useSuspenseQuery(vendorsOptions);
 }
 
 export function usePurchases() {

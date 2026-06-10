@@ -1,31 +1,44 @@
-import axios from "axios";
-import { Prisma } from "@prisma/client";
-import type {
+import {
   Expense,
-  Location,
-  Product,
-  Account,
-  Vendor,
+  Prisma,
   ProductType,
-} from "@prisma/client";
+  Role,
+  User,
+  Vendor,
+} from "@/generated/client";
+import axios from "axios";
+import { ProductResponse } from "../module/product/product.serializer";
+import { ApiResponse } from "./response";
+import { VendorResponse } from "../module/vendor/vendor.serializer";
+import { CustomerResponse } from "@/module/customer/customer.serializer";
+import { LocationResponse } from "@/module/location/location.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
 
-export type SalePayload = Prisma.SaleGetPayload<{
+export type SalePayload = Prisma.CommercialSaleGetPayload<{
   include: { stock: true; customer: true; product: true };
 }>;
 
 export type DomSalePayload = Prisma.DomSaleGetPayload<{
-  include: { customer: true; items: { include: { stock: true; product: true } } };
+  include: {
+    customer: true;
+    items: { include: { stock: true; product: true } };
+  };
 }>;
 
 export type ArbSalePayload = Prisma.ArbSaleGetPayload<{
-  include: { customer: true; items: { include: { stock: true; product: true } } };
+  include: {
+    customer: true;
+    items: { include: { stock: true; product: true } };
+  };
 }>;
 
 export type CommercialSalePayload = Prisma.CommercialSaleGetPayload<{
-  include: { customer: true; items: { include: { stock: true; product: true } } };
+  include: {
+    customer: true;
+    items: { include: { stock: true; product: true } };
+  };
 }>;
 
 export type StockPayload = Prisma.StockGetPayload<{
@@ -40,7 +53,9 @@ export type PurchasePayload = Prisma.PurchaseGetPayload<{
   include: { vendor: true; items: { include: { product: true } } };
 }>;
 
-export type UserPayload = Omit<Account, "password">;
+export type UserPayload = Omit<User, "password"> & {
+  userRoles: { id: number; name: string }[];
+};
 
 // ─── Axios Client Instance ──────────────────────────────────────────────────
 // Single axios instance used across the app.
@@ -55,22 +70,55 @@ export const apiClient = axios.create({
 
 export const api = {
   // ─── List (GET all) ─────────────────────────────────────
-  getSales: () => apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
-  getDomSales: () => apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
-  getArbSales: () => apiClient.get<{ data: ArbSalePayload[], pagination: unknown }>("/api/arb-sales").then((r) => r.data.data),
-  getCommercialSales: () => apiClient.get<{ data: CommercialSalePayload[], pagination: unknown }>("/api/commercial-sales").then((r) => r.data.data),
-  getExpenses: () => apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
-  getCustomers: () => apiClient.get<CustomerPayload[]>("/api/customers").then((r) => r.data),
-  getStocks: (type?: ProductType) => apiClient.get<StockPayload[]>("/api/stock", { params: { type } }).then((r) => r.data),
-  getLocations: () => apiClient.get<Location[]>("/api/locations").then((r) => r.data),
-  getProducts: (type?: ProductType) => apiClient.get<Product[]>("/api/products", { params: { type } }).then((r) => r.data),
-  getUsers: () => apiClient.get<UserPayload[]>("/api/users").then((r) => r.data),
-  getVendors: () => apiClient.get<Vendor[]>("/api/vendors").then((r) => r.data),
-  getPurchases: () => apiClient.get<PurchasePayload[]>("/api/purchases").then((r) => r.data),
+  getSales: () =>
+    apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
+  getDomSales: () =>
+    apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
+  getArbSales: () =>
+    apiClient
+      .get<{ data: ArbSalePayload[]; pagination: unknown }>("/api/arb-sales")
+      .then((r) => r.data.data),
+  getCommercialSales: () =>
+    apiClient
+      .get<{
+        data: CommercialSalePayload[];
+        pagination: unknown;
+      }>("/api/commercial-sales")
+      .then((r) => r.data.data),
+  getExpenses: () =>
+    apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
+  getCustomers: () =>
+    apiClient
+      .get<ApiResponse<CustomerResponse[]>>("/api/customers")
+      .then((r) => r.data),
+  getStocks: (type?: ProductType) =>
+    apiClient
+      .get<StockPayload[]>("/api/stock", { params: { type } })
+      .then((r) => r.data),
+  getLocations: () =>
+    apiClient
+      .get<ApiResponse<LocationResponse[]>>("/api/locations")
+      .then((r) => r.data),
+  getProducts: (type?: ProductType) =>
+    apiClient
+      .get<
+        ApiResponse<ProductResponse[]>
+      >("/api/products", { params: { type } })
+      .then((r) => r.data),
+  getUsers: () =>
+    apiClient.get<ApiResponse<UserPayload[]>>("/api/users").then((r) => r.data),
+  getVendors: () =>
+    apiClient
+      .get<ApiResponse<VendorResponse[]>>("/api/vendors")
+      .then((r) => r.data),
+  getPurchases: () =>
+    apiClient.get<PurchasePayload[]>("/api/purchases").then((r) => r.data),
+  getRoles: () =>
+    apiClient.get<ApiResponse<Role[]>>("/api/roles").then((r) => r.data),
 
   // ─── Detail (GET by id) ─────────────────────────────────
   getById: <T>(resource: string, id: string) =>
-    apiClient.get<T>(`/api/${resource}/${id}`).then((r) => r.data),
+    apiClient.get<ApiResponse<T>>(`/api/${resource}/${id}`).then((r) => r.data),
 
   // ─── Custom GET endpoints ───────────────────────────────
   getCustomerTxn: (custId: string) =>
@@ -138,13 +186,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/sales/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -184,13 +233,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/expense/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `expense_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `expense_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -234,13 +284,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/arb-sale/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `arb_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `arb_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -284,13 +335,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/commercial-sale/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `commercial_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `commercial_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -334,13 +386,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/dom-sale/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `dom_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `dom_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -380,13 +433,14 @@ export const api = {
     if (params.vendorId) sp.set("vendorId", params.vendorId);
     const response = await apiClient.get(
       `/api/reports/purchase/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `purchase_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `purchase_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -422,13 +476,14 @@ export const api = {
     sp.set("format", params.format);
     const response = await apiClient.get(
       `/api/reports/sale-by-product/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `sale_by_product_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `sale_by_product_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -436,13 +491,6 @@ export const api = {
     a.click();
     URL.revokeObjectURL(url);
   },
-
-  // ─── Payment Methods ──────────────────────────────────────
-  recordDomSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
-    apiClient.post(`/api/dom-sales/${id}/payment`, payload).then(r => r.data),
-
-  recordArbSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
-    apiClient.post(`/api/arb-sales/${id}/payment`, payload).then(r => r.data),
 
   // ─── Mutations ──────────────────────────────────────────
   create: <T>(url: string, data: T) =>

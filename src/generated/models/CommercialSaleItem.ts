@@ -29,8 +29,8 @@ export type AggregateCommercialSaleItem = {
 export type CommercialSaleItemAvgAggregateOutputType = {
   id: number | null
   commercialSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
@@ -41,8 +41,8 @@ export type CommercialSaleItemAvgAggregateOutputType = {
 export type CommercialSaleItemSumAggregateOutputType = {
   id: number | null
   commercialSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
@@ -53,40 +53,46 @@ export type CommercialSaleItemSumAggregateOutputType = {
 export type CommercialSaleItemMinAggregateOutputType = {
   id: number | null
   commercialSaleId: number | null
-  stockId: number | null
   productId: number | null
-  saleType: $Enums.SaleType | null
+  stockId: number | null
+  saleType: $Enums.CommercialSaleType | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
   cylindersDispatched: number | null
   cylindersReturned: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommercialSaleItemMaxAggregateOutputType = {
   id: number | null
   commercialSaleId: number | null
-  stockId: number | null
   productId: number | null
-  saleType: $Enums.SaleType | null
+  stockId: number | null
+  saleType: $Enums.CommercialSaleType | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
   cylindersDispatched: number | null
   cylindersReturned: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CommercialSaleItemCountAggregateOutputType = {
   id: number
   commercialSaleId: number
-  stockId: number
   productId: number
+  stockId: number
   saleType: number
   quantity: number
   salePrice: number
   netTotal: number
   cylindersDispatched: number
   cylindersReturned: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -94,8 +100,8 @@ export type CommercialSaleItemCountAggregateOutputType = {
 export type CommercialSaleItemAvgAggregateInputType = {
   id?: true
   commercialSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
@@ -106,8 +112,8 @@ export type CommercialSaleItemAvgAggregateInputType = {
 export type CommercialSaleItemSumAggregateInputType = {
   id?: true
   commercialSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
@@ -118,40 +124,46 @@ export type CommercialSaleItemSumAggregateInputType = {
 export type CommercialSaleItemMinAggregateInputType = {
   id?: true
   commercialSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   saleType?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
   cylindersDispatched?: true
   cylindersReturned?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CommercialSaleItemMaxAggregateInputType = {
   id?: true
   commercialSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   saleType?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
   cylindersDispatched?: true
   cylindersReturned?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type CommercialSaleItemCountAggregateInputType = {
   id?: true
   commercialSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   saleType?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
   cylindersDispatched?: true
   cylindersReturned?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -244,14 +256,16 @@ export type CommercialSaleItemGroupByArgs<ExtArgs extends runtime.Types.Extensio
 export type CommercialSaleItemGroupByOutputType = {
   id: number
   commercialSaleId: number
-  stockId: number | null
   productId: number | null
-  saleType: $Enums.SaleType
+  stockId: number | null
+  saleType: $Enums.CommercialSaleType
   quantity: number
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
   cylindersDispatched: number
   cylindersReturned: number
+  createdAt: Date
+  updatedAt: Date
   _count: CommercialSaleItemCountAggregateOutputType | null
   _avg: CommercialSaleItemAvgAggregateOutputType | null
   _sum: CommercialSaleItemSumAggregateOutputType | null
@@ -280,35 +294,37 @@ export type CommercialSaleItemWhereInput = {
   NOT?: Prisma.CommercialSaleItemWhereInput | Prisma.CommercialSaleItemWhereInput[]
   id?: Prisma.IntFilter<"CommercialSaleItem"> | number
   commercialSaleId?: Prisma.IntFilter<"CommercialSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
-  saleType?: Prisma.EnumSaleTypeFilter<"CommercialSaleItem"> | $Enums.SaleType
+  stockId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeFilter<"CommercialSaleItem"> | $Enums.CommercialSaleType
   quantity?: Prisma.IntFilter<"CommercialSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFilter<"CommercialSaleItem"> | number
   cylindersReturned?: Prisma.IntFilter<"CommercialSaleItem"> | number
+  createdAt?: Prisma.DateTimeFilter<"CommercialSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommercialSaleItem"> | Date | string
   commercialSale?: Prisma.XOR<Prisma.CommercialSaleScalarRelationFilter, Prisma.CommercialSaleWhereInput>
-  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
-  rentTransactions?: Prisma.RentTransactionListRelationFilter
+  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
 }
 
 export type CommercialSaleItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   commercialSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   saleType?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
   cylindersDispatched?: Prisma.SortOrder
   cylindersReturned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   commercialSale?: Prisma.CommercialSaleOrderByWithRelationInput
-  stock?: Prisma.StockOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
-  rentTransactions?: Prisma.RentTransactionOrderByRelationAggregateInput
+  stock?: Prisma.StockOrderByWithRelationInput
 }
 
 export type CommercialSaleItemWhereUniqueInput = Prisma.AtLeast<{
@@ -317,31 +333,34 @@ export type CommercialSaleItemWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CommercialSaleItemWhereInput[]
   NOT?: Prisma.CommercialSaleItemWhereInput | Prisma.CommercialSaleItemWhereInput[]
   commercialSaleId?: Prisma.IntFilter<"CommercialSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
-  saleType?: Prisma.EnumSaleTypeFilter<"CommercialSaleItem"> | $Enums.SaleType
+  stockId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeFilter<"CommercialSaleItem"> | $Enums.CommercialSaleType
   quantity?: Prisma.IntFilter<"CommercialSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFilter<"CommercialSaleItem"> | number
   cylindersReturned?: Prisma.IntFilter<"CommercialSaleItem"> | number
+  createdAt?: Prisma.DateTimeFilter<"CommercialSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommercialSaleItem"> | Date | string
   commercialSale?: Prisma.XOR<Prisma.CommercialSaleScalarRelationFilter, Prisma.CommercialSaleWhereInput>
-  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
-  rentTransactions?: Prisma.RentTransactionListRelationFilter
+  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
 }, "id">
 
 export type CommercialSaleItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   commercialSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   saleType?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
   cylindersDispatched?: Prisma.SortOrder
   cylindersReturned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CommercialSaleItemCountOrderByAggregateInput
   _avg?: Prisma.CommercialSaleItemAvgOrderByAggregateInput
   _max?: Prisma.CommercialSaleItemMaxOrderByAggregateInput
@@ -355,103 +374,115 @@ export type CommercialSaleItemScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CommercialSaleItemScalarWhereWithAggregatesInput | Prisma.CommercialSaleItemScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"CommercialSaleItem"> | number
   commercialSaleId?: Prisma.IntWithAggregatesFilter<"CommercialSaleItem"> | number
-  stockId?: Prisma.IntNullableWithAggregatesFilter<"CommercialSaleItem"> | number | null
   productId?: Prisma.IntNullableWithAggregatesFilter<"CommercialSaleItem"> | number | null
-  saleType?: Prisma.EnumSaleTypeWithAggregatesFilter<"CommercialSaleItem"> | $Enums.SaleType
+  stockId?: Prisma.IntNullableWithAggregatesFilter<"CommercialSaleItem"> | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeWithAggregatesFilter<"CommercialSaleItem"> | $Enums.CommercialSaleType
   quantity?: Prisma.IntWithAggregatesFilter<"CommercialSaleItem"> | number
   salePrice?: Prisma.DecimalNullableWithAggregatesFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableWithAggregatesFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntWithAggregatesFilter<"CommercialSaleItem"> | number
   cylindersReturned?: Prisma.IntWithAggregatesFilter<"CommercialSaleItem"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"CommercialSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CommercialSaleItem"> | Date | string
 }
 
 export type CommercialSaleItemCreateInput = {
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   commercialSale: Prisma.CommercialSaleCreateNestedOneWithoutItemsInput
-  stock?: Prisma.StockCreateNestedOneWithoutCommercialSaleItemsInput
   product?: Prisma.ProductCreateNestedOneWithoutCommercialSaleItemsInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCommercialSaleItemInput
+  stock?: Prisma.StockCreateNestedOneWithoutCommercialSaleItemsInput
 }
 
 export type CommercialSaleItemUncheckedCreateInput = {
   id?: number
   commercialSaleId: number
-  stockId?: number | null
   productId?: number | null
-  saleType?: $Enums.SaleType
+  stockId?: number | null
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCommercialSaleItemInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemUpdateInput = {
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commercialSale?: Prisma.CommercialSaleUpdateOneRequiredWithoutItemsNestedInput
-  stock?: Prisma.StockUpdateOneWithoutCommercialSaleItemsNestedInput
   product?: Prisma.ProductUpdateOneWithoutCommercialSaleItemsNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCommercialSaleItemNestedInput
+  stock?: Prisma.StockUpdateOneWithoutCommercialSaleItemsNestedInput
 }
 
 export type CommercialSaleItemUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   commercialSaleId?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCommercialSaleItemNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemCreateManyInput = {
   id?: number
   commercialSaleId: number
-  stockId?: number | null
   productId?: number | null
-  saleType?: $Enums.SaleType
+  stockId?: number | null
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemUpdateManyMutationInput = {
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   commercialSaleId?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemListRelationFilter = {
@@ -464,29 +495,26 @@ export type CommercialSaleItemOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CommercialSaleItemNullableScalarRelationFilter = {
-  is?: Prisma.CommercialSaleItemWhereInput | null
-  isNot?: Prisma.CommercialSaleItemWhereInput | null
-}
-
 export type CommercialSaleItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   commercialSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   saleType?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   cylindersDispatched?: Prisma.SortOrder
   cylindersReturned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommercialSaleItemAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   commercialSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
@@ -497,34 +525,38 @@ export type CommercialSaleItemAvgOrderByAggregateInput = {
 export type CommercialSaleItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   commercialSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   saleType?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   cylindersDispatched?: Prisma.SortOrder
   cylindersReturned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommercialSaleItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   commercialSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   saleType?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
   cylindersDispatched?: Prisma.SortOrder
   cylindersReturned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CommercialSaleItemSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   commercialSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
@@ -616,22 +648,6 @@ export type CommercialSaleItemUncheckedUpdateManyWithoutStockNestedInput = {
   deleteMany?: Prisma.CommercialSaleItemScalarWhereInput | Prisma.CommercialSaleItemScalarWhereInput[]
 }
 
-export type CommercialSaleItemCreateNestedOneWithoutRentTransactionsInput = {
-  create?: Prisma.XOR<Prisma.CommercialSaleItemCreateWithoutRentTransactionsInput, Prisma.CommercialSaleItemUncheckedCreateWithoutRentTransactionsInput>
-  connectOrCreate?: Prisma.CommercialSaleItemCreateOrConnectWithoutRentTransactionsInput
-  connect?: Prisma.CommercialSaleItemWhereUniqueInput
-}
-
-export type CommercialSaleItemUpdateOneWithoutRentTransactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.CommercialSaleItemCreateWithoutRentTransactionsInput, Prisma.CommercialSaleItemUncheckedCreateWithoutRentTransactionsInput>
-  connectOrCreate?: Prisma.CommercialSaleItemCreateOrConnectWithoutRentTransactionsInput
-  upsert?: Prisma.CommercialSaleItemUpsertWithoutRentTransactionsInput
-  disconnect?: Prisma.CommercialSaleItemWhereInput | boolean
-  delete?: Prisma.CommercialSaleItemWhereInput | boolean
-  connect?: Prisma.CommercialSaleItemWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CommercialSaleItemUpdateToOneWithWhereWithoutRentTransactionsInput, Prisma.CommercialSaleItemUpdateWithoutRentTransactionsInput>, Prisma.CommercialSaleItemUncheckedUpdateWithoutRentTransactionsInput>
-}
-
 export type CommercialSaleItemCreateNestedManyWithoutCommercialSaleInput = {
   create?: Prisma.XOR<Prisma.CommercialSaleItemCreateWithoutCommercialSaleInput, Prisma.CommercialSaleItemUncheckedCreateWithoutCommercialSaleInput> | Prisma.CommercialSaleItemCreateWithoutCommercialSaleInput[] | Prisma.CommercialSaleItemUncheckedCreateWithoutCommercialSaleInput[]
   connectOrCreate?: Prisma.CommercialSaleItemCreateOrConnectWithoutCommercialSaleInput | Prisma.CommercialSaleItemCreateOrConnectWithoutCommercialSaleInput[]
@@ -674,29 +690,35 @@ export type CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleNestedInpu
   deleteMany?: Prisma.CommercialSaleItemScalarWhereInput | Prisma.CommercialSaleItemScalarWhereInput[]
 }
 
+export type EnumCommercialSaleTypeFieldUpdateOperationsInput = {
+  set?: $Enums.CommercialSaleType
+}
+
 export type CommercialSaleItemCreateWithoutProductInput = {
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   commercialSale: Prisma.CommercialSaleCreateNestedOneWithoutItemsInput
   stock?: Prisma.StockCreateNestedOneWithoutCommercialSaleItemsInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCommercialSaleItemInput
 }
 
 export type CommercialSaleItemUncheckedCreateWithoutProductInput = {
   id?: number
   commercialSaleId: number
   stockId?: number | null
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCommercialSaleItemInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemCreateOrConnectWithoutProductInput = {
@@ -731,39 +753,43 @@ export type CommercialSaleItemScalarWhereInput = {
   NOT?: Prisma.CommercialSaleItemScalarWhereInput | Prisma.CommercialSaleItemScalarWhereInput[]
   id?: Prisma.IntFilter<"CommercialSaleItem"> | number
   commercialSaleId?: Prisma.IntFilter<"CommercialSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
-  saleType?: Prisma.EnumSaleTypeFilter<"CommercialSaleItem"> | $Enums.SaleType
+  stockId?: Prisma.IntNullableFilter<"CommercialSaleItem"> | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeFilter<"CommercialSaleItem"> | $Enums.CommercialSaleType
   quantity?: Prisma.IntFilter<"CommercialSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"CommercialSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFilter<"CommercialSaleItem"> | number
   cylindersReturned?: Prisma.IntFilter<"CommercialSaleItem"> | number
+  createdAt?: Prisma.DateTimeFilter<"CommercialSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommercialSaleItem"> | Date | string
 }
 
 export type CommercialSaleItemCreateWithoutStockInput = {
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
   commercialSale: Prisma.CommercialSaleCreateNestedOneWithoutItemsInput
   product?: Prisma.ProductCreateNestedOneWithoutCommercialSaleItemsInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCommercialSaleItemInput
 }
 
 export type CommercialSaleItemUncheckedCreateWithoutStockInput = {
   id?: number
   commercialSaleId: number
   productId?: number | null
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCommercialSaleItemInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemCreateOrConnectWithoutStockInput = {
@@ -792,95 +818,31 @@ export type CommercialSaleItemUpdateManyWithWhereWithoutStockInput = {
   data: Prisma.XOR<Prisma.CommercialSaleItemUpdateManyMutationInput, Prisma.CommercialSaleItemUncheckedUpdateManyWithoutStockInput>
 }
 
-export type CommercialSaleItemCreateWithoutRentTransactionsInput = {
-  saleType?: $Enums.SaleType
-  quantity?: number
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  cylindersDispatched?: number
-  cylindersReturned?: number
-  commercialSale: Prisma.CommercialSaleCreateNestedOneWithoutItemsInput
-  stock?: Prisma.StockCreateNestedOneWithoutCommercialSaleItemsInput
-  product?: Prisma.ProductCreateNestedOneWithoutCommercialSaleItemsInput
-}
-
-export type CommercialSaleItemUncheckedCreateWithoutRentTransactionsInput = {
-  id?: number
-  commercialSaleId: number
-  stockId?: number | null
-  productId?: number | null
-  saleType?: $Enums.SaleType
-  quantity?: number
-  salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  cylindersDispatched?: number
-  cylindersReturned?: number
-}
-
-export type CommercialSaleItemCreateOrConnectWithoutRentTransactionsInput = {
-  where: Prisma.CommercialSaleItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.CommercialSaleItemCreateWithoutRentTransactionsInput, Prisma.CommercialSaleItemUncheckedCreateWithoutRentTransactionsInput>
-}
-
-export type CommercialSaleItemUpsertWithoutRentTransactionsInput = {
-  update: Prisma.XOR<Prisma.CommercialSaleItemUpdateWithoutRentTransactionsInput, Prisma.CommercialSaleItemUncheckedUpdateWithoutRentTransactionsInput>
-  create: Prisma.XOR<Prisma.CommercialSaleItemCreateWithoutRentTransactionsInput, Prisma.CommercialSaleItemUncheckedCreateWithoutRentTransactionsInput>
-  where?: Prisma.CommercialSaleItemWhereInput
-}
-
-export type CommercialSaleItemUpdateToOneWithWhereWithoutRentTransactionsInput = {
-  where?: Prisma.CommercialSaleItemWhereInput
-  data: Prisma.XOR<Prisma.CommercialSaleItemUpdateWithoutRentTransactionsInput, Prisma.CommercialSaleItemUncheckedUpdateWithoutRentTransactionsInput>
-}
-
-export type CommercialSaleItemUpdateWithoutRentTransactionsInput = {
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
-  cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
-  commercialSale?: Prisma.CommercialSaleUpdateOneRequiredWithoutItemsNestedInput
-  stock?: Prisma.StockUpdateOneWithoutCommercialSaleItemsNestedInput
-  product?: Prisma.ProductUpdateOneWithoutCommercialSaleItemsNestedInput
-}
-
-export type CommercialSaleItemUncheckedUpdateWithoutRentTransactionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  commercialSaleId?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
-  cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
-}
-
 export type CommercialSaleItemCreateWithoutCommercialSaleInput = {
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
-  stock?: Prisma.StockCreateNestedOneWithoutCommercialSaleItemsInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
   product?: Prisma.ProductCreateNestedOneWithoutCommercialSaleItemsInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCommercialSaleItemInput
+  stock?: Prisma.StockCreateNestedOneWithoutCommercialSaleItemsInput
 }
 
 export type CommercialSaleItemUncheckedCreateWithoutCommercialSaleInput = {
   id?: number
-  stockId?: number | null
   productId?: number | null
-  saleType?: $Enums.SaleType
+  stockId?: number | null
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCommercialSaleItemInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemCreateOrConnectWithoutCommercialSaleInput = {
@@ -913,281 +875,281 @@ export type CommercialSaleItemCreateManyProductInput = {
   id?: number
   commercialSaleId: number
   stockId?: number | null
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemUpdateWithoutProductInput = {
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commercialSale?: Prisma.CommercialSaleUpdateOneRequiredWithoutItemsNestedInput
   stock?: Prisma.StockUpdateOneWithoutCommercialSaleItemsNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCommercialSaleItemNestedInput
 }
 
 export type CommercialSaleItemUncheckedUpdateWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   commercialSaleId?: Prisma.IntFieldUpdateOperationsInput | number
   stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCommercialSaleItemNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   commercialSaleId?: Prisma.IntFieldUpdateOperationsInput | number
   stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemCreateManyStockInput = {
   id?: number
   commercialSaleId: number
   productId?: number | null
-  saleType?: $Enums.SaleType
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemUpdateWithoutStockInput = {
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commercialSale?: Prisma.CommercialSaleUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneWithoutCommercialSaleItemsNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCommercialSaleItemNestedInput
 }
 
 export type CommercialSaleItemUncheckedUpdateWithoutStockInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   commercialSaleId?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCommercialSaleItemNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemUncheckedUpdateManyWithoutStockInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   commercialSaleId?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemCreateManyCommercialSaleInput = {
   id?: number
-  stockId?: number | null
   productId?: number | null
-  saleType?: $Enums.SaleType
+  stockId?: number | null
+  saleType: $Enums.CommercialSaleType
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: number
   cylindersReturned?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CommercialSaleItemUpdateWithoutCommercialSaleInput = {
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
-  stock?: Prisma.StockUpdateOneWithoutCommercialSaleItemsNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneWithoutCommercialSaleItemsNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCommercialSaleItemNestedInput
+  stock?: Prisma.StockUpdateOneWithoutCommercialSaleItemsNestedInput
 }
 
 export type CommercialSaleItemUncheckedUpdateWithoutCommercialSaleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCommercialSaleItemNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  saleType?: Prisma.EnumSaleTypeFieldUpdateOperationsInput | $Enums.SaleType
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
   cylindersReturned?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-
-/**
- * Count Type CommercialSaleItemCountOutputType
- */
-
-export type CommercialSaleItemCountOutputType = {
-  rentTransactions: number
-}
-
-export type CommercialSaleItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  rentTransactions?: boolean | CommercialSaleItemCountOutputTypeCountRentTransactionsArgs
-}
-
-/**
- * CommercialSaleItemCountOutputType without action
- */
-export type CommercialSaleItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the CommercialSaleItemCountOutputType
-   */
-  select?: Prisma.CommercialSaleItemCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * CommercialSaleItemCountOutputType without action
- */
-export type CommercialSaleItemCountOutputTypeCountRentTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RentTransactionWhereInput
-}
 
 
 export type CommercialSaleItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   commercialSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   saleType?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
   cylindersDispatched?: boolean
   cylindersReturned?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   commercialSale?: boolean | Prisma.CommercialSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.CommercialSaleItem$productArgs<ExtArgs>
-  rentTransactions?: boolean | Prisma.CommercialSaleItem$rentTransactionsArgs<ExtArgs>
-  _count?: boolean | Prisma.CommercialSaleItemCountOutputTypeDefaultArgs<ExtArgs>
+  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["commercialSaleItem"]>
 
 export type CommercialSaleItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   commercialSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   saleType?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
   cylindersDispatched?: boolean
   cylindersReturned?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   commercialSale?: boolean | Prisma.CommercialSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.CommercialSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["commercialSaleItem"]>
 
 export type CommercialSaleItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   commercialSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   saleType?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
   cylindersDispatched?: boolean
   cylindersReturned?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   commercialSale?: boolean | Prisma.CommercialSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.CommercialSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["commercialSaleItem"]>
 
 export type CommercialSaleItemSelectScalar = {
   id?: boolean
   commercialSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   saleType?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
   cylindersDispatched?: boolean
   cylindersReturned?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CommercialSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "commercialSaleId" | "stockId" | "productId" | "saleType" | "quantity" | "salePrice" | "netTotal" | "cylindersDispatched" | "cylindersReturned", ExtArgs["result"]["commercialSaleItem"]>
+export type CommercialSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "commercialSaleId" | "productId" | "stockId" | "saleType" | "quantity" | "salePrice" | "netTotal" | "cylindersDispatched" | "cylindersReturned" | "createdAt" | "updatedAt", ExtArgs["result"]["commercialSaleItem"]>
 export type CommercialSaleItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commercialSale?: boolean | Prisma.CommercialSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.CommercialSaleItem$productArgs<ExtArgs>
-  rentTransactions?: boolean | Prisma.CommercialSaleItem$rentTransactionsArgs<ExtArgs>
-  _count?: boolean | Prisma.CommercialSaleItemCountOutputTypeDefaultArgs<ExtArgs>
+  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
 }
 export type CommercialSaleItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commercialSale?: boolean | Prisma.CommercialSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.CommercialSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
 }
 export type CommercialSaleItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commercialSale?: boolean | Prisma.CommercialSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.CommercialSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.CommercialSaleItem$stockArgs<ExtArgs>
 }
 
 export type $CommercialSaleItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CommercialSaleItem"
   objects: {
     commercialSale: Prisma.$CommercialSalePayload<ExtArgs>
-    stock: Prisma.$StockPayload<ExtArgs> | null
     product: Prisma.$ProductPayload<ExtArgs> | null
-    rentTransactions: Prisma.$RentTransactionPayload<ExtArgs>[]
+    stock: Prisma.$StockPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     commercialSaleId: number
-    stockId: number | null
     productId: number | null
-    saleType: $Enums.SaleType
+    stockId: number | null
+    saleType: $Enums.CommercialSaleType
     quantity: number
     salePrice: runtime.Decimal | null
     netTotal: runtime.Decimal | null
+    /**
+     * For RENT lines: how many cylinders left the godown on this invoice.
+     */
     cylindersDispatched: number
+    /**
+     * For RENT lines: how many cylinders were returned by the customer (may be updated later).
+     */
     cylindersReturned: number
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["commercialSaleItem"]>
   composites: {}
 }
@@ -1583,9 +1545,8 @@ readonly fields: CommercialSaleItemFieldRefs;
 export interface Prisma__CommercialSaleItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   commercialSale<T extends Prisma.CommercialSaleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSaleDefaultArgs<ExtArgs>>): Prisma.Prisma__CommercialSaleClient<runtime.Types.Result.GetResult<Prisma.$CommercialSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  stock<T extends Prisma.CommercialSaleItem$stockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSaleItem$stockArgs<ExtArgs>>): Prisma.Prisma__StockClient<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   product<T extends Prisma.CommercialSaleItem$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSaleItem$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  rentTransactions<T extends Prisma.CommercialSaleItem$rentTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSaleItem$rentTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RentTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stock<T extends Prisma.CommercialSaleItem$stockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSaleItem$stockArgs<ExtArgs>>): Prisma.Prisma__StockClient<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1617,14 +1578,16 @@ export interface Prisma__CommercialSaleItemClient<T, Null = never, ExtArgs exten
 export interface CommercialSaleItemFieldRefs {
   readonly id: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
   readonly commercialSaleId: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
-  readonly stockId: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
   readonly productId: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
-  readonly saleType: Prisma.FieldRef<"CommercialSaleItem", 'SaleType'>
+  readonly stockId: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
+  readonly saleType: Prisma.FieldRef<"CommercialSaleItem", 'CommercialSaleType'>
   readonly quantity: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
   readonly salePrice: Prisma.FieldRef<"CommercialSaleItem", 'Decimal'>
   readonly netTotal: Prisma.FieldRef<"CommercialSaleItem", 'Decimal'>
   readonly cylindersDispatched: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
   readonly cylindersReturned: Prisma.FieldRef<"CommercialSaleItem", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"CommercialSaleItem", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"CommercialSaleItem", 'DateTime'>
 }
     
 
@@ -2026,25 +1989,6 @@ export type CommercialSaleItemDeleteManyArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
- * CommercialSaleItem.stock
- */
-export type CommercialSaleItem$stockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Stock
-   */
-  select?: Prisma.StockSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Stock
-   */
-  omit?: Prisma.StockOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.StockInclude<ExtArgs> | null
-  where?: Prisma.StockWhereInput
-}
-
-/**
  * CommercialSaleItem.product
  */
 export type CommercialSaleItem$productArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2064,27 +2008,22 @@ export type CommercialSaleItem$productArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
- * CommercialSaleItem.rentTransactions
+ * CommercialSaleItem.stock
  */
-export type CommercialSaleItem$rentTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type CommercialSaleItem$stockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the RentTransaction
+   * Select specific fields to fetch from the Stock
    */
-  select?: Prisma.RentTransactionSelect<ExtArgs> | null
+  select?: Prisma.StockSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the RentTransaction
+   * Omit specific fields from the Stock
    */
-  omit?: Prisma.RentTransactionOmit<ExtArgs> | null
+  omit?: Prisma.StockOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.RentTransactionInclude<ExtArgs> | null
-  where?: Prisma.RentTransactionWhereInput
-  orderBy?: Prisma.RentTransactionOrderByWithRelationInput | Prisma.RentTransactionOrderByWithRelationInput[]
-  cursor?: Prisma.RentTransactionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RentTransactionScalarFieldEnum | Prisma.RentTransactionScalarFieldEnum[]
+  include?: Prisma.StockInclude<ExtArgs> | null
+  where?: Prisma.StockWhereInput
 }
 
 /**

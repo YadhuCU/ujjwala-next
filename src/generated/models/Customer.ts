@@ -30,7 +30,6 @@ export type CustomerAvgAggregateOutputType = {
   id: number | null
   locationId: number | null
   discount: number | null
-  initialCylinderBalance: number | null
   initialPendingAmount: runtime.Decimal | null
 }
 
@@ -38,7 +37,6 @@ export type CustomerSumAggregateOutputType = {
   id: number | null
   locationId: number | null
   discount: number | null
-  initialCylinderBalance: number | null
   initialPendingAmount: runtime.Decimal | null
 }
 
@@ -52,10 +50,10 @@ export type CustomerMinAggregateOutputType = {
   concernedPersonMobile: string | null
   discount: number | null
   gstNumber: string | null
-  initialCylinderBalance: number | null
   initialPendingAmount: runtime.Decimal | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerMaxAggregateOutputType = {
@@ -68,10 +66,10 @@ export type CustomerMaxAggregateOutputType = {
   concernedPersonMobile: string | null
   discount: number | null
   gstNumber: string | null
-  initialCylinderBalance: number | null
   initialPendingAmount: runtime.Decimal | null
   isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type CustomerCountAggregateOutputType = {
@@ -84,10 +82,10 @@ export type CustomerCountAggregateOutputType = {
   concernedPersonMobile: number
   discount: number
   gstNumber: number
-  initialCylinderBalance: number
   initialPendingAmount: number
   isDeleted: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -96,7 +94,6 @@ export type CustomerAvgAggregateInputType = {
   id?: true
   locationId?: true
   discount?: true
-  initialCylinderBalance?: true
   initialPendingAmount?: true
 }
 
@@ -104,7 +101,6 @@ export type CustomerSumAggregateInputType = {
   id?: true
   locationId?: true
   discount?: true
-  initialCylinderBalance?: true
   initialPendingAmount?: true
 }
 
@@ -118,10 +114,10 @@ export type CustomerMinAggregateInputType = {
   concernedPersonMobile?: true
   discount?: true
   gstNumber?: true
-  initialCylinderBalance?: true
   initialPendingAmount?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerMaxAggregateInputType = {
@@ -134,10 +130,10 @@ export type CustomerMaxAggregateInputType = {
   concernedPersonMobile?: true
   discount?: true
   gstNumber?: true
-  initialCylinderBalance?: true
   initialPendingAmount?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type CustomerCountAggregateInputType = {
@@ -150,10 +146,10 @@ export type CustomerCountAggregateInputType = {
   concernedPersonMobile?: true
   discount?: true
   gstNumber?: true
-  initialCylinderBalance?: true
   initialPendingAmount?: true
   isDeleted?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -245,7 +241,7 @@ export type CustomerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type CustomerGroupByOutputType = {
   id: number
-  name: string | null
+  name: string
   address: string | null
   phone: string | null
   locationId: number | null
@@ -253,10 +249,10 @@ export type CustomerGroupByOutputType = {
   concernedPersonMobile: string | null
   discount: number | null
   gstNumber: string | null
-  initialCylinderBalance: number
   initialPendingAmount: runtime.Decimal
   isDeleted: boolean
   createdAt: Date
+  updatedAt: Date
   _count: CustomerCountAggregateOutputType | null
   _avg: CustomerAvgAggregateOutputType | null
   _sum: CustomerSumAggregateOutputType | null
@@ -284,7 +280,7 @@ export type CustomerWhereInput = {
   OR?: Prisma.CustomerWhereInput[]
   NOT?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
   id?: Prisma.IntFilter<"Customer"> | number
-  name?: Prisma.StringNullableFilter<"Customer"> | string | null
+  name?: Prisma.StringFilter<"Customer"> | string
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
   phone?: Prisma.StringNullableFilter<"Customer"> | string | null
   locationId?: Prisma.IntNullableFilter<"Customer"> | number | null
@@ -292,24 +288,23 @@ export type CustomerWhereInput = {
   concernedPersonMobile?: Prisma.StringNullableFilter<"Customer"> | string | null
   discount?: Prisma.IntNullableFilter<"Customer"> | number | null
   gstNumber?: Prisma.StringNullableFilter<"Customer"> | string | null
-  initialCylinderBalance?: Prisma.IntFilter<"Customer"> | number
   initialPendingAmount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
-  sales?: Prisma.SaleListRelationFilter
-  collections?: Prisma.CollectionListRelationFilter
-  rentProducts?: Prisma.RentProductListRelationFilter
-  rentTransactions?: Prisma.RentTransactionListRelationFilter
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
   arbSales?: Prisma.ArbSaleListRelationFilter
   domSales?: Prisma.DomSaleListRelationFilter
   commercialSales?: Prisma.CommercialSaleListRelationFilter
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
+  customerBalance?: Prisma.XOR<Prisma.CustomerBalanceNullableScalarRelationFilter, Prisma.CustomerBalanceWhereInput> | null
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerListRelationFilter
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerListRelationFilter
 }
 
 export type CustomerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   locationId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -317,19 +312,18 @@ export type CustomerOrderByWithRelationInput = {
   concernedPersonMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   discount?: Prisma.SortOrderInput | Prisma.SortOrder
   gstNumber?: Prisma.SortOrderInput | Prisma.SortOrder
-  initialCylinderBalance?: Prisma.SortOrder
   initialPendingAmount?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   location?: Prisma.LocationOrderByWithRelationInput
-  sales?: Prisma.SaleOrderByRelationAggregateInput
-  collections?: Prisma.CollectionOrderByRelationAggregateInput
-  rentProducts?: Prisma.RentProductOrderByRelationAggregateInput
-  rentTransactions?: Prisma.RentTransactionOrderByRelationAggregateInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceOrderByRelationAggregateInput
   arbSales?: Prisma.ArbSaleOrderByRelationAggregateInput
   domSales?: Prisma.DomSaleOrderByRelationAggregateInput
   commercialSales?: Prisma.CommercialSaleOrderByRelationAggregateInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceOrderByRelationAggregateInput
+  customerBalance?: Prisma.CustomerBalanceOrderByWithRelationInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerOrderByRelationAggregateInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerOrderByRelationAggregateInput
 }
 
 export type CustomerWhereUniqueInput = Prisma.AtLeast<{
@@ -345,24 +339,23 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   concernedPersonMobile?: Prisma.StringNullableFilter<"Customer"> | string | null
   discount?: Prisma.IntNullableFilter<"Customer"> | number | null
   gstNumber?: Prisma.StringNullableFilter<"Customer"> | string | null
-  initialCylinderBalance?: Prisma.IntFilter<"Customer"> | number
   initialPendingAmount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
-  sales?: Prisma.SaleListRelationFilter
-  collections?: Prisma.CollectionListRelationFilter
-  rentProducts?: Prisma.RentProductListRelationFilter
-  rentTransactions?: Prisma.RentTransactionListRelationFilter
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
   arbSales?: Prisma.ArbSaleListRelationFilter
   domSales?: Prisma.DomSaleListRelationFilter
   commercialSales?: Prisma.CommercialSaleListRelationFilter
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceListRelationFilter
+  customerBalance?: Prisma.XOR<Prisma.CustomerBalanceNullableScalarRelationFilter, Prisma.CustomerBalanceWhereInput> | null
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerListRelationFilter
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerListRelationFilter
 }, "id" | "name">
 
 export type CustomerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   locationId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -370,10 +363,10 @@ export type CustomerOrderByWithAggregationInput = {
   concernedPersonMobile?: Prisma.SortOrderInput | Prisma.SortOrder
   discount?: Prisma.SortOrderInput | Prisma.SortOrder
   gstNumber?: Prisma.SortOrderInput | Prisma.SortOrder
-  initialCylinderBalance?: Prisma.SortOrder
   initialPendingAmount?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerCountOrderByAggregateInput
   _avg?: Prisma.CustomerAvgOrderByAggregateInput
   _max?: Prisma.CustomerMaxOrderByAggregateInput
@@ -386,7 +379,7 @@ export type CustomerScalarWhereWithAggregatesInput = {
   OR?: Prisma.CustomerScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CustomerScalarWhereWithAggregatesInput | Prisma.CustomerScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Customer"> | number
-  name?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
+  name?: Prisma.StringWithAggregatesFilter<"Customer"> | string
   address?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   locationId?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
@@ -394,38 +387,37 @@ export type CustomerScalarWhereWithAggregatesInput = {
   concernedPersonMobile?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   discount?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
   gstNumber?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
-  initialCylinderBalance?: Prisma.IntWithAggregatesFilter<"Customer"> | number
   initialPendingAmount?: Prisma.DecimalWithAggregatesFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Customer"> | Date | string
 }
 
 export type CustomerCreateInput = {
-  name?: string | null
+  name: string
   address?: string | null
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
   arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
   domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
   commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateInput = {
   id?: number
-  name?: string | null
+  name: string
   address?: string | null
   phone?: string | null
   locationId?: number | null
@@ -433,46 +425,44 @@ export type CustomerUncheckedCreateInput = {
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
   arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
   domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
   commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUpdateInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
   arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
   domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
   commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -480,23 +470,22 @@ export type CustomerUncheckedUpdateInput = {
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
   arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
   domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
   commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerCreateManyInput = {
   id?: number
-  name?: string | null
+  name: string
   address?: string | null
   phone?: string | null
   locationId?: number | null
@@ -504,29 +493,29 @@ export type CustomerCreateManyInput = {
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CustomerUpdateManyMutationInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -534,10 +523,10 @@ export type CustomerUncheckedUpdateManyInput = {
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerListRelationFilter = {
@@ -560,17 +549,16 @@ export type CustomerCountOrderByAggregateInput = {
   concernedPersonMobile?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   gstNumber?: Prisma.SortOrder
-  initialCylinderBalance?: Prisma.SortOrder
   initialPendingAmount?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   discount?: Prisma.SortOrder
-  initialCylinderBalance?: Prisma.SortOrder
   initialPendingAmount?: Prisma.SortOrder
 }
 
@@ -584,10 +572,10 @@ export type CustomerMaxOrderByAggregateInput = {
   concernedPersonMobile?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   gstNumber?: Prisma.SortOrder
-  initialCylinderBalance?: Prisma.SortOrder
   initialPendingAmount?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerMinOrderByAggregateInput = {
@@ -600,28 +588,27 @@ export type CustomerMinOrderByAggregateInput = {
   concernedPersonMobile?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   gstNumber?: Prisma.SortOrder
-  initialCylinderBalance?: Prisma.SortOrder
   initialPendingAmount?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type CustomerSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   locationId?: Prisma.SortOrder
   discount?: Prisma.SortOrder
-  initialCylinderBalance?: Prisma.SortOrder
   initialPendingAmount?: Prisma.SortOrder
-}
-
-export type CustomerNullableScalarRelationFilter = {
-  is?: Prisma.CustomerWhereInput | null
-  isNot?: Prisma.CustomerWhereInput | null
 }
 
 export type CustomerScalarRelationFilter = {
   is?: Prisma.CustomerWhereInput
   isNot?: Prisma.CustomerWhereInput
+}
+
+export type CustomerNullableScalarRelationFilter = {
+  is?: Prisma.CustomerWhereInput | null
+  isNot?: Prisma.CustomerWhereInput | null
 }
 
 export type CustomerCreateNestedManyWithoutLocationInput = {
@@ -682,20 +669,18 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
-export type CustomerCreateNestedOneWithoutSalesInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutSalesInput, Prisma.CustomerUncheckedCreateWithoutSalesInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutSalesInput
+export type CustomerCreateNestedOneWithoutInitialCylinderBalancesInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutInitialCylinderBalancesInput, Prisma.CustomerUncheckedCreateWithoutInitialCylinderBalancesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutInitialCylinderBalancesInput
   connect?: Prisma.CustomerWhereUniqueInput
 }
 
-export type CustomerUpdateOneWithoutSalesNestedInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutSalesInput, Prisma.CustomerUncheckedCreateWithoutSalesInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutSalesInput
-  upsert?: Prisma.CustomerUpsertWithoutSalesInput
-  disconnect?: Prisma.CustomerWhereInput | boolean
-  delete?: Prisma.CustomerWhereInput | boolean
+export type CustomerUpdateOneRequiredWithoutInitialCylinderBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutInitialCylinderBalancesInput, Prisma.CustomerUncheckedCreateWithoutInitialCylinderBalancesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutInitialCylinderBalancesInput
+  upsert?: Prisma.CustomerUpsertWithoutInitialCylinderBalancesInput
   connect?: Prisma.CustomerWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutSalesInput, Prisma.CustomerUpdateWithoutSalesInput>, Prisma.CustomerUncheckedUpdateWithoutSalesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutInitialCylinderBalancesInput, Prisma.CustomerUpdateWithoutInitialCylinderBalancesInput>, Prisma.CustomerUncheckedUpdateWithoutInitialCylinderBalancesInput>
 }
 
 export type CustomerCreateNestedOneWithoutDomSalesInput = {
@@ -712,52 +697,6 @@ export type CustomerUpdateOneWithoutDomSalesNestedInput = {
   delete?: Prisma.CustomerWhereInput | boolean
   connect?: Prisma.CustomerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutDomSalesInput, Prisma.CustomerUpdateWithoutDomSalesInput>, Prisma.CustomerUncheckedUpdateWithoutDomSalesInput>
-}
-
-export type CustomerCreateNestedOneWithoutCollectionsInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCollectionsInput, Prisma.CustomerUncheckedCreateWithoutCollectionsInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCollectionsInput
-  connect?: Prisma.CustomerWhereUniqueInput
-}
-
-export type CustomerUpdateOneWithoutCollectionsNestedInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCollectionsInput, Prisma.CustomerUncheckedCreateWithoutCollectionsInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCollectionsInput
-  upsert?: Prisma.CustomerUpsertWithoutCollectionsInput
-  disconnect?: Prisma.CustomerWhereInput | boolean
-  delete?: Prisma.CustomerWhereInput | boolean
-  connect?: Prisma.CustomerWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutCollectionsInput, Prisma.CustomerUpdateWithoutCollectionsInput>, Prisma.CustomerUncheckedUpdateWithoutCollectionsInput>
-}
-
-export type CustomerCreateNestedOneWithoutRentProductsInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutRentProductsInput, Prisma.CustomerUncheckedCreateWithoutRentProductsInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutRentProductsInput
-  connect?: Prisma.CustomerWhereUniqueInput
-}
-
-export type CustomerUpdateOneWithoutRentProductsNestedInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutRentProductsInput, Prisma.CustomerUncheckedCreateWithoutRentProductsInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutRentProductsInput
-  upsert?: Prisma.CustomerUpsertWithoutRentProductsInput
-  disconnect?: Prisma.CustomerWhereInput | boolean
-  delete?: Prisma.CustomerWhereInput | boolean
-  connect?: Prisma.CustomerWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutRentProductsInput, Prisma.CustomerUpdateWithoutRentProductsInput>, Prisma.CustomerUncheckedUpdateWithoutRentProductsInput>
-}
-
-export type CustomerCreateNestedOneWithoutRentTransactionsInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutRentTransactionsInput, Prisma.CustomerUncheckedCreateWithoutRentTransactionsInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutRentTransactionsInput
-  connect?: Prisma.CustomerWhereUniqueInput
-}
-
-export type CustomerUpdateOneRequiredWithoutRentTransactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutRentTransactionsInput, Prisma.CustomerUncheckedCreateWithoutRentTransactionsInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutRentTransactionsInput
-  upsert?: Prisma.CustomerUpsertWithoutRentTransactionsInput
-  connect?: Prisma.CustomerWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutRentTransactionsInput, Prisma.CustomerUpdateWithoutRentTransactionsInput>, Prisma.CustomerUncheckedUpdateWithoutRentTransactionsInput>
 }
 
 export type CustomerCreateNestedOneWithoutArbSalesInput = {
@@ -792,63 +731,89 @@ export type CustomerUpdateOneWithoutCommercialSalesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutCommercialSalesInput, Prisma.CustomerUpdateWithoutCommercialSalesInput>, Prisma.CustomerUncheckedUpdateWithoutCommercialSalesInput>
 }
 
-export type CustomerCreateNestedOneWithoutInitialCylinderBalancesInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutInitialCylinderBalancesInput, Prisma.CustomerUncheckedCreateWithoutInitialCylinderBalancesInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutInitialCylinderBalancesInput
+export type CustomerCreateNestedOneWithoutCustomerPaymentLedgerInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerPaymentLedgerInput, Prisma.CustomerUncheckedCreateWithoutCustomerPaymentLedgerInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCustomerPaymentLedgerInput
   connect?: Prisma.CustomerWhereUniqueInput
 }
 
-export type CustomerUpdateOneRequiredWithoutInitialCylinderBalancesNestedInput = {
-  create?: Prisma.XOR<Prisma.CustomerCreateWithoutInitialCylinderBalancesInput, Prisma.CustomerUncheckedCreateWithoutInitialCylinderBalancesInput>
-  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutInitialCylinderBalancesInput
-  upsert?: Prisma.CustomerUpsertWithoutInitialCylinderBalancesInput
+export type CustomerUpdateOneRequiredWithoutCustomerPaymentLedgerNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerPaymentLedgerInput, Prisma.CustomerUncheckedCreateWithoutCustomerPaymentLedgerInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCustomerPaymentLedgerInput
+  upsert?: Prisma.CustomerUpsertWithoutCustomerPaymentLedgerInput
   connect?: Prisma.CustomerWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutInitialCylinderBalancesInput, Prisma.CustomerUpdateWithoutInitialCylinderBalancesInput>, Prisma.CustomerUncheckedUpdateWithoutInitialCylinderBalancesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutCustomerPaymentLedgerInput, Prisma.CustomerUpdateWithoutCustomerPaymentLedgerInput>, Prisma.CustomerUncheckedUpdateWithoutCustomerPaymentLedgerInput>
+}
+
+export type CustomerCreateNestedOneWithoutCustomerBalanceInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerBalanceInput, Prisma.CustomerUncheckedCreateWithoutCustomerBalanceInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCustomerBalanceInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutCustomerBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerBalanceInput, Prisma.CustomerUncheckedCreateWithoutCustomerBalanceInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCustomerBalanceInput
+  upsert?: Prisma.CustomerUpsertWithoutCustomerBalanceInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutCustomerBalanceInput, Prisma.CustomerUpdateWithoutCustomerBalanceInput>, Prisma.CustomerUncheckedUpdateWithoutCustomerBalanceInput>
+}
+
+export type CustomerCreateNestedOneWithoutCustomerCylinderLedgersInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerCylinderLedgersInput, Prisma.CustomerUncheckedCreateWithoutCustomerCylinderLedgersInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCustomerCylinderLedgersInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerUpdateOneRequiredWithoutCustomerCylinderLedgersNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerCylinderLedgersInput, Prisma.CustomerUncheckedCreateWithoutCustomerCylinderLedgersInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutCustomerCylinderLedgersInput
+  upsert?: Prisma.CustomerUpsertWithoutCustomerCylinderLedgersInput
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutCustomerCylinderLedgersInput, Prisma.CustomerUpdateWithoutCustomerCylinderLedgersInput>, Prisma.CustomerUncheckedUpdateWithoutCustomerCylinderLedgersInput>
 }
 
 export type CustomerCreateWithoutLocationInput = {
-  name?: string | null
+  name: string
   address?: string | null
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
   arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
   domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
   commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutLocationInput = {
   id?: number
-  name?: string | null
+  name: string
   address?: string | null
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
   arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
   domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
   commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutLocationInput = {
@@ -882,7 +847,7 @@ export type CustomerScalarWhereInput = {
   OR?: Prisma.CustomerScalarWhereInput[]
   NOT?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
   id?: Prisma.IntFilter<"Customer"> | number
-  name?: Prisma.StringNullableFilter<"Customer"> | string | null
+  name?: Prisma.StringFilter<"Customer"> | string
   address?: Prisma.StringNullableFilter<"Customer"> | string | null
   phone?: Prisma.StringNullableFilter<"Customer"> | string | null
   locationId?: Prisma.IntNullableFilter<"Customer"> | number | null
@@ -890,779 +855,36 @@ export type CustomerScalarWhereInput = {
   concernedPersonMobile?: Prisma.StringNullableFilter<"Customer"> | string | null
   discount?: Prisma.IntNullableFilter<"Customer"> | number | null
   gstNumber?: Prisma.StringNullableFilter<"Customer"> | string | null
-  initialCylinderBalance?: Prisma.IntFilter<"Customer"> | number
   initialPendingAmount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
-}
-
-export type CustomerCreateWithoutSalesInput = {
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerUncheckedCreateWithoutSalesInput = {
-  id?: number
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  locationId?: number | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerCreateOrConnectWithoutSalesInput = {
-  where: Prisma.CustomerWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutSalesInput, Prisma.CustomerUncheckedCreateWithoutSalesInput>
-}
-
-export type CustomerUpsertWithoutSalesInput = {
-  update: Prisma.XOR<Prisma.CustomerUpdateWithoutSalesInput, Prisma.CustomerUncheckedUpdateWithoutSalesInput>
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutSalesInput, Prisma.CustomerUncheckedCreateWithoutSalesInput>
-  where?: Prisma.CustomerWhereInput
-}
-
-export type CustomerUpdateToOneWithWhereWithoutSalesInput = {
-  where?: Prisma.CustomerWhereInput
-  data: Prisma.XOR<Prisma.CustomerUpdateWithoutSalesInput, Prisma.CustomerUncheckedUpdateWithoutSalesInput>
-}
-
-export type CustomerUpdateWithoutSalesInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerUncheckedUpdateWithoutSalesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerCreateWithoutDomSalesInput = {
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerUncheckedCreateWithoutDomSalesInput = {
-  id?: number
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  locationId?: number | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerCreateOrConnectWithoutDomSalesInput = {
-  where: Prisma.CustomerWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutDomSalesInput, Prisma.CustomerUncheckedCreateWithoutDomSalesInput>
-}
-
-export type CustomerUpsertWithoutDomSalesInput = {
-  update: Prisma.XOR<Prisma.CustomerUpdateWithoutDomSalesInput, Prisma.CustomerUncheckedUpdateWithoutDomSalesInput>
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutDomSalesInput, Prisma.CustomerUncheckedCreateWithoutDomSalesInput>
-  where?: Prisma.CustomerWhereInput
-}
-
-export type CustomerUpdateToOneWithWhereWithoutDomSalesInput = {
-  where?: Prisma.CustomerWhereInput
-  data: Prisma.XOR<Prisma.CustomerUpdateWithoutDomSalesInput, Prisma.CustomerUncheckedUpdateWithoutDomSalesInput>
-}
-
-export type CustomerUpdateWithoutDomSalesInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerUncheckedUpdateWithoutDomSalesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerCreateWithoutCollectionsInput = {
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerUncheckedCreateWithoutCollectionsInput = {
-  id?: number
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  locationId?: number | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerCreateOrConnectWithoutCollectionsInput = {
-  where: Prisma.CustomerWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutCollectionsInput, Prisma.CustomerUncheckedCreateWithoutCollectionsInput>
-}
-
-export type CustomerUpsertWithoutCollectionsInput = {
-  update: Prisma.XOR<Prisma.CustomerUpdateWithoutCollectionsInput, Prisma.CustomerUncheckedUpdateWithoutCollectionsInput>
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutCollectionsInput, Prisma.CustomerUncheckedCreateWithoutCollectionsInput>
-  where?: Prisma.CustomerWhereInput
-}
-
-export type CustomerUpdateToOneWithWhereWithoutCollectionsInput = {
-  where?: Prisma.CustomerWhereInput
-  data: Prisma.XOR<Prisma.CustomerUpdateWithoutCollectionsInput, Prisma.CustomerUncheckedUpdateWithoutCollectionsInput>
-}
-
-export type CustomerUpdateWithoutCollectionsInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerUncheckedUpdateWithoutCollectionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerCreateWithoutRentProductsInput = {
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerUncheckedCreateWithoutRentProductsInput = {
-  id?: number
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  locationId?: number | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerCreateOrConnectWithoutRentProductsInput = {
-  where: Prisma.CustomerWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutRentProductsInput, Prisma.CustomerUncheckedCreateWithoutRentProductsInput>
-}
-
-export type CustomerUpsertWithoutRentProductsInput = {
-  update: Prisma.XOR<Prisma.CustomerUpdateWithoutRentProductsInput, Prisma.CustomerUncheckedUpdateWithoutRentProductsInput>
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutRentProductsInput, Prisma.CustomerUncheckedCreateWithoutRentProductsInput>
-  where?: Prisma.CustomerWhereInput
-}
-
-export type CustomerUpdateToOneWithWhereWithoutRentProductsInput = {
-  where?: Prisma.CustomerWhereInput
-  data: Prisma.XOR<Prisma.CustomerUpdateWithoutRentProductsInput, Prisma.CustomerUncheckedUpdateWithoutRentProductsInput>
-}
-
-export type CustomerUpdateWithoutRentProductsInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerUncheckedUpdateWithoutRentProductsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerCreateWithoutRentTransactionsInput = {
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerUncheckedCreateWithoutRentTransactionsInput = {
-  id?: number
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  locationId?: number | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerCreateOrConnectWithoutRentTransactionsInput = {
-  where: Prisma.CustomerWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutRentTransactionsInput, Prisma.CustomerUncheckedCreateWithoutRentTransactionsInput>
-}
-
-export type CustomerUpsertWithoutRentTransactionsInput = {
-  update: Prisma.XOR<Prisma.CustomerUpdateWithoutRentTransactionsInput, Prisma.CustomerUncheckedUpdateWithoutRentTransactionsInput>
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutRentTransactionsInput, Prisma.CustomerUncheckedCreateWithoutRentTransactionsInput>
-  where?: Prisma.CustomerWhereInput
-}
-
-export type CustomerUpdateToOneWithWhereWithoutRentTransactionsInput = {
-  where?: Prisma.CustomerWhereInput
-  data: Prisma.XOR<Prisma.CustomerUpdateWithoutRentTransactionsInput, Prisma.CustomerUncheckedUpdateWithoutRentTransactionsInput>
-}
-
-export type CustomerUpdateWithoutRentTransactionsInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerUncheckedUpdateWithoutRentTransactionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerCreateWithoutArbSalesInput = {
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerUncheckedCreateWithoutArbSalesInput = {
-  id?: number
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  locationId?: number | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
-  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerCreateOrConnectWithoutArbSalesInput = {
-  where: Prisma.CustomerWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutArbSalesInput, Prisma.CustomerUncheckedCreateWithoutArbSalesInput>
-}
-
-export type CustomerUpsertWithoutArbSalesInput = {
-  update: Prisma.XOR<Prisma.CustomerUpdateWithoutArbSalesInput, Prisma.CustomerUncheckedUpdateWithoutArbSalesInput>
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutArbSalesInput, Prisma.CustomerUncheckedCreateWithoutArbSalesInput>
-  where?: Prisma.CustomerWhereInput
-}
-
-export type CustomerUpdateToOneWithWhereWithoutArbSalesInput = {
-  where?: Prisma.CustomerWhereInput
-  data: Prisma.XOR<Prisma.CustomerUpdateWithoutArbSalesInput, Prisma.CustomerUncheckedUpdateWithoutArbSalesInput>
-}
-
-export type CustomerUpdateWithoutArbSalesInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerUncheckedUpdateWithoutArbSalesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerCreateWithoutCommercialSalesInput = {
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerUncheckedCreateWithoutCommercialSalesInput = {
-  id?: number
-  name?: string | null
-  address?: string | null
-  phone?: string | null
-  locationId?: number | null
-  concernedPerson?: string | null
-  concernedPersonMobile?: string | null
-  discount?: number | null
-  gstNumber?: string | null
-  initialCylinderBalance?: number
-  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: boolean
-  createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
-  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
-  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
-}
-
-export type CustomerCreateOrConnectWithoutCommercialSalesInput = {
-  where: Prisma.CustomerWhereUniqueInput
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutCommercialSalesInput, Prisma.CustomerUncheckedCreateWithoutCommercialSalesInput>
-}
-
-export type CustomerUpsertWithoutCommercialSalesInput = {
-  update: Prisma.XOR<Prisma.CustomerUpdateWithoutCommercialSalesInput, Prisma.CustomerUncheckedUpdateWithoutCommercialSalesInput>
-  create: Prisma.XOR<Prisma.CustomerCreateWithoutCommercialSalesInput, Prisma.CustomerUncheckedCreateWithoutCommercialSalesInput>
-  where?: Prisma.CustomerWhereInput
-}
-
-export type CustomerUpdateToOneWithWhereWithoutCommercialSalesInput = {
-  where?: Prisma.CustomerWhereInput
-  data: Prisma.XOR<Prisma.CustomerUpdateWithoutCommercialSalesInput, Prisma.CustomerUncheckedUpdateWithoutCommercialSalesInput>
-}
-
-export type CustomerUpdateWithoutCommercialSalesInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
-}
-
-export type CustomerUncheckedUpdateWithoutCommercialSalesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
-  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
-  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  updatedAt?: Prisma.DateTimeFilter<"Customer"> | Date | string
 }
 
 export type CustomerCreateWithoutInitialCylinderBalancesInput = {
-  name?: string | null
+  name: string
   address?: string | null
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
-  sales?: Prisma.SaleCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionCreateNestedManyWithoutCustomerInput
   arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
   domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
   commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerUncheckedCreateWithoutInitialCylinderBalancesInput = {
   id?: number
-  name?: string | null
+  name: string
   address?: string | null
   phone?: string | null
   locationId?: number | null
@@ -1670,17 +892,16 @@ export type CustomerUncheckedCreateWithoutInitialCylinderBalancesInput = {
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
-  sales?: Prisma.SaleUncheckedCreateNestedManyWithoutCustomerInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutCustomerInput
-  rentProducts?: Prisma.RentProductUncheckedCreateNestedManyWithoutCustomerInput
-  rentTransactions?: Prisma.RentTransactionUncheckedCreateNestedManyWithoutCustomerInput
+  updatedAt?: Date | string
   arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
   domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
   commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
 }
 
 export type CustomerCreateOrConnectWithoutInitialCylinderBalancesInput = {
@@ -1700,30 +921,29 @@ export type CustomerUpdateToOneWithWhereWithoutInitialCylinderBalancesInput = {
 }
 
 export type CustomerUpdateWithoutInitialCylinderBalancesInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
   arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
   domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
   commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutInitialCylinderBalancesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1731,92 +951,701 @@ export type CustomerUncheckedUpdateWithoutInitialCylinderBalancesInput = {
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
   domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
   commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
-export type CustomerCreateManyLocationInput = {
-  id?: number
-  name?: string | null
+export type CustomerCreateWithoutDomSalesInput = {
+  name: string
   address?: string | null
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
   discount?: number | null
   gstNumber?: string | null
-  initialCylinderBalance?: number
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
 }
 
-export type CustomerUpdateWithoutLocationInput = {
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+export type CustomerUncheckedCreateWithoutDomSalesInput = {
+  id?: number
+  name: string
+  address?: string | null
+  phone?: string | null
+  locationId?: number | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutDomSalesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutDomSalesInput, Prisma.CustomerUncheckedCreateWithoutDomSalesInput>
+}
+
+export type CustomerUpsertWithoutDomSalesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutDomSalesInput, Prisma.CustomerUncheckedUpdateWithoutDomSalesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutDomSalesInput, Prisma.CustomerUncheckedCreateWithoutDomSalesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutDomSalesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutDomSalesInput, Prisma.CustomerUncheckedUpdateWithoutDomSalesInput>
+}
+
+export type CustomerUpdateWithoutDomSalesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUpdateManyWithoutCustomerNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutDomSalesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutArbSalesInput = {
+  name: string
+  address?: string | null
+  phone?: string | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutArbSalesInput = {
+  id?: number
+  name: string
+  address?: string | null
+  phone?: string | null
+  locationId?: number | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutArbSalesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutArbSalesInput, Prisma.CustomerUncheckedCreateWithoutArbSalesInput>
+}
+
+export type CustomerUpsertWithoutArbSalesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutArbSalesInput, Prisma.CustomerUncheckedUpdateWithoutArbSalesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutArbSalesInput, Prisma.CustomerUncheckedCreateWithoutArbSalesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutArbSalesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutArbSalesInput, Prisma.CustomerUncheckedUpdateWithoutArbSalesInput>
+}
+
+export type CustomerUpdateWithoutArbSalesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutArbSalesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutCommercialSalesInput = {
+  name: string
+  address?: string | null
+  phone?: string | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutCommercialSalesInput = {
+  id?: number
+  name: string
+  address?: string | null
+  phone?: string | null
+  locationId?: number | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutCommercialSalesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCommercialSalesInput, Prisma.CustomerUncheckedCreateWithoutCommercialSalesInput>
+}
+
+export type CustomerUpsertWithoutCommercialSalesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutCommercialSalesInput, Prisma.CustomerUncheckedUpdateWithoutCommercialSalesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCommercialSalesInput, Prisma.CustomerUncheckedCreateWithoutCommercialSalesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutCommercialSalesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutCommercialSalesInput, Prisma.CustomerUncheckedUpdateWithoutCommercialSalesInput>
+}
+
+export type CustomerUpdateWithoutCommercialSalesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutCommercialSalesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutCustomerPaymentLedgerInput = {
+  name: string
+  address?: string | null
+  phone?: string | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutCustomerPaymentLedgerInput = {
+  id?: number
+  name: string
+  address?: string | null
+  phone?: string | null
+  locationId?: number | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutCustomerPaymentLedgerInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerPaymentLedgerInput, Prisma.CustomerUncheckedCreateWithoutCustomerPaymentLedgerInput>
+}
+
+export type CustomerUpsertWithoutCustomerPaymentLedgerInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutCustomerPaymentLedgerInput, Prisma.CustomerUncheckedUpdateWithoutCustomerPaymentLedgerInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerPaymentLedgerInput, Prisma.CustomerUncheckedCreateWithoutCustomerPaymentLedgerInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutCustomerPaymentLedgerInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutCustomerPaymentLedgerInput, Prisma.CustomerUncheckedUpdateWithoutCustomerPaymentLedgerInput>
+}
+
+export type CustomerUpdateWithoutCustomerPaymentLedgerInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
   arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
   domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
   commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutCustomerPaymentLedgerInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutCustomerBalanceInput = {
+  name: string
+  address?: string | null
+  phone?: string | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutCustomerBalanceInput = {
+  id?: number
+  name: string
+  address?: string | null
+  phone?: string | null
+  locationId?: number | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutCustomerBalanceInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerBalanceInput, Prisma.CustomerUncheckedCreateWithoutCustomerBalanceInput>
+}
+
+export type CustomerUpsertWithoutCustomerBalanceInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutCustomerBalanceInput, Prisma.CustomerUncheckedUpdateWithoutCustomerBalanceInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerBalanceInput, Prisma.CustomerUncheckedCreateWithoutCustomerBalanceInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutCustomerBalanceInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutCustomerBalanceInput, Prisma.CustomerUncheckedUpdateWithoutCustomerBalanceInput>
+}
+
+export type CustomerUpdateWithoutCustomerBalanceInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
   initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutCustomerBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateWithoutCustomerCylinderLedgersInput = {
+  name: string
+  address?: string | null
+  phone?: string | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  location?: Prisma.LocationCreateNestedOneWithoutCustomersInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutCustomerCylinderLedgersInput = {
+  id?: number
+  name: string
+  address?: string | null
+  phone?: string | null
+  locationId?: number | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedCreateNestedManyWithoutCustomerInput
+  arbSales?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCustomerInput
+  domSales?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCustomerInput
+  commercialSales?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCustomerInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedCreateNestedOneWithoutCustomerInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutCustomerCylinderLedgersInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerCylinderLedgersInput, Prisma.CustomerUncheckedCreateWithoutCustomerCylinderLedgersInput>
+}
+
+export type CustomerUpsertWithoutCustomerCylinderLedgersInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutCustomerCylinderLedgersInput, Prisma.CustomerUncheckedUpdateWithoutCustomerCylinderLedgersInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutCustomerCylinderLedgersInput, Prisma.CustomerUncheckedCreateWithoutCustomerCylinderLedgersInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutCustomerCylinderLedgersInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutCustomerCylinderLedgersInput, Prisma.CustomerUncheckedUpdateWithoutCustomerCylinderLedgersInput>
+}
+
+export type CustomerUpdateWithoutCustomerCylinderLedgersInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  location?: Prisma.LocationUpdateOneWithoutCustomersNestedInput
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutCustomerCylinderLedgersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerCreateManyLocationInput = {
+  id?: number
+  name: string
+  address?: string | null
+  phone?: string | null
+  concernedPerson?: string | null
+  concernedPersonMobile?: string | null
+  discount?: number | null
+  gstNumber?: string | null
+  initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CustomerUpdateWithoutLocationInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUpdateManyWithoutCustomerNestedInput
+  arbSales?: Prisma.ArbSaleUpdateManyWithoutCustomerNestedInput
+  domSales?: Prisma.DomSaleUpdateManyWithoutCustomerNestedInput
+  commercialSales?: Prisma.CommercialSaleUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateWithoutLocationInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sales?: Prisma.SaleUncheckedUpdateManyWithoutCustomerNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutCustomerNestedInput
-  rentProducts?: Prisma.RentProductUncheckedUpdateManyWithoutCustomerNestedInput
-  rentTransactions?: Prisma.RentTransactionUncheckedUpdateManyWithoutCustomerNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
   arbSales?: Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput
   domSales?: Prisma.DomSaleUncheckedUpdateManyWithoutCustomerNestedInput
   commercialSales?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput
-  initialCylinderBalances?: Prisma.CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerNestedInput
+  customerBalance?: Prisma.CustomerBalanceUncheckedUpdateOneWithoutCustomerNestedInput
+  customerPaymentLedger?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput
+  customerCylinderLedgers?: Prisma.CustomerCylinderLedgerUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type CustomerUncheckedUpdateManyWithoutLocationInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  initialCylinderBalance?: Prisma.IntFieldUpdateOperationsInput | number
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1825,25 +1654,21 @@ export type CustomerUncheckedUpdateManyWithoutLocationInput = {
  */
 
 export type CustomerCountOutputType = {
-  sales: number
-  collections: number
-  rentProducts: number
-  rentTransactions: number
+  initialCylinderBalances: number
   arbSales: number
   domSales: number
   commercialSales: number
-  initialCylinderBalances: number
+  customerPaymentLedger: number
+  customerCylinderLedgers: number
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  sales?: boolean | CustomerCountOutputTypeCountSalesArgs
-  collections?: boolean | CustomerCountOutputTypeCountCollectionsArgs
-  rentProducts?: boolean | CustomerCountOutputTypeCountRentProductsArgs
-  rentTransactions?: boolean | CustomerCountOutputTypeCountRentTransactionsArgs
+  initialCylinderBalances?: boolean | CustomerCountOutputTypeCountInitialCylinderBalancesArgs
   arbSales?: boolean | CustomerCountOutputTypeCountArbSalesArgs
   domSales?: boolean | CustomerCountOutputTypeCountDomSalesArgs
   commercialSales?: boolean | CustomerCountOutputTypeCountCommercialSalesArgs
-  initialCylinderBalances?: boolean | CustomerCountOutputTypeCountInitialCylinderBalancesArgs
+  customerPaymentLedger?: boolean | CustomerCountOutputTypeCountCustomerPaymentLedgerArgs
+  customerCylinderLedgers?: boolean | CustomerCountOutputTypeCountCustomerCylinderLedgersArgs
 }
 
 /**
@@ -1859,29 +1684,8 @@ export type CustomerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
 /**
  * CustomerCountOutputType without action
  */
-export type CustomerCountOutputTypeCountSalesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SaleWhereInput
-}
-
-/**
- * CustomerCountOutputType without action
- */
-export type CustomerCountOutputTypeCountCollectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CollectionWhereInput
-}
-
-/**
- * CustomerCountOutputType without action
- */
-export type CustomerCountOutputTypeCountRentProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RentProductWhereInput
-}
-
-/**
- * CustomerCountOutputType without action
- */
-export type CustomerCountOutputTypeCountRentTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.RentTransactionWhereInput
+export type CustomerCountOutputTypeCountInitialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerInitialCylinderBalanceWhereInput
 }
 
 /**
@@ -1908,8 +1712,15 @@ export type CustomerCountOutputTypeCountCommercialSalesArgs<ExtArgs extends runt
 /**
  * CustomerCountOutputType without action
  */
-export type CustomerCountOutputTypeCountInitialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CustomerInitialCylinderBalanceWhereInput
+export type CustomerCountOutputTypeCountCustomerPaymentLedgerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountCustomerCylinderLedgersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerCylinderLedgerWhereInput
 }
 
 
@@ -1923,19 +1734,18 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   concernedPersonMobile?: boolean
   discount?: boolean
   gstNumber?: boolean
-  initialCylinderBalance?: boolean
   initialPendingAmount?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   location?: boolean | Prisma.Customer$locationArgs<ExtArgs>
-  sales?: boolean | Prisma.Customer$salesArgs<ExtArgs>
-  collections?: boolean | Prisma.Customer$collectionsArgs<ExtArgs>
-  rentProducts?: boolean | Prisma.Customer$rentProductsArgs<ExtArgs>
-  rentTransactions?: boolean | Prisma.Customer$rentTransactionsArgs<ExtArgs>
+  initialCylinderBalances?: boolean | Prisma.Customer$initialCylinderBalancesArgs<ExtArgs>
   arbSales?: boolean | Prisma.Customer$arbSalesArgs<ExtArgs>
   domSales?: boolean | Prisma.Customer$domSalesArgs<ExtArgs>
   commercialSales?: boolean | Prisma.Customer$commercialSalesArgs<ExtArgs>
-  initialCylinderBalances?: boolean | Prisma.Customer$initialCylinderBalancesArgs<ExtArgs>
+  customerBalance?: boolean | Prisma.Customer$customerBalanceArgs<ExtArgs>
+  customerPaymentLedger?: boolean | Prisma.Customer$customerPaymentLedgerArgs<ExtArgs>
+  customerCylinderLedgers?: boolean | Prisma.Customer$customerCylinderLedgersArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -1949,10 +1759,10 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   concernedPersonMobile?: boolean
   discount?: boolean
   gstNumber?: boolean
-  initialCylinderBalance?: boolean
   initialPendingAmount?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   location?: boolean | Prisma.Customer$locationArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -1966,10 +1776,10 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   concernedPersonMobile?: boolean
   discount?: boolean
   gstNumber?: boolean
-  initialCylinderBalance?: boolean
   initialPendingAmount?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   location?: boolean | Prisma.Customer$locationArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
@@ -1983,23 +1793,22 @@ export type CustomerSelectScalar = {
   concernedPersonMobile?: boolean
   discount?: boolean
   gstNumber?: boolean
-  initialCylinderBalance?: boolean
   initialPendingAmount?: boolean
   isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "phone" | "locationId" | "concernedPerson" | "concernedPersonMobile" | "discount" | "gstNumber" | "initialCylinderBalance" | "initialPendingAmount" | "isDeleted" | "createdAt", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "phone" | "locationId" | "concernedPerson" | "concernedPersonMobile" | "discount" | "gstNumber" | "initialPendingAmount" | "isDeleted" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   location?: boolean | Prisma.Customer$locationArgs<ExtArgs>
-  sales?: boolean | Prisma.Customer$salesArgs<ExtArgs>
-  collections?: boolean | Prisma.Customer$collectionsArgs<ExtArgs>
-  rentProducts?: boolean | Prisma.Customer$rentProductsArgs<ExtArgs>
-  rentTransactions?: boolean | Prisma.Customer$rentTransactionsArgs<ExtArgs>
+  initialCylinderBalances?: boolean | Prisma.Customer$initialCylinderBalancesArgs<ExtArgs>
   arbSales?: boolean | Prisma.Customer$arbSalesArgs<ExtArgs>
   domSales?: boolean | Prisma.Customer$domSalesArgs<ExtArgs>
   commercialSales?: boolean | Prisma.Customer$commercialSalesArgs<ExtArgs>
-  initialCylinderBalances?: boolean | Prisma.Customer$initialCylinderBalancesArgs<ExtArgs>
+  customerBalance?: boolean | Prisma.Customer$customerBalanceArgs<ExtArgs>
+  customerPaymentLedger?: boolean | Prisma.Customer$customerPaymentLedgerArgs<ExtArgs>
+  customerCylinderLedgers?: boolean | Prisma.Customer$customerCylinderLedgersArgs<ExtArgs>
   _count?: boolean | Prisma.CustomerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2012,30 +1821,41 @@ export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Customer"
   objects: {
+    /**
+     * SetNull so deleting a location doesn't cascade-delete all its customers.
+     */
     location: Prisma.$LocationPayload<ExtArgs> | null
-    sales: Prisma.$SalePayload<ExtArgs>[]
-    collections: Prisma.$CollectionPayload<ExtArgs>[]
-    rentProducts: Prisma.$RentProductPayload<ExtArgs>[]
-    rentTransactions: Prisma.$RentTransactionPayload<ExtArgs>[]
+    initialCylinderBalances: Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>[]
     arbSales: Prisma.$ArbSalePayload<ExtArgs>[]
     domSales: Prisma.$DomSalePayload<ExtArgs>[]
     commercialSales: Prisma.$CommercialSalePayload<ExtArgs>[]
-    initialCylinderBalances: Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>[]
+    /**
+     * MATERIALIZED CACHE — source of truth is CustomerPaymentLedger.
+     */
+    customerBalance: Prisma.$CustomerBalancePayload<ExtArgs> | null
+    customerPaymentLedger: Prisma.$CustomerPaymentLedgerPayload<ExtArgs>[]
+    /**
+     * MATERIALIZED CACHE — source of truth is CylinderTransaction.
+     */
+    customerCylinderLedgers: Prisma.$CustomerCylinderLedgerPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    name: string | null
+    name: string
     address: string | null
     phone: string | null
     locationId: number | null
     concernedPerson: string | null
     concernedPersonMobile: string | null
+    /**
+     * Default discount % applied automatically when creating invoices.
+     */
     discount: number | null
     gstNumber: string | null
-    initialCylinderBalance: number
     initialPendingAmount: runtime.Decimal
     isDeleted: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["customer"]>
   composites: {}
 }
@@ -2431,14 +2251,13 @@ readonly fields: CustomerFieldRefs;
 export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   location<T extends Prisma.Customer$locationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$locationArgs<ExtArgs>>): Prisma.Prisma__LocationClient<runtime.Types.Result.GetResult<Prisma.$LocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  sales<T extends Prisma.Customer$salesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$salesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  collections<T extends Prisma.Customer$collectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$collectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  rentProducts<T extends Prisma.Customer$rentProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$rentProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RentProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  rentTransactions<T extends Prisma.Customer$rentTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$rentTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RentTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  initialCylinderBalances<T extends Prisma.Customer$initialCylinderBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$initialCylinderBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   arbSales<T extends Prisma.Customer$arbSalesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$arbSalesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domSales<T extends Prisma.Customer$domSalesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$domSalesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commercialSales<T extends Prisma.Customer$commercialSalesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$commercialSalesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  initialCylinderBalances<T extends Prisma.Customer$initialCylinderBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$initialCylinderBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerInitialCylinderBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerBalance<T extends Prisma.Customer$customerBalanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$customerBalanceArgs<ExtArgs>>): Prisma.Prisma__CustomerBalanceClient<runtime.Types.Result.GetResult<Prisma.$CustomerBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  customerPaymentLedger<T extends Prisma.Customer$customerPaymentLedgerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$customerPaymentLedgerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerCylinderLedgers<T extends Prisma.Customer$customerCylinderLedgersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$customerCylinderLedgersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerCylinderLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2477,10 +2296,10 @@ export interface CustomerFieldRefs {
   readonly concernedPersonMobile: Prisma.FieldRef<"Customer", 'String'>
   readonly discount: Prisma.FieldRef<"Customer", 'Int'>
   readonly gstNumber: Prisma.FieldRef<"Customer", 'String'>
-  readonly initialCylinderBalance: Prisma.FieldRef<"Customer", 'Int'>
   readonly initialPendingAmount: Prisma.FieldRef<"Customer", 'Decimal'>
   readonly isDeleted: Prisma.FieldRef<"Customer", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Customer", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Customer", 'DateTime'>
 }
     
 
@@ -2704,7 +2523,7 @@ export type CustomerCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * The data needed to create a Customer.
    */
-  data?: Prisma.XOR<Prisma.CustomerCreateInput, Prisma.CustomerUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.CustomerCreateInput, Prisma.CustomerUncheckedCreateInput>
 }
 
 /**
@@ -2901,99 +2720,27 @@ export type Customer$locationArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * Customer.sales
+ * Customer.initialCylinderBalances
  */
-export type Customer$salesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Customer$initialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Sale
+   * Select specific fields to fetch from the CustomerInitialCylinderBalance
    */
-  select?: Prisma.SaleSelect<ExtArgs> | null
+  select?: Prisma.CustomerInitialCylinderBalanceSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Sale
+   * Omit specific fields from the CustomerInitialCylinderBalance
    */
-  omit?: Prisma.SaleOmit<ExtArgs> | null
+  omit?: Prisma.CustomerInitialCylinderBalanceOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SaleInclude<ExtArgs> | null
-  where?: Prisma.SaleWhereInput
-  orderBy?: Prisma.SaleOrderByWithRelationInput | Prisma.SaleOrderByWithRelationInput[]
-  cursor?: Prisma.SaleWhereUniqueInput
+  include?: Prisma.CustomerInitialCylinderBalanceInclude<ExtArgs> | null
+  where?: Prisma.CustomerInitialCylinderBalanceWhereInput
+  orderBy?: Prisma.CustomerInitialCylinderBalanceOrderByWithRelationInput | Prisma.CustomerInitialCylinderBalanceOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerInitialCylinderBalanceWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.SaleScalarFieldEnum | Prisma.SaleScalarFieldEnum[]
-}
-
-/**
- * Customer.collections
- */
-export type Customer$collectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Collection
-   */
-  select?: Prisma.CollectionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Collection
-   */
-  omit?: Prisma.CollectionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CollectionInclude<ExtArgs> | null
-  where?: Prisma.CollectionWhereInput
-  orderBy?: Prisma.CollectionOrderByWithRelationInput | Prisma.CollectionOrderByWithRelationInput[]
-  cursor?: Prisma.CollectionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CollectionScalarFieldEnum | Prisma.CollectionScalarFieldEnum[]
-}
-
-/**
- * Customer.rentProducts
- */
-export type Customer$rentProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the RentProduct
-   */
-  select?: Prisma.RentProductSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the RentProduct
-   */
-  omit?: Prisma.RentProductOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RentProductInclude<ExtArgs> | null
-  where?: Prisma.RentProductWhereInput
-  orderBy?: Prisma.RentProductOrderByWithRelationInput | Prisma.RentProductOrderByWithRelationInput[]
-  cursor?: Prisma.RentProductWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RentProductScalarFieldEnum | Prisma.RentProductScalarFieldEnum[]
-}
-
-/**
- * Customer.rentTransactions
- */
-export type Customer$rentTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the RentTransaction
-   */
-  select?: Prisma.RentTransactionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the RentTransaction
-   */
-  omit?: Prisma.RentTransactionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.RentTransactionInclude<ExtArgs> | null
-  where?: Prisma.RentTransactionWhereInput
-  orderBy?: Prisma.RentTransactionOrderByWithRelationInput | Prisma.RentTransactionOrderByWithRelationInput[]
-  cursor?: Prisma.RentTransactionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.RentTransactionScalarFieldEnum | Prisma.RentTransactionScalarFieldEnum[]
+  distinct?: Prisma.CustomerInitialCylinderBalanceScalarFieldEnum | Prisma.CustomerInitialCylinderBalanceScalarFieldEnum[]
 }
 
 /**
@@ -3069,27 +2816,70 @@ export type Customer$commercialSalesArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
- * Customer.initialCylinderBalances
+ * Customer.customerBalance
  */
-export type Customer$initialCylinderBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Customer$customerBalanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CustomerInitialCylinderBalance
+   * Select specific fields to fetch from the CustomerBalance
    */
-  select?: Prisma.CustomerInitialCylinderBalanceSelect<ExtArgs> | null
+  select?: Prisma.CustomerBalanceSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CustomerInitialCylinderBalance
+   * Omit specific fields from the CustomerBalance
    */
-  omit?: Prisma.CustomerInitialCylinderBalanceOmit<ExtArgs> | null
+  omit?: Prisma.CustomerBalanceOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CustomerInitialCylinderBalanceInclude<ExtArgs> | null
-  where?: Prisma.CustomerInitialCylinderBalanceWhereInput
-  orderBy?: Prisma.CustomerInitialCylinderBalanceOrderByWithRelationInput | Prisma.CustomerInitialCylinderBalanceOrderByWithRelationInput[]
-  cursor?: Prisma.CustomerInitialCylinderBalanceWhereUniqueInput
+  include?: Prisma.CustomerBalanceInclude<ExtArgs> | null
+  where?: Prisma.CustomerBalanceWhereInput
+}
+
+/**
+ * Customer.customerPaymentLedger
+ */
+export type Customer$customerPaymentLedgerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPaymentLedger
+   */
+  select?: Prisma.CustomerPaymentLedgerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPaymentLedger
+   */
+  omit?: Prisma.CustomerPaymentLedgerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPaymentLedgerInclude<ExtArgs> | null
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+  orderBy?: Prisma.CustomerPaymentLedgerOrderByWithRelationInput | Prisma.CustomerPaymentLedgerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerPaymentLedgerWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.CustomerInitialCylinderBalanceScalarFieldEnum | Prisma.CustomerInitialCylinderBalanceScalarFieldEnum[]
+  distinct?: Prisma.CustomerPaymentLedgerScalarFieldEnum | Prisma.CustomerPaymentLedgerScalarFieldEnum[]
+}
+
+/**
+ * Customer.customerCylinderLedgers
+ */
+export type Customer$customerCylinderLedgersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerCylinderLedger
+   */
+  select?: Prisma.CustomerCylinderLedgerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerCylinderLedger
+   */
+  omit?: Prisma.CustomerCylinderLedgerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerCylinderLedgerInclude<ExtArgs> | null
+  where?: Prisma.CustomerCylinderLedgerWhereInput
+  orderBy?: Prisma.CustomerCylinderLedgerOrderByWithRelationInput | Prisma.CustomerCylinderLedgerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerCylinderLedgerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerCylinderLedgerScalarFieldEnum | Prisma.CustomerCylinderLedgerScalarFieldEnum[]
 }
 
 /**

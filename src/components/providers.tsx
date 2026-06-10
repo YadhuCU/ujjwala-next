@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryErrorResetBoundary,
+} from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { initTheme } from "@/lib/theme-store";
 
@@ -16,7 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             retry: 1,
           },
         },
-      })
+      }),
   );
 
   useEffect(() => {
@@ -31,9 +35,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <SessionProvider>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <QueryErrorResetBoundary>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </QueryErrorResetBoundary>
       </SessionProvider>
     </ThemeProvider>
   );

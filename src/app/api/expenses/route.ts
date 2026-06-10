@@ -1,22 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS, ROLES } from "@/lib/permissions";
+import { ExpenseWhereInput } from "@/generated/models";
 
 export async function GET() {
-  return withAuth(async ({ userId, role }) => {
-    const where: Record<string, unknown> = { isDeleted: false };
-    if (role !== "Owner") where.createdById = userId;
+  return withAuth(async (user) => {
+    const userId = user.id;
+    const role = user.role
+    const where:ExpenseWhereInput = { isDeleted: false };
+    if (role !== ROLES.OWNER) where.createdById = userId;
 
     const expenses = await prisma.expense.findMany({
       where,
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(expenses);
-  });
+  }, [PERMISSIONS.EXPENSE_READ]);
 }
 
 export async function POST(request: Request) {
-  return withAuth(async ({ userId }) => {
+  return withAuth(async (user) => {
+    const userId = user.id
     try {
       const data = await request.json();
       const expense = await prisma.expense.create({
@@ -32,5 +37,5 @@ export async function POST(request: Request) {
       const message = error instanceof Error ? error.message : "Failed to create expense";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  });
+  }, [PERMISSIONS.EXPENSE_CREATE]);
 }

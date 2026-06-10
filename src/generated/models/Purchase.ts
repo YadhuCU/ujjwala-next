@@ -29,46 +29,59 @@ export type AggregatePurchase = {
 export type PurchaseAvgAggregateOutputType = {
   id: number | null
   vendorId: number | null
-  totalAmount: runtime.Decimal | null
+  totalCost: runtime.Decimal | null
+  createdById: number | null
+  updatedById: number | null
 }
 
 export type PurchaseSumAggregateOutputType = {
   id: number | null
   vendorId: number | null
-  totalAmount: runtime.Decimal | null
+  totalCost: runtime.Decimal | null
+  createdById: number | null
+  updatedById: number | null
 }
 
 export type PurchaseMinAggregateOutputType = {
   id: number | null
   invoiceNo: string | null
   vendorId: number | null
-  totalAmount: runtime.Decimal | null
+  totalCost: runtime.Decimal | null
   purchaseDate: Date | null
   notes: string | null
   isDeleted: boolean | null
+  createdById: number | null
+  updatedById: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PurchaseMaxAggregateOutputType = {
   id: number | null
   invoiceNo: string | null
   vendorId: number | null
-  totalAmount: runtime.Decimal | null
+  totalCost: runtime.Decimal | null
   purchaseDate: Date | null
   notes: string | null
   isDeleted: boolean | null
+  createdById: number | null
+  updatedById: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type PurchaseCountAggregateOutputType = {
   id: number
   invoiceNo: number
   vendorId: number
-  totalAmount: number
+  totalCost: number
   purchaseDate: number
   notes: number
   isDeleted: number
+  createdById: number
+  updatedById: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -76,46 +89,59 @@ export type PurchaseCountAggregateOutputType = {
 export type PurchaseAvgAggregateInputType = {
   id?: true
   vendorId?: true
-  totalAmount?: true
+  totalCost?: true
+  createdById?: true
+  updatedById?: true
 }
 
 export type PurchaseSumAggregateInputType = {
   id?: true
   vendorId?: true
-  totalAmount?: true
+  totalCost?: true
+  createdById?: true
+  updatedById?: true
 }
 
 export type PurchaseMinAggregateInputType = {
   id?: true
   invoiceNo?: true
   vendorId?: true
-  totalAmount?: true
+  totalCost?: true
   purchaseDate?: true
   notes?: true
   isDeleted?: true
+  createdById?: true
+  updatedById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PurchaseMaxAggregateInputType = {
   id?: true
   invoiceNo?: true
   vendorId?: true
-  totalAmount?: true
+  totalCost?: true
   purchaseDate?: true
   notes?: true
   isDeleted?: true
+  createdById?: true
+  updatedById?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type PurchaseCountAggregateInputType = {
   id?: true
   invoiceNo?: true
   vendorId?: true
-  totalAmount?: true
+  totalCost?: true
   purchaseDate?: true
   notes?: true
   isDeleted?: true
+  createdById?: true
+  updatedById?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -209,11 +235,14 @@ export type PurchaseGroupByOutputType = {
   id: number
   invoiceNo: string | null
   vendorId: number
-  totalAmount: runtime.Decimal | null
+  totalCost: runtime.Decimal
   purchaseDate: Date
   notes: string | null
   isDeleted: boolean
+  createdById: number | null
+  updatedById: number | null
   createdAt: Date
+  updatedAt: Date
   _count: PurchaseCountAggregateOutputType | null
   _avg: PurchaseAvgAggregateOutputType | null
   _sum: PurchaseSumAggregateOutputType | null
@@ -243,12 +272,17 @@ export type PurchaseWhereInput = {
   id?: Prisma.IntFilter<"Purchase"> | number
   invoiceNo?: Prisma.StringNullableFilter<"Purchase"> | string | null
   vendorId?: Prisma.IntFilter<"Purchase"> | number
-  totalAmount?: Prisma.DecimalNullableFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFilter<"Purchase"> | Date | string
   notes?: Prisma.StringNullableFilter<"Purchase"> | string | null
   isDeleted?: Prisma.BoolFilter<"Purchase"> | boolean
+  createdById?: Prisma.IntNullableFilter<"Purchase"> | number | null
+  updatedById?: Prisma.IntNullableFilter<"Purchase"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.PurchaseItemListRelationFilter
   stocks?: Prisma.StockListRelationFilter
 }
@@ -257,12 +291,17 @@ export type PurchaseOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   invoiceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   vendorId?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  totalCost?: Prisma.SortOrder
   purchaseDate?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   vendor?: Prisma.VendorOrderByWithRelationInput
+  createdBy?: Prisma.UserOrderByWithRelationInput
+  updatedBy?: Prisma.UserOrderByWithRelationInput
   items?: Prisma.PurchaseItemOrderByRelationAggregateInput
   stocks?: Prisma.StockOrderByRelationAggregateInput
 }
@@ -274,12 +313,17 @@ export type PurchaseWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PurchaseWhereInput[]
   NOT?: Prisma.PurchaseWhereInput | Prisma.PurchaseWhereInput[]
   vendorId?: Prisma.IntFilter<"Purchase"> | number
-  totalAmount?: Prisma.DecimalNullableFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFilter<"Purchase"> | Date | string
   notes?: Prisma.StringNullableFilter<"Purchase"> | string | null
   isDeleted?: Prisma.BoolFilter<"Purchase"> | boolean
+  createdById?: Prisma.IntNullableFilter<"Purchase"> | number | null
+  updatedById?: Prisma.IntNullableFilter<"Purchase"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
+  createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.PurchaseItemListRelationFilter
   stocks?: Prisma.StockListRelationFilter
 }, "id" | "invoiceNo">
@@ -288,11 +332,14 @@ export type PurchaseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   invoiceNo?: Prisma.SortOrderInput | Prisma.SortOrder
   vendorId?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  totalCost?: Prisma.SortOrder
   purchaseDate?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.PurchaseCountOrderByAggregateInput
   _avg?: Prisma.PurchaseAvgOrderByAggregateInput
   _max?: Prisma.PurchaseMaxOrderByAggregateInput
@@ -307,21 +354,27 @@ export type PurchaseScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Purchase"> | number
   invoiceNo?: Prisma.StringNullableWithAggregatesFilter<"Purchase"> | string | null
   vendorId?: Prisma.IntWithAggregatesFilter<"Purchase"> | number
-  totalAmount?: Prisma.DecimalNullableWithAggregatesFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalWithAggregatesFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeWithAggregatesFilter<"Purchase"> | Date | string
   notes?: Prisma.StringNullableWithAggregatesFilter<"Purchase"> | string | null
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Purchase"> | boolean
+  createdById?: Prisma.IntNullableWithAggregatesFilter<"Purchase"> | number | null
+  updatedById?: Prisma.IntNullableWithAggregatesFilter<"Purchase"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Purchase"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Purchase"> | Date | string
 }
 
 export type PurchaseCreateInput = {
   invoiceNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutPurchasesInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
 }
@@ -330,23 +383,29 @@ export type PurchaseUncheckedCreateInput = {
   id?: number
   invoiceNo?: string | null
   vendorId: number
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUpdateInput = {
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchasesNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
 }
@@ -355,11 +414,14 @@ export type PurchaseUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorId?: Prisma.IntFieldUpdateOperationsInput | number
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
 }
@@ -368,36 +430,38 @@ export type PurchaseCreateManyInput = {
   id?: number
   invoiceNo?: string | null
   vendorId: number
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PurchaseUpdateManyMutationInput = {
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PurchaseUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorId?: Prisma.IntFieldUpdateOperationsInput | number
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type PurchaseNullableScalarRelationFilter = {
-  is?: Prisma.PurchaseWhereInput | null
-  isNot?: Prisma.PurchaseWhereInput | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PurchaseListRelationFilter = {
@@ -410,49 +474,67 @@ export type PurchaseOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type PurchaseNullableScalarRelationFilter = {
+  is?: Prisma.PurchaseWhereInput | null
+  isNot?: Prisma.PurchaseWhereInput | null
+}
+
 export type PurchaseCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   invoiceNo?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
+  totalCost?: Prisma.SortOrder
   purchaseDate?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PurchaseAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
+  totalCost?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
 }
 
 export type PurchaseMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   invoiceNo?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
+  totalCost?: Prisma.SortOrder
   purchaseDate?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PurchaseMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   invoiceNo?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
+  totalCost?: Prisma.SortOrder
   purchaseDate?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type PurchaseSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vendorId?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
+  totalCost?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
 }
 
 export type PurchaseScalarRelationFilter = {
@@ -460,20 +542,88 @@ export type PurchaseScalarRelationFilter = {
   isNot?: Prisma.PurchaseWhereInput
 }
 
-export type PurchaseCreateNestedOneWithoutStocksInput = {
-  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
-  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutStocksInput
-  connect?: Prisma.PurchaseWhereUniqueInput
+export type PurchaseCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutCreatedByInput, Prisma.PurchaseUncheckedCreateWithoutCreatedByInput> | Prisma.PurchaseCreateWithoutCreatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutCreatedByInput | Prisma.PurchaseCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyCreatedByInputEnvelope
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
 }
 
-export type PurchaseUpdateOneWithoutStocksNestedInput = {
-  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
-  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutStocksInput
-  upsert?: Prisma.PurchaseUpsertWithoutStocksInput
-  disconnect?: Prisma.PurchaseWhereInput | boolean
-  delete?: Prisma.PurchaseWhereInput | boolean
-  connect?: Prisma.PurchaseWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.PurchaseUpdateToOneWithWhereWithoutStocksInput, Prisma.PurchaseUpdateWithoutStocksInput>, Prisma.PurchaseUncheckedUpdateWithoutStocksInput>
+export type PurchaseCreateNestedManyWithoutUpdatedByInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutUpdatedByInput, Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput> | Prisma.PurchaseCreateWithoutUpdatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput | Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyUpdatedByInputEnvelope
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+}
+
+export type PurchaseUncheckedCreateNestedManyWithoutCreatedByInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutCreatedByInput, Prisma.PurchaseUncheckedCreateWithoutCreatedByInput> | Prisma.PurchaseCreateWithoutCreatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutCreatedByInput | Prisma.PurchaseCreateOrConnectWithoutCreatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyCreatedByInputEnvelope
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+}
+
+export type PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutUpdatedByInput, Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput> | Prisma.PurchaseCreateWithoutUpdatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput | Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyUpdatedByInputEnvelope
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+}
+
+export type PurchaseUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutCreatedByInput, Prisma.PurchaseUncheckedCreateWithoutCreatedByInput> | Prisma.PurchaseCreateWithoutCreatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutCreatedByInput | Prisma.PurchaseCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.PurchaseUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.PurchaseUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyCreatedByInputEnvelope
+  set?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  delete?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  update?: Prisma.PurchaseUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.PurchaseUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.PurchaseUpdateManyWithWhereWithoutCreatedByInput | Prisma.PurchaseUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
+}
+
+export type PurchaseUpdateManyWithoutUpdatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutUpdatedByInput, Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput> | Prisma.PurchaseCreateWithoutUpdatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput | Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput[]
+  upsert?: Prisma.PurchaseUpsertWithWhereUniqueWithoutUpdatedByInput | Prisma.PurchaseUpsertWithWhereUniqueWithoutUpdatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyUpdatedByInputEnvelope
+  set?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  delete?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  update?: Prisma.PurchaseUpdateWithWhereUniqueWithoutUpdatedByInput | Prisma.PurchaseUpdateWithWhereUniqueWithoutUpdatedByInput[]
+  updateMany?: Prisma.PurchaseUpdateManyWithWhereWithoutUpdatedByInput | Prisma.PurchaseUpdateManyWithWhereWithoutUpdatedByInput[]
+  deleteMany?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
+}
+
+export type PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutCreatedByInput, Prisma.PurchaseUncheckedCreateWithoutCreatedByInput> | Prisma.PurchaseCreateWithoutCreatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutCreatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutCreatedByInput | Prisma.PurchaseCreateOrConnectWithoutCreatedByInput[]
+  upsert?: Prisma.PurchaseUpsertWithWhereUniqueWithoutCreatedByInput | Prisma.PurchaseUpsertWithWhereUniqueWithoutCreatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyCreatedByInputEnvelope
+  set?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  delete?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  update?: Prisma.PurchaseUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.PurchaseUpdateWithWhereUniqueWithoutCreatedByInput[]
+  updateMany?: Prisma.PurchaseUpdateManyWithWhereWithoutCreatedByInput | Prisma.PurchaseUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
+}
+
+export type PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutUpdatedByInput, Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput> | Prisma.PurchaseCreateWithoutUpdatedByInput[] | Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput | Prisma.PurchaseCreateOrConnectWithoutUpdatedByInput[]
+  upsert?: Prisma.PurchaseUpsertWithWhereUniqueWithoutUpdatedByInput | Prisma.PurchaseUpsertWithWhereUniqueWithoutUpdatedByInput[]
+  createMany?: Prisma.PurchaseCreateManyUpdatedByInputEnvelope
+  set?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  delete?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  connect?: Prisma.PurchaseWhereUniqueInput | Prisma.PurchaseWhereUniqueInput[]
+  update?: Prisma.PurchaseUpdateWithWhereUniqueWithoutUpdatedByInput | Prisma.PurchaseUpdateWithWhereUniqueWithoutUpdatedByInput[]
+  updateMany?: Prisma.PurchaseUpdateManyWithWhereWithoutUpdatedByInput | Prisma.PurchaseUpdateManyWithWhereWithoutUpdatedByInput[]
+  deleteMany?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
 }
 
 export type PurchaseCreateNestedManyWithoutVendorInput = {
@@ -518,6 +668,22 @@ export type PurchaseUncheckedUpdateManyWithoutVendorNestedInput = {
   deleteMany?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
 }
 
+export type PurchaseCreateNestedOneWithoutStocksInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutStocksInput
+  connect?: Prisma.PurchaseWhereUniqueInput
+}
+
+export type PurchaseUpdateOneWithoutStocksNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutStocksInput
+  upsert?: Prisma.PurchaseUpsertWithoutStocksInput
+  disconnect?: Prisma.PurchaseWhereInput | boolean
+  delete?: Prisma.PurchaseWhereInput | boolean
+  connect?: Prisma.PurchaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PurchaseUpdateToOneWithWhereWithoutStocksInput, Prisma.PurchaseUpdateWithoutStocksInput>, Prisma.PurchaseUncheckedUpdateWithoutStocksInput>
+}
+
 export type PurchaseCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.PurchaseCreateWithoutItemsInput, Prisma.PurchaseUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutItemsInput
@@ -532,75 +698,143 @@ export type PurchaseUpdateOneRequiredWithoutItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PurchaseUpdateToOneWithWhereWithoutItemsInput, Prisma.PurchaseUpdateWithoutItemsInput>, Prisma.PurchaseUncheckedUpdateWithoutItemsInput>
 }
 
-export type PurchaseCreateWithoutStocksInput = {
+export type PurchaseCreateWithoutCreatedByInput = {
   invoiceNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutPurchasesInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
+  stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
 }
 
-export type PurchaseUncheckedCreateWithoutStocksInput = {
+export type PurchaseUncheckedCreateWithoutCreatedByInput = {
   id?: number
   invoiceNo?: string | null
   vendorId: number
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
+}
+
+export type PurchaseCreateOrConnectWithoutCreatedByInput = {
+  where: Prisma.PurchaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutCreatedByInput, Prisma.PurchaseUncheckedCreateWithoutCreatedByInput>
+}
+
+export type PurchaseCreateManyCreatedByInputEnvelope = {
+  data: Prisma.PurchaseCreateManyCreatedByInput | Prisma.PurchaseCreateManyCreatedByInput[]
+  skipDuplicates?: boolean
+}
+
+export type PurchaseCreateWithoutUpdatedByInput = {
+  invoiceNo?: string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  vendor: Prisma.VendorCreateNestedOneWithoutPurchasesInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
+  items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
+  stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
+}
+
+export type PurchaseUncheckedCreateWithoutUpdatedByInput = {
+  id?: number
+  invoiceNo?: string | null
+  vendorId: number
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
-export type PurchaseCreateOrConnectWithoutStocksInput = {
+export type PurchaseCreateOrConnectWithoutUpdatedByInput = {
   where: Prisma.PurchaseWhereUniqueInput
-  create: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutUpdatedByInput, Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput>
 }
 
-export type PurchaseUpsertWithoutStocksInput = {
-  update: Prisma.XOR<Prisma.PurchaseUpdateWithoutStocksInput, Prisma.PurchaseUncheckedUpdateWithoutStocksInput>
-  create: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
-  where?: Prisma.PurchaseWhereInput
+export type PurchaseCreateManyUpdatedByInputEnvelope = {
+  data: Prisma.PurchaseCreateManyUpdatedByInput | Prisma.PurchaseCreateManyUpdatedByInput[]
+  skipDuplicates?: boolean
 }
 
-export type PurchaseUpdateToOneWithWhereWithoutStocksInput = {
-  where?: Prisma.PurchaseWhereInput
-  data: Prisma.XOR<Prisma.PurchaseUpdateWithoutStocksInput, Prisma.PurchaseUncheckedUpdateWithoutStocksInput>
+export type PurchaseUpsertWithWhereUniqueWithoutCreatedByInput = {
+  where: Prisma.PurchaseWhereUniqueInput
+  update: Prisma.XOR<Prisma.PurchaseUpdateWithoutCreatedByInput, Prisma.PurchaseUncheckedUpdateWithoutCreatedByInput>
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutCreatedByInput, Prisma.PurchaseUncheckedCreateWithoutCreatedByInput>
 }
 
-export type PurchaseUpdateWithoutStocksInput = {
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchasesNestedInput
-  items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
+export type PurchaseUpdateWithWhereUniqueWithoutCreatedByInput = {
+  where: Prisma.PurchaseWhereUniqueInput
+  data: Prisma.XOR<Prisma.PurchaseUpdateWithoutCreatedByInput, Prisma.PurchaseUncheckedUpdateWithoutCreatedByInput>
 }
 
-export type PurchaseUncheckedUpdateWithoutStocksInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  vendorId?: Prisma.IntFieldUpdateOperationsInput | number
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
+export type PurchaseUpdateManyWithWhereWithoutCreatedByInput = {
+  where: Prisma.PurchaseScalarWhereInput
+  data: Prisma.XOR<Prisma.PurchaseUpdateManyMutationInput, Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByInput>
+}
+
+export type PurchaseScalarWhereInput = {
+  AND?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
+  OR?: Prisma.PurchaseScalarWhereInput[]
+  NOT?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
+  id?: Prisma.IntFilter<"Purchase"> | number
+  invoiceNo?: Prisma.StringNullableFilter<"Purchase"> | string | null
+  vendorId?: Prisma.IntFilter<"Purchase"> | number
+  totalCost?: Prisma.DecimalFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFilter<"Purchase"> | Date | string
+  notes?: Prisma.StringNullableFilter<"Purchase"> | string | null
+  isDeleted?: Prisma.BoolFilter<"Purchase"> | boolean
+  createdById?: Prisma.IntNullableFilter<"Purchase"> | number | null
+  updatedById?: Prisma.IntNullableFilter<"Purchase"> | number | null
+  createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
+}
+
+export type PurchaseUpsertWithWhereUniqueWithoutUpdatedByInput = {
+  where: Prisma.PurchaseWhereUniqueInput
+  update: Prisma.XOR<Prisma.PurchaseUpdateWithoutUpdatedByInput, Prisma.PurchaseUncheckedUpdateWithoutUpdatedByInput>
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutUpdatedByInput, Prisma.PurchaseUncheckedCreateWithoutUpdatedByInput>
+}
+
+export type PurchaseUpdateWithWhereUniqueWithoutUpdatedByInput = {
+  where: Prisma.PurchaseWhereUniqueInput
+  data: Prisma.XOR<Prisma.PurchaseUpdateWithoutUpdatedByInput, Prisma.PurchaseUncheckedUpdateWithoutUpdatedByInput>
+}
+
+export type PurchaseUpdateManyWithWhereWithoutUpdatedByInput = {
+  where: Prisma.PurchaseScalarWhereInput
+  data: Prisma.XOR<Prisma.PurchaseUpdateManyMutationInput, Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByInput>
 }
 
 export type PurchaseCreateWithoutVendorInput = {
   invoiceNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
 }
@@ -608,11 +842,14 @@ export type PurchaseCreateWithoutVendorInput = {
 export type PurchaseUncheckedCreateWithoutVendorInput = {
   id?: number
   invoiceNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
 }
@@ -643,28 +880,91 @@ export type PurchaseUpdateManyWithWhereWithoutVendorInput = {
   data: Prisma.XOR<Prisma.PurchaseUpdateManyMutationInput, Prisma.PurchaseUncheckedUpdateManyWithoutVendorInput>
 }
 
-export type PurchaseScalarWhereInput = {
-  AND?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
-  OR?: Prisma.PurchaseScalarWhereInput[]
-  NOT?: Prisma.PurchaseScalarWhereInput | Prisma.PurchaseScalarWhereInput[]
-  id?: Prisma.IntFilter<"Purchase"> | number
-  invoiceNo?: Prisma.StringNullableFilter<"Purchase"> | string | null
-  vendorId?: Prisma.IntFilter<"Purchase"> | number
-  totalAmount?: Prisma.DecimalNullableFilter<"Purchase"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  purchaseDate?: Prisma.DateTimeFilter<"Purchase"> | Date | string
-  notes?: Prisma.StringNullableFilter<"Purchase"> | string | null
-  isDeleted?: Prisma.BoolFilter<"Purchase"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string
-}
-
-export type PurchaseCreateWithoutItemsInput = {
+export type PurchaseCreateWithoutStocksInput = {
   invoiceNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutPurchasesInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
+  items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
+}
+
+export type PurchaseUncheckedCreateWithoutStocksInput = {
+  id?: number
+  invoiceNo?: string | null
+  vendorId: number
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
+}
+
+export type PurchaseCreateOrConnectWithoutStocksInput = {
+  where: Prisma.PurchaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
+}
+
+export type PurchaseUpsertWithoutStocksInput = {
+  update: Prisma.XOR<Prisma.PurchaseUpdateWithoutStocksInput, Prisma.PurchaseUncheckedUpdateWithoutStocksInput>
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutStocksInput, Prisma.PurchaseUncheckedCreateWithoutStocksInput>
+  where?: Prisma.PurchaseWhereInput
+}
+
+export type PurchaseUpdateToOneWithWhereWithoutStocksInput = {
+  where?: Prisma.PurchaseWhereInput
+  data: Prisma.XOR<Prisma.PurchaseUpdateWithoutStocksInput, Prisma.PurchaseUncheckedUpdateWithoutStocksInput>
+}
+
+export type PurchaseUpdateWithoutStocksInput = {
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchasesNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
+  items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseUncheckedUpdateWithoutStocksInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendorId?: Prisma.IntFieldUpdateOperationsInput | number
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseCreateWithoutItemsInput = {
+  invoiceNo?: string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  vendor: Prisma.VendorCreateNestedOneWithoutPurchasesInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
 }
 
@@ -672,11 +972,14 @@ export type PurchaseUncheckedCreateWithoutItemsInput = {
   id?: number
   invoiceNo?: string | null
   vendorId: number
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
@@ -698,12 +1001,15 @@ export type PurchaseUpdateToOneWithWhereWithoutItemsInput = {
 
 export type PurchaseUpdateWithoutItemsInput = {
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchasesNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
 }
 
@@ -711,31 +1017,150 @@ export type PurchaseUncheckedUpdateWithoutItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vendorId?: Prisma.IntFieldUpdateOperationsInput | number
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseCreateManyCreatedByInput = {
+  id?: number
+  invoiceNo?: string | null
+  vendorId: number
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PurchaseCreateManyUpdatedByInput = {
+  id?: number
+  invoiceNo?: string | null
+  vendorId: number
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PurchaseUpdateWithoutCreatedByInput = {
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchasesNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
+  items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
+  stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseUncheckedUpdateWithoutCreatedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendorId?: Prisma.IntFieldUpdateOperationsInput | number
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseUncheckedUpdateManyWithoutCreatedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendorId?: Prisma.IntFieldUpdateOperationsInput | number
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PurchaseUpdateWithoutUpdatedByInput = {
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchasesNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
+  items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
+  stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseUncheckedUpdateWithoutUpdatedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendorId?: Prisma.IntFieldUpdateOperationsInput | number
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseUncheckedUpdateManyWithoutUpdatedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendorId?: Prisma.IntFieldUpdateOperationsInput | number
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PurchaseCreateManyVendorInput = {
   id?: number
   invoiceNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Date | string
   notes?: string | null
   isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type PurchaseUpdateWithoutVendorInput = {
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
 }
@@ -743,11 +1168,14 @@ export type PurchaseUpdateWithoutVendorInput = {
 export type PurchaseUncheckedUpdateWithoutVendorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
 }
@@ -755,11 +1183,14 @@ export type PurchaseUncheckedUpdateWithoutVendorInput = {
 export type PurchaseUncheckedUpdateManyWithoutVendorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -806,12 +1237,17 @@ export type PurchaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   invoiceNo?: boolean
   vendorId?: boolean
-  totalAmount?: boolean
+  totalCost?: boolean
   purchaseDate?: boolean
   notes?: boolean
   isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Purchase$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.Purchase$itemsArgs<ExtArgs>
   stocks?: boolean | Prisma.Purchase$stocksArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseCountOutputTypeDefaultArgs<ExtArgs>
@@ -821,55 +1257,76 @@ export type PurchaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   invoiceNo?: boolean
   vendorId?: boolean
-  totalAmount?: boolean
+  totalCost?: boolean
   purchaseDate?: boolean
   notes?: boolean
   isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Purchase$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
 }, ExtArgs["result"]["purchase"]>
 
 export type PurchaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   invoiceNo?: boolean
   vendorId?: boolean
-  totalAmount?: boolean
+  totalCost?: boolean
   purchaseDate?: boolean
   notes?: boolean
   isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Purchase$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
 }, ExtArgs["result"]["purchase"]>
 
 export type PurchaseSelectScalar = {
   id?: boolean
   invoiceNo?: boolean
   vendorId?: boolean
-  totalAmount?: boolean
+  totalCost?: boolean
   purchaseDate?: boolean
   notes?: boolean
   isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type PurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "vendorId" | "totalAmount" | "purchaseDate" | "notes" | "isDeleted" | "createdAt", ExtArgs["result"]["purchase"]>
+export type PurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNo" | "vendorId" | "totalCost" | "purchaseDate" | "notes" | "isDeleted" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>
 export type PurchaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Purchase$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.Purchase$itemsArgs<ExtArgs>
   stocks?: boolean | Prisma.Purchase$stocksArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PurchaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Purchase$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
 }
 export type PurchaseIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  createdBy?: boolean | Prisma.Purchase$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
 }
 
 export type $PurchasePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Purchase"
   objects: {
     vendor: Prisma.$VendorPayload<ExtArgs>
+    createdBy: Prisma.$UserPayload<ExtArgs> | null
+    updatedBy: Prisma.$UserPayload<ExtArgs> | null
     items: Prisma.$PurchaseItemPayload<ExtArgs>[]
     stocks: Prisma.$StockPayload<ExtArgs>[]
   }
@@ -877,11 +1334,14 @@ export type $PurchasePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: number
     invoiceNo: string | null
     vendorId: number
-    totalAmount: runtime.Decimal | null
+    totalCost: runtime.Decimal
     purchaseDate: Date
     notes: string | null
     isDeleted: boolean
+    createdById: number | null
+    updatedById: number | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["purchase"]>
   composites: {}
 }
@@ -1277,6 +1737,8 @@ readonly fields: PurchaseFieldRefs;
 export interface Prisma__PurchaseClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   vendor<T extends Prisma.VendorDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VendorDefaultArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  createdBy<T extends Prisma.Purchase$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  updatedBy<T extends Prisma.Purchase$updatedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$updatedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Purchase$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stocks<T extends Prisma.Purchase$stocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$stocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1311,11 +1773,14 @@ export interface PurchaseFieldRefs {
   readonly id: Prisma.FieldRef<"Purchase", 'Int'>
   readonly invoiceNo: Prisma.FieldRef<"Purchase", 'String'>
   readonly vendorId: Prisma.FieldRef<"Purchase", 'Int'>
-  readonly totalAmount: Prisma.FieldRef<"Purchase", 'Decimal'>
+  readonly totalCost: Prisma.FieldRef<"Purchase", 'Decimal'>
   readonly purchaseDate: Prisma.FieldRef<"Purchase", 'DateTime'>
   readonly notes: Prisma.FieldRef<"Purchase", 'String'>
   readonly isDeleted: Prisma.FieldRef<"Purchase", 'Boolean'>
+  readonly createdById: Prisma.FieldRef<"Purchase", 'Int'>
+  readonly updatedById: Prisma.FieldRef<"Purchase", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Purchase", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Purchase", 'DateTime'>
 }
     
 
@@ -1714,6 +2179,44 @@ export type PurchaseDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Purchases to delete.
    */
   limit?: number
+}
+
+/**
+ * Purchase.createdBy
+ */
+export type Purchase$createdByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * Purchase.updatedBy
+ */
+export type Purchase$updatedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

@@ -28,12 +28,10 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   id: number | null
-  roleId: number | null
 }
 
 export type UserSumAggregateOutputType = {
   id: number | null
-  roleId: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -45,10 +43,9 @@ export type UserMinAggregateOutputType = {
   isActive: boolean | null
   email: string | null
   mobile: string | null
-  roleId: number | null
+  isDeleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
-  isDeleted: boolean | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -60,10 +57,9 @@ export type UserMaxAggregateOutputType = {
   isActive: boolean | null
   email: string | null
   mobile: string | null
-  roleId: number | null
+  isDeleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
-  isDeleted: boolean | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -75,22 +71,19 @@ export type UserCountAggregateOutputType = {
   isActive: number
   email: number
   mobile: number
-  roleId: number
+  isDeleted: number
   createdAt: number
   updatedAt: number
-  isDeleted: number
   _all: number
 }
 
 
 export type UserAvgAggregateInputType = {
   id?: true
-  roleId?: true
 }
 
 export type UserSumAggregateInputType = {
   id?: true
-  roleId?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -102,10 +95,9 @@ export type UserMinAggregateInputType = {
   isActive?: true
   email?: true
   mobile?: true
-  roleId?: true
+  isDeleted?: true
   createdAt?: true
   updatedAt?: true
-  isDeleted?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -117,10 +109,9 @@ export type UserMaxAggregateInputType = {
   isActive?: true
   email?: true
   mobile?: true
-  roleId?: true
+  isDeleted?: true
   createdAt?: true
   updatedAt?: true
-  isDeleted?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -132,10 +123,9 @@ export type UserCountAggregateInputType = {
   isActive?: true
   email?: true
   mobile?: true
-  roleId?: true
+  isDeleted?: true
   createdAt?: true
   updatedAt?: true
-  isDeleted?: true
   _all?: true
 }
 
@@ -234,10 +224,9 @@ export type UserGroupByOutputType = {
   isActive: boolean
   email: string | null
   mobile: string | null
-  roleId: number
+  isDeleted: boolean
   createdAt: Date
   updatedAt: Date
-  isDeleted: boolean
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -272,17 +261,21 @@ export type UserWhereInput = {
   isActive?: Prisma.BoolFilter<"User"> | boolean
   email?: Prisma.StringNullableFilter<"User"> | string | null
   mobile?: Prisma.StringNullableFilter<"User"> | string | null
-  roleId?: Prisma.IntFilter<"User"> | number
+  isDeleted?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  isDeleted?: Prisma.BoolFilter<"User"> | boolean
-  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
-  salesCreated?: Prisma.SaleListRelationFilter
+  userRoles?: Prisma.UserRoleListRelationFilter
   domSalesCreated?: Prisma.DomSaleListRelationFilter
+  domSalesUpdated?: Prisma.DomSaleListRelationFilter
   arbSalesCreated?: Prisma.ArbSaleListRelationFilter
+  arbSalesUpdated?: Prisma.ArbSaleListRelationFilter
   commercialSalesCreated?: Prisma.CommercialSaleListRelationFilter
-  collectionsCreated?: Prisma.CollectionListRelationFilter
+  commercialSalesUpdated?: Prisma.CommercialSaleListRelationFilter
+  purchasesCreated?: Prisma.PurchaseListRelationFilter
+  purchasesUpdated?: Prisma.PurchaseListRelationFilter
   expensesCreated?: Prisma.ExpenseListRelationFilter
+  adjustmentsCreated?: Prisma.StockAdjustmentListRelationFilter
+  paymentsCreated?: Prisma.CustomerPaymentLedgerListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -294,43 +287,51 @@ export type UserOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   mobile?: Prisma.SortOrderInput | Prisma.SortOrder
-  roleId?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
-  role?: Prisma.RoleOrderByWithRelationInput
-  salesCreated?: Prisma.SaleOrderByRelationAggregateInput
+  userRoles?: Prisma.UserRoleOrderByRelationAggregateInput
   domSalesCreated?: Prisma.DomSaleOrderByRelationAggregateInput
+  domSalesUpdated?: Prisma.DomSaleOrderByRelationAggregateInput
   arbSalesCreated?: Prisma.ArbSaleOrderByRelationAggregateInput
+  arbSalesUpdated?: Prisma.ArbSaleOrderByRelationAggregateInput
   commercialSalesCreated?: Prisma.CommercialSaleOrderByRelationAggregateInput
-  collectionsCreated?: Prisma.CollectionOrderByRelationAggregateInput
+  commercialSalesUpdated?: Prisma.CommercialSaleOrderByRelationAggregateInput
+  purchasesCreated?: Prisma.PurchaseOrderByRelationAggregateInput
+  purchasesUpdated?: Prisma.PurchaseOrderByRelationAggregateInput
   expensesCreated?: Prisma.ExpenseOrderByRelationAggregateInput
+  adjustmentsCreated?: Prisma.StockAdjustmentOrderByRelationAggregateInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  uuid?: string
   username?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
-  uuid?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringNullableFilter<"User"> | string | null
   password?: Prisma.StringFilter<"User"> | string
   isActive?: Prisma.BoolFilter<"User"> | boolean
   email?: Prisma.StringNullableFilter<"User"> | string | null
   mobile?: Prisma.StringNullableFilter<"User"> | string | null
-  roleId?: Prisma.IntFilter<"User"> | number
+  isDeleted?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  isDeleted?: Prisma.BoolFilter<"User"> | boolean
-  role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
-  salesCreated?: Prisma.SaleListRelationFilter
+  userRoles?: Prisma.UserRoleListRelationFilter
   domSalesCreated?: Prisma.DomSaleListRelationFilter
+  domSalesUpdated?: Prisma.DomSaleListRelationFilter
   arbSalesCreated?: Prisma.ArbSaleListRelationFilter
+  arbSalesUpdated?: Prisma.ArbSaleListRelationFilter
   commercialSalesCreated?: Prisma.CommercialSaleListRelationFilter
-  collectionsCreated?: Prisma.CollectionListRelationFilter
+  commercialSalesUpdated?: Prisma.CommercialSaleListRelationFilter
+  purchasesCreated?: Prisma.PurchaseListRelationFilter
+  purchasesUpdated?: Prisma.PurchaseListRelationFilter
   expensesCreated?: Prisma.ExpenseListRelationFilter
-}, "id" | "username">
+  adjustmentsCreated?: Prisma.StockAdjustmentListRelationFilter
+  paymentsCreated?: Prisma.CustomerPaymentLedgerListRelationFilter
+}, "id" | "uuid" | "username">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -341,10 +342,9 @@ export type UserOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   mobile?: Prisma.SortOrderInput | Prisma.SortOrder
-  roleId?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -364,10 +364,9 @@ export type UserScalarWhereWithAggregatesInput = {
   isActive?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   mobile?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  roleId?: Prisma.IntWithAggregatesFilter<"User"> | number
+  isDeleted?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
-  isDeleted?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
 }
 
 export type UserCreateInput = {
@@ -378,16 +377,21 @@ export type UserCreateInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  salesCreated?: Prisma.SaleCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -399,16 +403,21 @@ export type UserUncheckedCreateInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
-  roleId: number
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleUncheckedCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUpdateInput = {
@@ -419,16 +428,21 @@ export type UserUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  salesCreated?: Prisma.SaleUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -440,16 +454,21 @@ export type UserUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -461,10 +480,9 @@ export type UserCreateManyInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
-  roleId: number
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
 }
 
 export type UserUpdateManyMutationInput = {
@@ -475,9 +493,9 @@ export type UserUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -489,10 +507,9 @@ export type UserUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -504,15 +521,13 @@ export type UserCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   email?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -524,10 +539,9 @@ export type UserMaxOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   email?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -539,25 +553,18 @@ export type UserMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   email?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  roleId?: Prisma.SortOrder
 }
 
-export type UserListRelationFilter = {
-  every?: Prisma.UserWhereInput
-  some?: Prisma.UserWhereInput
-  none?: Prisma.UserWhereInput
-}
-
-export type UserOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type UserScalarRelationFilter = {
+  is?: Prisma.UserWhereInput
+  isNot?: Prisma.UserWhereInput
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -589,67 +596,77 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type UserCreateNestedManyWithoutRoleInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-}
-
-export type UserUncheckedCreateNestedManyWithoutRoleInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-}
-
-export type UserUpdateManyWithoutRoleNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutRoleInput | Prisma.UserUpsertWithWhereUniqueWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  update?: Prisma.UserUpdateWithWhereUniqueWithoutRoleInput | Prisma.UserUpdateWithWhereUniqueWithoutRoleInput[]
-  updateMany?: Prisma.UserUpdateManyWithWhereWithoutRoleInput | Prisma.UserUpdateManyWithWhereWithoutRoleInput[]
-  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-}
-
-export type UserUncheckedUpdateManyWithoutRoleNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput> | Prisma.UserCreateWithoutRoleInput[] | Prisma.UserUncheckedCreateWithoutRoleInput[]
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoleInput | Prisma.UserCreateOrConnectWithoutRoleInput[]
-  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutRoleInput | Prisma.UserUpsertWithWhereUniqueWithoutRoleInput[]
-  createMany?: Prisma.UserCreateManyRoleInputEnvelope
-  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
-  update?: Prisma.UserUpdateWithWhereUniqueWithoutRoleInput | Prisma.UserUpdateWithWhereUniqueWithoutRoleInput[]
-  updateMany?: Prisma.UserUpdateManyWithWhereWithoutRoleInput | Prisma.UserUpdateManyWithWhereWithoutRoleInput[]
-  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-}
-
-export type UserCreateNestedOneWithoutSalesCreatedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutSalesCreatedInput, Prisma.UserUncheckedCreateWithoutSalesCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSalesCreatedInput
+export type UserCreateNestedOneWithoutUserRolesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserRolesInput, Prisma.UserUncheckedCreateWithoutUserRolesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserRolesInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneWithoutSalesCreatedNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutSalesCreatedInput, Prisma.UserUncheckedCreateWithoutSalesCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSalesCreatedInput
-  upsert?: Prisma.UserUpsertWithoutSalesCreatedInput
+export type UserUpdateOneRequiredWithoutUserRolesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUserRolesInput, Prisma.UserUncheckedCreateWithoutUserRolesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUserRolesInput
+  upsert?: Prisma.UserUpsertWithoutUserRolesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserRolesInput, Prisma.UserUpdateWithoutUserRolesInput>, Prisma.UserUncheckedUpdateWithoutUserRolesInput>
+}
+
+export type UserCreateNestedOneWithoutPurchasesCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPurchasesCreatedInput, Prisma.UserUncheckedCreateWithoutPurchasesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPurchasesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutPurchasesUpdatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPurchasesUpdatedInput, Prisma.UserUncheckedCreateWithoutPurchasesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPurchasesUpdatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutPurchasesCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPurchasesCreatedInput, Prisma.UserUncheckedCreateWithoutPurchasesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPurchasesCreatedInput
+  upsert?: Prisma.UserUpsertWithoutPurchasesCreatedInput
   disconnect?: Prisma.UserWhereInput | boolean
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSalesCreatedInput, Prisma.UserUpdateWithoutSalesCreatedInput>, Prisma.UserUncheckedUpdateWithoutSalesCreatedInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPurchasesCreatedInput, Prisma.UserUpdateWithoutPurchasesCreatedInput>, Prisma.UserUncheckedUpdateWithoutPurchasesCreatedInput>
+}
+
+export type UserUpdateOneWithoutPurchasesUpdatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPurchasesUpdatedInput, Prisma.UserUncheckedCreateWithoutPurchasesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPurchasesUpdatedInput
+  upsert?: Prisma.UserUpsertWithoutPurchasesUpdatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPurchasesUpdatedInput, Prisma.UserUpdateWithoutPurchasesUpdatedInput>, Prisma.UserUncheckedUpdateWithoutPurchasesUpdatedInput>
+}
+
+export type UserCreateNestedOneWithoutAdjustmentsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdjustmentsCreatedInput, Prisma.UserUncheckedCreateWithoutAdjustmentsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdjustmentsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAdjustmentsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAdjustmentsCreatedInput, Prisma.UserUncheckedCreateWithoutAdjustmentsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAdjustmentsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutAdjustmentsCreatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAdjustmentsCreatedInput, Prisma.UserUpdateWithoutAdjustmentsCreatedInput>, Prisma.UserUncheckedUpdateWithoutAdjustmentsCreatedInput>
 }
 
 export type UserCreateNestedOneWithoutDomSalesCreatedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutDomSalesCreatedInput, Prisma.UserUncheckedCreateWithoutDomSalesCreatedInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutDomSalesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutDomSalesUpdatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutDomSalesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDomSalesUpdatedInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
@@ -663,20 +680,78 @@ export type UserUpdateOneWithoutDomSalesCreatedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDomSalesCreatedInput, Prisma.UserUpdateWithoutDomSalesCreatedInput>, Prisma.UserUncheckedUpdateWithoutDomSalesCreatedInput>
 }
 
-export type UserCreateNestedOneWithoutCollectionsCreatedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCollectionsCreatedInput, Prisma.UserUncheckedCreateWithoutCollectionsCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCollectionsCreatedInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutCollectionsCreatedNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCollectionsCreatedInput, Prisma.UserUncheckedCreateWithoutCollectionsCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCollectionsCreatedInput
-  upsert?: Prisma.UserUpsertWithoutCollectionsCreatedInput
+export type UserUpdateOneWithoutDomSalesUpdatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutDomSalesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDomSalesUpdatedInput
+  upsert?: Prisma.UserUpsertWithoutDomSalesUpdatedInput
   disconnect?: Prisma.UserWhereInput | boolean
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCollectionsCreatedInput, Prisma.UserUpdateWithoutCollectionsCreatedInput>, Prisma.UserUncheckedUpdateWithoutCollectionsCreatedInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDomSalesUpdatedInput, Prisma.UserUpdateWithoutDomSalesUpdatedInput>, Prisma.UserUncheckedUpdateWithoutDomSalesUpdatedInput>
+}
+
+export type UserCreateNestedOneWithoutArbSalesCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArbSalesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutArbSalesUpdatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutArbSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutArbSalesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArbSalesUpdatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutArbSalesCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArbSalesCreatedInput
+  upsert?: Prisma.UserUpsertWithoutArbSalesCreatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutArbSalesCreatedInput, Prisma.UserUpdateWithoutArbSalesCreatedInput>, Prisma.UserUncheckedUpdateWithoutArbSalesCreatedInput>
+}
+
+export type UserUpdateOneWithoutArbSalesUpdatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutArbSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutArbSalesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArbSalesUpdatedInput
+  upsert?: Prisma.UserUpsertWithoutArbSalesUpdatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutArbSalesUpdatedInput, Prisma.UserUpdateWithoutArbSalesUpdatedInput>, Prisma.UserUncheckedUpdateWithoutArbSalesUpdatedInput>
+}
+
+export type UserCreateNestedOneWithoutCommercialSalesCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommercialSalesCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutCommercialSalesUpdatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommercialSalesUpdatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCommercialSalesCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommercialSalesCreatedInput
+  upsert?: Prisma.UserUpsertWithoutCommercialSalesCreatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommercialSalesCreatedInput, Prisma.UserUpdateWithoutCommercialSalesCreatedInput>, Prisma.UserUncheckedUpdateWithoutCommercialSalesCreatedInput>
+}
+
+export type UserUpdateOneWithoutCommercialSalesUpdatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesUpdatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommercialSalesUpdatedInput
+  upsert?: Prisma.UserUpsertWithoutCommercialSalesUpdatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommercialSalesUpdatedInput, Prisma.UserUpdateWithoutCommercialSalesUpdatedInput>, Prisma.UserUncheckedUpdateWithoutCommercialSalesUpdatedInput>
 }
 
 export type UserCreateNestedOneWithoutExpensesCreatedInput = {
@@ -695,39 +770,23 @@ export type UserUpdateOneWithoutExpensesCreatedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutExpensesCreatedInput, Prisma.UserUpdateWithoutExpensesCreatedInput>, Prisma.UserUncheckedUpdateWithoutExpensesCreatedInput>
 }
 
-export type UserCreateNestedOneWithoutArbSalesCreatedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArbSalesCreatedInput
+export type UserCreateNestedOneWithoutPaymentsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPaymentsCreatedInput, Prisma.UserUncheckedCreateWithoutPaymentsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPaymentsCreatedInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneWithoutArbSalesCreatedNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutArbSalesCreatedInput
-  upsert?: Prisma.UserUpsertWithoutArbSalesCreatedInput
+export type UserUpdateOneWithoutPaymentsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPaymentsCreatedInput, Prisma.UserUncheckedCreateWithoutPaymentsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPaymentsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutPaymentsCreatedInput
   disconnect?: Prisma.UserWhereInput | boolean
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutArbSalesCreatedInput, Prisma.UserUpdateWithoutArbSalesCreatedInput>, Prisma.UserUncheckedUpdateWithoutArbSalesCreatedInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPaymentsCreatedInput, Prisma.UserUpdateWithoutPaymentsCreatedInput>, Prisma.UserUncheckedUpdateWithoutPaymentsCreatedInput>
 }
 
-export type UserCreateNestedOneWithoutCommercialSalesCreatedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommercialSalesCreatedInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutCommercialSalesCreatedNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommercialSalesCreatedInput
-  upsert?: Prisma.UserUpsertWithoutCommercialSalesCreatedInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommercialSalesCreatedInput, Prisma.UserUpdateWithoutCommercialSalesCreatedInput>, Prisma.UserUncheckedUpdateWithoutCommercialSalesCreatedInput>
-}
-
-export type UserCreateWithoutRoleInput = {
+export type UserCreateWithoutUserRolesInput = {
   uuid?: string
   username: string
   name?: string | null
@@ -735,18 +794,23 @@ export type UserCreateWithoutRoleInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleCreateNestedManyWithoutCreatedByInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
 }
 
-export type UserUncheckedCreateWithoutRoleInput = {
+export type UserUncheckedCreateWithoutUserRolesInput = {
   id?: number
   uuid?: string
   username: string
@@ -755,117 +819,39 @@ export type UserUncheckedCreateWithoutRoleInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
-export type UserCreateOrConnectWithoutRoleInput = {
+export type UserCreateOrConnectWithoutUserRolesInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserRolesInput, Prisma.UserUncheckedCreateWithoutUserRolesInput>
 }
 
-export type UserCreateManyRoleInputEnvelope = {
-  data: Prisma.UserCreateManyRoleInput | Prisma.UserCreateManyRoleInput[]
-  skipDuplicates?: boolean
-}
-
-export type UserUpsertWithWhereUniqueWithoutRoleInput = {
-  where: Prisma.UserWhereUniqueInput
-  update: Prisma.XOR<Prisma.UserUpdateWithoutRoleInput, Prisma.UserUncheckedUpdateWithoutRoleInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutRoleInput, Prisma.UserUncheckedCreateWithoutRoleInput>
-}
-
-export type UserUpdateWithWhereUniqueWithoutRoleInput = {
-  where: Prisma.UserWhereUniqueInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutRoleInput, Prisma.UserUncheckedUpdateWithoutRoleInput>
-}
-
-export type UserUpdateManyWithWhereWithoutRoleInput = {
-  where: Prisma.UserScalarWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutRoleInput>
-}
-
-export type UserScalarWhereInput = {
-  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  OR?: Prisma.UserScalarWhereInput[]
-  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
-  id?: Prisma.IntFilter<"User"> | number
-  uuid?: Prisma.StringFilter<"User"> | string
-  username?: Prisma.StringFilter<"User"> | string
-  name?: Prisma.StringNullableFilter<"User"> | string | null
-  password?: Prisma.StringFilter<"User"> | string
-  isActive?: Prisma.BoolFilter<"User"> | boolean
-  email?: Prisma.StringNullableFilter<"User"> | string | null
-  mobile?: Prisma.StringNullableFilter<"User"> | string | null
-  roleId?: Prisma.IntFilter<"User"> | number
-  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  isDeleted?: Prisma.BoolFilter<"User"> | boolean
-}
-
-export type UserCreateWithoutSalesCreatedInput = {
-  uuid?: string
-  username: string
-  name?: string | null
-  password: string
-  isActive?: boolean
-  email?: string | null
-  mobile?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  isDeleted?: boolean
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
-  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
-  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionCreateNestedManyWithoutCreatedByInput
-  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserUncheckedCreateWithoutSalesCreatedInput = {
-  id?: number
-  uuid?: string
-  username: string
-  name?: string | null
-  password: string
-  isActive?: boolean
-  email?: string | null
-  mobile?: string | null
-  roleId: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  isDeleted?: boolean
-  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionUncheckedCreateNestedManyWithoutCreatedByInput
-  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserCreateOrConnectWithoutSalesCreatedInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutSalesCreatedInput, Prisma.UserUncheckedCreateWithoutSalesCreatedInput>
-}
-
-export type UserUpsertWithoutSalesCreatedInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutSalesCreatedInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutSalesCreatedInput, Prisma.UserUncheckedCreateWithoutSalesCreatedInput>
+export type UserUpsertWithoutUserRolesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUserRolesInput, Prisma.UserUncheckedUpdateWithoutUserRolesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUserRolesInput, Prisma.UserUncheckedCreateWithoutUserRolesInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutSalesCreatedInput = {
+export type UserUpdateToOneWithWhereWithoutUserRolesInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutSalesCreatedInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUserRolesInput, Prisma.UserUncheckedUpdateWithoutUserRolesInput>
 }
 
-export type UserUpdateWithoutSalesCreatedInput = {
+export type UserUpdateWithoutUserRolesInput = {
   uuid?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -873,18 +859,23 @@ export type UserUpdateWithoutSalesCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
 }
 
-export type UserUncheckedUpdateWithoutSalesCreatedInput = {
+export type UserUncheckedUpdateWithoutUserRolesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   uuid?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
@@ -893,15 +884,362 @@ export type UserUncheckedUpdateWithoutSalesCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutPurchasesCreatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutPurchasesCreatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutPurchasesCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPurchasesCreatedInput, Prisma.UserUncheckedCreateWithoutPurchasesCreatedInput>
+}
+
+export type UserCreateWithoutPurchasesUpdatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutPurchasesUpdatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutPurchasesUpdatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPurchasesUpdatedInput, Prisma.UserUncheckedCreateWithoutPurchasesUpdatedInput>
+}
+
+export type UserUpsertWithoutPurchasesCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPurchasesCreatedInput, Prisma.UserUncheckedUpdateWithoutPurchasesCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPurchasesCreatedInput, Prisma.UserUncheckedCreateWithoutPurchasesCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPurchasesCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPurchasesCreatedInput, Prisma.UserUncheckedUpdateWithoutPurchasesCreatedInput>
+}
+
+export type UserUpdateWithoutPurchasesCreatedInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPurchasesCreatedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUpsertWithoutPurchasesUpdatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPurchasesUpdatedInput, Prisma.UserUncheckedUpdateWithoutPurchasesUpdatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPurchasesUpdatedInput, Prisma.UserUncheckedCreateWithoutPurchasesUpdatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPurchasesUpdatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPurchasesUpdatedInput, Prisma.UserUncheckedUpdateWithoutPurchasesUpdatedInput>
+}
+
+export type UserUpdateWithoutPurchasesUpdatedInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPurchasesUpdatedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutAdjustmentsCreatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutAdjustmentsCreatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutAdjustmentsCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdjustmentsCreatedInput, Prisma.UserUncheckedCreateWithoutAdjustmentsCreatedInput>
+}
+
+export type UserUpsertWithoutAdjustmentsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAdjustmentsCreatedInput, Prisma.UserUncheckedUpdateWithoutAdjustmentsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAdjustmentsCreatedInput, Prisma.UserUncheckedCreateWithoutAdjustmentsCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAdjustmentsCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAdjustmentsCreatedInput, Prisma.UserUncheckedUpdateWithoutAdjustmentsCreatedInput>
+}
+
+export type UserUpdateWithoutAdjustmentsCreatedInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAdjustmentsCreatedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutDomSalesCreatedInput = {
@@ -912,15 +1250,20 @@ export type UserCreateWithoutDomSalesCreatedInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  salesCreated?: Prisma.SaleCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutDomSalesCreatedInput = {
@@ -932,20 +1275,79 @@ export type UserUncheckedCreateWithoutDomSalesCreatedInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
-  roleId: number
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleUncheckedCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutDomSalesCreatedInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutDomSalesCreatedInput, Prisma.UserUncheckedCreateWithoutDomSalesCreatedInput>
+}
+
+export type UserCreateWithoutDomSalesUpdatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutDomSalesUpdatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutDomSalesUpdatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutDomSalesUpdatedInput>
 }
 
 export type UserUpsertWithoutDomSalesCreatedInput = {
@@ -967,15 +1369,20 @@ export type UserUpdateWithoutDomSalesCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  salesCreated?: Prisma.SaleUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDomSalesCreatedInput = {
@@ -987,73 +1394,34 @@ export type UserUncheckedUpdateWithoutDomSalesCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
-export type UserCreateWithoutCollectionsCreatedInput = {
-  uuid?: string
-  username: string
-  name?: string | null
-  password: string
-  isActive?: boolean
-  email?: string | null
-  mobile?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  isDeleted?: boolean
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  salesCreated?: Prisma.SaleCreateNestedManyWithoutCreatedByInput
-  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
-  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
-  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
-  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserUncheckedCreateWithoutCollectionsCreatedInput = {
-  id?: number
-  uuid?: string
-  username: string
-  name?: string | null
-  password: string
-  isActive?: boolean
-  email?: string | null
-  mobile?: string | null
-  roleId: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleUncheckedCreateNestedManyWithoutCreatedByInput
-  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserCreateOrConnectWithoutCollectionsCreatedInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutCollectionsCreatedInput, Prisma.UserUncheckedCreateWithoutCollectionsCreatedInput>
-}
-
-export type UserUpsertWithoutCollectionsCreatedInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutCollectionsCreatedInput, Prisma.UserUncheckedUpdateWithoutCollectionsCreatedInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutCollectionsCreatedInput, Prisma.UserUncheckedCreateWithoutCollectionsCreatedInput>
+export type UserUpsertWithoutDomSalesUpdatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedUpdateWithoutDomSalesUpdatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutDomSalesUpdatedInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutCollectionsCreatedInput = {
+export type UserUpdateToOneWithWhereWithoutDomSalesUpdatedInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutCollectionsCreatedInput, Prisma.UserUncheckedUpdateWithoutCollectionsCreatedInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedUpdateWithoutDomSalesUpdatedInput>
 }
 
-export type UserUpdateWithoutCollectionsCreatedInput = {
+export type UserUpdateWithoutDomSalesUpdatedInput = {
   uuid?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1061,18 +1429,23 @@ export type UserUpdateWithoutCollectionsCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  salesCreated?: Prisma.SaleUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
 }
 
-export type UserUncheckedUpdateWithoutCollectionsCreatedInput = {
+export type UserUncheckedUpdateWithoutDomSalesUpdatedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   uuid?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1081,15 +1454,476 @@ export type UserUncheckedUpdateWithoutCollectionsCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutArbSalesCreatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutArbSalesCreatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutArbSalesCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
+}
+
+export type UserCreateWithoutArbSalesUpdatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutArbSalesUpdatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutArbSalesUpdatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutArbSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutArbSalesUpdatedInput>
+}
+
+export type UserUpsertWithoutArbSalesCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutArbSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutArbSalesCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutArbSalesCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutArbSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutArbSalesCreatedInput>
+}
+
+export type UserUpdateWithoutArbSalesCreatedInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutArbSalesCreatedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUpsertWithoutArbSalesUpdatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutArbSalesUpdatedInput, Prisma.UserUncheckedUpdateWithoutArbSalesUpdatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutArbSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutArbSalesUpdatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutArbSalesUpdatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutArbSalesUpdatedInput, Prisma.UserUncheckedUpdateWithoutArbSalesUpdatedInput>
+}
+
+export type UserUpdateWithoutArbSalesUpdatedInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutArbSalesUpdatedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutCommercialSalesCreatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutCommercialSalesCreatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutCommercialSalesCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
+}
+
+export type UserCreateWithoutCommercialSalesUpdatedInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutCommercialSalesUpdatedInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutCommercialSalesUpdatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesUpdatedInput>
+}
+
+export type UserUpsertWithoutCommercialSalesCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutCommercialSalesCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCommercialSalesCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutCommercialSalesCreatedInput>
+}
+
+export type UserUpdateWithoutCommercialSalesCreatedInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCommercialSalesCreatedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUpsertWithoutCommercialSalesUpdatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCommercialSalesUpdatedInput, Prisma.UserUncheckedUpdateWithoutCommercialSalesUpdatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesUpdatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCommercialSalesUpdatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCommercialSalesUpdatedInput, Prisma.UserUncheckedUpdateWithoutCommercialSalesUpdatedInput>
+}
+
+export type UserUpdateWithoutCommercialSalesUpdatedInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCommercialSalesUpdatedInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutExpensesCreatedInput = {
@@ -1100,15 +1934,20 @@ export type UserCreateWithoutExpensesCreatedInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  salesCreated?: Prisma.SaleCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutExpensesCreatedInput = {
@@ -1120,15 +1959,20 @@ export type UserUncheckedCreateWithoutExpensesCreatedInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
-  roleId: number
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleUncheckedCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutExpensesCreatedInput = {
@@ -1155,15 +1999,20 @@ export type UserUpdateWithoutExpensesCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  salesCreated?: Prisma.SaleUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExpensesCreatedInput = {
@@ -1175,18 +2024,23 @@ export type UserUncheckedUpdateWithoutExpensesCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
-export type UserCreateWithoutArbSalesCreatedInput = {
+export type UserCreateWithoutPaymentsCreatedInput = {
   uuid?: string
   username: string
   name?: string | null
@@ -1194,112 +2048,23 @@ export type UserCreateWithoutArbSalesCreatedInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  salesCreated?: Prisma.SaleCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
-  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionCreateNestedManyWithoutCreatedByInput
-  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserUncheckedCreateWithoutArbSalesCreatedInput = {
-  id?: number
-  uuid?: string
-  username: string
-  name?: string | null
-  password: string
-  isActive?: boolean
-  email?: string | null
-  mobile?: string | null
-  roleId: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleUncheckedCreateNestedManyWithoutCreatedByInput
-  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionUncheckedCreateNestedManyWithoutCreatedByInput
-  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
-}
-
-export type UserCreateOrConnectWithoutArbSalesCreatedInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
-}
-
-export type UserUpsertWithoutArbSalesCreatedInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutArbSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutArbSalesCreatedInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutArbSalesCreatedInput, Prisma.UserUncheckedCreateWithoutArbSalesCreatedInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutArbSalesCreatedInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutArbSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutArbSalesCreatedInput>
-}
-
-export type UserUpdateWithoutArbSalesCreatedInput = {
-  uuid?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  salesCreated?: Prisma.SaleUpdateManyWithoutCreatedByNestedInput
-  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
-  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUpdateManyWithoutCreatedByNestedInput
-  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserUncheckedUpdateWithoutArbSalesCreatedInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  uuid?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUncheckedUpdateManyWithoutCreatedByNestedInput
-  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserCreateWithoutCommercialSalesCreatedInput = {
-  uuid?: string
-  username: string
-  name?: string | null
-  password: string
-  isActive?: boolean
-  email?: string | null
-  mobile?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  isDeleted?: boolean
-  role: Prisma.RoleCreateNestedOneWithoutUsersInput
-  salesCreated?: Prisma.SaleCreateNestedManyWithoutCreatedByInput
-  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
 }
 
-export type UserUncheckedCreateWithoutCommercialSalesCreatedInput = {
+export type UserUncheckedCreateWithoutPaymentsCreatedInput = {
   id?: number
   uuid?: string
   username: string
@@ -1308,34 +2073,39 @@ export type UserUncheckedCreateWithoutCommercialSalesCreatedInput = {
   isActive?: boolean
   email?: string | null
   mobile?: string | null
-  roleId: number
+  isDeleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  isDeleted?: boolean
-  salesCreated?: Prisma.SaleUncheckedCreateNestedManyWithoutCreatedByInput
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
-  collectionsCreated?: Prisma.CollectionUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
-export type UserCreateOrConnectWithoutCommercialSalesCreatedInput = {
+export type UserCreateOrConnectWithoutPaymentsCreatedInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPaymentsCreatedInput, Prisma.UserUncheckedCreateWithoutPaymentsCreatedInput>
 }
 
-export type UserUpsertWithoutCommercialSalesCreatedInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutCommercialSalesCreatedInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedCreateWithoutCommercialSalesCreatedInput>
+export type UserUpsertWithoutPaymentsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPaymentsCreatedInput, Prisma.UserUncheckedUpdateWithoutPaymentsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPaymentsCreatedInput, Prisma.UserUncheckedCreateWithoutPaymentsCreatedInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutCommercialSalesCreatedInput = {
+export type UserUpdateToOneWithWhereWithoutPaymentsCreatedInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutCommercialSalesCreatedInput, Prisma.UserUncheckedUpdateWithoutCommercialSalesCreatedInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPaymentsCreatedInput, Prisma.UserUncheckedUpdateWithoutPaymentsCreatedInput>
 }
 
-export type UserUpdateWithoutCommercialSalesCreatedInput = {
+export type UserUpdateWithoutPaymentsCreatedInput = {
   uuid?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1343,71 +2113,23 @@ export type UserUpdateWithoutCommercialSalesCreatedInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
-  salesCreated?: Prisma.SaleUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUpdateManyWithoutCreatedByNestedInput
-  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserUncheckedUpdateWithoutCommercialSalesCreatedInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  uuid?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  roleId?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUncheckedUpdateManyWithoutCreatedByNestedInput
-  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserCreateManyRoleInput = {
-  id?: number
-  uuid?: string
-  username: string
-  name?: string | null
-  password: string
-  isActive?: boolean
-  email?: string | null
-  mobile?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  isDeleted?: boolean
-}
-
-export type UserUpdateWithoutRoleInput = {
-  uuid?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUpdateManyWithoutCreatedByNestedInput
-  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
-  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
 }
 
-export type UserUncheckedUpdateWithoutRoleInput = {
+export type UserUncheckedUpdateWithoutPaymentsCreatedInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   uuid?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1416,29 +2138,20 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  salesCreated?: Prisma.SaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
-  collectionsCreated?: Prisma.CollectionUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
-}
-
-export type UserUncheckedUpdateManyWithoutRoleInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  uuid?: Prisma.StringFieldUpdateOperationsInput | string
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  password?: Prisma.StringFieldUpdateOperationsInput | string
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 
@@ -1447,21 +2160,33 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
  */
 
 export type UserCountOutputType = {
-  salesCreated: number
+  userRoles: number
   domSalesCreated: number
+  domSalesUpdated: number
   arbSalesCreated: number
+  arbSalesUpdated: number
   commercialSalesCreated: number
-  collectionsCreated: number
+  commercialSalesUpdated: number
+  purchasesCreated: number
+  purchasesUpdated: number
   expensesCreated: number
+  adjustmentsCreated: number
+  paymentsCreated: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  salesCreated?: boolean | UserCountOutputTypeCountSalesCreatedArgs
+  userRoles?: boolean | UserCountOutputTypeCountUserRolesArgs
   domSalesCreated?: boolean | UserCountOutputTypeCountDomSalesCreatedArgs
+  domSalesUpdated?: boolean | UserCountOutputTypeCountDomSalesUpdatedArgs
   arbSalesCreated?: boolean | UserCountOutputTypeCountArbSalesCreatedArgs
+  arbSalesUpdated?: boolean | UserCountOutputTypeCountArbSalesUpdatedArgs
   commercialSalesCreated?: boolean | UserCountOutputTypeCountCommercialSalesCreatedArgs
-  collectionsCreated?: boolean | UserCountOutputTypeCountCollectionsCreatedArgs
+  commercialSalesUpdated?: boolean | UserCountOutputTypeCountCommercialSalesUpdatedArgs
+  purchasesCreated?: boolean | UserCountOutputTypeCountPurchasesCreatedArgs
+  purchasesUpdated?: boolean | UserCountOutputTypeCountPurchasesUpdatedArgs
   expensesCreated?: boolean | UserCountOutputTypeCountExpensesCreatedArgs
+  adjustmentsCreated?: boolean | UserCountOutputTypeCountAdjustmentsCreatedArgs
+  paymentsCreated?: boolean | UserCountOutputTypeCountPaymentsCreatedArgs
 }
 
 /**
@@ -1477,14 +2202,21 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountSalesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SaleWhereInput
+export type UserCountOutputTypeCountUserRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserRoleWhereInput
 }
 
 /**
  * UserCountOutputType without action
  */
 export type UserCountOutputTypeCountDomSalesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DomSaleWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDomSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DomSaleWhereInput
 }
 
@@ -1498,6 +2230,13 @@ export type UserCountOutputTypeCountArbSalesCreatedArgs<ExtArgs extends runtime.
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountArbSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ArbSaleWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountCommercialSalesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CommercialSaleWhereInput
 }
@@ -1505,8 +2244,22 @@ export type UserCountOutputTypeCountCommercialSalesCreatedArgs<ExtArgs extends r
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountCollectionsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CollectionWhereInput
+export type UserCountOutputTypeCountCommercialSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommercialSaleWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPurchasesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PurchaseWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPurchasesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PurchaseWhereInput
 }
 
 /**
@@ -1514,6 +2267,20 @@ export type UserCountOutputTypeCountCollectionsCreatedArgs<ExtArgs extends runti
  */
 export type UserCountOutputTypeCountExpensesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ExpenseWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAdjustmentsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockAdjustmentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPaymentsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerPaymentLedgerWhereInput
 }
 
 
@@ -1526,17 +2293,21 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isActive?: boolean
   email?: boolean
   mobile?: boolean
-  roleId?: boolean
+  isDeleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  isDeleted?: boolean
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-  salesCreated?: boolean | Prisma.User$salesCreatedArgs<ExtArgs>
+  userRoles?: boolean | Prisma.User$userRolesArgs<ExtArgs>
   domSalesCreated?: boolean | Prisma.User$domSalesCreatedArgs<ExtArgs>
+  domSalesUpdated?: boolean | Prisma.User$domSalesUpdatedArgs<ExtArgs>
   arbSalesCreated?: boolean | Prisma.User$arbSalesCreatedArgs<ExtArgs>
+  arbSalesUpdated?: boolean | Prisma.User$arbSalesUpdatedArgs<ExtArgs>
   commercialSalesCreated?: boolean | Prisma.User$commercialSalesCreatedArgs<ExtArgs>
-  collectionsCreated?: boolean | Prisma.User$collectionsCreatedArgs<ExtArgs>
+  commercialSalesUpdated?: boolean | Prisma.User$commercialSalesUpdatedArgs<ExtArgs>
+  purchasesCreated?: boolean | Prisma.User$purchasesCreatedArgs<ExtArgs>
+  purchasesUpdated?: boolean | Prisma.User$purchasesUpdatedArgs<ExtArgs>
   expensesCreated?: boolean | Prisma.User$expensesCreatedArgs<ExtArgs>
+  adjustmentsCreated?: boolean | Prisma.User$adjustmentsCreatedArgs<ExtArgs>
+  paymentsCreated?: boolean | Prisma.User$paymentsCreatedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1549,11 +2320,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isActive?: boolean
   email?: boolean
   mobile?: boolean
-  roleId?: boolean
+  isDeleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  isDeleted?: boolean
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1565,11 +2334,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isActive?: boolean
   email?: boolean
   mobile?: boolean
-  roleId?: boolean
+  isDeleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  isDeleted?: boolean
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1581,40 +2348,45 @@ export type UserSelectScalar = {
   isActive?: boolean
   email?: boolean
   mobile?: boolean
-  roleId?: boolean
+  isDeleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  isDeleted?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uuid" | "username" | "name" | "password" | "isActive" | "email" | "mobile" | "roleId" | "createdAt" | "updatedAt" | "isDeleted", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uuid" | "username" | "name" | "password" | "isActive" | "email" | "mobile" | "isDeleted" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-  salesCreated?: boolean | Prisma.User$salesCreatedArgs<ExtArgs>
+  userRoles?: boolean | Prisma.User$userRolesArgs<ExtArgs>
   domSalesCreated?: boolean | Prisma.User$domSalesCreatedArgs<ExtArgs>
+  domSalesUpdated?: boolean | Prisma.User$domSalesUpdatedArgs<ExtArgs>
   arbSalesCreated?: boolean | Prisma.User$arbSalesCreatedArgs<ExtArgs>
+  arbSalesUpdated?: boolean | Prisma.User$arbSalesUpdatedArgs<ExtArgs>
   commercialSalesCreated?: boolean | Prisma.User$commercialSalesCreatedArgs<ExtArgs>
-  collectionsCreated?: boolean | Prisma.User$collectionsCreatedArgs<ExtArgs>
+  commercialSalesUpdated?: boolean | Prisma.User$commercialSalesUpdatedArgs<ExtArgs>
+  purchasesCreated?: boolean | Prisma.User$purchasesCreatedArgs<ExtArgs>
+  purchasesUpdated?: boolean | Prisma.User$purchasesUpdatedArgs<ExtArgs>
   expensesCreated?: boolean | Prisma.User$expensesCreatedArgs<ExtArgs>
+  adjustmentsCreated?: boolean | Prisma.User$adjustmentsCreatedArgs<ExtArgs>
+  paymentsCreated?: boolean | Prisma.User$paymentsCreatedArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
-}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    role: Prisma.$RolePayload<ExtArgs>
-    salesCreated: Prisma.$SalePayload<ExtArgs>[]
+    userRoles: Prisma.$UserRolePayload<ExtArgs>[]
     domSalesCreated: Prisma.$DomSalePayload<ExtArgs>[]
+    domSalesUpdated: Prisma.$DomSalePayload<ExtArgs>[]
     arbSalesCreated: Prisma.$ArbSalePayload<ExtArgs>[]
+    arbSalesUpdated: Prisma.$ArbSalePayload<ExtArgs>[]
     commercialSalesCreated: Prisma.$CommercialSalePayload<ExtArgs>[]
-    collectionsCreated: Prisma.$CollectionPayload<ExtArgs>[]
+    commercialSalesUpdated: Prisma.$CommercialSalePayload<ExtArgs>[]
+    purchasesCreated: Prisma.$PurchasePayload<ExtArgs>[]
+    purchasesUpdated: Prisma.$PurchasePayload<ExtArgs>[]
     expensesCreated: Prisma.$ExpensePayload<ExtArgs>[]
+    adjustmentsCreated: Prisma.$StockAdjustmentPayload<ExtArgs>[]
+    paymentsCreated: Prisma.$CustomerPaymentLedgerPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1625,10 +2397,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     isActive: boolean
     email: string | null
     mobile: string | null
-    roleId: number
+    isDeleted: boolean
     createdAt: Date
     updatedAt: Date
-    isDeleted: boolean
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -2023,13 +2794,18 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  salesCreated<T extends Prisma.User$salesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$salesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userRoles<T extends Prisma.User$userRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domSalesCreated<T extends Prisma.User$domSalesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$domSalesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  domSalesUpdated<T extends Prisma.User$domSalesUpdatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$domSalesUpdatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   arbSalesCreated<T extends Prisma.User$arbSalesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$arbSalesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  arbSalesUpdated<T extends Prisma.User$arbSalesUpdatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$arbSalesUpdatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commercialSalesCreated<T extends Prisma.User$commercialSalesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$commercialSalesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  collectionsCreated<T extends Prisma.User$collectionsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$collectionsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  commercialSalesUpdated<T extends Prisma.User$commercialSalesUpdatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$commercialSalesUpdatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  purchasesCreated<T extends Prisma.User$purchasesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$purchasesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  purchasesUpdated<T extends Prisma.User$purchasesUpdatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$purchasesUpdatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   expensesCreated<T extends Prisma.User$expensesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$expensesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  adjustmentsCreated<T extends Prisma.User$adjustmentsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adjustmentsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  paymentsCreated<T extends Prisma.User$paymentsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$paymentsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2067,10 +2843,9 @@ export interface UserFieldRefs {
   readonly isActive: Prisma.FieldRef<"User", 'Boolean'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly mobile: Prisma.FieldRef<"User", 'String'>
-  readonly roleId: Prisma.FieldRef<"User", 'Int'>
+  readonly isDeleted: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
-  readonly isDeleted: Prisma.FieldRef<"User", 'Boolean'>
 }
     
 
@@ -2325,10 +3100,6 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2399,10 +3170,6 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2472,33 +3239,57 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.salesCreated
+ * User.userRoles
  */
-export type User$salesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$userRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Sale
+   * Select specific fields to fetch from the UserRole
    */
-  select?: Prisma.SaleSelect<ExtArgs> | null
+  select?: Prisma.UserRoleSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Sale
+   * Omit specific fields from the UserRole
    */
-  omit?: Prisma.SaleOmit<ExtArgs> | null
+  omit?: Prisma.UserRoleOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SaleInclude<ExtArgs> | null
-  where?: Prisma.SaleWhereInput
-  orderBy?: Prisma.SaleOrderByWithRelationInput | Prisma.SaleOrderByWithRelationInput[]
-  cursor?: Prisma.SaleWhereUniqueInput
+  include?: Prisma.UserRoleInclude<ExtArgs> | null
+  where?: Prisma.UserRoleWhereInput
+  orderBy?: Prisma.UserRoleOrderByWithRelationInput | Prisma.UserRoleOrderByWithRelationInput[]
+  cursor?: Prisma.UserRoleWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.SaleScalarFieldEnum | Prisma.SaleScalarFieldEnum[]
+  distinct?: Prisma.UserRoleScalarFieldEnum | Prisma.UserRoleScalarFieldEnum[]
 }
 
 /**
  * User.domSalesCreated
  */
 export type User$domSalesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DomSale
+   */
+  select?: Prisma.DomSaleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DomSale
+   */
+  omit?: Prisma.DomSaleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DomSaleInclude<ExtArgs> | null
+  where?: Prisma.DomSaleWhereInput
+  orderBy?: Prisma.DomSaleOrderByWithRelationInput | Prisma.DomSaleOrderByWithRelationInput[]
+  cursor?: Prisma.DomSaleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DomSaleScalarFieldEnum | Prisma.DomSaleScalarFieldEnum[]
+}
+
+/**
+ * User.domSalesUpdated
+ */
+export type User$domSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the DomSale
    */
@@ -2544,6 +3335,30 @@ export type User$arbSalesCreatedArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
+ * User.arbSalesUpdated
+ */
+export type User$arbSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ArbSale
+   */
+  select?: Prisma.ArbSaleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ArbSale
+   */
+  omit?: Prisma.ArbSaleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ArbSaleInclude<ExtArgs> | null
+  where?: Prisma.ArbSaleWhereInput
+  orderBy?: Prisma.ArbSaleOrderByWithRelationInput | Prisma.ArbSaleOrderByWithRelationInput[]
+  cursor?: Prisma.ArbSaleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ArbSaleScalarFieldEnum | Prisma.ArbSaleScalarFieldEnum[]
+}
+
+/**
  * User.commercialSalesCreated
  */
 export type User$commercialSalesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2568,27 +3383,75 @@ export type User$commercialSalesCreatedArgs<ExtArgs extends runtime.Types.Extens
 }
 
 /**
- * User.collectionsCreated
+ * User.commercialSalesUpdated
  */
-export type User$collectionsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$commercialSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Collection
+   * Select specific fields to fetch from the CommercialSale
    */
-  select?: Prisma.CollectionSelect<ExtArgs> | null
+  select?: Prisma.CommercialSaleSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Collection
+   * Omit specific fields from the CommercialSale
    */
-  omit?: Prisma.CollectionOmit<ExtArgs> | null
+  omit?: Prisma.CommercialSaleOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CollectionInclude<ExtArgs> | null
-  where?: Prisma.CollectionWhereInput
-  orderBy?: Prisma.CollectionOrderByWithRelationInput | Prisma.CollectionOrderByWithRelationInput[]
-  cursor?: Prisma.CollectionWhereUniqueInput
+  include?: Prisma.CommercialSaleInclude<ExtArgs> | null
+  where?: Prisma.CommercialSaleWhereInput
+  orderBy?: Prisma.CommercialSaleOrderByWithRelationInput | Prisma.CommercialSaleOrderByWithRelationInput[]
+  cursor?: Prisma.CommercialSaleWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.CollectionScalarFieldEnum | Prisma.CollectionScalarFieldEnum[]
+  distinct?: Prisma.CommercialSaleScalarFieldEnum | Prisma.CommercialSaleScalarFieldEnum[]
+}
+
+/**
+ * User.purchasesCreated
+ */
+export type User$purchasesCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Purchase
+   */
+  select?: Prisma.PurchaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Purchase
+   */
+  omit?: Prisma.PurchaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PurchaseInclude<ExtArgs> | null
+  where?: Prisma.PurchaseWhereInput
+  orderBy?: Prisma.PurchaseOrderByWithRelationInput | Prisma.PurchaseOrderByWithRelationInput[]
+  cursor?: Prisma.PurchaseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PurchaseScalarFieldEnum | Prisma.PurchaseScalarFieldEnum[]
+}
+
+/**
+ * User.purchasesUpdated
+ */
+export type User$purchasesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Purchase
+   */
+  select?: Prisma.PurchaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Purchase
+   */
+  omit?: Prisma.PurchaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PurchaseInclude<ExtArgs> | null
+  where?: Prisma.PurchaseWhereInput
+  orderBy?: Prisma.PurchaseOrderByWithRelationInput | Prisma.PurchaseOrderByWithRelationInput[]
+  cursor?: Prisma.PurchaseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PurchaseScalarFieldEnum | Prisma.PurchaseScalarFieldEnum[]
 }
 
 /**
@@ -2613,6 +3476,54 @@ export type User$expensesCreatedArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ExpenseScalarFieldEnum | Prisma.ExpenseScalarFieldEnum[]
+}
+
+/**
+ * User.adjustmentsCreated
+ */
+export type User$adjustmentsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockAdjustment
+   */
+  select?: Prisma.StockAdjustmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockAdjustment
+   */
+  omit?: Prisma.StockAdjustmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockAdjustmentInclude<ExtArgs> | null
+  where?: Prisma.StockAdjustmentWhereInput
+  orderBy?: Prisma.StockAdjustmentOrderByWithRelationInput | Prisma.StockAdjustmentOrderByWithRelationInput[]
+  cursor?: Prisma.StockAdjustmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockAdjustmentScalarFieldEnum | Prisma.StockAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * User.paymentsCreated
+ */
+export type User$paymentsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPaymentLedger
+   */
+  select?: Prisma.CustomerPaymentLedgerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPaymentLedger
+   */
+  omit?: Prisma.CustomerPaymentLedgerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPaymentLedgerInclude<ExtArgs> | null
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+  orderBy?: Prisma.CustomerPaymentLedgerOrderByWithRelationInput | Prisma.CustomerPaymentLedgerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerPaymentLedgerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerPaymentLedgerScalarFieldEnum | Prisma.CustomerPaymentLedgerScalarFieldEnum[]
 }
 
 /**

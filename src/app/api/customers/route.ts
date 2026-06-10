@@ -1,6 +1,10 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import { CreateCustomerSchema } from "@/module/customer/customer.schema";
+import { LedgerEntryType, RefType } from "@/generated/enums";
+import { serializeCustomer } from "@/module/customer/customer.serializer";
 
 export async function GET() {
   return withAuth(async () => {
@@ -9,66 +13,90 @@ export async function GET() {
       include: { location: true },
       orderBy: { createdAt: "desc" },
     });
-    // Explicitly convert Decimal fields to avoid serialization issues
-    return NextResponse.json(
-      customers.map((c) => ({
-        ...c,
-        initialPendingAmount: parseFloat(Number(c.initialPendingAmount).toFixed(2)),
-      }))
-    );
-  });
+    return formatResponse({
+      data: customers.map(serializeCustomer),
+      message: "",
+    });
+  }, [PERMISSIONS.CUSTOMER_READ]);
 }
 
 export async function POST(request: Request) {
   return withAuth(async () => {
-    try {
-      const data = await request.json();
-      const balances: { productId: string; quantity: number }[] =
-        data.initialCylinderBalances ?? [];
+    const json = await request.json();
+    const { initialCylinderBalances, ...data } =
+      CreateCustomerSchema.parse(json);
 
-      const customer = await prisma.$transaction(async (tx) => {
-        const created = await tx.customer.create({
+    const customer = await prisma.$transaction(async (tx) => {
+      const created = await tx.customer.create({ data });
+
+      // Seed per-product opening cylinder balances
+      for (const entry of initialCylinderBalances) {
+        const productId = entry.productId;
+        const qty = Number(entry.qty) || 0;
+        if (!productId || qty <= 0) continue;
+
+        await tx.customerInitialCylinderBalance.upsert({
+          where: {
+            customerId_productId: { customerId: created.id, productId },
+          },
+          update: { qty },
+          create: { customerId: created.id, productId, qty },
+        });
+      }
+
+      // Cylinder ledger
+      for (const entry of initialCylinderBalances) {
+        const productId = entry.productId;
+        const qty = Number(entry.qty) || 0;
+        if (!productId || qty <= 0) continue;
+
+        await tx.customerCylinderLedger.upsert({
+          where: {
+            productId_customerId: {
+              customerId: created.id,
+              productId: entry.productId,
+            },
+          },
+          update: { pendingCylinder: qty },
+          create: { customerId: created.id, productId, pendingCylinder: qty },
+        });
+      }
+
+      // Payment Ledger and Balance
+      if (data.initialPendingAmount > 0) {
+        await tx.customerPaymentLedger.create({
           data: {
-            name: data.name,
-            address: data.address || null,
-            phone: data.phone || null,
-            locationId: data.locationId ? parseInt(data.locationId) : null,
-            concernedPerson: data.concernedPerson || null,
-            concernedPersonMobile: data.concernedPersonMobile || null,
-            discount: data.discount ?? null,
-            gstNumber: data.gstNumber || null,
-            initialCylinderBalance: 0,
-            // Round to 2dp to prevent floating-point drift
-            initialPendingAmount: Math.round(
-              parseFloat(String(data.initialPendingAmount || 0)) * 100
-            ) / 100,
+            amount: data.initialPendingAmount,
+            entryType: LedgerEntryType.OPENING,
+            refId: created.id,
+            refType: RefType.MANUAL,
+            notes: "Opening balance at customer registration",
+            customerId: created.id,
           },
         });
 
-        // Seed per-product opening cylinder balances
-        for (const entry of balances) {
-          const productId = parseInt(entry.productId);
-          const qty = Number(entry.quantity) || 0;
-          if (!productId || qty <= 0) continue;
+        await tx.customerBalance.create({
+          data: {
+            customerId: created.id,
+            pendingAmount: data.initialPendingAmount,
+          },
+        });
+      }
 
-          await tx.customerInitialCylinderBalance.upsert({
-            where: { customerId_productId: { customerId: created.id, productId } },
-            update: { quantity: qty },
-            create: { customerId: created.id, productId, quantity: qty },
-          });
-        }
-
-        return created;
+      return tx.customer.findUniqueOrThrow({
+        where: { id: created.id },
+        include: {
+          location: true,
+          customerBalance: true,
+          initialCylinderBalances: { include: { product: true } },
+          customerCylinderLedgers: { include: { product: true } },
+        },
       });
+    });
 
-      return NextResponse.json({
-        ...customer,
-        initialPendingAmount: parseFloat(Number(customer.initialPendingAmount).toFixed(2)),
-      }, { status: 201 });
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create customer";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  });
+    return formatResponse({
+      data: customer,
+      status: 201,
+    });
+  }, [PERMISSIONS.CUSTOMER_CREATE]);
 }

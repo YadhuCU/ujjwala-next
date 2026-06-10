@@ -1,37 +1,41 @@
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
 import { Permission } from "./permissions";
+import { Session } from "next-auth";
 
+import { UnauthorizedError, ForbiddenError } from "./errors";
+import { routeErrorHandler } from "./error-handler";
+import { logError } from "./log";
 
 /**
- * Wrapper to use requireAuth in route handlers.
- * Catches the thrown NextResponse and returns it.
+ * Authentication + Permissions + Global exception
+ * @param [requiredPermissions=[]]
+ * @param handler
  */
 export async function withAuth(
-  handler: () => Promise<NextResponse>,
-  requiredPermissions: Permission[] = []
-): Promise<NextResponse> {
+  handler: (user: Session["user"]) => Promise<Response>,
+  requiredPermissions: Permission[] = [],
+): Promise<Response> {
   try {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      throw new UnauthorizedError();
     }
 
     const userPermissions = session.user.permissions ?? [];
 
-    // Permission validation
-    const hasPermission = requiredPermissions.every(permission => userPermissions.includes(permission))
+    const hasPermission = requiredPermissions.every((permission) =>
+      userPermissions.includes(permission),
+    );
 
-    if(!hasPermission) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403})
+    if (!hasPermission) {
+      throw new ForbiddenError();
     }
 
-    return handler();
-
+    return await handler(session.user);
   } catch (error) {
-    if (error instanceof NextResponse) return error;
-    console.error(error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    logError(error);
+
+    return routeErrorHandler(error);
   }
 }

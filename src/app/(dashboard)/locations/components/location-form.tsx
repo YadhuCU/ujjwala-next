@@ -14,19 +14,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-export const locationSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  district: z.string().optional().or(z.literal("")),
-  pincode: z.string().optional().or(z.literal("")),
-  locality: z.string().optional().or(z.literal("")),
-});
-
-export type LocationFormValues = z.infer<typeof locationSchema>;
-
-// ─── Props ───────────────────────────────────────────────────────────────────
+import {
+  LocationFormSchema,
+  LocationFormValues,
+} from "@/module/location/location.schema";
 
 interface LocationFormProps {
   defaultValues?: LocationFormValues;
@@ -35,8 +26,6 @@ interface LocationFormProps {
   isPending: boolean;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export function LocationForm({
   defaultValues,
   isEditMode = false,
@@ -44,13 +33,8 @@ export function LocationForm({
   isPending,
 }: LocationFormProps) {
   const form = useForm<LocationFormValues>({
-    resolver: zodResolver(locationSchema),
-    defaultValues: defaultValues ?? {
-      name: "",
-      district: "",
-      pincode: "",
-      locality: "",
-    },
+    resolver: zodResolver(LocationFormSchema),
+    defaultValues: defaultValues ?? {},
   });
 
   return (

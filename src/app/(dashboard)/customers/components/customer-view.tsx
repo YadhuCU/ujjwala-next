@@ -3,29 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { usePermissions } from "@/hooks/use-permissions";
+import { usePermission } from "@/hooks/use-permissions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import { useDeleteMutation } from "@/hooks/use-api";
+import { Pencil, Trash2 } from "lucide-react";
+import { useCustomers, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
-import { PageWrapper } from "@/components/page-wrapper";
+import { CustomerResponse } from "@/module/customer/customer.serializer";
+import { PERMISSIONS } from "@/lib/permissions";
 
-interface Customer {
-  id: number;
-  name: string | null;
-  address: string | null;
-  phone: string | null;
-  discount: string | null;
-  location: { name: string | null } | null;
-}
-
-export function CustomersClient({ customers }: { customers: Customer[] }) {
+export function CustomerViewComponent() {
   const router = useRouter();
-  const { isAdmin } = usePermissions();
+  const { hasPermission } = usePermission();
+  const customerDeletePermission = hasPermission(PERMISSIONS.CUSTOMER_DELETE);
+  const customerUpdatePermission = hasPermission(PERMISSIONS.CUSTOMER_UPDATE);
+
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const deleteMutation = useDeleteMutation({
@@ -33,7 +28,9 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
     onSuccess: () => router.refresh(),
   });
 
-  const columns: ColumnDef<Customer>[] = [
+  const { data: customers } = useCustomers();
+
+  const columns: ColumnDef<CustomerResponse>[] = [
     { accessorKey: "name", header: "Name" },
     { accessorKey: "address", header: "Address" },
     { accessorKey: "location.name", header: "Location" },
@@ -48,7 +45,7 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
     { accessorKey: "phone", header: "Phone" },
   ];
 
-  if (isAdmin) {
+  if (customerDeletePermission || customerUpdatePermission) {
     columns.push({
       id: "actions",
       header: () => <div className="text-right">Actions</div>,
@@ -56,19 +53,23 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
         const c = row.original;
         return (
           <div className="text-right space-x-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={`/customers/${c.id}/edit`}>
-                <Pencil className="w-4 h-4" />
-              </Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteId(c.id)}
-              disabled={deleteMutation.isPending}
-            >
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
+            {customerUpdatePermission && (
+              <Button variant="ghost" size="icon" asChild>
+                <Link href={`/customers/${c.id}/edit`}>
+                  <Pencil className="w-4 h-4" />
+                </Link>
+              </Button>
+            )}
+            {customerDeletePermission && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDeleteId(c.id)}
+                disabled={deleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </Button>
+            )}
           </div>
         );
       },
@@ -76,24 +77,17 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
   }
 
   return (
-    <PageWrapper
-      title="Customers"
-      showBackButton
-      addButton={
-        <Button asChild className="ml-auto">
-          <Link href="/customers/add">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Customer
-          </Link>
-        </Button>
-      }
-    >
+    <>
       <Card>
         <CardHeader>
           <CardTitle>Customer List</CardTitle>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={customers} searchPlaceholder="Search customers..." />
+          <DataTable
+            columns={columns}
+            data={customers}
+            searchPlaceholder="Search customers..."
+          />
         </CardContent>
       </Card>
 
@@ -110,6 +104,6 @@ export function CustomersClient({ customers }: { customers: Customer[] }) {
         }}
         isPending={deleteMutation.isPending}
       />
-    </PageWrapper>
+    </>
   );
 }

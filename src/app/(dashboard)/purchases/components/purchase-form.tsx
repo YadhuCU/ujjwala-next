@@ -22,8 +22,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useProducts, useVendors } from "@/hooks/use-api";
+import { useVendors } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { productsOptions } from "@/lib/query-options";
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
@@ -73,8 +75,8 @@ export function PurchaseForm({
   onSubmit,
   isPending,
 }: PurchaseFormProps) {
-  const { data: rawProducts = [] } = useProducts();
-  const products = rawProducts as Product[];
+  const { data: products = [] } = useSuspenseQuery({ ...productsOptions() });
+
   const { data: rawVendors = [] } = useVendors();
   const vendors = rawVendors as Vendor[];
 
@@ -242,10 +244,7 @@ export function PurchaseForm({
                                 </FormControl>
                                 <SelectContent>
                                   {products.map((p) => (
-                                    <SelectItem
-                                      key={p.id}
-                                      value={String(p.id)}
-                                    >
+                                    <SelectItem key={p.id} value={String(p.id)}>
                                       {p.name}
                                     </SelectItem>
                                   ))}

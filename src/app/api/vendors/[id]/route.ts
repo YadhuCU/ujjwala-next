@@ -1,10 +1,14 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { NotFoundError } from "@/lib/errors";
+import { formatResponse } from "@/lib/response";
+import { serializeVendor } from "@/module/vendor/vendor.serializer";
+import { VendorUpdateSchema } from "@/module/vendor/vendor.schema";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   return withAuth(async () => {
     const { id } = await params;
@@ -12,41 +16,36 @@ export async function GET(
       where: { id: parseInt(id) },
     });
     if (!vendor) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      throw new NotFoundError("Vendor not found.");
     }
-    return NextResponse.json(vendor);
-  });
+    return formatResponse({ data: serializeVendor(vendor) });
+  }, [PERMISSIONS.VENDOR_READ]);
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   return withAuth(async () => {
-    try {
-      const { id } = await params;
-      const data = await request.json();
-      const vendor = await prisma.vendor.update({
-        where: { id: parseInt(id) },
-        data: {
-          name: data.name,
-          phone: data.phone || null,
-          address: data.address || null,
-          gstNumber: data.gstNumber || null,
-        },
-      });
-      return NextResponse.json(vendor);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, "Owner");
+    const { id } = await params;
+    const json = await request.json();
+    const data = VendorUpdateSchema.parse(json);
+
+    const vendor = await prisma.vendor.update({
+      where: { id: parseInt(id) },
+      data,
+    });
+
+    return formatResponse({
+      data: serializeVendor(vendor),
+      message: "Vendor updated successfully.",
+    });
+  }, [PERMISSIONS.VENDOR_UPDATE]);
 }
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   return withAuth(async () => {
     const { id } = await params;
@@ -54,6 +53,9 @@ export async function DELETE(
       where: { id: parseInt(id) },
       data: { isDeleted: true },
     });
-    return NextResponse.json({ success: true });
-  }, "Owner");
+    return formatResponse({
+      data: null,
+      message: "Vendor deleted successfully",
+    });
+  }, [PERMISSIONS.VENDOR_DELETE]);
 }

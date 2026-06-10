@@ -30,21 +30,21 @@ export type CustomerInitialCylinderBalanceAvgAggregateOutputType = {
   id: number | null
   customerId: number | null
   productId: number | null
-  quantity: number | null
+  qty: number | null
 }
 
 export type CustomerInitialCylinderBalanceSumAggregateOutputType = {
   id: number | null
   customerId: number | null
   productId: number | null
-  quantity: number | null
+  qty: number | null
 }
 
 export type CustomerInitialCylinderBalanceMinAggregateOutputType = {
   id: number | null
   customerId: number | null
   productId: number | null
-  quantity: number | null
+  qty: number | null
   createdAt: Date | null
 }
 
@@ -52,7 +52,7 @@ export type CustomerInitialCylinderBalanceMaxAggregateOutputType = {
   id: number | null
   customerId: number | null
   productId: number | null
-  quantity: number | null
+  qty: number | null
   createdAt: Date | null
 }
 
@@ -60,7 +60,7 @@ export type CustomerInitialCylinderBalanceCountAggregateOutputType = {
   id: number
   customerId: number
   productId: number
-  quantity: number
+  qty: number
   createdAt: number
   _all: number
 }
@@ -70,21 +70,21 @@ export type CustomerInitialCylinderBalanceAvgAggregateInputType = {
   id?: true
   customerId?: true
   productId?: true
-  quantity?: true
+  qty?: true
 }
 
 export type CustomerInitialCylinderBalanceSumAggregateInputType = {
   id?: true
   customerId?: true
   productId?: true
-  quantity?: true
+  qty?: true
 }
 
 export type CustomerInitialCylinderBalanceMinAggregateInputType = {
   id?: true
   customerId?: true
   productId?: true
-  quantity?: true
+  qty?: true
   createdAt?: true
 }
 
@@ -92,7 +92,7 @@ export type CustomerInitialCylinderBalanceMaxAggregateInputType = {
   id?: true
   customerId?: true
   productId?: true
-  quantity?: true
+  qty?: true
   createdAt?: true
 }
 
@@ -100,7 +100,7 @@ export type CustomerInitialCylinderBalanceCountAggregateInputType = {
   id?: true
   customerId?: true
   productId?: true
-  quantity?: true
+  qty?: true
   createdAt?: true
   _all?: true
 }
@@ -195,7 +195,7 @@ export type CustomerInitialCylinderBalanceGroupByOutputType = {
   id: number
   customerId: number
   productId: number
-  quantity: number
+  qty: number
   createdAt: Date
   _count: CustomerInitialCylinderBalanceCountAggregateOutputType | null
   _avg: CustomerInitialCylinderBalanceAvgAggregateOutputType | null
@@ -226,7 +226,7 @@ export type CustomerInitialCylinderBalanceWhereInput = {
   id?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   customerId?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   productId?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
-  quantity?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
+  qty?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   createdAt?: Prisma.DateTimeFilter<"CustomerInitialCylinderBalance"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
@@ -236,7 +236,7 @@ export type CustomerInitialCylinderBalanceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
+  qty?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
@@ -250,7 +250,7 @@ export type CustomerInitialCylinderBalanceWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CustomerInitialCylinderBalanceWhereInput | Prisma.CustomerInitialCylinderBalanceWhereInput[]
   customerId?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   productId?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
-  quantity?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
+  qty?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   createdAt?: Prisma.DateTimeFilter<"CustomerInitialCylinderBalance"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   product?: Prisma.XOR<Prisma.ProductScalarRelationFilter, Prisma.ProductWhereInput>
@@ -260,7 +260,7 @@ export type CustomerInitialCylinderBalanceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
+  qty?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CustomerInitialCylinderBalanceCountOrderByAggregateInput
   _avg?: Prisma.CustomerInitialCylinderBalanceAvgOrderByAggregateInput
@@ -276,37 +276,37 @@ export type CustomerInitialCylinderBalanceScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"CustomerInitialCylinderBalance"> | number
   customerId?: Prisma.IntWithAggregatesFilter<"CustomerInitialCylinderBalance"> | number
   productId?: Prisma.IntWithAggregatesFilter<"CustomerInitialCylinderBalance"> | number
-  quantity?: Prisma.IntWithAggregatesFilter<"CustomerInitialCylinderBalance"> | number
+  qty?: Prisma.IntWithAggregatesFilter<"CustomerInitialCylinderBalance"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerInitialCylinderBalance"> | Date | string
 }
 
 export type CustomerInitialCylinderBalanceCreateInput = {
-  quantity?: number
+  qty: number
   createdAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutInitialCylinderBalancesInput
-  product: Prisma.ProductCreateNestedOneWithoutInitialCylinderBalancesInput
+  product: Prisma.ProductCreateNestedOneWithoutCustomerInitialCylinderBalancesInput
 }
 
 export type CustomerInitialCylinderBalanceUncheckedCreateInput = {
   id?: number
   customerId: number
   productId: number
-  quantity?: number
+  qty: number
   createdAt?: Date | string
 }
 
 export type CustomerInitialCylinderBalanceUpdateInput = {
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutInitialCylinderBalancesNestedInput
-  product?: Prisma.ProductUpdateOneRequiredWithoutInitialCylinderBalancesNestedInput
+  product?: Prisma.ProductUpdateOneRequiredWithoutCustomerInitialCylinderBalancesNestedInput
 }
 
 export type CustomerInitialCylinderBalanceUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   customerId?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -314,12 +314,12 @@ export type CustomerInitialCylinderBalanceCreateManyInput = {
   id?: number
   customerId: number
   productId: number
-  quantity?: number
+  qty: number
   createdAt?: Date | string
 }
 
 export type CustomerInitialCylinderBalanceUpdateManyMutationInput = {
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -327,7 +327,7 @@ export type CustomerInitialCylinderBalanceUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   customerId?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -350,7 +350,7 @@ export type CustomerInitialCylinderBalanceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
+  qty?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -358,14 +358,14 @@ export type CustomerInitialCylinderBalanceAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
+  qty?: Prisma.SortOrder
 }
 
 export type CustomerInitialCylinderBalanceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
+  qty?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -373,7 +373,7 @@ export type CustomerInitialCylinderBalanceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
+  qty?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -381,7 +381,7 @@ export type CustomerInitialCylinderBalanceSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
+  qty?: Prisma.SortOrder
 }
 
 export type CustomerInitialCylinderBalanceCreateNestedManyWithoutCustomerInput = {
@@ -469,15 +469,15 @@ export type CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductNeste
 }
 
 export type CustomerInitialCylinderBalanceCreateWithoutCustomerInput = {
-  quantity?: number
+  qty: number
   createdAt?: Date | string
-  product: Prisma.ProductCreateNestedOneWithoutInitialCylinderBalancesInput
+  product: Prisma.ProductCreateNestedOneWithoutCustomerInitialCylinderBalancesInput
 }
 
 export type CustomerInitialCylinderBalanceUncheckedCreateWithoutCustomerInput = {
   id?: number
   productId: number
-  quantity?: number
+  qty: number
   createdAt?: Date | string
 }
 
@@ -514,12 +514,12 @@ export type CustomerInitialCylinderBalanceScalarWhereInput = {
   id?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   customerId?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   productId?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
-  quantity?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
+  qty?: Prisma.IntFilter<"CustomerInitialCylinderBalance"> | number
   createdAt?: Prisma.DateTimeFilter<"CustomerInitialCylinderBalance"> | Date | string
 }
 
 export type CustomerInitialCylinderBalanceCreateWithoutProductInput = {
-  quantity?: number
+  qty: number
   createdAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutInitialCylinderBalancesInput
 }
@@ -527,7 +527,7 @@ export type CustomerInitialCylinderBalanceCreateWithoutProductInput = {
 export type CustomerInitialCylinderBalanceUncheckedCreateWithoutProductInput = {
   id?: number
   customerId: number
-  quantity?: number
+  qty: number
   createdAt?: Date | string
 }
 
@@ -560,39 +560,39 @@ export type CustomerInitialCylinderBalanceUpdateManyWithWhereWithoutProductInput
 export type CustomerInitialCylinderBalanceCreateManyCustomerInput = {
   id?: number
   productId: number
-  quantity?: number
+  qty: number
   createdAt?: Date | string
 }
 
 export type CustomerInitialCylinderBalanceUpdateWithoutCustomerInput = {
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneRequiredWithoutInitialCylinderBalancesNestedInput
+  product?: Prisma.ProductUpdateOneRequiredWithoutCustomerInitialCylinderBalancesNestedInput
 }
 
 export type CustomerInitialCylinderBalanceUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   productId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerInitialCylinderBalanceCreateManyProductInput = {
   id?: number
   customerId: number
-  quantity?: number
+  qty: number
   createdAt?: Date | string
 }
 
 export type CustomerInitialCylinderBalanceUpdateWithoutProductInput = {
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutInitialCylinderBalancesNestedInput
 }
@@ -600,14 +600,14 @@ export type CustomerInitialCylinderBalanceUpdateWithoutProductInput = {
 export type CustomerInitialCylinderBalanceUncheckedUpdateWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   customerId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CustomerInitialCylinderBalanceUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   customerId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  qty?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -617,7 +617,7 @@ export type CustomerInitialCylinderBalanceSelect<ExtArgs extends runtime.Types.E
   id?: boolean
   customerId?: boolean
   productId?: boolean
-  quantity?: boolean
+  qty?: boolean
   createdAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -627,7 +627,7 @@ export type CustomerInitialCylinderBalanceSelectCreateManyAndReturn<ExtArgs exte
   id?: boolean
   customerId?: boolean
   productId?: boolean
-  quantity?: boolean
+  qty?: boolean
   createdAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -637,7 +637,7 @@ export type CustomerInitialCylinderBalanceSelectUpdateManyAndReturn<ExtArgs exte
   id?: boolean
   customerId?: boolean
   productId?: boolean
-  quantity?: boolean
+  qty?: boolean
   createdAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -647,11 +647,11 @@ export type CustomerInitialCylinderBalanceSelectScalar = {
   id?: boolean
   customerId?: boolean
   productId?: boolean
-  quantity?: boolean
+  qty?: boolean
   createdAt?: boolean
 }
 
-export type CustomerInitialCylinderBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "productId" | "quantity" | "createdAt", ExtArgs["result"]["customerInitialCylinderBalance"]>
+export type CustomerInitialCylinderBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "productId" | "qty" | "createdAt", ExtArgs["result"]["customerInitialCylinderBalance"]>
 export type CustomerInitialCylinderBalanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -675,7 +675,7 @@ export type $CustomerInitialCylinderBalancePayload<ExtArgs extends runtime.Types
     id: number
     customerId: number
     productId: number
-    quantity: number
+    qty: number
     createdAt: Date
   }, ExtArgs["result"]["customerInitialCylinderBalance"]>
   composites: {}
@@ -1105,7 +1105,7 @@ export interface CustomerInitialCylinderBalanceFieldRefs {
   readonly id: Prisma.FieldRef<"CustomerInitialCylinderBalance", 'Int'>
   readonly customerId: Prisma.FieldRef<"CustomerInitialCylinderBalance", 'Int'>
   readonly productId: Prisma.FieldRef<"CustomerInitialCylinderBalance", 'Int'>
-  readonly quantity: Prisma.FieldRef<"CustomerInitialCylinderBalance", 'Int'>
+  readonly qty: Prisma.FieldRef<"CustomerInitialCylinderBalance", 'Int'>
   readonly createdAt: Prisma.FieldRef<"CustomerInitialCylinderBalance", 'DateTime'>
 }
     

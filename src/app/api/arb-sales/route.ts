@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
 import { generateTrNo } from "@/lib/generate-tr-no";
+import { PERMISSIONS } from "@/lib/permissions";
 
 export async function GET(request: Request) {
   return withAuth(async () => {
@@ -42,11 +43,13 @@ export async function GET(request: Request) {
       data: arbSales,
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
-  });
+  }, [PERMISSIONS.ARB_SALE_READ]);
 }
 
 export async function POST(request: Request) {
-  return withAuth(async ({ userId }) => {
+  return withAuth(async (user) => {
+    const userId = user.id;
+
     try {
       const data = await request.json();
 
@@ -141,5 +144,5 @@ export async function POST(request: Request) {
       const message = error instanceof Error ? error.message : "Failed to create arb sale";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "Owner"); // Ensuring lower-case role matching if required, but default layout checks 'Owner'
+  },[PERMISSIONS.ARB_SALE_CREATE]); // Ensuring lower-case role matching if required, but default layout checks 'Owner'
 }

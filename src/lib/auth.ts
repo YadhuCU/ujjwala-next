@@ -3,47 +3,55 @@ import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { authConfig } from "./auth.config";
+import { Permission } from "./permissions";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
-      async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) return null;
+      credentials: {
+        username: { type: "text" },
+        password: { type: "password" },
+      },
+      authorize: async (credentials) => {
+        const username = credentials.username as string;
+        const password = credentials.password as string;
+
+        if (!username || !password) return null;
 
         const user = await prisma.user.findFirst({
           where: {
-            username: credentials.username as string,
+            username: username,
             isDeleted: false,
           },
           include: {
-            role: {
+            userRoles: {
               include: {
-                rolePermissions: {
+                role: {
                   include: {
-                    permission: {
-                      select: {
-                        code: true
+                    rolePermissions: {
+                      include: {
+                        permission: {
+                          select: {
+                            code: true
+                          }
+                        }
                       }
                     }
                   }
                 }
               }
-            }
+            },
           }
         });
 
 
-        console.log({ user, permissions: user?.role.rolePermissions })
-
         if (!user || !user.isActive) return null;
 
-        const permissions = user.role.rolePermissions.map(x => x.permission.code)
+        const roles = user.userRoles.map(x => x.role.name)
+        const permissions = user.userRoles.map(x => x.role.rolePermissions.map(x => x.permission.code)).flat() as Permission[]
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
+        const isValid = await bcrypt.compare(password, user.password);
 
         if (!isValid) return null;
 
@@ -52,7 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           image: null,
-          role: user.role.name,
+          roles,
           permissions
         };
       },

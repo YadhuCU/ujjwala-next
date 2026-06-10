@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
 import { ProductType } from "@prisma/client";
+import { PERMISSIONS } from "@/lib/permissions";
 
 export async function GET(req: NextRequest) {
   return withAuth(async () => {
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(stocks);
-  });
+  }, [PERMISSIONS.STOCK_READ]);
 }
 
 export async function POST(request: Request) {
@@ -33,5 +34,5 @@ export async function POST(request: Request) {
       const message = error instanceof Error ? error.message : "Failed to create stock";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "Owner");
+  }, [PERMISSIONS.STOCK_CREATE]);
 }

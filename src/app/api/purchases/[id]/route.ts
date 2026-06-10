@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
 
 export async function GET(
   _request: Request,
@@ -19,7 +20,7 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     return NextResponse.json(purchase);
-  });
+  }, [PERMISSIONS.PURCHASE_READ]);
 }
 
 export async function PUT(
@@ -49,7 +50,7 @@ export async function PUT(
         error instanceof Error ? error.message : "Failed to update";
       return NextResponse.json({ error: message }, { status: 400 });
     }
-  }, "Owner");
+  },[PERMISSIONS.PURCHASE_UPDATE]);
 }
 
 export async function DELETE(
@@ -106,5 +107,5 @@ export async function DELETE(
     ]);
 
     return NextResponse.json({ success: true });
-  }, "Owner");
+  },[PERMISSIONS.PURCHASE_DELETE]);
 }

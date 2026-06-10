@@ -1,7 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
-import { ProductType } from "@prisma/client";
+import { ProductType } from "@/generated/enums";
 
 // ─── Query Options (single-use, consumed inline via useQuery) ────────────────
 
@@ -54,27 +54,32 @@ export const stocksOptions = (type?: ProductType) =>
 export const customersOptions = queryOptions({
   queryKey: queryKeys.customers.lists(),
   queryFn: api.getCustomers,
+  select: (res) => res.data,
 });
 
 export const locationsOptions = queryOptions({
   queryKey: queryKeys.locations.lists(),
   queryFn: api.getLocations,
+  select: (res) => res.data,
 });
 
 export const productsOptions = (type?: ProductType) =>
   queryOptions({
     queryKey: queryKeys.products.lists(type),
     queryFn: () => api.getProducts(type),
+    select: (res) => res.data,
   });
 
 export const usersOptions = queryOptions({
   queryKey: queryKeys.users.lists(),
   queryFn: api.getUsers,
+  select: (res) => res.data,
 });
 
 export const vendorsOptions = queryOptions({
   queryKey: queryKeys.vendors.lists(),
   queryFn: api.getVendors,
+  select: (res) => res.data,
 });
 
 export const purchasesOptions = queryOptions({
@@ -82,3 +87,7 @@ export const purchasesOptions = queryOptions({
   queryFn: api.getPurchases,
 });
 
+export const rolesOptions = queryOptions({
+  queryKey: queryKeys.roles.lists(),
+  queryFn: api.getRoles,
+});

@@ -40,8 +40,8 @@ export type LocationMinAggregateOutputType = {
   district: string | null
   pincode: string | null
   locality: string | null
-  isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LocationMaxAggregateOutputType = {
@@ -50,8 +50,8 @@ export type LocationMaxAggregateOutputType = {
   district: string | null
   pincode: string | null
   locality: string | null
-  isDeleted: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type LocationCountAggregateOutputType = {
@@ -60,8 +60,8 @@ export type LocationCountAggregateOutputType = {
   district: number
   pincode: number
   locality: number
-  isDeleted: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -80,8 +80,8 @@ export type LocationMinAggregateInputType = {
   district?: true
   pincode?: true
   locality?: true
-  isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LocationMaxAggregateInputType = {
@@ -90,8 +90,8 @@ export type LocationMaxAggregateInputType = {
   district?: true
   pincode?: true
   locality?: true
-  isDeleted?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type LocationCountAggregateInputType = {
@@ -100,8 +100,8 @@ export type LocationCountAggregateInputType = {
   district?: true
   pincode?: true
   locality?: true
-  isDeleted?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -197,8 +197,8 @@ export type LocationGroupByOutputType = {
   district: string | null
   pincode: string | null
   locality: string | null
-  isDeleted: boolean
   createdAt: Date
+  updatedAt: Date
   _count: LocationCountAggregateOutputType | null
   _avg: LocationAvgAggregateOutputType | null
   _sum: LocationSumAggregateOutputType | null
@@ -230,8 +230,8 @@ export type LocationWhereInput = {
   district?: Prisma.StringNullableFilter<"Location"> | string | null
   pincode?: Prisma.StringNullableFilter<"Location"> | string | null
   locality?: Prisma.StringNullableFilter<"Location"> | string | null
-  isDeleted?: Prisma.BoolFilter<"Location"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Location"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Location"> | Date | string
   customers?: Prisma.CustomerListRelationFilter
 }
 
@@ -241,8 +241,8 @@ export type LocationOrderByWithRelationInput = {
   district?: Prisma.SortOrderInput | Prisma.SortOrder
   pincode?: Prisma.SortOrderInput | Prisma.SortOrder
   locality?: Prisma.SortOrderInput | Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   customers?: Prisma.CustomerOrderByRelationAggregateInput
 }
 
@@ -255,8 +255,8 @@ export type LocationWhereUniqueInput = Prisma.AtLeast<{
   district?: Prisma.StringNullableFilter<"Location"> | string | null
   pincode?: Prisma.StringNullableFilter<"Location"> | string | null
   locality?: Prisma.StringNullableFilter<"Location"> | string | null
-  isDeleted?: Prisma.BoolFilter<"Location"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Location"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Location"> | Date | string
   customers?: Prisma.CustomerListRelationFilter
 }, "id" | "name">
 
@@ -266,8 +266,8 @@ export type LocationOrderByWithAggregationInput = {
   district?: Prisma.SortOrderInput | Prisma.SortOrder
   pincode?: Prisma.SortOrderInput | Prisma.SortOrder
   locality?: Prisma.SortOrderInput | Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.LocationCountOrderByAggregateInput
   _avg?: Prisma.LocationAvgOrderByAggregateInput
   _max?: Prisma.LocationMaxOrderByAggregateInput
@@ -284,8 +284,8 @@ export type LocationScalarWhereWithAggregatesInput = {
   district?: Prisma.StringNullableWithAggregatesFilter<"Location"> | string | null
   pincode?: Prisma.StringNullableWithAggregatesFilter<"Location"> | string | null
   locality?: Prisma.StringNullableWithAggregatesFilter<"Location"> | string | null
-  isDeleted?: Prisma.BoolWithAggregatesFilter<"Location"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Location"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Location"> | Date | string
 }
 
 export type LocationCreateInput = {
@@ -293,8 +293,8 @@ export type LocationCreateInput = {
   district?: string | null
   pincode?: string | null
   locality?: string | null
-  isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   customers?: Prisma.CustomerCreateNestedManyWithoutLocationInput
 }
 
@@ -304,8 +304,8 @@ export type LocationUncheckedCreateInput = {
   district?: string | null
   pincode?: string | null
   locality?: string | null
-  isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutLocationInput
 }
 
@@ -314,8 +314,8 @@ export type LocationUpdateInput = {
   district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customers?: Prisma.CustomerUpdateManyWithoutLocationNestedInput
 }
 
@@ -325,8 +325,8 @@ export type LocationUncheckedUpdateInput = {
   district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutLocationNestedInput
 }
 
@@ -336,8 +336,8 @@ export type LocationCreateManyInput = {
   district?: string | null
   pincode?: string | null
   locality?: string | null
-  isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LocationUpdateManyMutationInput = {
@@ -345,8 +345,8 @@ export type LocationUpdateManyMutationInput = {
   district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LocationUncheckedUpdateManyInput = {
@@ -355,8 +355,8 @@ export type LocationUncheckedUpdateManyInput = {
   district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LocationCountOrderByAggregateInput = {
@@ -365,8 +365,8 @@ export type LocationCountOrderByAggregateInput = {
   district?: Prisma.SortOrder
   pincode?: Prisma.SortOrder
   locality?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LocationAvgOrderByAggregateInput = {
@@ -379,8 +379,8 @@ export type LocationMaxOrderByAggregateInput = {
   district?: Prisma.SortOrder
   pincode?: Prisma.SortOrder
   locality?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LocationMinOrderByAggregateInput = {
@@ -389,8 +389,8 @@ export type LocationMinOrderByAggregateInput = {
   district?: Prisma.SortOrder
   pincode?: Prisma.SortOrder
   locality?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type LocationSumOrderByAggregateInput = {
@@ -423,8 +423,8 @@ export type LocationCreateWithoutCustomersInput = {
   district?: string | null
   pincode?: string | null
   locality?: string | null
-  isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LocationUncheckedCreateWithoutCustomersInput = {
@@ -433,8 +433,8 @@ export type LocationUncheckedCreateWithoutCustomersInput = {
   district?: string | null
   pincode?: string | null
   locality?: string | null
-  isDeleted?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type LocationCreateOrConnectWithoutCustomersInput = {
@@ -458,8 +458,8 @@ export type LocationUpdateWithoutCustomersInput = {
   district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LocationUncheckedUpdateWithoutCustomersInput = {
@@ -468,8 +468,8 @@ export type LocationUncheckedUpdateWithoutCustomersInput = {
   district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -509,8 +509,8 @@ export type LocationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   district?: boolean
   pincode?: boolean
   locality?: boolean
-  isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   customers?: boolean | Prisma.Location$customersArgs<ExtArgs>
   _count?: boolean | Prisma.LocationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["location"]>
@@ -521,8 +521,8 @@ export type LocationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   district?: boolean
   pincode?: boolean
   locality?: boolean
-  isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["location"]>
 
 export type LocationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -531,8 +531,8 @@ export type LocationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   district?: boolean
   pincode?: boolean
   locality?: boolean
-  isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["location"]>
 
 export type LocationSelectScalar = {
@@ -541,11 +541,11 @@ export type LocationSelectScalar = {
   district?: boolean
   pincode?: boolean
   locality?: boolean
-  isDeleted?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type LocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "district" | "pincode" | "locality" | "isDeleted" | "createdAt", ExtArgs["result"]["location"]>
+export type LocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "district" | "pincode" | "locality" | "createdAt" | "updatedAt", ExtArgs["result"]["location"]>
 export type LocationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customers?: boolean | Prisma.Location$customersArgs<ExtArgs>
   _count?: boolean | Prisma.LocationCountOutputTypeDefaultArgs<ExtArgs>
@@ -564,8 +564,8 @@ export type $LocationPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     district: string | null
     pincode: string | null
     locality: string | null
-    isDeleted: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["location"]>
   composites: {}
 }
@@ -995,8 +995,8 @@ export interface LocationFieldRefs {
   readonly district: Prisma.FieldRef<"Location", 'String'>
   readonly pincode: Prisma.FieldRef<"Location", 'String'>
   readonly locality: Prisma.FieldRef<"Location", 'String'>
-  readonly isDeleted: Prisma.FieldRef<"Location", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Location", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Location", 'DateTime'>
 }
     
 
@@ -1220,7 +1220,7 @@ export type LocationCreateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * The data needed to create a Location.
    */
-  data?: Prisma.XOR<Prisma.LocationCreateInput, Prisma.LocationUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.LocationCreateInput, Prisma.LocationUncheckedCreateInput>
 }
 
 /**

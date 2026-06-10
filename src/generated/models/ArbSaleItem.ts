@@ -29,8 +29,8 @@ export type AggregateArbSaleItem = {
 export type ArbSaleItemAvgAggregateOutputType = {
   id: number | null
   arbSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
@@ -39,8 +39,8 @@ export type ArbSaleItemAvgAggregateOutputType = {
 export type ArbSaleItemSumAggregateOutputType = {
   id: number | null
   arbSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
@@ -49,31 +49,37 @@ export type ArbSaleItemSumAggregateOutputType = {
 export type ArbSaleItemMinAggregateOutputType = {
   id: number | null
   arbSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ArbSaleItemMaxAggregateOutputType = {
   id: number | null
   arbSaleId: number | null
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ArbSaleItemCountAggregateOutputType = {
   id: number
   arbSaleId: number
-  stockId: number
   productId: number
+  stockId: number
   quantity: number
   salePrice: number
   netTotal: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -81,8 +87,8 @@ export type ArbSaleItemCountAggregateOutputType = {
 export type ArbSaleItemAvgAggregateInputType = {
   id?: true
   arbSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
@@ -91,8 +97,8 @@ export type ArbSaleItemAvgAggregateInputType = {
 export type ArbSaleItemSumAggregateInputType = {
   id?: true
   arbSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
@@ -101,31 +107,37 @@ export type ArbSaleItemSumAggregateInputType = {
 export type ArbSaleItemMinAggregateInputType = {
   id?: true
   arbSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ArbSaleItemMaxAggregateInputType = {
   id?: true
   arbSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ArbSaleItemCountAggregateInputType = {
   id?: true
   arbSaleId?: true
-  stockId?: true
   productId?: true
+  stockId?: true
   quantity?: true
   salePrice?: true
   netTotal?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -218,11 +230,13 @@ export type ArbSaleItemGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type ArbSaleItemGroupByOutputType = {
   id: number
   arbSaleId: number
-  stockId: number | null
   productId: number | null
+  stockId: number | null
   quantity: number
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  createdAt: Date
+  updatedAt: Date
   _count: ArbSaleItemCountAggregateOutputType | null
   _avg: ArbSaleItemAvgAggregateOutputType | null
   _sum: ArbSaleItemSumAggregateOutputType | null
@@ -251,27 +265,31 @@ export type ArbSaleItemWhereInput = {
   NOT?: Prisma.ArbSaleItemWhereInput | Prisma.ArbSaleItemWhereInput[]
   id?: Prisma.IntFilter<"ArbSaleItem"> | number
   arbSaleId?: Prisma.IntFilter<"ArbSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
+  stockId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
   quantity?: Prisma.IntFilter<"ArbSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"ArbSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ArbSaleItem"> | Date | string
   arbSale?: Prisma.XOR<Prisma.ArbSaleScalarRelationFilter, Prisma.ArbSaleWhereInput>
-  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
 }
 
 export type ArbSaleItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   arbSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   arbSale?: Prisma.ArbSaleOrderByWithRelationInput
-  stock?: Prisma.StockOrderByWithRelationInput
   product?: Prisma.ProductOrderByWithRelationInput
+  stock?: Prisma.StockOrderByWithRelationInput
 }
 
 export type ArbSaleItemWhereUniqueInput = Prisma.AtLeast<{
@@ -280,24 +298,28 @@ export type ArbSaleItemWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ArbSaleItemWhereInput[]
   NOT?: Prisma.ArbSaleItemWhereInput | Prisma.ArbSaleItemWhereInput[]
   arbSaleId?: Prisma.IntFilter<"ArbSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
+  stockId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
   quantity?: Prisma.IntFilter<"ArbSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"ArbSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ArbSaleItem"> | Date | string
   arbSale?: Prisma.XOR<Prisma.ArbSaleScalarRelationFilter, Prisma.ArbSaleWhereInput>
-  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  stock?: Prisma.XOR<Prisma.StockNullableScalarRelationFilter, Prisma.StockWhereInput> | null
 }, "id">
 
 export type ArbSaleItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   arbSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stockId?: Prisma.SortOrderInput | Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ArbSaleItemCountOrderByAggregateInput
   _avg?: Prisma.ArbSaleItemAvgOrderByAggregateInput
   _max?: Prisma.ArbSaleItemMaxOrderByAggregateInput
@@ -311,75 +333,91 @@ export type ArbSaleItemScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ArbSaleItemScalarWhereWithAggregatesInput | Prisma.ArbSaleItemScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"ArbSaleItem"> | number
   arbSaleId?: Prisma.IntWithAggregatesFilter<"ArbSaleItem"> | number
-  stockId?: Prisma.IntNullableWithAggregatesFilter<"ArbSaleItem"> | number | null
   productId?: Prisma.IntNullableWithAggregatesFilter<"ArbSaleItem"> | number | null
+  stockId?: Prisma.IntNullableWithAggregatesFilter<"ArbSaleItem"> | number | null
   quantity?: Prisma.IntWithAggregatesFilter<"ArbSaleItem"> | number
   salePrice?: Prisma.DecimalNullableWithAggregatesFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableWithAggregatesFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ArbSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ArbSaleItem"> | Date | string
 }
 
 export type ArbSaleItemCreateInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   arbSale: Prisma.ArbSaleCreateNestedOneWithoutItemsInput
-  stock?: Prisma.StockCreateNestedOneWithoutArbSaleItemsInput
   product?: Prisma.ProductCreateNestedOneWithoutArbSaleItemsInput
+  stock?: Prisma.StockCreateNestedOneWithoutArbSaleItemsInput
 }
 
 export type ArbSaleItemUncheckedCreateInput = {
   id?: number
   arbSaleId: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemUpdateInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   arbSale?: Prisma.ArbSaleUpdateOneRequiredWithoutItemsNestedInput
-  stock?: Prisma.StockUpdateOneWithoutArbSaleItemsNestedInput
   product?: Prisma.ProductUpdateOneWithoutArbSaleItemsNestedInput
+  stock?: Prisma.StockUpdateOneWithoutArbSaleItemsNestedInput
 }
 
 export type ArbSaleItemUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   arbSaleId?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemCreateManyInput = {
   id?: number
   arbSaleId: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemUpdateManyMutationInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   arbSaleId?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemListRelationFilter = {
@@ -395,18 +433,20 @@ export type ArbSaleItemOrderByRelationAggregateInput = {
 export type ArbSaleItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   arbSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ArbSaleItemAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   arbSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
@@ -415,28 +455,32 @@ export type ArbSaleItemAvgOrderByAggregateInput = {
 export type ArbSaleItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   arbSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ArbSaleItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   arbSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ArbSaleItemSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   arbSaleId?: Prisma.SortOrder
-  stockId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  stockId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
@@ -572,6 +616,8 @@ export type ArbSaleItemCreateWithoutProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   arbSale: Prisma.ArbSaleCreateNestedOneWithoutItemsInput
   stock?: Prisma.StockCreateNestedOneWithoutArbSaleItemsInput
 }
@@ -583,6 +629,8 @@ export type ArbSaleItemUncheckedCreateWithoutProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemCreateOrConnectWithoutProductInput = {
@@ -617,17 +665,21 @@ export type ArbSaleItemScalarWhereInput = {
   NOT?: Prisma.ArbSaleItemScalarWhereInput | Prisma.ArbSaleItemScalarWhereInput[]
   id?: Prisma.IntFilter<"ArbSaleItem"> | number
   arbSaleId?: Prisma.IntFilter<"ArbSaleItem"> | number
-  stockId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
   productId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
+  stockId?: Prisma.IntNullableFilter<"ArbSaleItem"> | number | null
   quantity?: Prisma.IntFilter<"ArbSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"ArbSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"ArbSaleItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ArbSaleItem"> | Date | string
 }
 
 export type ArbSaleItemCreateWithoutStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   arbSale: Prisma.ArbSaleCreateNestedOneWithoutItemsInput
   product?: Prisma.ProductCreateNestedOneWithoutArbSaleItemsInput
 }
@@ -639,6 +691,8 @@ export type ArbSaleItemUncheckedCreateWithoutStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemCreateOrConnectWithoutStockInput = {
@@ -671,17 +725,21 @@ export type ArbSaleItemCreateWithoutArbSaleInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  stock?: Prisma.StockCreateNestedOneWithoutArbSaleItemsInput
+  createdAt?: Date | string
+  updatedAt?: Date | string
   product?: Prisma.ProductCreateNestedOneWithoutArbSaleItemsInput
+  stock?: Prisma.StockCreateNestedOneWithoutArbSaleItemsInput
 }
 
 export type ArbSaleItemUncheckedCreateWithoutArbSaleInput = {
   id?: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemCreateOrConnectWithoutArbSaleInput = {
@@ -717,12 +775,16 @@ export type ArbSaleItemCreateManyProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemUpdateWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   arbSale?: Prisma.ArbSaleUpdateOneRequiredWithoutItemsNestedInput
   stock?: Prisma.StockUpdateOneWithoutArbSaleItemsNestedInput
 }
@@ -734,6 +796,8 @@ export type ArbSaleItemUncheckedUpdateWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemUncheckedUpdateManyWithoutProductInput = {
@@ -743,6 +807,8 @@ export type ArbSaleItemUncheckedUpdateManyWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemCreateManyStockInput = {
@@ -752,12 +818,16 @@ export type ArbSaleItemCreateManyStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemUpdateWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   arbSale?: Prisma.ArbSaleUpdateOneRequiredWithoutItemsNestedInput
   product?: Prisma.ProductUpdateOneWithoutArbSaleItemsNestedInput
 }
@@ -769,6 +839,8 @@ export type ArbSaleItemUncheckedUpdateWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemUncheckedUpdateManyWithoutStockInput = {
@@ -778,41 +850,51 @@ export type ArbSaleItemUncheckedUpdateManyWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemCreateManyArbSaleInput = {
   id?: number
-  stockId?: number | null
   productId?: number | null
+  stockId?: number | null
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleItemUpdateWithoutArbSaleInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  stock?: Prisma.StockUpdateOneWithoutArbSaleItemsNestedInput
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneWithoutArbSaleItemsNestedInput
+  stock?: Prisma.StockUpdateOneWithoutArbSaleItemsNestedInput
 }
 
 export type ArbSaleItemUncheckedUpdateWithoutArbSaleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleItemUncheckedUpdateManyWithoutArbSaleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   productId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  stockId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -820,84 +902,94 @@ export type ArbSaleItemUncheckedUpdateManyWithoutArbSaleInput = {
 export type ArbSaleItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   arbSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   arbSale?: boolean | Prisma.ArbSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.ArbSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["arbSaleItem"]>
 
 export type ArbSaleItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   arbSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   arbSale?: boolean | Prisma.ArbSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.ArbSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["arbSaleItem"]>
 
 export type ArbSaleItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   arbSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   arbSale?: boolean | Prisma.ArbSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.ArbSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
 }, ExtArgs["result"]["arbSaleItem"]>
 
 export type ArbSaleItemSelectScalar = {
   id?: boolean
   arbSaleId?: boolean
-  stockId?: boolean
   productId?: boolean
+  stockId?: boolean
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ArbSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "arbSaleId" | "stockId" | "productId" | "quantity" | "salePrice" | "netTotal", ExtArgs["result"]["arbSaleItem"]>
+export type ArbSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "arbSaleId" | "productId" | "stockId" | "quantity" | "salePrice" | "netTotal" | "createdAt" | "updatedAt", ExtArgs["result"]["arbSaleItem"]>
 export type ArbSaleItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   arbSale?: boolean | Prisma.ArbSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.ArbSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
 }
 export type ArbSaleItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   arbSale?: boolean | Prisma.ArbSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.ArbSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
 }
 export type ArbSaleItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   arbSale?: boolean | Prisma.ArbSaleDefaultArgs<ExtArgs>
-  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
   product?: boolean | Prisma.ArbSaleItem$productArgs<ExtArgs>
+  stock?: boolean | Prisma.ArbSaleItem$stockArgs<ExtArgs>
 }
 
 export type $ArbSaleItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ArbSaleItem"
   objects: {
     arbSale: Prisma.$ArbSalePayload<ExtArgs>
-    stock: Prisma.$StockPayload<ExtArgs> | null
     product: Prisma.$ProductPayload<ExtArgs> | null
+    stock: Prisma.$StockPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     arbSaleId: number
-    stockId: number | null
     productId: number | null
+    stockId: number | null
     quantity: number
     salePrice: runtime.Decimal | null
     netTotal: runtime.Decimal | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["arbSaleItem"]>
   composites: {}
 }
@@ -1293,8 +1385,8 @@ readonly fields: ArbSaleItemFieldRefs;
 export interface Prisma__ArbSaleItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   arbSale<T extends Prisma.ArbSaleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSaleDefaultArgs<ExtArgs>>): Prisma.Prisma__ArbSaleClient<runtime.Types.Result.GetResult<Prisma.$ArbSalePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  stock<T extends Prisma.ArbSaleItem$stockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSaleItem$stockArgs<ExtArgs>>): Prisma.Prisma__StockClient<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   product<T extends Prisma.ArbSaleItem$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSaleItem$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  stock<T extends Prisma.ArbSaleItem$stockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSaleItem$stockArgs<ExtArgs>>): Prisma.Prisma__StockClient<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1326,11 +1418,13 @@ export interface Prisma__ArbSaleItemClient<T, Null = never, ExtArgs extends runt
 export interface ArbSaleItemFieldRefs {
   readonly id: Prisma.FieldRef<"ArbSaleItem", 'Int'>
   readonly arbSaleId: Prisma.FieldRef<"ArbSaleItem", 'Int'>
-  readonly stockId: Prisma.FieldRef<"ArbSaleItem", 'Int'>
   readonly productId: Prisma.FieldRef<"ArbSaleItem", 'Int'>
+  readonly stockId: Prisma.FieldRef<"ArbSaleItem", 'Int'>
   readonly quantity: Prisma.FieldRef<"ArbSaleItem", 'Int'>
   readonly salePrice: Prisma.FieldRef<"ArbSaleItem", 'Decimal'>
   readonly netTotal: Prisma.FieldRef<"ArbSaleItem", 'Decimal'>
+  readonly createdAt: Prisma.FieldRef<"ArbSaleItem", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ArbSaleItem", 'DateTime'>
 }
     
 
@@ -1732,25 +1826,6 @@ export type ArbSaleItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * ArbSaleItem.stock
- */
-export type ArbSaleItem$stockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Stock
-   */
-  select?: Prisma.StockSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Stock
-   */
-  omit?: Prisma.StockOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.StockInclude<ExtArgs> | null
-  where?: Prisma.StockWhereInput
-}
-
-/**
  * ArbSaleItem.product
  */
 export type ArbSaleItem$productArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1767,6 +1842,25 @@ export type ArbSaleItem$productArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.ProductInclude<ExtArgs> | null
   where?: Prisma.ProductWhereInput
+}
+
+/**
+ * ArbSaleItem.stock
+ */
+export type ArbSaleItem$stockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Stock
+   */
+  select?: Prisma.StockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Stock
+   */
+  omit?: Prisma.StockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockInclude<ExtArgs> | null
+  where?: Prisma.StockWhereInput
 }
 
 /**

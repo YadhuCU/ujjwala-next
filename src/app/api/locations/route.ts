@@ -1,33 +1,27 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import { serializeLocation } from "@/module/location/location.serializer";
+import { CreateLocationSchema } from "@/module/location/location.schema";
 
 export async function GET() {
   return withAuth(async () => {
     const locations = await prisma.location.findMany({
-      where: { isDeleted: false },
       orderBy: { createdAt: "desc" },
     });
-    return NextResponse.json(locations);
-  });
+    return formatResponse({ data: locations.map(serializeLocation) });
+  }, [PERMISSIONS.LOCATION_READ]);
 }
 
 export async function POST(request: Request) {
   return withAuth(async () => {
-    try {
-      const data = await request.json();
-      const location = await prisma.location.create({
-        data: {
-          name: data.name,
-          district: data.district,
-          pincode: data.pincode,
-          locality: data.locality,
-        },
-      });
-      return NextResponse.json(location, { status: 201 });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to create location";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, "Owner");
+    const json = await request.json();
+    const data = CreateLocationSchema.parse(json);
+
+    const location = await prisma.location.create({
+      data,
+    });
+    return formatResponse({ data: serializeLocation(location), status: 201 });
+  }, [PERMISSIONS.LOCATION_CREATE]);
 }

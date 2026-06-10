@@ -28,124 +28,140 @@ export type AggregateArbSale = {
 
 export type ArbSaleAvgAggregateOutputType = {
   id: number | null
-  totalAmount: runtime.Decimal | null
   customerId: number | null
+  totalAmount: runtime.Decimal | null
+  paidAmount: runtime.Decimal | null
   discount: runtime.Decimal | null
   createdById: number | null
-  paidAmount: runtime.Decimal | null
+  updatedById: number | null
 }
 
 export type ArbSaleSumAggregateOutputType = {
   id: number | null
-  totalAmount: runtime.Decimal | null
   customerId: number | null
+  totalAmount: runtime.Decimal | null
+  paidAmount: runtime.Decimal | null
   discount: runtime.Decimal | null
   createdById: number | null
-  paidAmount: runtime.Decimal | null
+  updatedById: number | null
 }
 
 export type ArbSaleMinAggregateOutputType = {
   id: number | null
   trNo: string | null
-  totalAmount: runtime.Decimal | null
   customerId: number | null
-  paymentType: $Enums.PaymentType | null
-  discount: runtime.Decimal | null
-  notes: string | null
-  createdById: number | null
-  isDeleted: boolean | null
-  createdAt: Date | null
+  totalAmount: runtime.Decimal | null
   paidAmount: runtime.Decimal | null
+  discount: runtime.Decimal | null
+  paymentType: $Enums.PaymentType | null
+  notes: string | null
+  isDeleted: boolean | null
+  createdById: number | null
+  updatedById: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ArbSaleMaxAggregateOutputType = {
   id: number | null
   trNo: string | null
-  totalAmount: runtime.Decimal | null
   customerId: number | null
-  paymentType: $Enums.PaymentType | null
-  discount: runtime.Decimal | null
-  notes: string | null
-  createdById: number | null
-  isDeleted: boolean | null
-  createdAt: Date | null
+  totalAmount: runtime.Decimal | null
   paidAmount: runtime.Decimal | null
+  discount: runtime.Decimal | null
+  paymentType: $Enums.PaymentType | null
+  notes: string | null
+  isDeleted: boolean | null
+  createdById: number | null
+  updatedById: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ArbSaleCountAggregateOutputType = {
   id: number
   trNo: number
-  totalAmount: number
   customerId: number
-  paymentType: number
-  discount: number
-  notes: number
-  createdById: number
-  isDeleted: number
-  createdAt: number
+  totalAmount: number
   paidAmount: number
+  discount: number
+  paymentType: number
+  notes: number
+  isDeleted: number
+  createdById: number
+  updatedById: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type ArbSaleAvgAggregateInputType = {
   id?: true
-  totalAmount?: true
   customerId?: true
+  totalAmount?: true
+  paidAmount?: true
   discount?: true
   createdById?: true
-  paidAmount?: true
+  updatedById?: true
 }
 
 export type ArbSaleSumAggregateInputType = {
   id?: true
-  totalAmount?: true
   customerId?: true
+  totalAmount?: true
+  paidAmount?: true
   discount?: true
   createdById?: true
-  paidAmount?: true
+  updatedById?: true
 }
 
 export type ArbSaleMinAggregateInputType = {
   id?: true
   trNo?: true
-  totalAmount?: true
   customerId?: true
-  paymentType?: true
-  discount?: true
-  notes?: true
-  createdById?: true
-  isDeleted?: true
-  createdAt?: true
+  totalAmount?: true
   paidAmount?: true
+  discount?: true
+  paymentType?: true
+  notes?: true
+  isDeleted?: true
+  createdById?: true
+  updatedById?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ArbSaleMaxAggregateInputType = {
   id?: true
   trNo?: true
-  totalAmount?: true
   customerId?: true
-  paymentType?: true
-  discount?: true
-  notes?: true
-  createdById?: true
-  isDeleted?: true
-  createdAt?: true
+  totalAmount?: true
   paidAmount?: true
+  discount?: true
+  paymentType?: true
+  notes?: true
+  isDeleted?: true
+  createdById?: true
+  updatedById?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type ArbSaleCountAggregateInputType = {
   id?: true
   trNo?: true
-  totalAmount?: true
   customerId?: true
-  paymentType?: true
-  discount?: true
-  notes?: true
-  createdById?: true
-  isDeleted?: true
-  createdAt?: true
+  totalAmount?: true
   paidAmount?: true
+  discount?: true
+  paymentType?: true
+  notes?: true
+  isDeleted?: true
+  createdById?: true
+  updatedById?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -238,15 +254,17 @@ export type ArbSaleGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type ArbSaleGroupByOutputType = {
   id: number
   trNo: string | null
-  totalAmount: runtime.Decimal | null
   customerId: number | null
-  paymentType: $Enums.PaymentType
-  discount: runtime.Decimal | null
-  notes: string | null
-  createdById: number | null
-  isDeleted: boolean
-  createdAt: Date
+  totalAmount: runtime.Decimal
   paidAmount: runtime.Decimal
+  discount: runtime.Decimal | null
+  paymentType: $Enums.PaymentType
+  notes: string | null
+  isDeleted: boolean
+  createdById: number | null
+  updatedById: number | null
+  createdAt: Date
+  updatedAt: Date
   _count: ArbSaleCountAggregateOutputType | null
   _avg: ArbSaleAvgAggregateOutputType | null
   _sum: ArbSaleSumAggregateOutputType | null
@@ -275,72 +293,80 @@ export type ArbSaleWhereInput = {
   NOT?: Prisma.ArbSaleWhereInput | Prisma.ArbSaleWhereInput[]
   id?: Prisma.IntFilter<"ArbSale"> | number
   trNo?: Prisma.StringNullableFilter<"ArbSale"> | string | null
-  totalAmount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.IntNullableFilter<"ArbSale"> | number | null
-  paymentType?: Prisma.EnumPaymentTypeFilter<"ArbSale"> | $Enums.PaymentType
-  discount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.StringNullableFilter<"ArbSale"> | string | null
-  createdById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
-  isDeleted?: Prisma.BoolFilter<"ArbSale"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
+  totalAmount?: Prisma.DecimalFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFilter<"ArbSale"> | $Enums.PaymentType
+  notes?: Prisma.StringNullableFilter<"ArbSale"> | string | null
+  isDeleted?: Prisma.BoolFilter<"ArbSale"> | boolean
+  createdById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
+  updatedById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
+  createdAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.ArbSaleItemListRelationFilter
-  collections?: Prisma.CollectionListRelationFilter
 }
 
 export type ArbSaleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   trNo?: Prisma.SortOrderInput | Prisma.SortOrder
-  totalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   customerId?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymentType?: Prisma.SortOrder
-  discount?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
-  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  discount?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentType?: Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
+  updatedBy?: Prisma.UserOrderByWithRelationInput
   items?: Prisma.ArbSaleItemOrderByRelationAggregateInput
-  collections?: Prisma.CollectionOrderByRelationAggregateInput
 }
 
 export type ArbSaleWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  trNo?: string
   AND?: Prisma.ArbSaleWhereInput | Prisma.ArbSaleWhereInput[]
   OR?: Prisma.ArbSaleWhereInput[]
   NOT?: Prisma.ArbSaleWhereInput | Prisma.ArbSaleWhereInput[]
-  trNo?: Prisma.StringNullableFilter<"ArbSale"> | string | null
-  totalAmount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.IntNullableFilter<"ArbSale"> | number | null
-  paymentType?: Prisma.EnumPaymentTypeFilter<"ArbSale"> | $Enums.PaymentType
-  discount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.StringNullableFilter<"ArbSale"> | string | null
-  createdById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
-  isDeleted?: Prisma.BoolFilter<"ArbSale"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
+  totalAmount?: Prisma.DecimalFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFilter<"ArbSale"> | $Enums.PaymentType
+  notes?: Prisma.StringNullableFilter<"ArbSale"> | string | null
+  isDeleted?: Prisma.BoolFilter<"ArbSale"> | boolean
+  createdById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
+  updatedById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
+  createdAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.ArbSaleItemListRelationFilter
-  collections?: Prisma.CollectionListRelationFilter
-}, "id">
+}, "id" | "trNo">
 
 export type ArbSaleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   trNo?: Prisma.SortOrderInput | Prisma.SortOrder
-  totalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   customerId?: Prisma.SortOrderInput | Prisma.SortOrder
-  paymentType?: Prisma.SortOrder
-  discount?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
-  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  discount?: Prisma.SortOrderInput | Prisma.SortOrder
+  paymentType?: Prisma.SortOrder
+  notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrderInput | Prisma.SortOrder
+  updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ArbSaleCountOrderByAggregateInput
   _avg?: Prisma.ArbSaleAvgOrderByAggregateInput
   _max?: Prisma.ArbSaleMaxOrderByAggregateInput
@@ -354,116 +380,127 @@ export type ArbSaleScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ArbSaleScalarWhereWithAggregatesInput | Prisma.ArbSaleScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"ArbSale"> | number
   trNo?: Prisma.StringNullableWithAggregatesFilter<"ArbSale"> | string | null
-  totalAmount?: Prisma.DecimalNullableWithAggregatesFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.IntNullableWithAggregatesFilter<"ArbSale"> | number | null
-  paymentType?: Prisma.EnumPaymentTypeWithAggregatesFilter<"ArbSale"> | $Enums.PaymentType
-  discount?: Prisma.DecimalNullableWithAggregatesFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.StringNullableWithAggregatesFilter<"ArbSale"> | string | null
-  createdById?: Prisma.IntNullableWithAggregatesFilter<"ArbSale"> | number | null
-  isDeleted?: Prisma.BoolWithAggregatesFilter<"ArbSale"> | boolean
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ArbSale"> | Date | string
+  totalAmount?: Prisma.DecimalWithAggregatesFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalWithAggregatesFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.DecimalNullableWithAggregatesFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeWithAggregatesFilter<"ArbSale"> | $Enums.PaymentType
+  notes?: Prisma.StringNullableWithAggregatesFilter<"ArbSale"> | string | null
+  isDeleted?: Prisma.BoolWithAggregatesFilter<"ArbSale"> | boolean
+  createdById?: Prisma.IntNullableWithAggregatesFilter<"ArbSale"> | number | null
+  updatedById?: Prisma.IntNullableWithAggregatesFilter<"ArbSale"> | number | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ArbSale"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ArbSale"> | Date | string
 }
 
 export type ArbSaleCreateInput = {
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: $Enums.PaymentType
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
-  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutArbSalesInput
   createdBy?: Prisma.UserCreateNestedOneWithoutArbSalesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutArbSalesUpdatedInput
   items?: Prisma.ArbSaleItemCreateNestedManyWithoutArbSaleInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutArbSaleInput
 }
 
 export type ArbSaleUncheckedCreateInput = {
   id?: number
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: number | null
-  paymentType?: $Enums.PaymentType
-  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: string | null
-  createdById?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   items?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutArbSaleInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutArbSaleInput
 }
 
 export type ArbSaleUpdateInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutArbSalesNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutArbSalesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutArbSalesUpdatedNestedInput
   items?: Prisma.ArbSaleItemUpdateManyWithoutArbSaleNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutArbSaleNestedInput
 }
 
 export type ArbSaleUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
-  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutArbSaleNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutArbSaleNestedInput
 }
 
 export type ArbSaleCreateManyInput = {
   id?: number
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: number | null
-  paymentType?: $Enums.PaymentType
-  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: string | null
-  createdById?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleUpdateManyMutationInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
-  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleListRelationFilter = {
@@ -476,69 +513,72 @@ export type ArbSaleOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ArbSaleNullableScalarRelationFilter = {
-  is?: Prisma.ArbSaleWhereInput | null
-  isNot?: Prisma.ArbSaleWhereInput | null
-}
-
 export type ArbSaleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   trNo?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  paymentType?: Prisma.SortOrder
-  discount?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
+  paymentType?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ArbSaleAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
-  paidAmount?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
 }
 
 export type ArbSaleMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   trNo?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  paymentType?: Prisma.SortOrder
-  discount?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
+  paymentType?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ArbSaleMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   trNo?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  paymentType?: Prisma.SortOrder
-  discount?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
-  createdById?: Prisma.SortOrder
-  isDeleted?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  discount?: Prisma.SortOrder
+  paymentType?: Prisma.SortOrder
+  notes?: Prisma.SortOrder
+  isDeleted?: Prisma.SortOrder
+  createdById?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ArbSaleSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  totalAmount?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
+  paidAmount?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
-  paidAmount?: Prisma.SortOrder
+  updatedById?: Prisma.SortOrder
 }
 
 export type ArbSaleScalarRelationFilter = {
@@ -553,10 +593,24 @@ export type ArbSaleCreateNestedManyWithoutCreatedByInput = {
   connect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
 }
 
+export type ArbSaleCreateNestedManyWithoutUpdatedByInput = {
+  create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput> | Prisma.ArbSaleCreateWithoutUpdatedByInput[] | Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput | Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput[]
+  createMany?: Prisma.ArbSaleCreateManyUpdatedByInputEnvelope
+  connect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+}
+
 export type ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput = {
   create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutCreatedByInput, Prisma.ArbSaleUncheckedCreateWithoutCreatedByInput> | Prisma.ArbSaleCreateWithoutCreatedByInput[] | Prisma.ArbSaleUncheckedCreateWithoutCreatedByInput[]
   connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutCreatedByInput | Prisma.ArbSaleCreateOrConnectWithoutCreatedByInput[]
   createMany?: Prisma.ArbSaleCreateManyCreatedByInputEnvelope
+  connect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+}
+
+export type ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput = {
+  create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput> | Prisma.ArbSaleCreateWithoutUpdatedByInput[] | Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput | Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput[]
+  createMany?: Prisma.ArbSaleCreateManyUpdatedByInputEnvelope
   connect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
 }
 
@@ -574,6 +628,20 @@ export type ArbSaleUpdateManyWithoutCreatedByNestedInput = {
   deleteMany?: Prisma.ArbSaleScalarWhereInput | Prisma.ArbSaleScalarWhereInput[]
 }
 
+export type ArbSaleUpdateManyWithoutUpdatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput> | Prisma.ArbSaleCreateWithoutUpdatedByInput[] | Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput | Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput[]
+  upsert?: Prisma.ArbSaleUpsertWithWhereUniqueWithoutUpdatedByInput | Prisma.ArbSaleUpsertWithWhereUniqueWithoutUpdatedByInput[]
+  createMany?: Prisma.ArbSaleCreateManyUpdatedByInputEnvelope
+  set?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  disconnect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  delete?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  connect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  update?: Prisma.ArbSaleUpdateWithWhereUniqueWithoutUpdatedByInput | Prisma.ArbSaleUpdateWithWhereUniqueWithoutUpdatedByInput[]
+  updateMany?: Prisma.ArbSaleUpdateManyWithWhereWithoutUpdatedByInput | Prisma.ArbSaleUpdateManyWithWhereWithoutUpdatedByInput[]
+  deleteMany?: Prisma.ArbSaleScalarWhereInput | Prisma.ArbSaleScalarWhereInput[]
+}
+
 export type ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput = {
   create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutCreatedByInput, Prisma.ArbSaleUncheckedCreateWithoutCreatedByInput> | Prisma.ArbSaleCreateWithoutCreatedByInput[] | Prisma.ArbSaleUncheckedCreateWithoutCreatedByInput[]
   connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutCreatedByInput | Prisma.ArbSaleCreateOrConnectWithoutCreatedByInput[]
@@ -585,6 +653,20 @@ export type ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput = {
   connect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
   update?: Prisma.ArbSaleUpdateWithWhereUniqueWithoutCreatedByInput | Prisma.ArbSaleUpdateWithWhereUniqueWithoutCreatedByInput[]
   updateMany?: Prisma.ArbSaleUpdateManyWithWhereWithoutCreatedByInput | Prisma.ArbSaleUpdateManyWithWhereWithoutCreatedByInput[]
+  deleteMany?: Prisma.ArbSaleScalarWhereInput | Prisma.ArbSaleScalarWhereInput[]
+}
+
+export type ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput = {
+  create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput> | Prisma.ArbSaleCreateWithoutUpdatedByInput[] | Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput[]
+  connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput | Prisma.ArbSaleCreateOrConnectWithoutUpdatedByInput[]
+  upsert?: Prisma.ArbSaleUpsertWithWhereUniqueWithoutUpdatedByInput | Prisma.ArbSaleUpsertWithWhereUniqueWithoutUpdatedByInput[]
+  createMany?: Prisma.ArbSaleCreateManyUpdatedByInputEnvelope
+  set?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  disconnect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  delete?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  connect?: Prisma.ArbSaleWhereUniqueInput | Prisma.ArbSaleWhereUniqueInput[]
+  update?: Prisma.ArbSaleUpdateWithWhereUniqueWithoutUpdatedByInput | Prisma.ArbSaleUpdateWithWhereUniqueWithoutUpdatedByInput[]
+  updateMany?: Prisma.ArbSaleUpdateManyWithWhereWithoutUpdatedByInput | Prisma.ArbSaleUpdateManyWithWhereWithoutUpdatedByInput[]
   deleteMany?: Prisma.ArbSaleScalarWhereInput | Prisma.ArbSaleScalarWhereInput[]
 }
 
@@ -630,22 +712,6 @@ export type ArbSaleUncheckedUpdateManyWithoutCustomerNestedInput = {
   deleteMany?: Prisma.ArbSaleScalarWhereInput | Prisma.ArbSaleScalarWhereInput[]
 }
 
-export type ArbSaleCreateNestedOneWithoutCollectionsInput = {
-  create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutCollectionsInput, Prisma.ArbSaleUncheckedCreateWithoutCollectionsInput>
-  connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutCollectionsInput
-  connect?: Prisma.ArbSaleWhereUniqueInput
-}
-
-export type ArbSaleUpdateOneWithoutCollectionsNestedInput = {
-  create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutCollectionsInput, Prisma.ArbSaleUncheckedCreateWithoutCollectionsInput>
-  connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutCollectionsInput
-  upsert?: Prisma.ArbSaleUpsertWithoutCollectionsInput
-  disconnect?: Prisma.ArbSaleWhereInput | boolean
-  delete?: Prisma.ArbSaleWhereInput | boolean
-  connect?: Prisma.ArbSaleWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ArbSaleUpdateToOneWithWhereWithoutCollectionsInput, Prisma.ArbSaleUpdateWithoutCollectionsInput>, Prisma.ArbSaleUncheckedUpdateWithoutCollectionsInput>
-}
-
 export type ArbSaleCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.ArbSaleCreateWithoutItemsInput, Prisma.ArbSaleUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.ArbSaleCreateOrConnectWithoutItemsInput
@@ -662,31 +728,33 @@ export type ArbSaleUpdateOneRequiredWithoutItemsNestedInput = {
 
 export type ArbSaleCreateWithoutCreatedByInput = {
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: $Enums.PaymentType
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
-  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutArbSalesInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutArbSalesUpdatedInput
   items?: Prisma.ArbSaleItemCreateNestedManyWithoutArbSaleInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutArbSaleInput
 }
 
 export type ArbSaleUncheckedCreateWithoutCreatedByInput = {
   id?: number
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: number | null
-  paymentType?: $Enums.PaymentType
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
   notes?: string | null
   isDeleted?: boolean
+  updatedById?: number | null
   createdAt?: Date | string
-  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Date | string
   items?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutArbSaleInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutArbSaleInput
 }
 
 export type ArbSaleCreateOrConnectWithoutCreatedByInput = {
@@ -696,6 +764,47 @@ export type ArbSaleCreateOrConnectWithoutCreatedByInput = {
 
 export type ArbSaleCreateManyCreatedByInputEnvelope = {
   data: Prisma.ArbSaleCreateManyCreatedByInput | Prisma.ArbSaleCreateManyCreatedByInput[]
+  skipDuplicates?: boolean
+}
+
+export type ArbSaleCreateWithoutUpdatedByInput = {
+  trNo?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer?: Prisma.CustomerCreateNestedOneWithoutArbSalesInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutArbSalesCreatedInput
+  items?: Prisma.ArbSaleItemCreateNestedManyWithoutArbSaleInput
+}
+
+export type ArbSaleUncheckedCreateWithoutUpdatedByInput = {
+  id?: number
+  trNo?: string | null
+  customerId?: number | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutArbSaleInput
+}
+
+export type ArbSaleCreateOrConnectWithoutUpdatedByInput = {
+  where: Prisma.ArbSaleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ArbSaleCreateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput>
+}
+
+export type ArbSaleCreateManyUpdatedByInputEnvelope = {
+  data: Prisma.ArbSaleCreateManyUpdatedByInput | Prisma.ArbSaleCreateManyUpdatedByInput[]
   skipDuplicates?: boolean
 }
 
@@ -721,44 +830,64 @@ export type ArbSaleScalarWhereInput = {
   NOT?: Prisma.ArbSaleScalarWhereInput | Prisma.ArbSaleScalarWhereInput[]
   id?: Prisma.IntFilter<"ArbSale"> | number
   trNo?: Prisma.StringNullableFilter<"ArbSale"> | string | null
-  totalAmount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.IntNullableFilter<"ArbSale"> | number | null
-  paymentType?: Prisma.EnumPaymentTypeFilter<"ArbSale"> | $Enums.PaymentType
-  discount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.StringNullableFilter<"ArbSale"> | string | null
-  createdById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
-  isDeleted?: Prisma.BoolFilter<"ArbSale"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
+  totalAmount?: Prisma.DecimalFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.DecimalNullableFilter<"ArbSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFilter<"ArbSale"> | $Enums.PaymentType
+  notes?: Prisma.StringNullableFilter<"ArbSale"> | string | null
+  isDeleted?: Prisma.BoolFilter<"ArbSale"> | boolean
+  createdById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
+  updatedById?: Prisma.IntNullableFilter<"ArbSale"> | number | null
+  createdAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ArbSale"> | Date | string
+}
+
+export type ArbSaleUpsertWithWhereUniqueWithoutUpdatedByInput = {
+  where: Prisma.ArbSaleWhereUniqueInput
+  update: Prisma.XOR<Prisma.ArbSaleUpdateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedUpdateWithoutUpdatedByInput>
+  create: Prisma.XOR<Prisma.ArbSaleCreateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedCreateWithoutUpdatedByInput>
+}
+
+export type ArbSaleUpdateWithWhereUniqueWithoutUpdatedByInput = {
+  where: Prisma.ArbSaleWhereUniqueInput
+  data: Prisma.XOR<Prisma.ArbSaleUpdateWithoutUpdatedByInput, Prisma.ArbSaleUncheckedUpdateWithoutUpdatedByInput>
+}
+
+export type ArbSaleUpdateManyWithWhereWithoutUpdatedByInput = {
+  where: Prisma.ArbSaleScalarWhereInput
+  data: Prisma.XOR<Prisma.ArbSaleUpdateManyMutationInput, Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByInput>
 }
 
 export type ArbSaleCreateWithoutCustomerInput = {
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: $Enums.PaymentType
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
-  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Date | string
   createdBy?: Prisma.UserCreateNestedOneWithoutArbSalesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutArbSalesUpdatedInput
   items?: Prisma.ArbSaleItemCreateNestedManyWithoutArbSaleInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutArbSaleInput
 }
 
 export type ArbSaleUncheckedCreateWithoutCustomerInput = {
   id?: number
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: $Enums.PaymentType
-  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: string | null
-  createdById?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   items?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutArbSaleInput
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutArbSaleInput
 }
 
 export type ArbSaleCreateOrConnectWithoutCustomerInput = {
@@ -787,107 +916,35 @@ export type ArbSaleUpdateManyWithWhereWithoutCustomerInput = {
   data: Prisma.XOR<Prisma.ArbSaleUpdateManyMutationInput, Prisma.ArbSaleUncheckedUpdateManyWithoutCustomerInput>
 }
 
-export type ArbSaleCreateWithoutCollectionsInput = {
-  trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: $Enums.PaymentType
-  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: string | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  customer?: Prisma.CustomerCreateNestedOneWithoutArbSalesInput
-  createdBy?: Prisma.UserCreateNestedOneWithoutArbSalesCreatedInput
-  items?: Prisma.ArbSaleItemCreateNestedManyWithoutArbSaleInput
-}
-
-export type ArbSaleUncheckedCreateWithoutCollectionsInput = {
-  id?: number
-  trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  customerId?: number | null
-  paymentType?: $Enums.PaymentType
-  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: string | null
-  createdById?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
-  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  items?: Prisma.ArbSaleItemUncheckedCreateNestedManyWithoutArbSaleInput
-}
-
-export type ArbSaleCreateOrConnectWithoutCollectionsInput = {
-  where: Prisma.ArbSaleWhereUniqueInput
-  create: Prisma.XOR<Prisma.ArbSaleCreateWithoutCollectionsInput, Prisma.ArbSaleUncheckedCreateWithoutCollectionsInput>
-}
-
-export type ArbSaleUpsertWithoutCollectionsInput = {
-  update: Prisma.XOR<Prisma.ArbSaleUpdateWithoutCollectionsInput, Prisma.ArbSaleUncheckedUpdateWithoutCollectionsInput>
-  create: Prisma.XOR<Prisma.ArbSaleCreateWithoutCollectionsInput, Prisma.ArbSaleUncheckedCreateWithoutCollectionsInput>
-  where?: Prisma.ArbSaleWhereInput
-}
-
-export type ArbSaleUpdateToOneWithWhereWithoutCollectionsInput = {
-  where?: Prisma.ArbSaleWhereInput
-  data: Prisma.XOR<Prisma.ArbSaleUpdateWithoutCollectionsInput, Prisma.ArbSaleUncheckedUpdateWithoutCollectionsInput>
-}
-
-export type ArbSaleUpdateWithoutCollectionsInput = {
-  trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
-  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  customer?: Prisma.CustomerUpdateOneWithoutArbSalesNestedInput
-  createdBy?: Prisma.UserUpdateOneWithoutArbSalesCreatedNestedInput
-  items?: Prisma.ArbSaleItemUpdateManyWithoutArbSaleNestedInput
-}
-
-export type ArbSaleUncheckedUpdateWithoutCollectionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
-  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  items?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutArbSaleNestedInput
-}
-
 export type ArbSaleCreateWithoutItemsInput = {
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: $Enums.PaymentType
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
   notes?: string | null
   isDeleted?: boolean
   createdAt?: Date | string
-  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Date | string
   customer?: Prisma.CustomerCreateNestedOneWithoutArbSalesInput
   createdBy?: Prisma.UserCreateNestedOneWithoutArbSalesCreatedInput
-  collections?: Prisma.CollectionCreateNestedManyWithoutArbSaleInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutArbSalesUpdatedInput
 }
 
 export type ArbSaleUncheckedCreateWithoutItemsInput = {
   id?: number
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: number | null
-  paymentType?: $Enums.PaymentType
-  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: string | null
-  createdById?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  collections?: Prisma.CollectionUncheckedCreateNestedManyWithoutArbSaleInput
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleCreateOrConnectWithoutItemsInput = {
@@ -908,141 +965,216 @@ export type ArbSaleUpdateToOneWithWhereWithoutItemsInput = {
 
 export type ArbSaleUpdateWithoutItemsInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutArbSalesNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutArbSalesCreatedNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutArbSaleNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutArbSalesUpdatedNestedInput
 }
 
 export type ArbSaleUncheckedUpdateWithoutItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
-  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutArbSaleNestedInput
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleCreateManyCreatedByInput = {
   id?: number
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: number | null
-  paymentType?: $Enums.PaymentType
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
   notes?: string | null
   isDeleted?: boolean
+  updatedById?: number | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ArbSaleCreateManyUpdatedByInput = {
+  id?: number
+  trNo?: string | null
+  customerId?: number | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleUpdateWithoutCreatedByInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneWithoutArbSalesNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutArbSalesUpdatedNestedInput
   items?: Prisma.ArbSaleItemUpdateManyWithoutArbSaleNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutArbSaleNestedInput
 }
 
 export type ArbSaleUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutArbSaleNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutArbSaleNestedInput
 }
 
 export type ArbSaleUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ArbSaleUpdateWithoutUpdatedByInput = {
+  trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneWithoutArbSalesNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutArbSalesCreatedNestedInput
+  items?: Prisma.ArbSaleItemUpdateManyWithoutArbSaleNestedInput
+}
+
+export type ArbSaleUncheckedUpdateWithoutUpdatedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutArbSaleNestedInput
+}
+
+export type ArbSaleUncheckedUpdateManyWithoutUpdatedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArbSaleCreateManyCustomerInput = {
   id?: number
   trNo?: string | null
-  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: $Enums.PaymentType
-  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: string | null
-  createdById?: number | null
-  isDeleted?: boolean
-  createdAt?: Date | string
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ArbSaleUpdateWithoutCustomerInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.UserUpdateOneWithoutArbSalesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutArbSalesUpdatedNestedInput
   items?: Prisma.ArbSaleItemUpdateManyWithoutArbSaleNestedInput
-  collections?: Prisma.CollectionUpdateManyWithoutArbSaleNestedInput
 }
 
 export type ArbSaleUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
-  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ArbSaleItemUncheckedUpdateManyWithoutArbSaleNestedInput
-  collections?: Prisma.CollectionUncheckedUpdateManyWithoutArbSaleNestedInput
 }
 
 export type ArbSaleUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
-  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1052,12 +1184,10 @@ export type ArbSaleUncheckedUpdateManyWithoutCustomerInput = {
 
 export type ArbSaleCountOutputType = {
   items: number
-  collections: number
 }
 
 export type ArbSaleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | ArbSaleCountOutputTypeCountItemsArgs
-  collections?: boolean | ArbSaleCountOutputTypeCountCollectionsArgs
 }
 
 /**
@@ -1077,94 +1207,99 @@ export type ArbSaleCountOutputTypeCountItemsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.ArbSaleItemWhereInput
 }
 
-/**
- * ArbSaleCountOutputType without action
- */
-export type ArbSaleCountOutputTypeCountCollectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CollectionWhereInput
-}
-
 
 export type ArbSaleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   trNo?: boolean
-  totalAmount?: boolean
   customerId?: boolean
-  paymentType?: boolean
-  discount?: boolean
-  notes?: boolean
-  createdById?: boolean
-  isDeleted?: boolean
-  createdAt?: boolean
+  totalAmount?: boolean
   paidAmount?: boolean
+  discount?: boolean
+  paymentType?: boolean
+  notes?: boolean
+  isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   customer?: boolean | Prisma.ArbSale$customerArgs<ExtArgs>
   createdBy?: boolean | Prisma.ArbSale$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.ArbSale$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.ArbSale$itemsArgs<ExtArgs>
-  collections?: boolean | Prisma.ArbSale$collectionsArgs<ExtArgs>
   _count?: boolean | Prisma.ArbSaleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["arbSale"]>
 
 export type ArbSaleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   trNo?: boolean
-  totalAmount?: boolean
   customerId?: boolean
-  paymentType?: boolean
-  discount?: boolean
-  notes?: boolean
-  createdById?: boolean
-  isDeleted?: boolean
-  createdAt?: boolean
+  totalAmount?: boolean
   paidAmount?: boolean
+  discount?: boolean
+  paymentType?: boolean
+  notes?: boolean
+  isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   customer?: boolean | Prisma.ArbSale$customerArgs<ExtArgs>
   createdBy?: boolean | Prisma.ArbSale$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.ArbSale$updatedByArgs<ExtArgs>
 }, ExtArgs["result"]["arbSale"]>
 
 export type ArbSaleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   trNo?: boolean
-  totalAmount?: boolean
   customerId?: boolean
-  paymentType?: boolean
-  discount?: boolean
-  notes?: boolean
-  createdById?: boolean
-  isDeleted?: boolean
-  createdAt?: boolean
+  totalAmount?: boolean
   paidAmount?: boolean
+  discount?: boolean
+  paymentType?: boolean
+  notes?: boolean
+  isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   customer?: boolean | Prisma.ArbSale$customerArgs<ExtArgs>
   createdBy?: boolean | Prisma.ArbSale$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.ArbSale$updatedByArgs<ExtArgs>
 }, ExtArgs["result"]["arbSale"]>
 
 export type ArbSaleSelectScalar = {
   id?: boolean
   trNo?: boolean
-  totalAmount?: boolean
   customerId?: boolean
-  paymentType?: boolean
-  discount?: boolean
-  notes?: boolean
-  createdById?: boolean
-  isDeleted?: boolean
-  createdAt?: boolean
+  totalAmount?: boolean
   paidAmount?: boolean
+  discount?: boolean
+  paymentType?: boolean
+  notes?: boolean
+  isDeleted?: boolean
+  createdById?: boolean
+  updatedById?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ArbSaleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trNo" | "totalAmount" | "customerId" | "paymentType" | "discount" | "notes" | "createdById" | "isDeleted" | "createdAt" | "paidAmount", ExtArgs["result"]["arbSale"]>
+export type ArbSaleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trNo" | "customerId" | "totalAmount" | "paidAmount" | "discount" | "paymentType" | "notes" | "isDeleted" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["arbSale"]>
 export type ArbSaleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.ArbSale$customerArgs<ExtArgs>
   createdBy?: boolean | Prisma.ArbSale$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.ArbSale$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.ArbSale$itemsArgs<ExtArgs>
-  collections?: boolean | Prisma.ArbSale$collectionsArgs<ExtArgs>
   _count?: boolean | Prisma.ArbSaleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ArbSaleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.ArbSale$customerArgs<ExtArgs>
   createdBy?: boolean | Prisma.ArbSale$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.ArbSale$updatedByArgs<ExtArgs>
 }
 export type ArbSaleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.ArbSale$customerArgs<ExtArgs>
   createdBy?: boolean | Prisma.ArbSale$createdByArgs<ExtArgs>
+  updatedBy?: boolean | Prisma.ArbSale$updatedByArgs<ExtArgs>
 }
 
 export type $ArbSalePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1172,21 +1307,23 @@ export type $ArbSalePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     customer: Prisma.$CustomerPayload<ExtArgs> | null
     createdBy: Prisma.$UserPayload<ExtArgs> | null
+    updatedBy: Prisma.$UserPayload<ExtArgs> | null
     items: Prisma.$ArbSaleItemPayload<ExtArgs>[]
-    collections: Prisma.$CollectionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     trNo: string | null
-    totalAmount: runtime.Decimal | null
     customerId: number | null
-    paymentType: $Enums.PaymentType
-    discount: runtime.Decimal | null
-    notes: string | null
-    createdById: number | null
-    isDeleted: boolean
-    createdAt: Date
+    totalAmount: runtime.Decimal
     paidAmount: runtime.Decimal
+    discount: runtime.Decimal | null
+    paymentType: $Enums.PaymentType
+    notes: string | null
+    isDeleted: boolean
+    createdById: number | null
+    updatedById: number | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["arbSale"]>
   composites: {}
 }
@@ -1583,8 +1720,8 @@ export interface Prisma__ArbSaleClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   customer<T extends Prisma.ArbSale$customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSale$customerArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.ArbSale$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSale$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  updatedBy<T extends Prisma.ArbSale$updatedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSale$updatedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.ArbSale$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSale$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  collections<T extends Prisma.ArbSale$collectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ArbSale$collectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1616,15 +1753,17 @@ export interface Prisma__ArbSaleClient<T, Null = never, ExtArgs extends runtime.
 export interface ArbSaleFieldRefs {
   readonly id: Prisma.FieldRef<"ArbSale", 'Int'>
   readonly trNo: Prisma.FieldRef<"ArbSale", 'String'>
-  readonly totalAmount: Prisma.FieldRef<"ArbSale", 'Decimal'>
   readonly customerId: Prisma.FieldRef<"ArbSale", 'Int'>
-  readonly paymentType: Prisma.FieldRef<"ArbSale", 'PaymentType'>
-  readonly discount: Prisma.FieldRef<"ArbSale", 'Decimal'>
-  readonly notes: Prisma.FieldRef<"ArbSale", 'String'>
-  readonly createdById: Prisma.FieldRef<"ArbSale", 'Int'>
-  readonly isDeleted: Prisma.FieldRef<"ArbSale", 'Boolean'>
-  readonly createdAt: Prisma.FieldRef<"ArbSale", 'DateTime'>
+  readonly totalAmount: Prisma.FieldRef<"ArbSale", 'Decimal'>
   readonly paidAmount: Prisma.FieldRef<"ArbSale", 'Decimal'>
+  readonly discount: Prisma.FieldRef<"ArbSale", 'Decimal'>
+  readonly paymentType: Prisma.FieldRef<"ArbSale", 'PaymentType'>
+  readonly notes: Prisma.FieldRef<"ArbSale", 'String'>
+  readonly isDeleted: Prisma.FieldRef<"ArbSale", 'Boolean'>
+  readonly createdById: Prisma.FieldRef<"ArbSale", 'Int'>
+  readonly updatedById: Prisma.FieldRef<"ArbSale", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"ArbSale", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ArbSale", 'DateTime'>
 }
     
 
@@ -1848,7 +1987,7 @@ export type ArbSaleCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * The data needed to create a ArbSale.
    */
-  data?: Prisma.XOR<Prisma.ArbSaleCreateInput, Prisma.ArbSaleUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.ArbSaleCreateInput, Prisma.ArbSaleUncheckedCreateInput>
 }
 
 /**
@@ -2064,6 +2203,25 @@ export type ArbSale$createdByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * ArbSale.updatedBy
+ */
+export type ArbSale$updatedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
  * ArbSale.items
  */
 export type ArbSale$itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2085,30 +2243,6 @@ export type ArbSale$itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ArbSaleItemScalarFieldEnum | Prisma.ArbSaleItemScalarFieldEnum[]
-}
-
-/**
- * ArbSale.collections
- */
-export type ArbSale$collectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Collection
-   */
-  select?: Prisma.CollectionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Collection
-   */
-  omit?: Prisma.CollectionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.CollectionInclude<ExtArgs> | null
-  where?: Prisma.CollectionWhereInput
-  orderBy?: Prisma.CollectionOrderByWithRelationInput | Prisma.CollectionOrderByWithRelationInput[]
-  cursor?: Prisma.CollectionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CollectionScalarFieldEnum | Prisma.CollectionScalarFieldEnum[]
 }
 
 /**

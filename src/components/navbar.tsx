@@ -12,13 +12,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Settings, Search, Bell, Flame } from "lucide-react";
+import { LogOut, Settings, Bell } from "lucide-react";
 import { ModeSwitcher, ThemeSwitcher } from "@/components/theme-switcher";
+import { Badge } from "./ui/badge";
 
 export function Navbar() {
   const { data: session } = useSession();
   const userName = session?.user?.name || "User";
-  const role = session?.user?.role || "Role"
+  const roles = session?.user.roles || [];
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -36,12 +37,15 @@ export function Navbar() {
         </div>
       </div>
 
-
       <div className="ml-auto flex items-center gap-1">
         <ThemeSwitcher />
         <ModeSwitcher />
 
-        <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative text-white hover:bg-white/10"
+        >
           <Bell className="w-4 h-4" />
           <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border border-primary"></span>
         </Button>
@@ -51,11 +55,16 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <div className="flex flex-col items-end leading-tight hidden sm:flex">
             <span className="text-sm font-semibold">{userName}</span>
-            <span className="text-[10px] opacity-70">{role}</span>
+            {roles.map((role) => (
+              <Badge key={role}>{role}</Badge>
+            ))}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full p-0">
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full p-0"
+              >
                 <Avatar className="h-9 w-9 border border-white/20">
                   <AvatarFallback className="bg-white/10 text-white text-xs font-semibold">
                     {initials}
