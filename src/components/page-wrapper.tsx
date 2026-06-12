@@ -20,7 +20,7 @@ export function PageWrapper({
   title,
   showBackButton = false,
   addButton,
-  description
+  description,
 }: PageWrapperProps) {
   const router = useRouter();
 
@@ -34,7 +34,7 @@ export function PageWrapper({
         )}
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
-       <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
         {addButton}
       </div>

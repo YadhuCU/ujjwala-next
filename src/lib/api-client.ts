@@ -12,6 +12,7 @@ import { ApiResponse } from "./response";
 import { VendorResponse } from "../module/vendor/vendor.serializer";
 import { CustomerResponse } from "@/module/customer/customer.serializer";
 import { LocationResponse } from "@/module/location/location.serializer";
+import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
@@ -112,7 +113,7 @@ export const api = {
       .get<ApiResponse<VendorResponse[]>>("/api/vendors")
       .then((r) => r.data),
   getPurchases: () =>
-    apiClient.get<PurchasePayload[]>("/api/purchases").then((r) => r.data),
+    apiClient.get<ApiResponse<PurchaseResponse[]>>("/api/purchases").then((r) => r.data),
   getRoles: () =>
     apiClient.get<ApiResponse<Role[]>>("/api/roles").then((r) => r.data),
 

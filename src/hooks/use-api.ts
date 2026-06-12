@@ -42,7 +42,7 @@ export function useVendors() {
 }
 
 export function usePurchases() {
-  return useQuery(purchasesOptions);
+  return useSuspenseQuery(purchasesOptions);
 }
 
 export function useArbSales() {
@@ -65,20 +65,11 @@ interface MutationOptions {
   onError?: (error: unknown) => void;
 }
 
-function getAxiosError(error: unknown): string {
-  if (error instanceof AxiosError) {
-    return error.response?.data?.error || error.message || "Operation failed";
-  }
-  if (error instanceof Error) return error.message;
-  return "Operation failed";
-}
-
 export function useApiMutation<T = Record<string, unknown>>({
   url,
   method = "POST",
   invalidateKeys = [],
   onSuccess,
-  onError,
 }: MutationOptions) {
   const queryClient = useQueryClient();
 
@@ -96,10 +87,6 @@ export function useApiMutation<T = Record<string, unknown>>({
         queryClient.invalidateQueries({ queryKey: [...key] });
       });
       onSuccess?.();
-    },
-    onError: (error: Error) => {
-      if (onError) onError(error);
-      else toast.error(getAxiosError(error));
     },
   });
 }
@@ -124,9 +111,6 @@ export function useDeleteMutation({
       });
       toast.success("Deleted successfully");
       onSuccess?.();
-    },
-    onError: (error: Error) => {
-      toast.error(getAxiosError(error));
     },
   });
 }

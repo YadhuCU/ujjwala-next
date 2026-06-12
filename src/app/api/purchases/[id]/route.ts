@@ -2,110 +2,56 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
+import * as PurchaseService from "@/module/purchase/purchase.service";
+import { formatResponse } from "@/lib/response";
+import { serializePurchase } from "@/module/purchase/purchase.serializer";
+import { UpdatePurchasePayloadSchema } from "@/module/purchase/purchase.payload.schema";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   return withAuth(async () => {
     const { id } = await params;
-    const purchase = await prisma.purchase.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        vendor: true,
-        items: { include: { product: true } },
-      },
-    });
-    if (!purchase) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-    return NextResponse.json(purchase);
+    const purchase = await PurchaseService.getPurchaseById(Number(id));
+    return formatResponse({ data: serializePurchase(purchase) });
   }, [PERMISSIONS.PURCHASE_READ]);
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  return withAuth(async () => {
-    try {
+  return withAuth(
+    async ({ id: userId }) => {
       const { id } = await params;
-      const data = await request.json();
-      const purchase = await prisma.purchase.update({
-        where: { id: parseInt(id) },
-        data: {
-          invoiceNo: data.invoiceNo || null,
-          vendorId: data.vendorId ? parseInt(data.vendorId) : undefined,
-          totalAmount:
-            data.totalAmount != null ? Number(data.totalAmount) : undefined,
-          purchaseDate: data.purchaseDate
-            ? new Date(data.purchaseDate)
-            : undefined,
-          notes: data.notes !== undefined ? data.notes || null : undefined,
-        },
+      const payload = await request.json();
+      const data = UpdatePurchasePayloadSchema.parse(payload);
+
+      const purchase = await PurchaseService.updatePurchase(
+        Number(id),
+        data,
+        Number(userId),
+      );
+      return formatResponse({
+        data: purchase,
+        message: "Purchase updated successfully.",
       });
-      return NextResponse.json(purchase);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  },[PERMISSIONS.PURCHASE_UPDATE]);
+    },
+    [PERMISSIONS.PURCHASE_UPDATE],
+  );
 }
 
 export async function DELETE(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   return withAuth(async () => {
     const { id } = await params;
     const purchaseId = parseInt(id);
 
-    // Fetch the purchase along with its items and the connected stock entries
-    const purchase = await prisma.purchase.findUnique({
-      where: { id: purchaseId },
-      include: {
-        items: true,
-      },
-    });
+    await PurchaseService.deletePurchase(purchaseId);
 
-    if (!purchase) {
-      return NextResponse.json({ error: "Purchase not found" }, { status: 404 });
-    }
-
-    // Check if any of the stock connected to this purchase has been consumed.
-    // We check this by comparing the original PurchaseItem quantity to the current Stock quantity.
-    const linkedStocks = await prisma.stock.findMany({
-      where: { purchaseId: purchaseId, isDeleted: false },
-    });
-
-    for (const item of purchase.items) {
-      const relatedStock = linkedStocks.find(
-        (s) => s.productId === item.productId && s.batchNo === item.batchNo && s.productCost === item.unitCost
-      );
-      
-      // If the stock's current quantity is strictly less than what was purchased,
-      // it means some of it was sold/rented out. 
-      if (relatedStock && relatedStock.quantity < item.quantity) {
-        return NextResponse.json(
-          { error: `Cannot delete purchase. Stock for product batch '${item.batchNo}' has already been consumed.` },
-          { status: 400 }
-        );
-      }
-    }
-
-    // If safe, soft-delete the Purchase and all generated Stock.
-    await prisma.$transaction([
-      prisma.purchase.update({
-        where: { id: purchaseId },
-        data: { isDeleted: true },
-      }),
-      prisma.stock.updateMany({
-        where: { purchaseId: purchaseId },
-        data: { isDeleted: true },
-      }),
-    ]);
-
-    return NextResponse.json({ success: true });
-  },[PERMISSIONS.PURCHASE_DELETE]);
+    return formatResponse({ message: "Purchase deleted", data: null });
+  }, [PERMISSIONS.PURCHASE_DELETE]);
 }

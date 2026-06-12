@@ -5,6 +5,14 @@ export type ApiResponse<T> = {
   message: string;
   data: T;
   errors?: unknown;
+  meta?: MetaData;
+};
+
+export type MetaData = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 };
 
 // Helper function for successful responses
@@ -12,16 +20,19 @@ export function formatResponse<T>({
   data,
   message = "Operation completed successfully",
   status = 200,
+  meta,
 }: {
   data: T;
   message?: string;
   status?: number;
+  meta?: MetaData;
 }) {
   return NextResponse.json<ApiResponse<T>>(
     {
       success: true,
       message,
       data,
+      meta,
     },
     { status },
   );

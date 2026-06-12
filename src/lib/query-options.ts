@@ -85,6 +85,7 @@ export const vendorsOptions = queryOptions({
 export const purchasesOptions = queryOptions({
   queryKey: queryKeys.purchases.lists(),
   queryFn: api.getPurchases,
+  select: (res) => res.data,
 });
 
 export const rolesOptions = queryOptions({
