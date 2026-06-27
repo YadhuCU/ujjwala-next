@@ -547,6 +547,11 @@ export type StockSumOrderByAggregateInput = {
   purchaseId?: Prisma.SortOrder
 }
 
+export type StockScalarRelationFilter = {
+  is?: Prisma.StockWhereInput
+  isNot?: Prisma.StockWhereInput
+}
+
 export type StockNullableScalarRelationFilter = {
   is?: Prisma.StockWhereInput | null
   isNot?: Prisma.StockWhereInput | null
@@ -684,12 +689,10 @@ export type StockCreateNestedOneWithoutDomSaleItemsInput = {
   connect?: Prisma.StockWhereUniqueInput
 }
 
-export type StockUpdateOneWithoutDomSaleItemsNestedInput = {
+export type StockUpdateOneRequiredWithoutDomSaleItemsNestedInput = {
   create?: Prisma.XOR<Prisma.StockCreateWithoutDomSaleItemsInput, Prisma.StockUncheckedCreateWithoutDomSaleItemsInput>
   connectOrCreate?: Prisma.StockCreateOrConnectWithoutDomSaleItemsInput
   upsert?: Prisma.StockUpsertWithoutDomSaleItemsInput
-  disconnect?: Prisma.StockWhereInput | boolean
-  delete?: Prisma.StockWhereInput | boolean
   connect?: Prisma.StockWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutDomSaleItemsInput, Prisma.StockUpdateWithoutDomSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutDomSaleItemsInput>
 }
@@ -700,12 +703,10 @@ export type StockCreateNestedOneWithoutArbSaleItemsInput = {
   connect?: Prisma.StockWhereUniqueInput
 }
 
-export type StockUpdateOneWithoutArbSaleItemsNestedInput = {
+export type StockUpdateOneRequiredWithoutArbSaleItemsNestedInput = {
   create?: Prisma.XOR<Prisma.StockCreateWithoutArbSaleItemsInput, Prisma.StockUncheckedCreateWithoutArbSaleItemsInput>
   connectOrCreate?: Prisma.StockCreateOrConnectWithoutArbSaleItemsInput
   upsert?: Prisma.StockUpsertWithoutArbSaleItemsInput
-  disconnect?: Prisma.StockWhereInput | boolean
-  delete?: Prisma.StockWhereInput | boolean
   connect?: Prisma.StockWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.StockUpdateToOneWithWhereWithoutArbSaleItemsInput, Prisma.StockUpdateWithoutArbSaleItemsInput>, Prisma.StockUncheckedUpdateWithoutArbSaleItemsInput>
 }

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
-import { ProductType } from "@prisma/client";
 import { PERMISSIONS } from "@/lib/permissions";
+import { ProductType } from "@/generated/enums";
 
 export async function GET(req: NextRequest) {
   return withAuth(async () => {
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       include: { product: true, vendor: true },
       orderBy: { createdAt: "desc" },
     });
-    return NextResponse.json(stocks);
+    return NextResponse.json({ data: stocks });
   }, [PERMISSIONS.STOCK_READ]);
 }
 
@@ -26,12 +26,14 @@ export async function POST(request: Request) {
           productId: data.productId ? parseInt(data.productId) : null,
           invoiceNo: data.invoiceNo,
           quantity: data.quantity != null ? Number(data.quantity) : 0,
-          productCost: data.productCost != null ? Number(data.productCost) : null,
+          productCost:
+            data.productCost != null ? Number(data.productCost) : null,
         },
       });
       return NextResponse.json(stock, { status: 201 });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to create stock";
+      const message =
+        error instanceof Error ? error.message : "Failed to create stock";
       return NextResponse.json({ error: message }, { status: 400 });
     }
   }, [PERMISSIONS.STOCK_CREATE]);

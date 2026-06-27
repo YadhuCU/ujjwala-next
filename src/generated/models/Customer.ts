@@ -689,12 +689,10 @@ export type CustomerCreateNestedOneWithoutDomSalesInput = {
   connect?: Prisma.CustomerWhereUniqueInput
 }
 
-export type CustomerUpdateOneWithoutDomSalesNestedInput = {
+export type CustomerUpdateOneRequiredWithoutDomSalesNestedInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutDomSalesInput, Prisma.CustomerUncheckedCreateWithoutDomSalesInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutDomSalesInput
   upsert?: Prisma.CustomerUpsertWithoutDomSalesInput
-  disconnect?: Prisma.CustomerWhereInput | boolean
-  delete?: Prisma.CustomerWhereInput | boolean
   connect?: Prisma.CustomerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutDomSalesInput, Prisma.CustomerUpdateWithoutDomSalesInput>, Prisma.CustomerUncheckedUpdateWithoutDomSalesInput>
 }
@@ -705,12 +703,10 @@ export type CustomerCreateNestedOneWithoutArbSalesInput = {
   connect?: Prisma.CustomerWhereUniqueInput
 }
 
-export type CustomerUpdateOneWithoutArbSalesNestedInput = {
+export type CustomerUpdateOneRequiredWithoutArbSalesNestedInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutArbSalesInput, Prisma.CustomerUncheckedCreateWithoutArbSalesInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutArbSalesInput
   upsert?: Prisma.CustomerUpsertWithoutArbSalesInput
-  disconnect?: Prisma.CustomerWhereInput | boolean
-  delete?: Prisma.CustomerWhereInput | boolean
   connect?: Prisma.CustomerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutArbSalesInput, Prisma.CustomerUpdateWithoutArbSalesInput>, Prisma.CustomerUncheckedUpdateWithoutArbSalesInput>
 }

@@ -1,102 +1,51 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import * as DomSaleService from "@/module/dom-sale/dom-sale.service";
+import { UpdateDomSaleSchema } from "@/module/dom-sale/dom-sale.payload.schema";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const domSale = await prisma.domSale.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        items: {
-          include: {
-            stock: true,
-            product: true,
-          },
-        },
-        customer: true,
-      },
-    });
-
-    if (!domSale) {
-      return NextResponse.json({ error: "Domestic Sale not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(domSale);
+    const sale = await DomSaleService.getDomSaleById(Number(id));
+    return formatResponse({ data: sale });
   }, [PERMISSIONS.DOMESTIC_SALE_READ]);
 }
 
-// NOTE: DomSales are strict and directly modify stock.
-// Thus, editing quantities is complex and normally discouraged in simple accounting flows.
-// For this rewrite, we only allow updating the header notes and metadata.
-// If they need to change items, they should delete and recreate the Dom Sale.
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    const { id } = await params;
-    const data = await request.json();
-
-    const domSaleId = parseInt(id);
-
-    // Update allowed fields
-    const updatedSale = await prisma.domSale.update({
-      where: { id: domSaleId },
-      data: {
-        totalAmount: data.totalAmount !== undefined ? data.totalAmount : undefined,
-        customerId: data.customerId ? parseInt(data.customerId) : null,
-        paymentType: data.paymentType,
-        discount: data.discount !== undefined ? Number(data.discount) : undefined,
-        notes: data.notes,
-      },
-    });
-
-    return NextResponse.json(updatedSale);
-  }, [PERMISSIONS.DOMESTIC_SALE_UPDATE]);
+export async function PUT(req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: userId }) => {
+      const { id: domSaleId } = await params;
+      const data = UpdateDomSaleSchema.parse(await req.json());
+      const sale = await DomSaleService.updateDomSale(
+        parseInt(domSaleId),
+        data,
+        parseInt(userId),
+      );
+      return formatResponse({
+        data: sale,
+        message: "Sale updated successfully",
+      });
+    },
+    [PERMISSIONS.DOMESTIC_SALE_UPDATE],
+  );
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    const { id } = await params;
-    const domSaleId = parseInt(id);
-
-    const domSale = await prisma.domSale.findUnique({
-      where: { id: domSaleId },
-      include: { items: true },
-    });
-
-    if (!domSale) {
-      return NextResponse.json({ error: "Domestic Sale not found" }, { status: 404 });
-    }
-
-    if (domSale.isDeleted) {
-      return NextResponse.json({ error: "Already deleted" }, { status: 400 });
-    }
-
-    // Soft delete headers and items, and refund the stock
-    await prisma.$transaction(async (tx) => {
-      // 1. Soft delete the header
-      await tx.domSale.update({
-        where: { id: domSaleId },
-        data: { isDeleted: true },
+export async function DELETE(_req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: userId }) => {
+      const { id: domSaleId } = await params;
+      await DomSaleService.deleteDomSale(parseInt(domSaleId), parseInt(userId));
+      return formatResponse({
+        data: null,
+        message: "Sale deleted successfully",
       });
-
-      // 2. Refund stock for every item
-      for (const item of domSale.items) {
-        if (item.stockId) {
-          const stock = await tx.stock.findUnique({
-            where: { id: item.stockId },
-          });
-
-          if (stock) {
-            await tx.stock.update({
-              where: { id: stock.id },
-              data: { quantity: stock.quantity + item.quantity },
-            });
-          }
-        }
-      }
-    });
-
-    return NextResponse.json({ success: true });
-  },[PERMISSIONS.DOMESTIC_SALE_DELETE]);
+    },
+    [PERMISSIONS.DOMESTIC_SALE_DELETE],
+  );
 }

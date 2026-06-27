@@ -27,7 +27,6 @@ export async function POST(request: Request) {
     async ({ id }) => {
       const json = await request.json();
       const data = CreatePurchasePayloadSchema.parse(json);
-      console.log({ data });
 
       const purchase = await PurchaseService.createPurchase(data, parseInt(id));
 

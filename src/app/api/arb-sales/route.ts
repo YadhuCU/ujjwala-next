@@ -1,148 +1,35 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
-import { generateTrNo } from "@/lib/generate-tr-no";
 import { PERMISSIONS } from "@/lib/permissions";
+import {
+  CreateArbSaleSchema,
+  ArbSaleQuerySchema,
+} from "@/module/arb-sale/arb-sale.payload.schema";
+import * as ArbSaleService from "@/module/arb-sale/arb-sale.service";
+import { formatResponse } from "@/lib/response";
 
-export async function GET(request: Request) {
+export async function GET(req: NextRequest) {
   return withAuth(async () => {
-    const { searchParams } = new URL(request.url);
-    const search = searchParams.get("search") || "";
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const skip = (page - 1) * limit;
+    const params = Object.fromEntries(req.nextUrl.searchParams);
+    const query = ArbSaleQuerySchema.parse(params);
 
-    const where = {
-      isDeleted: false,
-      ...(search && {
-        OR: [
-          { trNo: { contains: search, mode: "insensitive" as const } },
-        ],
-      }),
-    };
-
-    const [total, arbSales] = await Promise.all([
-      prisma.arbSale.count({ where }),
-      prisma.arbSale.findMany({
-        where,
-        include: {
-          customer: true,
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
-        skip,
-        take: limit,
-        orderBy: { createdAt: "desc" },
-      }),
-    ]);
-
-    return NextResponse.json({
-      data: arbSales,
-      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
-    });
+    const { data, meta } = await ArbSaleService.getArbSales(query);
+    return formatResponse({ data, meta });
   }, [PERMISSIONS.ARB_SALE_READ]);
 }
 
 export async function POST(request: Request) {
-  return withAuth(async (user) => {
-    const userId = user.id;
+  return withAuth(
+    async ({ id }) => {
+      const data = CreateArbSaleSchema.parse(await request.json());
+      const sale = await ArbSaleService.createArbSale(data, Number(id));
 
-    try {
-      const data = await request.json();
-
-      // items may be empty for a collection-only invoice
-
-      const trNo = await generateTrNo("arbSale");
-
-      const result = await prisma.$transaction(async (tx) => {
-        // 1. Create the ArbSale header
-        const arbSale = await tx.arbSale.create({
-          data: {
-            trNo,
-            totalAmount: data.totalAmount,
-            paidAmount: data.paidAmount ? Number(data.paidAmount) : 0,
-            customerId: data.customerId ? parseInt(data.customerId) : null,
-            paymentType: data.paymentType || "cash",
-            discount: data.discount ? Number(data.discount) : null,
-            notes: data.notes,
-            createdById: userId,
-          },
-        });
-        
-        // 1.5 Create Collection record if paidAmount provided
-        if (data.customerId && data.paidAmount && Number(data.paidAmount) > 0) {
-          const collTrNo = await generateTrNo("collection");
-          await tx.collection.create({
-            data: {
-              trNo: collTrNo,
-              customerId: parseInt(data.customerId),
-              arbSaleId: arbSale.id,
-              amount: Number(data.paidAmount),
-              createdById: userId,
-            },
-          });
-        }
-
-        // 2. Create items and adjust stock (skipped for collection-only invoices)
-        for (const item of (data.items || [])) {
-          const quantity = Number(item.quantity) || 0;
-
-          // Skip items with no stock or zero quantity (collection-only rows)
-          if (!item.stockId || quantity <= 0) continue;
-
-          // Fetch the stock to ensure it exists and has enough quantity
-          const stock = await tx.stock.findUnique({
-            where: { id: parseInt(item.stockId) },
-            include: { product: true },
-          });
-
-          if (!stock) {
-            throw new Error(`Stock ID ${item.stockId} not found`);
-          }
-
-          if (stock.quantity < quantity) {
-            throw new Error(
-              `Insufficient stock for batch ${stock.batchNo || "Unknown"} of ${stock.product?.name || "Unknown Product"}. Available: ${stock.quantity}`
-            );
-          }
-
-          // Deduct from stock
-          await tx.stock.update({
-            where: { id: parseInt(item.stockId) },
-            data: { quantity: stock.quantity - quantity },
-          });
-
-          // Create ArbSaleItem
-          await tx.arbSaleItem.create({
-            data: {
-              arbSaleId: arbSale.id,
-              stockId: parseInt(item.stockId),
-              productId: stock.productId, // Pull securely from stock
-              quantity: quantity,
-              salePrice: item.salePrice,
-              netTotal: item.netTotal,
-            },
-          });
-        }
-
-        return tx.arbSale.findUnique({
-          where: { id: arbSale.id },
-          include: {
-            items: {
-              include: { product: true },
-            },
-          },
-        });
+      return formatResponse({
+        data: sale,
+        status: 201,
+        message: "Sale created successfully",
       });
-
-      return NextResponse.json(result);
-    } catch (error: unknown) {
-      console.error("[ARB_SALE_POST]", error);
-      const message = error instanceof Error ? error.message : "Failed to create arb sale";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  },[PERMISSIONS.ARB_SALE_CREATE]); // Ensuring lower-case role matching if required, but default layout checks 'Owner'
+    },
+    [PERMISSIONS.ARB_SALE_CREATE],
+  );
 }

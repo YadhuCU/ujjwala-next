@@ -1,11 +1,4 @@
-import {
-  Expense,
-  Prisma,
-  ProductType,
-  Role,
-  User,
-  Vendor,
-} from "@/generated/client";
+import { Expense, Prisma, ProductType, Role, User } from "@/generated/client";
 import axios from "axios";
 import { ProductResponse } from "../module/product/product.serializer";
 import { ApiResponse } from "./response";
@@ -13,6 +6,7 @@ import { VendorResponse } from "../module/vendor/vendor.serializer";
 import { CustomerResponse } from "@/module/customer/customer.serializer";
 import { LocationResponse } from "@/module/location/location.serializer";
 import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
+import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
@@ -74,7 +68,9 @@ export const api = {
   getSales: () =>
     apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
   getDomSales: () =>
-    apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
+    apiClient
+      .get<ApiResponse<DomSaleResponse[]>>("/api/dom-sales")
+      .then((r) => r.data),
   getArbSales: () =>
     apiClient
       .get<{ data: ArbSalePayload[]; pagination: unknown }>("/api/arb-sales")
@@ -94,7 +90,7 @@ export const api = {
       .then((r) => r.data),
   getStocks: (type?: ProductType) =>
     apiClient
-      .get<StockPayload[]>("/api/stock", { params: { type } })
+      .get<ApiResponse<StockPayload[]>>("/api/stock", { params: { type } })
       .then((r) => r.data),
   getLocations: () =>
     apiClient
@@ -113,7 +109,9 @@ export const api = {
       .get<ApiResponse<VendorResponse[]>>("/api/vendors")
       .then((r) => r.data),
   getPurchases: () =>
-    apiClient.get<ApiResponse<PurchaseResponse[]>>("/api/purchases").then((r) => r.data),
+    apiClient
+      .get<ApiResponse<PurchaseResponse[]>>("/api/purchases")
+      .then((r) => r.data),
   getRoles: () =>
     apiClient.get<ApiResponse<Role[]>>("/api/roles").then((r) => r.data),
 

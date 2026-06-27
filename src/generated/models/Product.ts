@@ -602,12 +602,10 @@ export type ProductCreateNestedOneWithoutDomSaleItemsInput = {
   connect?: Prisma.ProductWhereUniqueInput
 }
 
-export type ProductUpdateOneWithoutDomSaleItemsNestedInput = {
+export type ProductUpdateOneRequiredWithoutDomSaleItemsNestedInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutDomSaleItemsInput, Prisma.ProductUncheckedCreateWithoutDomSaleItemsInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutDomSaleItemsInput
   upsert?: Prisma.ProductUpsertWithoutDomSaleItemsInput
-  disconnect?: Prisma.ProductWhereInput | boolean
-  delete?: Prisma.ProductWhereInput | boolean
   connect?: Prisma.ProductWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutDomSaleItemsInput, Prisma.ProductUpdateWithoutDomSaleItemsInput>, Prisma.ProductUncheckedUpdateWithoutDomSaleItemsInput>
 }
@@ -618,12 +616,10 @@ export type ProductCreateNestedOneWithoutArbSaleItemsInput = {
   connect?: Prisma.ProductWhereUniqueInput
 }
 
-export type ProductUpdateOneWithoutArbSaleItemsNestedInput = {
+export type ProductUpdateOneRequiredWithoutArbSaleItemsNestedInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutArbSaleItemsInput, Prisma.ProductUncheckedCreateWithoutArbSaleItemsInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutArbSaleItemsInput
   upsert?: Prisma.ProductUpsertWithoutArbSaleItemsInput
-  disconnect?: Prisma.ProductWhereInput | boolean
-  delete?: Prisma.ProductWhereInput | boolean
   connect?: Prisma.ProductWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutArbSaleItemsInput, Prisma.ProductUpdateWithoutArbSaleItemsInput>, Prisma.ProductUncheckedUpdateWithoutArbSaleItemsInput>
 }

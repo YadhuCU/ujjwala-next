@@ -22,7 +22,7 @@ import { ProductType } from "@/generated/enums";
 // ─── Custom Query Hooks (reused in ≥2 components) ───────────────────────────
 
 export function useStocks(type?: ProductType) {
-  return useQuery(stocksOptions(type));
+  return useSuspenseQuery(stocksOptions(type));
 }
 
 export function useCustomers() {

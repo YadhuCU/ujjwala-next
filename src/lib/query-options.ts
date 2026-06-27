@@ -49,6 +49,7 @@ export const stocksOptions = (type?: ProductType) =>
   queryOptions({
     queryKey: queryKeys.stocks.lists(type),
     queryFn: () => api.getStocks(type),
+    select: (res) => res.data,
   });
 
 export const customersOptions = queryOptions({
