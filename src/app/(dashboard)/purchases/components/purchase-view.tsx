@@ -210,17 +210,12 @@ export function PurchaseDetailsDialog({
                   {purchase.items.map((item) => (
                     <tr key={item.id} className="border-t">
                       <td className="p-3">{item.product.name}</td>
-
                       <td className="p-3">{item.batchNo}</td>
-
                       <td className="p-3">{item.purchaseType}</td>
-
                       <td className="p-3 text-right">{item.quantity}</td>
-
                       <td className="p-3 text-right">
                         ₹{Number(item.unitCost).toFixed(2)}
                       </td>
-
                       <td className="p-3 text-right font-medium">
                         ₹{Number(item.totalCost).toFixed(2)}
                       </td>

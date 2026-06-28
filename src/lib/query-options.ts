@@ -33,7 +33,7 @@ export const expensesOptions = queryOptions({
 export const customerTxnOptions = (custId: string) =>
   queryOptions({
     queryKey: queryKeys.customerTxn.detail(custId),
-    queryFn: () => api.getCustomerTxn(custId),
+    queryFn: () => api.getCustomerTxnSummary(custId),
     enabled: !!custId,
   });
 

@@ -1,6 +1,6 @@
 import { Prisma } from "@/generated/client";
 
-export type ArbSaleWithRelations = Prisma.DomSaleGetPayload<{
+export type ArbSaleWithRelations = Prisma.ArbSaleGetPayload<{
   include: {
     customer: true;
     items: {

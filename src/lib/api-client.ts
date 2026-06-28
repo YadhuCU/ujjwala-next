@@ -7,6 +7,8 @@ import { CustomerResponse } from "@/module/customer/customer.serializer";
 import { LocationResponse } from "@/module/location/location.serializer";
 import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
 import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
+import { CustomerTxnSummaryResponse } from "@/module/customer-txn/customer-txn.service";
+import { ArbSaleResponse } from "@/module/arb-sale/arb-sale.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
@@ -73,8 +75,8 @@ export const api = {
       .then((r) => r.data),
   getArbSales: () =>
     apiClient
-      .get<{ data: ArbSalePayload[]; pagination: unknown }>("/api/arb-sales")
-      .then((r) => r.data.data),
+      .get<ApiResponse<ArbSaleResponse[]>>("/api/arb-sales")
+      .then((r) => r.data),
   getCommercialSales: () =>
     apiClient
       .get<{
@@ -139,6 +141,9 @@ export const api = {
         };
       }>(`/api/customer-txn?cust_id=${custId}`)
       .then((r) => r.data),
+
+    getCustomerTxnSummary: (customerId: string) =>
+      apiClient.get<ApiResponse<CustomerTxnSummaryResponse>>(`/api/customer-txn/${customerId}/balance/`),
 
   getDashboard: (from?: string, to?: string) => {
     const params = new URLSearchParams();

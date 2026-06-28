@@ -32,6 +32,7 @@ import {
   DomSaleFormValues,
 } from "@/module/dom-sale/dom-sale.form.schema";
 import { PaymentType, ProductType } from "@/generated/enums";
+import { CustomerTxnInfo } from "../../_components/customer-txn-info";
 
 interface DomSaleFormProps {
   defaultValues?: DomSaleFormValues;
@@ -80,11 +81,6 @@ export function DomSaleForm({
   const watchedDiscount = form.watch("discount") || 0;
   const selectedCustomerId = form.watch("customerId");
 
-  const { data: txnInfo } = useQuery({
-    ...customerTxnOptions(String(selectedCustomerId) || ""),
-    enabled: !!selectedCustomerId,
-  });
-
   /**
    * Computes grand total from all line items.
    */
@@ -122,16 +118,8 @@ export function DomSaleForm({
             className="space-y-6"
           >
             {/* Customer Transaction Info */}
-            {txnInfo && (
-              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 text-sm space-y-1 border border-blue-200 dark:border-blue-800">
-                <p>
-                  <strong>Cylinders In Hand:</strong> {txnInfo.rent_qty}
-                </p>
-                <p>
-                  <strong>Total Pending Amount:</strong> ₹
-                  {txnInfo.pending_amount}
-                </p>
-              </div>
+            {selectedCustomerId && (
+              <CustomerTxnInfo customerId={selectedCustomerId} />
             )}
 
             <div className="grid gap-4 lg:grid-cols-2 place-content-stretch">

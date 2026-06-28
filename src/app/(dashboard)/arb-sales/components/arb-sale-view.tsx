@@ -9,32 +9,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Info, Pencil, Trash2 } from "lucide-react";
 import { useDeleteMutation } from "@/hooks/use-api";
-import { domSalesOptions } from "@/lib/query-options";
+import { arbSalesOptions } from "@/lib/query-options";
 import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
 import { DataTable } from "@/components/data-table";
 import { PERMISSIONS } from "@/lib/permissions";
-import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
 import { ColumnDef } from "@tanstack/react-table";
+import { ArbSaleResponse } from "@/module/arb-sale/arb-sale.serializer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 
-export function DomSalesViewComponent() {
+export function ARBSalesViewComponent() {
   const router = useRouter();
 
   const { hasPermission } = usePermission();
-  const udpatePurchasePermission = hasPermission(
-    PERMISSIONS.DOMESTIC_SALE_UPDATE,
-  );
-  const deletePurchasePermission = hasPermission(
-    PERMISSIONS.DOMESTIC_SALE_DELETE,
-  );
-  const viewPurchasePermission = hasPermission(PERMISSIONS.DOMESTIC_SALE_READ);
+  const udpatePermission = hasPermission(PERMISSIONS.ARB_SALE_UPDATE);
+  const deletePermission = hasPermission(PERMISSIONS.ARB_SALE_DELETE);
+  const viewPermission = hasPermission(PERMISSIONS.ARB_SALE_READ);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const { data: domSales } = useSuspenseQuery({
-    ...domSalesOptions,
+  const { data } = useSuspenseQuery({
+    ...arbSalesOptions,
     select: (res) => res.data,
   });
 
@@ -43,7 +39,7 @@ export function DomSalesViewComponent() {
     onSuccess: () => router.refresh(),
   });
 
-  const columns: ColumnDef<DomSaleResponse>[] = [
+  const columns: ColumnDef<ArbSaleResponse>[] = [
     {
       accessorKey: "trNo",
       header: "Tr No",
@@ -82,11 +78,7 @@ export function DomSalesViewComponent() {
     },
   ];
 
-  if (
-    udpatePurchasePermission ||
-    deletePurchasePermission ||
-    viewPurchasePermission
-  ) {
+  if (udpatePermission || deletePermission || viewPermission) {
     columns.push({
       id: "actions",
       header: () => <div className="text-right">Actions</div>,
@@ -94,15 +86,15 @@ export function DomSalesViewComponent() {
         const p = row.original;
         return (
           <div className="text-right space-x-2">
-            {viewPurchasePermission && <DomesticSaleDetailsDialog sale={p} />}
-            {udpatePurchasePermission && (
+            {viewPermission && <ARBSaleDetailsDialog sale={p} />}
+            {udpatePermission && (
               <Button variant="ghost" size="icon" asChild>
-                <Link href={`/dom-sales/${p.id}/edit`}>
+                <Link href={`/arb-sales/${p.id}/edit`}>
                   <Pencil className="w-4 h-4" />
                 </Link>
               </Button>
             )}
-            {deletePurchasePermission && (
+            {deletePermission && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -121,13 +113,13 @@ export function DomSalesViewComponent() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Domestic Sales List</CardTitle>
+          <CardTitle>ARB Sales List</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={columns}
-            data={domSales}
-            searchPlaceholder="Search Domestic Sales..."
+            data={data}
+            searchPlaceholder="Search ARB Sales..."
           />
         </CardContent>
       </Card>
@@ -139,7 +131,7 @@ export function DomSalesViewComponent() {
         }}
         onConfirm={() => {
           if (deleteId) {
-            deleteMutation.mutate(`/api/dom-sales/${deleteId}`);
+            deleteMutation.mutate(`/api/arb-sales/${deleteId}`);
             setDeleteId(null);
           }
         }}
@@ -149,13 +141,13 @@ export function DomSalesViewComponent() {
   );
 }
 
-type DomesticSaleDetailsDialogProps = {
-  sale: DomSaleResponse;
+type ARBSaleDetailsDialogProps = {
+  sale: ArbSaleResponse;
 };
 
-export function DomesticSaleDetailsDialog({
+export function ARBSaleDetailsDialog({
   sale,
-}: DomesticSaleDetailsDialogProps) {
+}: ARBSaleDetailsDialogProps) {
   const totalQty = sale.items.reduce(
     (sum, item) => sum + item.quantity,
     0,
