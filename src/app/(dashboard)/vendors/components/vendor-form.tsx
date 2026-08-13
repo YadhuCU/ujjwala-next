@@ -16,14 +16,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  VendorCreateInput,
-  VendorCreateSchema,
-} from "@/module/vendor/vendor.schema";
+  VendorFormValues,
+  VendorFormSchema,
+} from "@/module/vendor/vendor.form.schema";
 
 interface VendorFormProps {
-  defaultValues?: VendorCreateInput;
+  defaultValues?: VendorFormValues;
   isEditMode?: boolean;
-  onSubmit: (values: VendorCreateInput) => void;
+  onSubmit: (values: VendorFormValues) => void;
   isPending: boolean;
 }
 
@@ -35,8 +35,8 @@ export function VendorForm({
   onSubmit,
   isPending,
 }: VendorFormProps) {
-  const form = useForm<VendorCreateInput>({
-    resolver: zodResolver(VendorCreateSchema),
+  const form = useForm<VendorFormValues>({
+    resolver: zodResolver(VendorFormSchema),
     defaultValues: defaultValues ?? {},
   });
 

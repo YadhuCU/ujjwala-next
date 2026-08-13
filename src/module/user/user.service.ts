@@ -121,6 +121,15 @@ export async function createUser(input: CreateUserInput) {
 }
 
 // =============================================================================
+// ROLES
+// Read-only lookup — roles and their permissions are seeded, not managed in-app.
+// =============================================================================
+
+export async function getRoles() {
+  return prisma.role.findMany({ orderBy: { name: "asc" } });
+}
+
+// =============================================================================
 // LIST
 // =============================================================================
 

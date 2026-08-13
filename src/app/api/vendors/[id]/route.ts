@@ -1,58 +1,43 @@
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
-import { NotFoundError } from "@/lib/errors";
 import { formatResponse } from "@/lib/response";
+import { UpdateVendorSchema } from "@/module/vendor/vendor.payload.schema";
+import * as VendorService from "@/module/vendor/vendor.service";
 import { serializeVendor } from "@/module/vendor/vendor.serializer";
-import { VendorUpdateSchema } from "@/module/vendor/vendor.schema";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const vendor = await prisma.vendor.findUnique({
-      where: { id: parseInt(id) },
-    });
-    if (!vendor) {
-      throw new NotFoundError("Vendor not found.");
-    }
+    const vendor = await VendorService.getVendorById(Number(id));
     return formatResponse({ data: serializeVendor(vendor) });
   }, [PERMISSIONS.VENDOR_READ]);
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(req: NextRequest, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const json = await request.json();
-    const data = VendorUpdateSchema.parse(json);
+    const data = UpdateVendorSchema.parse(await req.json());
 
-    const vendor = await prisma.vendor.update({
-      where: { id: parseInt(id) },
-      data,
-    });
+    const vendor = await VendorService.updateVendor(Number(id), data);
 
     return formatResponse({
       data: serializeVendor(vendor),
-      message: "Vendor updated successfully.",
+      message: "Vendor updated successfully",
     });
   }, [PERMISSIONS.VENDOR_UPDATE]);
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    await prisma.vendor.update({
-      where: { id: parseInt(id) },
-      data: { isDeleted: true },
-    });
+
+    await VendorService.deleteVendor(Number(id));
+
     return formatResponse({
       data: null,
       message: "Vendor deleted successfully",

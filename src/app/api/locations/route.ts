@@ -1,27 +1,35 @@
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
 import { formatResponse } from "@/lib/response";
+import {
+  CreateLocationSchema,
+  LocationQuerySchema,
+} from "@/module/location/location.payload.schema";
+import * as LocationService from "@/module/location/location.service";
 import { serializeLocation } from "@/module/location/location.serializer";
-import { CreateLocationSchema } from "@/module/location/location.schema";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   return withAuth(async () => {
-    const locations = await prisma.location.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const query = LocationQuerySchema.parse(
+      Object.fromEntries(req.nextUrl.searchParams),
+    );
+
+    const locations = await LocationService.getLocations(query);
+
     return formatResponse({ data: locations.map(serializeLocation) });
   }, [PERMISSIONS.LOCATION_READ]);
 }
 
 export async function POST(request: Request) {
   return withAuth(async () => {
-    const json = await request.json();
-    const data = CreateLocationSchema.parse(json);
+    const data = CreateLocationSchema.parse(await request.json());
+    const location = await LocationService.createLocation(data);
 
-    const location = await prisma.location.create({
-      data,
+    return formatResponse({
+      data: serializeLocation(location),
+      status: 201,
+      message: "Location created successfully",
     });
-    return formatResponse({ data: serializeLocation(location), status: 201 });
   }, [PERMISSIONS.LOCATION_CREATE]);
 }

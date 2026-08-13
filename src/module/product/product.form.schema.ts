@@ -5,7 +5,7 @@ export const ProductTypeSchema = z.enum(ProductType, {
   error: "Please select a valid product type",
 });
 
-export const CreateProductSchema = z.object({
+export const ProductFormSchema = z.object({
   name: z
     .string("Product name is required")
     .trim()
@@ -20,9 +20,10 @@ export const CreateProductSchema = z.object({
     .max(50, "Weight cannot exceed 50 characters")
     .optional(),
 
-  salePrice: z.number().min(0, "Sale price cannot be negative").optional(),
+  salePrice: z.coerce
+    .number()
+    .min(0, "Sale price cannot be negative")
+    .optional(),
 });
 
-export type CreateProductInput = z.infer<typeof CreateProductSchema>;
-
-export const UpdateProductSchema = CreateProductSchema.partial();
+export type ProductFormValues = z.infer<typeof ProductFormSchema>;

@@ -17,7 +17,7 @@ import {
 import {
   LocationFormSchema,
   LocationFormValues,
-} from "@/module/location/location.schema";
+} from "@/module/location/location.form.schema";
 
 interface LocationFormProps {
   defaultValues?: LocationFormValues;

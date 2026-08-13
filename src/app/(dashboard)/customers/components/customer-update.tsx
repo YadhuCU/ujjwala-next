@@ -8,7 +8,7 @@ import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { CustomerResponse } from "@/module/customer/customer.serializer";
 import { CustomerForm } from "./customer-form";
-import { CustomerFormValues } from "@/module/customer/customer.schema";
+import { CustomerFormValues } from "@/module/customer/customer.form.schema";
 
 export function CustomerUpdateComponent() {
   const router = useRouter();

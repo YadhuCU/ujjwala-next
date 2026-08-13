@@ -29,7 +29,7 @@ import { ProductType } from "@/generated/enums";
 import {
   CustomerFormSchema,
   CustomerFormValues,
-} from "@/module/customer/customer.schema";
+} from "@/module/customer/customer.form.schema";
 import { twMerge } from "tailwind-merge";
 
 interface CustomerFormProps {

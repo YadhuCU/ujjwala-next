@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useApiMutation } from "@/hooks/use-api";
 import { queryKeys } from "@/lib/query-keys";
 import { CustomerForm } from "../components/customer-form";
-import type { CustomerFormValues } from "@/module/customer/customer.schema";
+import type { CustomerFormValues } from "@/module/customer/customer.form.schema";
 
 export function CustomerCreateComponent() {
   const router = useRouter();

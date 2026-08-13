@@ -1,8 +1,10 @@
 import { z } from "zod";
 
-export const VendorCreateSchema = z.object({
+const GST_PATTERN = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+
+export const VendorFormSchema = z.object({
   name: z
-    .string()
+    .string("Vendor name is required")
     .trim()
     .min(1, "Vendor name is required")
     .max(100, "Vendor name cannot exceed 100 characters"),
@@ -23,15 +25,9 @@ export const VendorCreateSchema = z.object({
   gstNumber: z
     .string()
     .trim()
-    .max(15, "GST number cannot exceed 15 characters")
-    .regex(
-      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/,
-      "Invalid GST number",
-    )
     .transform((v) => v || undefined)
-    .optional(),
+    .optional()
+    .refine((v) => !v || GST_PATTERN.test(v), "Invalid GST number"),
 });
 
-export type VendorCreateInput = z.input<typeof VendorCreateSchema>;
-
-export const VendorUpdateSchema = VendorCreateSchema.partial();
+export type VendorFormValues = z.infer<typeof VendorFormSchema>;

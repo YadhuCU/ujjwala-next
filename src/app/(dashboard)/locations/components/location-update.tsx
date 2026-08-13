@@ -7,7 +7,7 @@ import { useApiMutation } from "@/hooks/use-api";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { LocationForm } from "./location-form";
-import { LocationFormValues } from "@/module/location/location.schema";
+import { LocationFormValues } from "@/module/location/location.form.schema";
 
 interface LocationDetail {
   id: number;

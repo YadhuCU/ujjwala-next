@@ -1,84 +1,46 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
-import { NotFoundError } from "@/lib/errors";
 import { formatResponse } from "@/lib/response";
+import { UpdateCustomerSchema } from "@/module/customer/customer.payload.schema";
+import * as CustomerService from "@/module/customer/customer.service";
 import { serializeCustomerWithDetails } from "@/module/customer/customer.serializer";
-import { UpdateCustomerSchema } from "@/module/customer/customer.schema";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const customer = await prisma.customer.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        location: true,
-        initialCylinderBalances: true,
-      },
-    });
-
-    if (!customer) {
-      throw new NotFoundError("Cusotomer Not found");
-    }
-
+    const customer = await CustomerService.getCustomerById(Number(id));
     return formatResponse({ data: serializeCustomerWithDetails(customer) });
   }, [PERMISSIONS.CUSTOMER_READ]);
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(req: NextRequest, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
+    const data = UpdateCustomerSchema.parse(await req.json());
 
-    const body = await request.json();
-    const data = UpdateCustomerSchema.parse(body);
-    console.log({ data });
+    const customer = await CustomerService.updateCustomer(Number(id), data);
 
-    const customerId = parseInt(id);
-
-    const customer = await prisma.$transaction(async (tx) => {
-      const updated = await tx.customer.update({
-        where: { id: customerId },
-        data: {
-          name: data.name,
-          address: data.address || null,
-          phone: data.phone || null,
-          locationId: data.locationId ? data.locationId : null,
-          concernedPerson: data.concernedPerson || null,
-          concernedPersonMobile: data.concernedPersonMobile || null,
-          discount: data.discount ?? null,
-          gstNumber: data.gstNumber || null,
-        },
-      });
-
-      return updated;
-    });
-
-    return NextResponse.json({
-      ...customer,
-      initialPendingAmount: parseFloat(
-        Number(customer.initialPendingAmount).toFixed(2),
-      ),
+    return formatResponse({
+      data: serializeCustomerWithDetails(customer),
+      message: "Customer updated successfully",
     });
   }, [PERMISSIONS.CUSTOMER_UPDATE]);
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    await prisma.customer.update({
-      where: { id: parseInt(id) },
-      data: { isDeleted: true },
+
+    await CustomerService.deleteCustomer(Number(id));
+
+    return formatResponse({
+      data: null,
+      message: "Customer deleted successfully",
     });
-    return NextResponse.json({ success: true });
   }, [PERMISSIONS.CUSTOMER_DELETE]);
 }

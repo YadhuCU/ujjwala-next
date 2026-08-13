@@ -47,6 +47,7 @@ Modules are being reworked one at a time onto the layout described below.
 | Module | Server | Client |
 |---|---|---|
 | location, product, vendor, customer | done | done |
+| roles (read-only lookup, lives in the user module) | done | n/a |
 | purchase | done | done |
 | dom-sale | done | done |
 | arb-sale | done (reference module) | done |
@@ -233,8 +234,17 @@ is no `session.user.role`, and the `USER_ROLES` strings in `src/lib/constants.ts
 ("Owner"/"Office"/"Sales") are a dead legacy vocabulary — never compare against them.
 - **Customer** — creation seeds `CustomerInitialCylinderBalance` +
   `CustomerCylinderLedger` per product, an `OPENING` ledger row if
-  `initialPendingAmount > 0`, and always a `CustomerBalance` row (even at 0).
-  Initial balances are migration data — set once, never updated.
+  `initialPendingAmount > 0`, and always a `CustomerBalance` row (even at 0) —
+  every later write increments that row rather than creating it. Initial balances
+  are migration data: the update payload does not even carry them. A customer
+  with a non-zero balance or cylinders still out cannot be deleted.
+- **Product** — creation also seeds the `GodownInventory` row, so the cylinder
+  ledger always has somewhere to post. Delete is soft and refused while the
+  godown holds any of that product or a batch still has quantity.
+- **Vendor** — delete is refused while purchases or stock batches reference it
+  (`onDelete: Restrict` would otherwise strand that paperwork).
+- **Location** — the one hard delete in the app: no history of its own, and
+  `Customer.locationId` is `SetNull`, so customers just lose the grouping.
 - **Stock adjustment** — always two rows in one transaction (`StockAdjustment`
   with a mandatory free-text reason + an `ADJUSTMENT` `CylinderTransaction`) plus
   the godown cache, and never updated or deleted — post a correcting adjustment

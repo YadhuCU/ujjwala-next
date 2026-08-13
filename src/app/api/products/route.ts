@@ -1,38 +1,35 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
-import { ProductType } from "@/generated/enums";
-import { CreateProductSchema } from "@/module/product/product.schema";
-import { serializeProduct } from "@/module/product/product.serializer";
 import { formatResponse } from "@/lib/response";
+import {
+  CreateProductSchema,
+  ProductQuerySchema,
+} from "@/module/product/product.payload.schema";
+import * as ProductService from "@/module/product/product.service";
+import { serializeProduct } from "@/module/product/product.serializer";
 
 export async function GET(req: NextRequest) {
   return withAuth(async () => {
-    const type = req.nextUrl.searchParams.get("type") as ProductType | null;
-    const products = await prisma.product.findMany({
-      where: { isDeleted: false, ...(type && { type }) },
-      orderBy: { createdAt: "desc" },
-    });
+    const query = ProductQuerySchema.parse(
+      Object.fromEntries(req.nextUrl.searchParams),
+    );
 
-    return formatResponse({
-      data: products.map(serializeProduct),
-      message: "",
-    });
+    const products = await ProductService.getProducts(query);
+
+    return formatResponse({ data: products.map(serializeProduct) });
   }, [PERMISSIONS.PRODUCT_READ]);
 }
 
 export async function POST(request: Request) {
   return withAuth(async () => {
-    const body = await request.json();
-    const data = CreateProductSchema.parse(body);
-
-    const product = await prisma.product.create({ data });
+    const data = CreateProductSchema.parse(await request.json());
+    const product = await ProductService.createProduct(data);
 
     return formatResponse({
       data: serializeProduct(product),
-      message: "Product created successfully",
       status: 201,
+      message: "Product created successfully",
     });
   }, [PERMISSIONS.PRODUCT_CREATE]);
 }

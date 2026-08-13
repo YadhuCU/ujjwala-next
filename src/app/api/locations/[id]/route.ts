@@ -1,59 +1,46 @@
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
-import { NotFoundError } from "@/lib/errors";
-import { serializeLocation } from "@/module/location/location.serializer";
 import { formatResponse } from "@/lib/response";
+import { UpdateLocationSchema } from "@/module/location/location.payload.schema";
+import * as LocationService from "@/module/location/location.service";
+import { serializeLocation } from "@/module/location/location.serializer";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const location = await prisma.location.findUnique({
-      where: { id: parseInt(id) },
-    });
-    if (!location) {
-      throw new NotFoundError("Not found");
-    }
-    return formatResponse({ data: serializeLocation(location), status: 200 });
+    const location = await LocationService.getLocationById(Number(id));
+    return formatResponse({ data: serializeLocation(location) });
   }, [PERMISSIONS.LOCATION_READ]);
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(req: NextRequest, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const data = await request.json();
-    const location = await prisma.location.update({
-      where: { id: parseInt(id) },
-      data: {
-        name: data.name,
-        district: data.district,
-        pincode: data.pincode,
-        locality: data.locality,
-      },
+    const data = UpdateLocationSchema.parse(await req.json());
+
+    const location = await LocationService.updateLocation(Number(id), data);
+
+    return formatResponse({
+      data: serializeLocation(location),
+      message: "Location updated successfully",
     });
-    return formatResponse({ data: serializeLocation(location), status: 200 });
   }, [PERMISSIONS.LOCATION_UPDATE]);
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function DELETE(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    await prisma.location.delete({
-      where: { id: parseInt(id) },
-    });
+
+    await LocationService.deleteLocation(Number(id));
+
     return formatResponse({
       data: null,
-      message: "Deleted successfully",
-      status: 200,
+      message: "Location deleted successfully",
     });
   }, [PERMISSIONS.LOCATION_DELETE]);
 }

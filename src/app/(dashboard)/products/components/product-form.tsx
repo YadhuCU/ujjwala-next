@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,17 +22,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  CreateProductInput,
-  CreateProductSchema,
-} from "@/module/product/product.schema";
+  ProductFormValues,
+  ProductFormSchema,
+} from "@/module/product/product.form.schema";
 import { ProductType } from "@/generated/enums";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
 interface ProductFormProps {
-  defaultValues?: CreateProductInput;
+  defaultValues?: ProductFormValues;
   isEditMode?: boolean;
-  onSubmit: (values: CreateProductInput) => void;
+  onSubmit: (values: ProductFormValues) => void;
   isPending: boolean;
 }
 
@@ -43,8 +44,8 @@ export function ProductForm({
   onSubmit,
   isPending,
 }: ProductFormProps) {
-  const form = useForm<CreateProductInput>({
-    resolver: zodResolver(CreateProductSchema),
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(ProductFormSchema) as Resolver<ProductFormValues>,
     defaultValues: defaultValues ?? {},
   });
 

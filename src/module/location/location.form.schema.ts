@@ -31,33 +31,3 @@ export const LocationFormSchema = z.object({
 });
 
 export type LocationFormValues = z.infer<typeof LocationFormSchema>;
-
-/* ---------- Create ---------- */
-
-function normalizeCreateLocation(data: z.infer<typeof LocationFormSchema>) {
-  return {
-    ...data,
-  };
-}
-
-export const CreateLocationSchema = LocationFormSchema.transform(
-  normalizeCreateLocation,
-);
-
-export type CreateLocationInput = z.infer<typeof CreateLocationSchema>;
-
-/* ---------- Update ---------- */
-
-function normalizeUpdateLocation(
-  data: Partial<z.infer<typeof LocationFormSchema>>,
-) {
-  return {
-    ...data,
-  };
-}
-
-export const UpdateLocationSchema = LocationFormSchema.partial().transform(
-  normalizeUpdateLocation,
-);
-
-export type UpdateLocationInput = z.infer<typeof UpdateLocationSchema>;
