@@ -25,13 +25,29 @@ npm test
 ```
 
 ```bash
+npm run test:integration
+```
+
+```bash
 npx prisma migrate dev
 ```
 
-Tests are vitest, colocated as `src/**/*.test.ts`, and cover what runs without a
-database: payload schemas, serializers, pure rules and the report exporters.
-Service-level tests (the ledger invariants, void-and-repost round-trips) still
-need a test database and are not written yet.
+Two vitest suites, both colocated with the code:
+
+- `*.test.ts` — no database. Payload schemas, serializers, pure rules, exporters.
+- `*.integration.test.ts` — real Postgres. Services end to end: godown and
+  balance movements, guards, void-and-repost.
+
+The integration suite creates and migrates its own database on first run.
+`TEST_DATABASE_URL` overrides it; otherwise `DATABASE_URL` is reused with `_test`
+appended. The name **must** end in `_test` — `src/test/env.ts` refuses otherwise,
+because every test truncates every table. Never point it at a real database.
+
+Write integration tests against the invariants, not just the return value:
+`assertGodownMatchesLedger` and `assertBalanceMatchesLedger` in
+`src/test/factories.ts` re-derive each cache from its ledger. Seed stock with
+`seedGodown`, which posts a real `StockAdjustment` — writing `GodownInventory`
+directly would start the test in a state that already violates the invariant.
 
 A fresh database is `npx prisma migrate deploy` then `npx prisma db seed`.
 `prisma/migrations/0_init` is the baseline; the seed's passwords are dev
