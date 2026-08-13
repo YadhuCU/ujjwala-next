@@ -18,7 +18,7 @@ export const ProtectedPage = ({ requiredPermission, children }: ProtectedPagePro
   useEffect(() => {
     if(status === "loading") return;
 
-    if (!hasPermission(requiredPermission, true)) {
+    if (!hasPermission(requiredPermission)) {
       router.replace("/403")
     }
   }, [requiredPermission, hasPermission, router])

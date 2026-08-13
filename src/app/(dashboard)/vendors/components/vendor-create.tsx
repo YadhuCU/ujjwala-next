@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useApiMutation } from "@/hooks/use-api";
 import { queryKeys } from "@/lib/query-keys";
 import { VendorForm } from "../components/vendor-form";
-import type { VendorFormValues } from "../components/vendor-form";
+import type { VendorCreateInput } from "@/module/vendor/vendor.schema";
 
 export default function VendorCreateComponent() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function VendorCreateComponent() {
 
   return (
     <VendorForm
-      onSubmit={(v: VendorFormValues) => createMutation.mutate(v)}
+      onSubmit={(v: VendorCreateInput) => createMutation.mutate(v)}
       isPending={createMutation.isPending}
     />
   );

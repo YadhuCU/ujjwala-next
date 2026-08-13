@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,18 +23,13 @@ import {
 } from "@/components/ui/form";
 import { rolesOptions } from "@/lib/query-options";
 import { useSuspenseQuery } from "@tanstack/react-query";
-// ─── Schema ──────────────────────────────────────────────────────────────────
+import {
+  UserCreateFormSchema,
+  UserUpdateFormSchema,
+  type UserFormValues,
+} from "@/module/user/user.form.schema";
 
-export const userSchema = z.object({
-  username: z.string().optional().or(z.literal("")),
-  name: z.string().min(1, "Name is required"),
-  password: z.string().optional().or(z.literal("")),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  mobile: z.string().optional().or(z.literal("")),
-  userRoles: z.array(z.number()).min(1, "User role is required"),
-});
-
-export type UserFormValues = z.infer<typeof userSchema>;
+export type { UserFormValues };
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -60,8 +55,12 @@ export function UserForm({
     },
   });
 
+  // On create the username and password are required; on edit the username is
+  // fixed and a blank password means "keep the current one".
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(
+      isEditMode ? UserUpdateFormSchema : UserCreateFormSchema,
+    ) as Resolver<UserFormValues>,
     defaultValues: defaultValues ?? {
       username: "",
       name: "",
@@ -90,7 +89,7 @@ export function UserForm({
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} disabled={isEditMode} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

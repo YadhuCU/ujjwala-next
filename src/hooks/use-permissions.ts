@@ -1,18 +1,23 @@
 import { useSession } from "next-auth/react";
-import { UserRole } from "@/lib/constants";
-import { Permission } from "@/lib/permissions";
+import { Permission, ROLES } from "@/lib/permissions";
 import { useCallback, useMemo } from "react";
 
+// The session carries role *names* as seeded in the DB (OWNER / OFFICE_STAFF /
+// FIELD_STAFF) — a user can hold more than one.
 export function usePermissions() {
   const { data: session } = useSession();
-  const role = session?.user?.role as UserRole | undefined;
+  const roles = useMemo(
+    () => session?.user?.roles ?? [],
+    [session?.user?.roles],
+  );
 
-  const isAdmin = role === "Owner";
-  const isOffice = role === "Office";
-  const isSales = role === "Sales";
+  const isAdmin = roles.includes(ROLES.OWNER);
+  const isOffice = roles.includes(ROLES.OFFICE_STAFF);
+  const isSales = roles.includes(ROLES.FIELD_STAFF);
 
   return {
-    role,
+    roles,
+    role: roles[0],
     isAdmin,
     isOffice,
     isSales,

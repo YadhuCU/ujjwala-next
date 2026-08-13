@@ -3,10 +3,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, DollarSign, Wallet, IndianRupee } from "lucide-react";
 import { DashboardData } from "./types";
+import { ROLES } from "@/lib/permissions";
 
 export function KpiCards({ data }: { data: DashboardData }) {
   const { kpis, role } = data;
-  const isStaff = role !== "Owner";
+  const isStaff = role !== ROLES.OWNER;
   const profitMargin =
     kpis.totalRevenue > 0
       ? ((kpis.totalProfit / kpis.totalRevenue) * 100).toFixed(1)

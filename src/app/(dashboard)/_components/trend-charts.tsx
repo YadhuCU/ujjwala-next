@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { TrendingUp, BarChart3 } from "lucide-react";
 import { DashboardData } from "./types";
+import { ROLES } from "@/lib/permissions";
 
 const trendConfig = {
   revenue: { label: "Revenue", color: "hsl(221, 83%, 53%)" },
@@ -21,7 +22,7 @@ const salesTypeConfig = {
 
 export function TrendCharts({ data }: { data: DashboardData }) {
   const { dailyTrend, role } = data;
-  const isStaff = role !== "Owner";
+  const isStaff = role !== ROLES.OWNER;
 
   return (
     <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-7"}`}>

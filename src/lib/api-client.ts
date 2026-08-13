@@ -1,4 +1,4 @@
-import { Expense, Prisma, ProductType, Role, User } from "@/generated/client";
+import { Prisma, ProductType, Role } from "@/generated/client";
 import axios from "axios";
 import { ProductResponse } from "../module/product/product.serializer";
 import { ApiResponse } from "./response";
@@ -9,13 +9,13 @@ import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
 import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
 import { CustomerTxnSummaryResponse } from "@/module/customer-txn/customer-txn.service";
 import { ArbSaleResponse } from "@/module/arb-sale/arb-sale.serializer";
+import { CommercialSaleResponse } from "@/module/commercial-sale/commercial-sale.serializer";
+import { ExpenseResponse } from "@/module/expense/expense.serializer";
+import { UserResponse } from "@/module/user/user.serializer";
+import { StockResponse } from "@/module/stock/stock.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
-
-export type SalePayload = Prisma.CommercialSaleGetPayload<{
-  include: { stock: true; customer: true; product: true };
-}>;
 
 export type DomSalePayload = Prisma.DomSaleGetPayload<{
   include: {
@@ -50,9 +50,7 @@ export type PurchasePayload = Prisma.PurchaseGetPayload<{
   include: { vendor: true; items: { include: { product: true } } };
 }>;
 
-export type UserPayload = Omit<User, "password"> & {
-  userRoles: { id: number; name: string }[];
-};
+
 
 // ─── Axios Client Instance ──────────────────────────────────────────────────
 // Single axios instance used across the app.
@@ -67,8 +65,6 @@ export const apiClient = axios.create({
 
 export const api = {
   // ─── List (GET all) ─────────────────────────────────────
-  getSales: () =>
-    apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
   getDomSales: () =>
     apiClient
       .get<ApiResponse<DomSaleResponse[]>>("/api/dom-sales")
@@ -79,20 +75,19 @@ export const api = {
       .then((r) => r.data),
   getCommercialSales: () =>
     apiClient
-      .get<{
-        data: CommercialSalePayload[];
-        pagination: unknown;
-      }>("/api/commercial-sales")
-      .then((r) => r.data.data),
+      .get<ApiResponse<CommercialSaleResponse[]>>("/api/commercial-sales")
+      .then((r) => r.data),
   getExpenses: () =>
-    apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
+    apiClient
+      .get<ApiResponse<ExpenseResponse[]>>("/api/expenses")
+      .then((r) => r.data),
   getCustomers: () =>
     apiClient
       .get<ApiResponse<CustomerResponse[]>>("/api/customers")
       .then((r) => r.data),
-  getStocks: (type?: ProductType) =>
+  getStocks: (params?: { type?: ProductType; includeEmpty?: boolean }) =>
     apiClient
-      .get<ApiResponse<StockPayload[]>>("/api/stock", { params: { type } })
+      .get<ApiResponse<StockResponse[]>>("/api/stock", { params })
       .then((r) => r.data),
   getLocations: () =>
     apiClient
@@ -105,7 +100,7 @@ export const api = {
       >("/api/products", { params: { type } })
       .then((r) => r.data),
   getUsers: () =>
-    apiClient.get<ApiResponse<UserPayload[]>>("/api/users").then((r) => r.data),
+    apiClient.get<ApiResponse<UserResponse[]>>("/api/users").then((r) => r.data),
   getVendors: () =>
     apiClient
       .get<ApiResponse<VendorResponse[]>>("/api/vendors")
@@ -122,26 +117,6 @@ export const api = {
     apiClient.get<ApiResponse<T>>(`/api/${resource}/${id}`).then((r) => r.data),
 
   // ─── Custom GET endpoints ───────────────────────────────
-  getCustomerTxn: (custId: string) =>
-    apiClient
-      .get<{
-        rent_qty: number;
-        pending_amount: number;
-        cylinder_breakdown?: {
-          stockId: number | null;
-          stockBatchNo: string | null;
-          productName: string;
-          quantity: number;
-        }[];
-        breakdown?: {
-          commercial: number;
-          domestic: number;
-          arb: number;
-          initial: number;
-        };
-      }>(`/api/customer-txn?cust_id=${custId}`)
-      .then((r) => r.data),
-
     getCustomerTxnSummary: (customerId: string) =>
       apiClient.get<ApiResponse<CustomerTxnSummaryResponse>>(`/api/customer-txn/${customerId}/balance/`),
 
@@ -153,57 +128,6 @@ export const api = {
     return apiClient
       .get<Record<string, unknown>>(`/api/dashboard${qs ? `?${qs}` : ""}`)
       .then((r) => r.data);
-  },
-
-  getSaleReport: (params: {
-    from: string;
-    to: string;
-    customerId?: string;
-    staffId?: string;
-    page?: number;
-    limit?: number;
-  }) => {
-    const sp = new URLSearchParams();
-    sp.set("from", params.from);
-    sp.set("to", params.to);
-    if (params.customerId) sp.set("customerId", params.customerId);
-    if (params.staffId) sp.set("staffId", params.staffId);
-    if (params.page) sp.set("page", String(params.page));
-    if (params.limit) sp.set("limit", String(params.limit));
-    return apiClient
-      .get(`/api/reports/sales?${sp.toString()}`)
-      .then((r) => r.data);
-  },
-
-  exportSaleReport: async (params: {
-    from: string;
-    to: string;
-    customerId?: string;
-    staffId?: string;
-    format: "excel" | "pdf";
-  }) => {
-    const sp = new URLSearchParams();
-    sp.set("from", params.from);
-    sp.set("to", params.to);
-    sp.set("format", params.format);
-    if (params.customerId) sp.set("customerId", params.customerId);
-    if (params.staffId) sp.set("staffId", params.staffId);
-    const response = await apiClient.get(
-      `/api/reports/sales/export?${sp.toString()}`,
-      { responseType: "blob" },
-    );
-    const disposition = response.headers["content-disposition"] || "";
-    const match = disposition.match(/filename="?(.+?)"?$/);
-    const fallbackExt = params.format === "excel" ? "csv" : "txt";
-    const filename =
-      match?.[1] ||
-      `sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
-    const url = URL.createObjectURL(response.data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
   },
 
   getExpenseReport: (params: {

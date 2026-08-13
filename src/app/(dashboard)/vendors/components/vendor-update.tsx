@@ -17,7 +17,7 @@ export default function VendorUpdateComponent() {
 
   const { data: vendor } = useSuspenseQuery({
     queryKey: queryKeys.vendors.detail(id),
-    queryFn: () => api.getById<ApiResponse<VendorResponse>>("vendors", id),
+    queryFn: () => api.getById<VendorResponse>("vendors", id),
     select: (res) => res.data,
   });
 

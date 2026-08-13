@@ -13,6 +13,7 @@ import { ProductBreakdown } from "./_components/product-breakdown";
 import { InventoryAndTransactions } from "./_components/inventory-txns";
 import { CommercialAlerts } from "./_components/commercial-alerts";
 import { QuickActions } from "./_components/quick-actions";
+import { ROLES } from "@/lib/permissions";
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
@@ -56,7 +57,7 @@ export default function DashboardPage() {
     );
   }
 
-  const isStaff = data.role !== "Owner";
+  const isStaff = data.role !== ROLES.OWNER;
 
   return (
     <div className="space-y-6">

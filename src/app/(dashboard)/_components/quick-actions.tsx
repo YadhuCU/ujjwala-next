@@ -14,7 +14,7 @@ export function QuickActions() {
       <CardContent>
         <div className="flex flex-wrap gap-3">
           <Button asChild>
-            <Link href="/sales/add">
+            <Link href="/commercial-sales/add">
               <Plus className="w-4 h-4 mr-2" />
               New Commercial Sale
             </Link>

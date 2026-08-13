@@ -24,7 +24,7 @@ export function UpdatePurchaseComponent() {
   const updateMutation = useApiMutation({
     url: `/api/purchases/${id}`,
     method: "PUT",
-    invalidateKeys: [queryKeys.purchases.all],
+    invalidateKeys: [queryKeys.purchases.all, queryKeys.stocks.all],
     onSuccess: () => {
       toast.success("Purchase updated");
       router.push("/purchases");

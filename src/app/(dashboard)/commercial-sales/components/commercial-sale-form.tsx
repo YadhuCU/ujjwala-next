@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useForm, useFieldArray, type Resolver } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
-import { z } from "zod";
+import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,38 +23,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useStocks, useCustomers } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
-import type { StockPayload, CustomerPayload } from "@/lib/api-client";
-import { customerTxnOptions } from "@/lib/query-options";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-const itemSchema = z.object({
-  stockId: z.string().default(""),
-  quantity: z.number().int().min(0),
-  salePrice: z.number().min(0),
-  netTotal: z.number().min(0).optional(),
-  cylindersDispatched: z.number().int().min(0).default(0),
-  cylindersReturned: z.number().int().min(0).default(0),
-});
-
-export const commercialSaleSchema = z.object({
-  saleType: z.enum(["rent", "sale"]).default("rent"),   // ← header-level
-  customerId: z.string().optional().nullable(),
-  paymentType: z.enum(["cash", "cheque"]).default("cash"),
-  discount: z.number().min(0).default(0),
-  notes: z.string().optional().or(z.literal("")),
-  paidAmount: z.number().min(0).default(0),
-  totalAmount: z.number().min(0).optional(),
-  items: z.array(itemSchema).default([]),
-});
-
-export type CommercialSaleFormValues = z.infer<typeof commercialSaleSchema>;
-
-// ─── Props ───────────────────────────────────────────────────────────────────
+import { CommercialSaleType, PaymentType, ProductType } from "@/generated/enums";
+import { CustomerTxnInfo } from "../../_components/customer-txn-info";
+import {
+  CommercialSaleFormSchema,
+  CommercialSaleFormValues,
+} from "@/module/commercial-sale/commercial-sale.form.schema";
 
 interface CommercialSaleFormProps {
   defaultValues?: CommercialSaleFormValues;
@@ -73,381 +48,415 @@ export function CommercialSaleForm({
   onSubmit,
   isPending,
 }: CommercialSaleFormProps) {
-  const { data: rawStocks = [] } = useStocks("Commercial");
-  const stocks = rawStocks as StockPayload[];
+  const { data: stocks } = useStocks(ProductType.COMMERCIAL);
+  const availableStocks = stocks.filter((s) => s.quantity > 0);
 
-  const { data: rawCustomers = [] } = useCustomers();
-  const customers = rawCustomers as CustomerPayload[];
+  const { data: customers } = useCustomers();
 
   const form = useForm<CommercialSaleFormValues>({
-    resolver: zodResolver(commercialSaleSchema) as Resolver<CommercialSaleFormValues>,
+    resolver: zodResolver(
+      CommercialSaleFormSchema,
+    ) as Resolver<CommercialSaleFormValues>,
     defaultValues: defaultValues ?? {
-      saleType: "rent",
-      customerId: null,
-      paymentType: "cash",
-      discount: 0,
-      notes: "",
+      items: [
+        {
+          stockId: "",
+          saleType: CommercialSaleType.RENT,
+          quantity: "",
+          salePrice: "",
+        } as never,
+      ],
+      invoiceDate: new Date(),
       paidAmount: 0,
-      items: [{ stockId: "", quantity: 0, salePrice: 0, cylindersDispatched: 0, cylindersReturned: 0 }],
-      totalAmount: undefined,
+      paymentType: PaymentType.CASH,
     },
   });
 
-  const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" });
-
-  const watchedItems = form.watch("items");
-  const watchedDiscount = form.watch("discount") || 0;
-  const watchedSaleType = form.watch("saleType");
-  const isRent = watchedSaleType === "rent";
-  const selectedCustomerId = form.watch("customerId");
-
-  const { data: txnInfo } = useQuery({
-    ...customerTxnOptions(selectedCustomerId || ""),
-    enabled: !!selectedCustomerId,
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
   });
 
-  // NOTE: cylindersDispatched auto-fills from quantity on change but user can override it
-  // (no useEffect — we don't want to reset it on every re-render)
+  const watchedItems = form.watch("items");
+  const selectedCustomerId = form.watch("customerId");
 
-  // Derive grand total
-  const derivedTotal = watchedItems.reduce((sum, item) => {
-    return sum + (Number(item.quantity) || 0) * (Number(item.salePrice) || 0);
-  }, 0) - watchedDiscount;
+  /**
+   * Computes grand total from all line items — display only.
+   * The server recomputes the authoritative total.
+   */
+  const grandTotal = watchedItems?.reduce((sum, item) => {
+    const qty = Number(item.quantity) || 0;
+    const price = Number(item.salePrice) || 0;
+    return sum + qty * price;
+  }, 0);
 
-  const prevDerived = useRef(derivedTotal);
-  useEffect(() => {
-    const current = form.getValues("totalAmount");
-    if (current === undefined || current === prevDerived.current || current === 0) {
-      form.setValue("totalAmount", Math.max(0, derivedTotal));
-    }
-    prevDerived.current = derivedTotal;
-  }, [derivedTotal]); // eslint-disable-line
-
-  const isCollectionOnly = watchedItems.length === 0;
-
-  const handleSubmit = (values: CommercialSaleFormValues) => {
-    const enrichedItems = values.items.map((item) => ({
-      ...item,
-      saleType: values.saleType,   // propagate header saleType to each item
-      netTotal: (Number(item.quantity) || 0) * (Number(item.salePrice) || 0),
-      cylindersDispatched: isRent ? (item.cylindersDispatched || 0) : 0,
-      cylindersReturned: isRent ? (item.cylindersReturned || 0) : 0,
-    }));
-    const total = values.totalAmount !== undefined ? values.totalAmount : Math.max(0, derivedTotal);
-    onSubmit({ ...values, items: enrichedItems, totalAmount: total });
-  };
+  if (
+    process.env.NODE_ENV !== "production" &&
+    Object.keys(form.formState.errors).length > 0
+  ) {
+    console.warn("VALIDATION ERROR", form.formState.errors);
+  }
 
   return (
-    <Card className="container mr-auto">
+    <Card className="mr-auto">
       <CardHeader>
-        <CardTitle>{isEditMode ? "Edit Commercial Sale" : "New Commercial Sale"}</CardTitle>
+        <CardTitle>
+          {isEditMode ? "Commercial Sale Details" : "New Commercial Sale"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-
-            {/* Transaction info banner */}
-            {txnInfo && (
-              <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 text-sm space-y-2 border border-blue-200 dark:border-blue-800">
-                <p><strong>Pending Amount:</strong> ₹{txnInfo.pending_amount.toFixed(2)}</p>
-                {txnInfo.cylinder_breakdown && txnInfo.cylinder_breakdown.length > 0 && (
-                  <div className="flex flex-wrap gap-2 items-center">
-                    <strong>Cylinders:</strong>
-                    {txnInfo.cylinder_breakdown.map((b, i) => (
-                      <Badge key={i} variant="secondary">{b.productName}: {b.quantity}</Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
+            {/* Customer Transaction Info */}
+            {selectedCustomerId && (
+              <CustomerTxnInfo customerId={selectedCustomerId} />
             )}
 
-            {/* Collection-only banner */}
-            {isCollectionOnly && (
-              <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-4 text-sm border border-amber-200 dark:border-amber-700">
-                <p className="font-semibold text-amber-800 dark:text-amber-300">Collection-Only Invoice</p>
-                <p className="text-amber-700 dark:text-amber-400 mt-0.5">
-                  No products — enter the collected amount in <strong>Paid Amount</strong> below.
-                </p>
-              </div>
-            )}
-
-            {/* ─── Sale Type — HEADER LEVEL ─── */}
-            <FormField
-              control={form.control}
-              name="saleType"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="text-base font-semibold">Sale Type</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="flex gap-6"
-                      disabled={isEditMode}
+            <div className="grid gap-4 lg:grid-cols-2 place-content-stretch">
+              <FormField
+                control={form.control}
+                name="customerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer</FormLabel>
+                    <Select
+                      onValueChange={(v) => field.onChange(Number(v))}
+                      value={field.value ? String(field.value) : ""}
                     >
-                      <FormItem className="flex items-center gap-2 space-y-0">
-                        <FormControl><RadioGroupItem value="rent" /></FormControl>
-                        <FormLabel className="font-normal cursor-pointer text-base">
-                          🔁 Rent (cylinder tracking)
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center gap-2 space-y-0">
-                        <FormControl><RadioGroupItem value="sale" /></FormControl>
-                        <FormLabel className="font-normal cursor-pointer text-base">
-                          🛒 Sale (outright)
-                        </FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select Customer" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {customers.map((c) => (
+                          <SelectItem key={c.id} value={String(c.id)}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Separator />
-
-            {/* ─── Header Fields ─── */}
-            <div className="grid gap-4 lg:grid-cols-3 items-start">
-              <FormField control={form.control} name="customerId" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+              <FormField
+                control={form.control}
+                name="invoiceDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Invoice Date</FormLabel>
                     <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Select Customer (Optional)" /></SelectTrigger>
+                      <DatePicker date={field.value} setDate={field.onChange} />
                     </FormControl>
-                    <SelectContent>
-                      {customers.map((c) => (
-                        <SelectItem key={c.id} value={String(c.id)}>
-                          {c.name} {c.phone ? `(${c.phone})` : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <FormField control={form.control} name="paymentType" render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel>Payment Type</FormLabel>
-                  <FormControl>
-                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-6">
-                      <FormItem className="flex items-center gap-2 space-y-0">
-                        <FormControl><RadioGroupItem value="cash" /></FormControl>
-                        <FormLabel className="font-normal cursor-pointer">Cash</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center gap-2 space-y-0">
-                        <FormControl><RadioGroupItem value="cheque" /></FormControl>
-                        <FormLabel className="font-normal cursor-pointer">Cheque</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                </FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="discount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Discount (₹)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.valueAsNumber || 0)
+                        }
+                        placeholder="Enter Discount in amount"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <FormField control={form.control} name="discount" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Discount (₹)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)} />
-                  </FormControl>
-                </FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="paidAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Paid Amount (₹)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(e.target.valueAsNumber || 0)
+                        }
+                        placeholder="Enter amount paid."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <FormField control={form.control} name="paidAmount" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Paid Amount (₹)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber || 0)} />
-                  </FormControl>
-                </FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Add any relevant notes here..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <FormField control={form.control} name="notes" render={({ field }) => (
-                <FormItem className="lg:col-span-2">
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Cheque details, remarks..." />
-                  </FormControl>
-                </FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="paymentType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Payment Type</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex gap-4"
+                      >
+                        {Object.values(PaymentType).map((x) => (
+                          <FormItem key={x} className="flex items-center">
+                            <FormControl>
+                              <RadioGroupItem value={x} />
+                            </FormControl>
+                            <FormLabel className="font-normal">{x}</FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* ─── Items ─── */}
-            <div className="space-y-3">
+            {/* ─── Items Section ──────────────────── */}
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Sale Items</h3>
-                {!isEditMode && (
-                  <Button type="button" variant="outline" size="sm"
-                    onClick={() => append({ stockId: "", quantity: 0, salePrice: 0, cylindersDispatched: 0, cylindersReturned: 0 })}>
-                    <Plus className="w-4 h-4 mr-2" /> Add Item
-                  </Button>
-                )}
+                <h3 className="text-lg font-semibold">Items</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    append({
+                      stockId: "",
+                      saleType: CommercialSaleType.RENT,
+                      quantity: "",
+                      salePrice: "",
+                    } as never)
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" /> Add Item
+                </Button>
               </div>
 
               {fields.length === 0 && (
-                <p className="text-sm text-muted-foreground">No items yet. Add an item or use as collection-only invoice.</p>
+                <p className="text-sm text-muted-foreground">
+                  No items added. Click &quot;Add Item&quot; to begin.
+                </p>
               )}
 
               {fields.map((field, index) => {
-                const currentStockId = watchedItems[index]?.stockId;
-                const selectedStock = stocks.find((s) => s.id === Number(currentStockId));
+                const qty = Number(watchedItems[index]?.quantity) || 0;
+                const price = Number(watchedItems[index]?.salePrice) || 0;
+                const lineTotal = qty * price;
 
                 return (
-                  <Card key={field.id} className="p-4 border-border">
-                    <div className="flex flex-wrap gap-3 items-end">
-                      {/* Stock */}
-                      <FormField control={form.control} name={`items.${index}.stockId`}
-                        render={({ field: ff }) => (
-                          <FormItem className="flex-1 min-w-44">
-                            <FormLabel>Stock / Batch</FormLabel>
-                            <Select
-                              onValueChange={(val) => {
-                                ff.onChange(val);
-                                const stock = stocks.find((s) => s.id === Number(val));
-                                if (stock?.product?.salePrice) {
-                                  form.setValue(`items.${index}.salePrice`, Number(stock.product.salePrice));
+                  <Card key={field.id} className="p-4">
+                    <div className="grid gap-3 md:grid-cols-5 items-start">
+                      {/* Stock Selection */}
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.stockId`}
+                        render={({ field: formField }) => {
+                          const selectedStock = availableStocks.find(
+                            (s) => s.id === Number(formField.value),
+                          );
+                          return (
+                            <FormItem>
+                              <FormLabel>Stock / Product</FormLabel>
+                              <Select
+                                onValueChange={(val) => {
+                                  formField.onChange(Number(val));
+                                  // Auto-fill default sale price for the batch
+                                  const stock = stocks.find(
+                                    (s) => s.id === Number(val),
+                                  );
+                                  if (stock?.product?.salePrice) {
+                                    form.setValue(
+                                      `items.${index}.salePrice`,
+                                      Number(stock.product.salePrice),
+                                    );
+                                  }
+                                }}
+                                value={
+                                  formField.value ? String(formField.value) : ""
                                 }
-                              }}
-                              value={ff.value}
-                              disabled={isEditMode}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select Stock">
+                                      {selectedStock?.product?.name}
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {availableStocks.map((s) => (
+                                    <SelectItem key={s.id} value={String(s.id)}>
+                                      {s.product?.name} (Batch: {s.batchNo}) -
+                                      Qty: {s.quantity}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
+                      />
+
+                      {/* Rent or outright sale — decided per line */}
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.saleType`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel>Type</FormLabel>
+                            <Select
+                              onValueChange={formField.onChange}
+                              value={formField.value}
                             >
-                              <FormControl><SelectTrigger><SelectValue placeholder="Select Stock" /></SelectTrigger></FormControl>
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Rent or Sale" />
+                                </SelectTrigger>
+                              </FormControl>
                               <SelectContent>
-                                {stocks.map((s) => (
-                                  <SelectItem key={s.id} value={String(s.id)}>
-                                    {s.product?.name} — {s.batchNo}
-                                    {!isRent ? ` (Avail: ${s.quantity})` : ""}
+                                {Object.values(CommercialSaleType).map((t) => (
+                                  <SelectItem key={t} value={t}>
+                                    {t}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                             <FormMessage />
                           </FormItem>
-                        )} />
+                        )}
+                      />
 
                       {/* Quantity */}
-                      <FormField control={form.control} name={`items.${index}.quantity`}
-                        render={({ field: ff }) => (
-                          <FormItem className="w-28">
-                            <FormLabel>Qty</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.quantity`}
+                        render={({ field: f }) => (
+                          <FormItem>
+                            <FormLabel>Quantity</FormLabel>
                             <FormControl>
-                              <Input type="number" min={0} disabled={isEditMode} {...ff}
-                                onChange={(e) => {
-                                  const qty = e.target.valueAsNumber || 0;
-                                  ff.onChange(qty);
-                                  // Auto-fill dispatched = qty on first entry — user can override
-                                  if (isRent && form.getValues(`items.${index}.cylindersDispatched`) === 0) {
-                                    form.setValue(`items.${index}.cylindersDispatched`, qty);
-                                  }
-                                }}
+                              <Input
+                                type="number"
+                                {...f}
+                                onChange={(e) =>
+                                  f.onChange(e.target.valueAsNumber || 0)
+                                }
+                                placeholder="Enter quantity"
                               />
                             </FormControl>
-                            {!isRent && selectedStock && (
-                              <p className="text-xs text-muted-foreground">Max: {selectedStock.quantity}</p>
-                            )}
+                            <FormMessage />
                           </FormItem>
-                        )} />
+                        )}
+                      />
 
                       {/* Sale Price */}
-                      <FormField control={form.control} name={`items.${index}.salePrice`}
-                        render={({ field: ff }) => (
-                          <FormItem className="w-36">
-                            <FormLabel>Price (₹)</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.salePrice`}
+                        render={({ field: formField }) => (
+                          <FormItem>
+                            <FormLabel>Rate (₹)</FormLabel>
                             <FormControl>
-                              <Input type="number" step="0.01" disabled={isEditMode} {...ff}
-                                onChange={(e) => ff.onChange(e.target.valueAsNumber || 0)} />
+                              <Input
+                                type="number"
+                                step="0.01"
+                                {...formField}
+                                onChange={(e) =>
+                                  formField.onChange(e.target.valueAsNumber || 0)
+                                }
+                                placeholder="Enter rate"
+                              />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
-                        )} />
+                        )}
+                      />
 
-                      {/* Net Total (readonly) */}
-                      <div className="w-28 space-y-2">
-                        <p className="text-sm font-medium text-muted-foreground">Net Total</p>
-                        <div className="h-10 px-3 py-2 text-sm border rounded-md bg-muted/50 flex items-center">
-                          ₹{((Number(watchedItems[index]?.quantity) || 0) * (Number(watchedItems[index]?.salePrice) || 0)).toFixed(2)}
+                      {/* Net Total (readonly calculation) */}
+                      <div className="flex items-end gap-2">
+                        <div className="mx-auto">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Total
+                          </p>
+                          <p className="text-sm font-medium h-9 flex items-center">
+                            ₹{lineTotal.toFixed(2)}
+                          </p>
                         </div>
-                      </div>
-
-                      {/* Cylinder fields — only when saleType = rent */}
-                      {isRent && (
-                        <>
-                          <FormField control={form.control} name={`items.${index}.cylindersDispatched`}
-                            render={({ field: ff }) => (
-                              <FormItem className="w-36">
-                                <FormLabel className="text-orange-700 dark:text-orange-400">Cylinders Out</FormLabel>
-                                <FormControl>
-                                  <Input type="number" min={0} disabled={isEditMode} {...ff}
-                                    onChange={(e) => ff.onChange(e.target.valueAsNumber || 0)}
-                                    className="border-orange-300 focus-visible:ring-orange-400" />
-                                </FormControl>
-                                {/* <p className="text-xs text-muted-foreground">Override if ≠ qty</p> */}
-                              </FormItem>
-                            )} />
-
-                          <FormField control={form.control} name={`items.${index}.cylindersReturned`}
-                            render={({ field: ff }) => (
-                              <FormItem className="w-36">
-                                <FormLabel className="text-green-700 dark:text-green-400">Cylinders Returned</FormLabel>
-                                <FormControl>
-                                  <Input type="number" min={0} disabled={isEditMode} {...ff}
-                                    onChange={(e) => ff.onChange(e.target.valueAsNumber || 0)}
-                                    className="border-green-300 focus-visible:ring-green-400" />
-                                </FormControl>
-                              </FormItem>
-                            )} />
-                        </>
-                      )}
-
-                      {!isEditMode && (
-                        <Button type="button" variant="ghost" size="icon"
-                          className="text-destructive self-end"
-                          onClick={() => remove(index)}>
-                          <Trash2 className="w-4 h-4" />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
-                      )}
+                      </div>
                     </div>
                   </Card>
                 );
               })}
             </div>
 
-            {/* ─── Grand Total ─── */}
-            <div className="flex flex-col items-end space-y-2 pt-4 border-t">
-              <div className="flex items-center gap-4">
-                {!isCollectionOnly && (
-                  <Button type="button" variant="outline" size="sm"
-                    onClick={() => form.setValue("totalAmount", Math.max(0, derivedTotal))}>
-                    Recalculate
-                  </Button>
-                )}
-                <div className="flex items-center gap-2">
-                  <span className="text-xl font-bold">Grand Total: ₹</span>
-                  <FormField control={form.control} name="totalAmount" render={({ field }) => (
-                    <FormItem className="w-36">
-                      <FormControl>
-                        <Input type="number" step="0.01" className="text-xl font-bold text-right"
-                          readOnly={!isCollectionOnly}
-                          {...field} value={field.value ?? ""}
-                          onChange={(e) => field.onChange(isNaN(e.target.valueAsNumber) ? undefined : e.target.valueAsNumber)} />
-                      </FormControl>
-                    </FormItem>
-                  )} />
-                </div>
-              </div>
-              {!isCollectionOnly && (
-                <p className="text-xs text-muted-foreground">
-                  Derived: ₹{derivedTotal.toFixed(2)} (items − discount)
+            {/* ─── Grand Total ──────────────────── */}
+            <div className="flex flex-col items-end pt-4 border-t space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold">Grand Total: </span>
+                <p className="text-xl font-bold text-right">
+                  ₹{grandTotal.toFixed(2)}
                 </p>
-              )}
+              </div>
             </div>
 
             <div className="flex gap-3">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : isEditMode ? "Update" : isCollectionOnly ? "Record Collection" : "Create Invoice"}
+              <Button
+                type="submit"
+                disabled={!form.formState.isDirty}
+                isLoading={isPending}
+              >
+                {isEditMode ? "Update Invoice" : "Create Invoice"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => window.history.back()}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => window.history.back()}
+              >
+                Cancel
+              </Button>
             </div>
           </form>
         </Form>

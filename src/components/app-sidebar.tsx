@@ -98,12 +98,6 @@ const sidebarMenu: NavItem[] = [
     requiredPermissions: [PERMISSIONS.PURCHASE_READ],
   },
   {
-    title: "Commercial Sale (Old)",
-    href: "/sales",
-    icon: ShoppingCart,
-    requiredPermissions: [PERMISSIONS.COMMERCIAL_SALE_READ],
-  },
-  {
     title: "Commercial Sale",
     href: "/commercial-sales",
     icon: ShoppingCart,
@@ -133,7 +127,7 @@ const sidebarMenu: NavItem[] = [
     icon: Wallet,
     requiredPermissions: [],
     sub: [
-      { title: "Commercial Sale Report", href: "/reports/sales" },
+      { title: "Commercial Sale Report", href: "/reports/commercial-sale" },
       { title: "Domestic Sale Report", href: "/reports/dom-sale" },
       { title: "Arb Sale Report", href: "/reports/arb-sale" },
       { title: "Sale by Product Report", href: "/reports/sale-by-product" },

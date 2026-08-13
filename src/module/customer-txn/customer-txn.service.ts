@@ -1,35 +1,84 @@
 import { prisma } from "@/lib/prisma";
-import { NotFoundError, BadRequestError } from "@/lib/errors";
+import { NotFoundError, BadRequestError, ConflictError } from "@/lib/errors";
 import type {
   RecordPaymentInput,
   TransactionQueryInput,
-} from "./customer-txn.schema";
-import { LedgerEntryType, RefType } from "@/generated/enums";
+} from "./customer-txn.payload.schema";
+import { LedgerEntryType, Prisma, RefType } from "@/generated/client";
 
 // =============================================================================
-// GUARD
+// CONSTANTS
 // =============================================================================
 
-async function assertCustomerExists(customerId: number) {
-  const customer = await prisma.customer.findFirst({
+const ledgerInclude = {
+  createdBy: { select: { id: true, name: true } },
+} as const;
+
+// =============================================================================
+// GUARDS
+// =============================================================================
+
+async function assertCustomerExists(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+) {
+  const customer = await tx.customer.findFirst({
     where: { id: customerId, isDeleted: false },
   });
   if (!customer) throw new NotFoundError(`Customer #${customerId} not found`);
   return customer;
 }
 
+// A payment can only be reversed once. There is no voidedEntryId column on
+// CustomerPaymentLedger yet, so the reversal is matched on its notes marker.
+async function assertPaymentReversible(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+  paymentId: number,
+) {
+  const payment = await tx.customerPaymentLedger.findFirst({
+    where: {
+      id: paymentId,
+      customerId,
+      entryType: LedgerEntryType.PAYMENT,
+    },
+  });
+
+  if (!payment)
+    throw new NotFoundError(`Payment #${paymentId} not found for this customer`);
+
+  const alreadyReversed = await tx.customerPaymentLedger.findFirst({
+    where: {
+      customerId,
+      entryType: LedgerEntryType.ADJUSTMENT,
+      notes: reversalNote(paymentId),
+    },
+  });
+
+  if (alreadyReversed)
+    throw new ConflictError(`Payment #${paymentId} is already reversed`);
+
+  return payment;
+}
+
 // =============================================================================
-// GET SUMMARY — pending amount + pending cylinders
-// This is the primary "dashboard" endpoint for a customer's current standing.
+// PURE HELPERS
+// =============================================================================
+
+function reversalNote(paymentId: number): string {
+  return `Reversal — payment #${paymentId}`;
+}
+
+// =============================================================================
+// SUMMARY — pending amount + pending cylinders
+// The primary "where does this customer stand" endpoint.
 // =============================================================================
 
 export async function getCustomerSummary(customerId: number) {
-  await assertCustomerExists(customerId);
+  await assertCustomerExists(prisma, customerId);
 
   const [balance, cylinderLedgers] = await Promise.all([
-    prisma.customerBalance.findUnique({
-      where: { customerId },
-    }),
+    prisma.customerBalance.findUnique({ where: { customerId } }),
     prisma.customerCylinderLedger.findMany({
       where: { customerId },
       include: { product: true },
@@ -46,17 +95,19 @@ export async function getCustomerSummary(customerId: number) {
   };
 }
 
-export type CustomerTxnSummaryResponse = Awaited<ReturnType<typeof getCustomerSummary>>
+export type CustomerTxnSummaryResponse = Awaited<
+  ReturnType<typeof getCustomerSummary>
+>;
 
 // =============================================================================
-// GET TRANSACTION HISTORY — paginated CustomerPaymentLedger
+// LIST — paginated CustomerPaymentLedger history
 // =============================================================================
 
 export async function getCustomerTransactions(
   customerId: number,
   query: TransactionQueryInput,
 ) {
-  await assertCustomerExists(customerId);
+  await assertCustomerExists(prisma, customerId);
 
   const { entryType, from, to, page, limit } = query;
   const skip = (page - 1) * limit;
@@ -78,7 +129,7 @@ export async function getCustomerTransactions(
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
-      include: { createdBy: { select: { id: true, name: true } } },
+      include: ledgerInclude,
     }),
     prisma.customerPaymentLedger.count({ where }),
   ]);
@@ -91,8 +142,7 @@ export async function getCustomerTransactions(
 
 // =============================================================================
 // RECORD PAYMENT
-// Standalone payment — not tied to a specific invoice.
-// Appends a PAYMENT entry and decrements the balance cache.
+// A standalone payment — cash walked in, not tied to any one invoice.
 // =============================================================================
 
 export async function recordPayment(
@@ -100,37 +150,27 @@ export async function recordPayment(
   input: RecordPaymentInput,
   userId: number,
 ) {
-  await assertCustomerExists(customerId);
-
-  // Guard: don't allow a payment that would push balance below zero
-  // (overpayment creates a credit — valid for some businesses, optional guard)
-  const balance = await prisma.customerBalance.findUnique({
-    where: { customerId },
-  });
-
-  if (!balance) throw new BadRequestError("Customer has no balance record");
-
-  // Uncomment if overpayment should be blocked:
-  // if (input.amount > Number(balance.pendingAmount)) {
-  //   throw new ConflictError("Payment exceeds outstanding balance", {
-  //     pendingAmount: Number(balance.pendingAmount),
-  //     paymentAmount: input.amount,
-  //   })
-  // }
-
   return prisma.$transaction(async (tx) => {
-    // 1. Append PAYMENT entry to ledger
+    await assertCustomerExists(tx, customerId);
+
+    const balance = await tx.customerBalance.findUnique({
+      where: { customerId },
+    });
+
+    if (!balance) throw new BadRequestError("Customer has no balance record");
+
+    // 1. Append PAYMENT entry to the ledger (negative = reduces what is owed)
     const ledgerEntry = await tx.customerPaymentLedger.create({
       data: {
         customerId,
-        // entryType:     "PAYMENT",
         entryType: LedgerEntryType.PAYMENT,
-        amount: -input.amount, // negative = reduces balance
+        amount: -input.amount,
         refType: RefType.MANUAL,
         refId: customerId, // self-reference for standalone payments
         notes: input.notes ?? null,
         createdById: userId,
       },
+      include: ledgerInclude,
     });
 
     // 2. Decrement balance cache
@@ -139,9 +179,46 @@ export async function recordPayment(
       data: { pendingAmount: { decrement: input.amount } },
     });
 
-    return {
-      ledgerEntry,
-      pendingAmount: updated.pendingAmount,
-    };
+    return { ledgerEntry, pendingAmount: updated.pendingAmount };
+  });
+}
+
+// =============================================================================
+// REVERSE PAYMENT
+// Payments are never deleted — an ADJUSTMENT row puts the money back.
+// =============================================================================
+
+export async function reversePayment(
+  customerId: number,
+  paymentId: number,
+  userId: number,
+) {
+  return prisma.$transaction(async (tx) => {
+    await assertCustomerExists(tx, customerId);
+
+    const payment = await assertPaymentReversible(tx, customerId, paymentId);
+
+    // Original PAYMENT rows are negative — the reversal is its exact opposite.
+    const reversalAmount = -Number(payment.amount);
+
+    const ledgerEntry = await tx.customerPaymentLedger.create({
+      data: {
+        customerId,
+        entryType: LedgerEntryType.ADJUSTMENT,
+        amount: reversalAmount,
+        refType: payment.refType,
+        refId: payment.refId,
+        notes: reversalNote(paymentId),
+        createdById: userId,
+      },
+      include: ledgerInclude,
+    });
+
+    const updated = await tx.customerBalance.update({
+      where: { customerId },
+      data: { pendingAmount: { increment: reversalAmount } },
+    });
+
+    return { ledgerEntry, pendingAmount: updated.pendingAmount };
   });
 }

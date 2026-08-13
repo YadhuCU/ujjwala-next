@@ -2,10 +2,11 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -14,18 +15,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-export const expenseSchema = z.object({
-  expense: z.string().min(1, "Expense description is required"),
-  date: z.string().min(1, "Date is required"),
-  amount: z.number().min(0, "Amount must be 0 or more"),
-});
-
-export type ExpenseFormValues = z.infer<typeof expenseSchema>;
-
-// ─── Props ───────────────────────────────────────────────────────────────────
+import {
+  ExpenseFormSchema,
+  ExpenseFormValues,
+} from "@/module/expense/expense.form.schema";
 
 interface ExpenseFormProps {
   defaultValues?: ExpenseFormValues;
@@ -43,10 +36,10 @@ export function ExpenseForm({
   isPending,
 }: ExpenseFormProps) {
   const form = useForm<ExpenseFormValues>({
-    resolver: zodResolver(expenseSchema),
+    resolver: zodResolver(ExpenseFormSchema) as Resolver<ExpenseFormValues>,
     defaultValues: defaultValues ?? {
       expense: "",
-      date: new Date().toISOString().split("T")[0],
+      date: new Date(),
       amount: 0,
     },
   });
@@ -54,7 +47,7 @@ export function ExpenseForm({
   return (
     <Card className="container mr-auto">
       <CardHeader>
-        <CardTitle>Expense Details</CardTitle>
+        <CardTitle>{isEditMode ? "Edit Expense" : "New Expense"}</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -69,12 +62,13 @@ export function ExpenseForm({
                 <FormItem>
                   <FormLabel>Expense</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="e.g. Vehicle fuel" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="date"
@@ -82,18 +76,19 @@ export function ExpenseForm({
                 <FormItem>
                   <FormLabel>Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <DatePicker date={field.value} setDate={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel>Amount (₹)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -102,15 +97,17 @@ export function ExpenseForm({
                       onChange={(e) =>
                         field.onChange(e.target.valueAsNumber || 0)
                       }
+                      placeholder="Enter amount"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <div className="flex gap-3 pt-2 lg:col-span-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
+
+            <div className="flex gap-3 lg:col-span-2">
+              <Button type="submit" isLoading={isPending}>
+                {isEditMode ? "Update Expense" : "Create Expense"}
               </Button>
               <Button
                 type="button"

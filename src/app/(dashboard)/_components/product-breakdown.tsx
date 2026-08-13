@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Package } from "lucide-react";
 import { DashboardData } from "./types";
+import { ROLES } from "@/lib/permissions";
 
 const COLORS = [
   "hsl(221, 83%, 53%)",
@@ -20,7 +21,7 @@ const COLORS = [
 
 export function ProductBreakdown({ data }: { data: DashboardData }) {
   const { productBreakdown, role } = data;
-  const isStaff = role !== "Owner";
+  const isStaff = role !== ROLES.OWNER;
 
   const productConfig = React.useMemo(() => {
     if (!productBreakdown) return {} as ChartConfig;

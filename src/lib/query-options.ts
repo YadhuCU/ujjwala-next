@@ -5,11 +5,6 @@ import { ProductType } from "@/generated/enums";
 
 // ─── Query Options (single-use, consumed inline via useQuery) ────────────────
 
-export const salesOptions = queryOptions({
-  queryKey: queryKeys.sales.lists(),
-  queryFn: api.getSales,
-});
-
 export const domSalesOptions = queryOptions({
   queryKey: queryKeys.domSales.lists(),
   queryFn: api.getDomSales,
@@ -23,11 +18,13 @@ export const arbSalesOptions = queryOptions({
 export const commercialSalesOptions = queryOptions({
   queryKey: queryKeys.commercialSales.lists(),
   queryFn: api.getCommercialSales,
+  select: (res) => res.data,
 });
 
 export const expensesOptions = queryOptions({
   queryKey: queryKeys.expenses.lists(),
   queryFn: api.getExpenses,
+  select: (res) => res.data,
 });
 
 export const customerTxnOptions = (custId: string) =>
@@ -45,10 +42,10 @@ export const dashboardOptions = (from?: string, to?: string) =>
 
 // ─── Reusable Query Options (used in custom hooks) ──────────────────────────
 
-export const stocksOptions = (type?: ProductType) =>
+export const stocksOptions = (type?: ProductType, includeEmpty = false) =>
   queryOptions({
-    queryKey: queryKeys.stocks.lists(type),
-    queryFn: () => api.getStocks(type),
+    queryKey: queryKeys.stocks.lists(type, includeEmpty),
+    queryFn: () => api.getStocks({ type, includeEmpty }),
     select: (res) => res.data,
   });
 

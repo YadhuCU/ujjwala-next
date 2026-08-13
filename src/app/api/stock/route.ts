@@ -1,40 +1,43 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
-import { ProductType } from "@/generated/enums";
+import { formatResponse } from "@/lib/response";
+import {
+  CreateStockSchema,
+  StockQuerySchema,
+} from "@/module/stock/stock.payload.schema";
+import * as StockService from "@/module/stock/stock.service";
+import {
+  serializeStock,
+  serializeStocks,
+} from "@/module/stock/stock.serializer";
 
 export async function GET(req: NextRequest) {
   return withAuth(async () => {
-    const type = req.nextUrl.searchParams.get("type") as ProductType | null;
-    const stocks = await prisma.stock.findMany({
-      where: { isDeleted: false, ...(type && { product: { type } }) },
-      include: { product: true, vendor: true },
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json({ data: stocks });
+    const query = StockQuerySchema.parse(
+      Object.fromEntries(req.nextUrl.searchParams),
+    );
+
+    const stocks = await StockService.getStocks(query);
+
+    return formatResponse({ data: serializeStocks(stocks) });
   }, [PERMISSIONS.STOCK_READ]);
 }
 
+// Manual batch — opening stock or a batch with no purchase behind it. The
+// service posts the matching ADJUSTMENT so the cylinder ledger stays true.
 export async function POST(request: Request) {
-  return withAuth(async () => {
-    try {
-      const data = await request.json();
-      const stock = await prisma.stock.create({
-        data: {
-          batchNo: data.batchNo,
-          productId: data.productId ? parseInt(data.productId) : null,
-          invoiceNo: data.invoiceNo,
-          quantity: data.quantity != null ? Number(data.quantity) : 0,
-          productCost:
-            data.productCost != null ? Number(data.productCost) : null,
-        },
+  return withAuth(
+    async ({ id }) => {
+      const data = CreateStockSchema.parse(await request.json());
+      const stock = await StockService.createStock(data, Number(id));
+
+      return formatResponse({
+        data: serializeStock(stock),
+        status: 201,
+        message: "Stock batch created successfully",
       });
-      return NextResponse.json(stock, { status: 201 });
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create stock";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, [PERMISSIONS.STOCK_CREATE]);
+    },
+    [PERMISSIONS.STOCK_CREATE],
+  );
 }

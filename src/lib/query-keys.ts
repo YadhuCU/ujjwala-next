@@ -6,11 +6,6 @@
 import { ProductType } from "@/generated/enums";
 
 export const queryKeys = {
-  sales: {
-    all: ["sales"] as const,
-    lists: () => ["sales"] as const,
-    detail: (id: string) => ["sales", id] as const,
-  },
   domSales: {
     all: ["dom-sales"] as const,
     lists: () => ["dom-sales"] as const,
@@ -42,7 +37,8 @@ export const queryKeys = {
   },
   stocks: {
     all: ["stocks"] as const,
-    lists: (type?: ProductType) => ["stocks", type] as const,
+    lists: (type?: ProductType, includeEmpty?: boolean) =>
+      ["stocks", type, includeEmpty] as const,
     detail: (id: string) => ["stocks", id] as const,
   },
   vendors: {
@@ -78,10 +74,6 @@ export const queryKeys = {
   dashboard: {
     all: ["dashboard"] as const,
     detail: (from?: string, to?: string) => ["dashboard", from, to] as const,
-  },
-  saleReport: {
-    all: ["sale-report"] as const,
-    list: (params: object) => ["sale-report", params] as const,
   },
   expenseReport: {
     all: ["expense-report"] as const,

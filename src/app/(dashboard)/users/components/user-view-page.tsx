@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { usePermission } from "@/hooks/use-permissions";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { apiClient, UserPayload } from "@/lib/api-client";
+import { apiClient } from "@/lib/api-client";
+import { UserResponse } from "@/module/user/user.serializer";
 import { queryKeys } from "@/lib/query-keys";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -27,17 +28,19 @@ export const UserViewPage = () => {
   const { hasPermission } = usePermission();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
+  // Permissions arrive with the session, so these must not be frozen on first
+  // render — hasPermission is the dependency.
   const hasUpdatePermission = useMemo(
     () => hasPermission(PERMISSIONS.USER_UPDATE),
-    [],
+    [hasPermission],
   );
   const hasDeletePermission = useMemo(
     () => hasPermission(PERMISSIONS.USER_DELETE),
-    [],
+    [hasPermission],
   );
   const hasCreatePermission = useMemo(
     () => hasPermission(PERMISSIONS.USER_CREATE),
-    [],
+    [hasPermission],
   );
 
   const { data: users = [] } = useSuspenseQuery({
@@ -55,7 +58,7 @@ export const UserViewPage = () => {
     queryClient.invalidateQueries({ queryKey: [...queryKeys.users.all] });
   }
 
-  const columns: ColumnDef<UserPayload>[] = [
+  const columns: ColumnDef<UserResponse>[] = [
     { accessorKey: "username", header: "Username" },
     { accessorKey: "name", header: "Name" },
     { accessorKey: "email", header: "Email" },
@@ -85,7 +88,7 @@ export const UserViewPage = () => {
           <Switch
             disabled={!hasUpdatePermission}
             checked={u.isActive}
-            onChange={() =>
+            onCheckedChange={() =>
               hasUpdatePermission && toggleActive(u.id, u.isActive)
             }
             title="Enable/Disable User"

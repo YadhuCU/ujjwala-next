@@ -8,10 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Package, ShoppingCart, ArrowUpRight } from "lucide-react";
 import { DashboardData } from "./types";
+import { ROLES } from "@/lib/permissions";
 
 export function InventoryAndTransactions({ data }: { data: DashboardData }) {
   const { lowStock, recentTxns, role } = data;
-  const isStaff = role !== "Owner";
+  const isStaff = role !== ROLES.OWNER;
 
   return (
     <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-2"}`}>
@@ -75,7 +76,7 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
               Recent Transactions
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/sales" className="text-xs">
+              <Link href="/commercial-sales" className="text-xs">
                 View All <ArrowUpRight className="ml-1 w-3 h-3" />
               </Link>
             </Button>

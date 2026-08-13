@@ -17,7 +17,7 @@ export default function ProductUpdateComponent() {
 
   const { data: product } = useSuspenseQuery({
     queryKey: queryKeys.products.detail(id),
-    queryFn: () => api.getById<ApiResponse<ProductResponse>>("products", id),
+    queryFn: () => api.getById<ProductResponse>("products", id),
     select: (res) => res.data,
   });
 

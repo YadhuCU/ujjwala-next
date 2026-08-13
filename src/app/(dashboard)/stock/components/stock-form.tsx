@@ -2,10 +2,11 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,27 +25,10 @@ import {
 } from "@/components/ui/form";
 import { productsOptions } from "@/lib/query-options";
 import { useSuspenseQuery } from "@tanstack/react-query";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-export const stockSchema = z.object({
-  batchNo: z.string().min(1, "Batch number is required"),
-  productId: z.string().optional().or(z.literal("")),
-  invoiceNo: z.string().optional().or(z.literal("")),
-  quantity: z.number().int().min(1, "Quantity is required"),
-  productCost: z.number().min(0).optional(),
-});
-
-export type StockFormValues = z.infer<typeof stockSchema>;
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface Product {
-  id: number;
-  name: string | null;
-}
-
-// ─── Props ───────────────────────────────────────────────────────────────────
+import {
+  StockFormSchema,
+  StockFormValues,
+} from "@/module/stock/stock.form.schema";
 
 interface StockFormProps {
   defaultValues?: StockFormValues;
@@ -60,23 +45,23 @@ export function StockForm({
   onSubmit,
   isPending,
 }: StockFormProps) {
-  const { data: products = [] } = useSuspenseQuery({ ...productsOptions() });
+  const { data: products } = useSuspenseQuery(productsOptions());
 
   const form = useForm<StockFormValues>({
-    resolver: zodResolver(stockSchema),
+    resolver: zodResolver(StockFormSchema) as Resolver<StockFormValues>,
     defaultValues: defaultValues ?? {
       batchNo: "",
-      productId: "",
-      invoiceNo: "",
       quantity: 0,
-      productCost: 0,
+      reason: "",
     },
   });
 
   return (
     <Card className="container mr-auto">
       <CardHeader>
-        <CardTitle>Stock Details</CardTitle>
+        <CardTitle>
+          {isEditMode ? "Edit Stock Batch" : "New Stock Batch"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -91,19 +76,23 @@ export function StockForm({
                 <FormItem>
                   <FormLabel>Batch No</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="Vendor batch / lot number" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="productId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Product</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(v) => field.onChange(Number(v))}
+                    value={field.value ? String(field.value) : ""}
+                  >
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select product" />
@@ -121,6 +110,7 @@ export function StockForm({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="invoiceNo"
@@ -128,12 +118,13 @@ export function StockForm({
                 <FormItem>
                   <FormLabel>Invoice No</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="quantity"
@@ -153,17 +144,19 @@ export function StockForm({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="productCost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Cost</FormLabel>
+                  <FormLabel>Product Cost (₹)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       step="0.01"
                       {...field}
+                      value={field.value ?? ""}
                       onChange={(e) =>
                         field.onChange(e.target.valueAsNumber || 0)
                       }
@@ -173,9 +166,31 @@ export function StockForm({
                 </FormItem>
               )}
             />
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
+
+            <FormField
+              control={form.control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem className="lg:col-span-2">
+                  <FormLabel>Reason</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="e.g. Opening stock migrated from the old system"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    A manual batch moves godown stock, so it is recorded as a
+                    stock adjustment with this reason.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-3 lg:col-span-2">
+              <Button type="submit" isLoading={isPending}>
+                {isEditMode ? "Update Batch" : "Create Batch"}
               </Button>
               <Button
                 type="button"

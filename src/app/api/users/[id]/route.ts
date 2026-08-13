@@ -1,136 +1,77 @@
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
-import { BadRequestError, NotFoundError } from "@/lib/errors";
 import { formatResponse } from "@/lib/response";
+import {
+  SetUserActiveSchema,
+  UpdateUserSchema,
+} from "@/module/user/user.payload.schema";
+import * as UserService from "@/module/user/user.service";
+import { serializeUser } from "@/module/user/user.serializer";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-    if (!user) {
-      throw new NotFoundError("User not found");
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, userRoles, ...safeUser } = user;
-    const roles = userRoles.map((x) => ({ id: x.role.id, name: x.role.name }));
-
-    return formatResponse({ data: { ...safeUser, userRoles: roles } });
+    const user = await UserService.getUserById(Number(id));
+    return formatResponse({ data: serializeUser(user) });
   }, [PERMISSIONS.USER_READ]);
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  return withAuth(async () => {
-    const { id } = await params;
-    const userId = parseInt(id);
+export async function PUT(req: NextRequest, { params }: Props) {
+  return withAuth(
+    async () => {
+      const { id } = await params;
+      const data = UpdateUserSchema.parse(await req.json());
 
-    const data = await request.json();
+      const user = await UserService.updateUser(Number(id), data);
 
-    const currentUserRoles: number[] = data.userRoles || [];
-
-    // 1. Validate Roles.
-    if (currentUserRoles.length > 0) {
-      const roles = await prisma.role.findMany({
-        where: {
-          id: {
-            in: currentUserRoles,
-          },
-        },
+      return formatResponse({
+        data: serializeUser(user),
+        message: "User updated successfully",
       });
-
-      if (roles.length !== currentUserRoles.length) {
-        throw new BadRequestError("Invalid role(s) provided");
-      }
-    }
-
-    // Transaction
-    const updatedUser = await prisma.$transaction(async (tx) => {
-      // Update User
-      const user = await tx.user.update({
-        where: { id: userId },
-        data: {
-          name: data.name,
-          email: data.email,
-          mobile: data.mobile,
-
-          ...(data.password && {
-            password: await bcrypt.hash(data.password, 10),
-          }),
-        },
-      });
-
-      // Replace Roles
-
-      // remove old roles.
-      await tx.userRole.deleteMany({
-        where: { userId },
-      });
-
-      // Insert new Role
-      if (currentUserRoles.length > 0) {
-        await tx.userRole.createMany({
-          data: currentUserRoles.map((roleId) => ({
-            userId,
-            roleId,
-          })),
-          skipDuplicates: true,
-        });
-      }
-
-      return user;
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...safeUser } = updatedUser;
-    return formatResponse({ data: safeUser, message: "" });
-  }, [PERMISSIONS.USER_UPDATE]);
+    },
+    [PERMISSIONS.USER_UPDATE],
+  );
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  return withAuth(async () => {
-    const { id } = await params;
-    await prisma.user.update({
-      where: { id: parseInt(id) },
-      data: { isDeleted: true },
-    });
-    return formatResponse({ data: null });
-  }, [PERMISSIONS.USER_DELETE]);
+// Activate / deactivate — a login switch, not a delete.
+export async function PATCH(req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: actorId }) => {
+      const { id } = await params;
+      const { isActive } = SetUserActiveSchema.parse(await req.json());
+
+      const user = await UserService.setUserActive(
+        Number(id),
+        isActive,
+        Number(actorId),
+      );
+
+      return formatResponse({
+        data: serializeUser(user),
+        message: isActive ? "User activated" : "User deactivated",
+      });
+    },
+    [PERMISSIONS.USER_UPDATE],
+  );
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  return withAuth(async () => {
-    const { id } = await params;
-    const data = await request.json();
+export async function DELETE(_req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: actorId }) => {
+      const { id } = await params;
 
-    if (typeof data.isActive === "boolean") {
-      await prisma.user.update({
-        where: { id: parseInt(id) },
-        data: { isActive: data.isActive },
+      await UserService.deleteUser(Number(id), Number(actorId));
+
+      return formatResponse({
+        data: null,
+        message: "User deleted successfully",
       });
-    }
-
-    return formatResponse({ data: null });
-  }, [PERMISSIONS.USER_UPDATE]);
+    },
+    [PERMISSIONS.USER_DELETE],
+  );
 }

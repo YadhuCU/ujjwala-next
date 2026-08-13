@@ -1,44 +1,63 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import { UpdateExpenseSchema } from "@/module/expense/expense.payload.schema";
+import * as ExpenseService from "@/module/expense/expense.service";
+import { serializeExpense } from "@/module/expense/expense.serializer";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_req: NextRequest, { params }: Props) {
+  return withAuth(async ({ id: userId, roles }) => {
     const { id } = await params;
-    const expense = await prisma.expense.findUnique({
-      where: { id: parseInt(id) },
+
+    const expense = await ExpenseService.getExpenseById(Number(id), {
+      userId: Number(userId),
+      roles: roles ?? [],
     });
-    if (!expense) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    return NextResponse.json(expense);
+
+    return formatResponse({ data: serializeExpense(expense) });
   }, [PERMISSIONS.EXPENSE_READ]);
 }
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    try {
+export async function PUT(req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: userId, roles }) => {
       const { id } = await params;
-      const data = await request.json();
-      const expense = await prisma.expense.update({
-        where: { id: parseInt(id) },
-        data: {
-          expense: data.expense,
-          date: data.date ? new Date(data.date) : undefined,
-          amount: data.amount != null ? Number(data.amount) : undefined,
-        },
+      const data = UpdateExpenseSchema.parse(await req.json());
+
+      const expense = await ExpenseService.updateExpense(Number(id), data, {
+        userId: Number(userId),
+        roles: roles ?? [],
       });
-      return NextResponse.json(expense);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to update";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  },[PERMISSIONS.EXPENSE_UPDATE]);
+
+      return formatResponse({
+        data: serializeExpense(expense),
+        message: "Expense updated successfully",
+      });
+    },
+    [PERMISSIONS.EXPENSE_UPDATE],
+  );
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    const { id } = await params;
-    await prisma.expense.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
-    return NextResponse.json({ success: true });
-  },[PERMISSIONS.EXPENSE_DELETE]);
+export async function DELETE(_req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: userId, roles }) => {
+      const { id } = await params;
+
+      await ExpenseService.deleteExpense(Number(id), {
+        userId: Number(userId),
+        roles: roles ?? [],
+      });
+
+      return formatResponse({
+        data: null,
+        message: "Expense deleted successfully",
+      });
+    },
+    [PERMISSIONS.EXPENSE_DELETE],
+  );
 }

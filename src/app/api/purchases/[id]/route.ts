@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
 import * as PurchaseService from "@/module/purchase/purchase.service";
@@ -46,12 +44,14 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return withAuth(async () => {
-    const { id } = await params;
-    const purchaseId = parseInt(id);
+  return withAuth(
+    async ({ id: userId }) => {
+      const { id } = await params;
 
-    await PurchaseService.deletePurchase(purchaseId);
+      await PurchaseService.deletePurchase(Number(id), Number(userId));
 
-    return formatResponse({ message: "Purchase deleted", data: null });
-  }, [PERMISSIONS.PURCHASE_DELETE]);
+      return formatResponse({ message: "Purchase deleted", data: null });
+    },
+    [PERMISSIONS.PURCHASE_DELETE],
+  );
 }

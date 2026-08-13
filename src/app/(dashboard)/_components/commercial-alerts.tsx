@@ -3,11 +3,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import { DashboardData } from "./types";
+import { ROLES } from "@/lib/permissions";
 
 export function CommercialAlerts({ data }: { data: DashboardData }) {
   const { commercialAnalytics, role } = data;
   
-  if (role !== "Owner") return null;
+  if (role !== ROLES.OWNER) return null;
 
   return (
     <div className="space-y-4">
