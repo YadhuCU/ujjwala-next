@@ -25,7 +25,7 @@ export const CustomerTxnInfo = ({ customerId }: CustomerTxnInfoProps) => {
   } = useQuery({
     ...customerTxnOptions(String(customerId)),
     enabled: !!customerId,
-    select: (res) => res.data.data,
+    select: (res) => res.data,
   });
 
   if (!customerId) return null;

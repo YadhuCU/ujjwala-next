@@ -7,12 +7,16 @@ import { CustomerResponse } from "@/module/customer/customer.serializer";
 import { LocationResponse } from "@/module/location/location.serializer";
 import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
 import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
-import { CustomerTxnSummaryResponse } from "@/module/customer-txn/customer-txn.service";
+import {
+  CustomerSummaryResponse,
+  LedgerEntryResponse,
+} from "@/module/customer-txn/customer-txn.serializer";
 import { ArbSaleResponse } from "@/module/arb-sale/arb-sale.serializer";
 import { CommercialSaleResponse } from "@/module/commercial-sale/commercial-sale.serializer";
 import { ExpenseResponse } from "@/module/expense/expense.serializer";
 import { UserResponse } from "@/module/user/user.serializer";
 import { StockResponse } from "@/module/stock/stock.serializer";
+import { StockAdjustmentResponse } from "@/module/stock-adjustment/stock-adjustment.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
@@ -109,6 +113,10 @@ export const api = {
     apiClient
       .get<ApiResponse<PurchaseResponse[]>>("/api/purchases")
       .then((r) => r.data),
+  getStockAdjustments: () =>
+    apiClient
+      .get<ApiResponse<StockAdjustmentResponse[]>>("/api/stock-adjustments")
+      .then((r) => r.data),
   getRoles: () =>
     apiClient.get<ApiResponse<Role[]>>("/api/roles").then((r) => r.data),
 
@@ -117,8 +125,22 @@ export const api = {
     apiClient.get<ApiResponse<T>>(`/api/${resource}/${id}`).then((r) => r.data),
 
   // ─── Custom GET endpoints ───────────────────────────────
-    getCustomerTxnSummary: (customerId: string) =>
-      apiClient.get<ApiResponse<CustomerTxnSummaryResponse>>(`/api/customer-txn/${customerId}/balance/`),
+  getCustomerTxnSummary: (customerId: string) =>
+    apiClient
+      .get<
+        ApiResponse<CustomerSummaryResponse>
+      >(`/api/customer-txn/${customerId}/balance`)
+      .then((r) => r.data),
+
+  getCustomerTransactions: (
+    customerId: string,
+    params?: { entryType?: string; page?: number; limit?: number },
+  ) =>
+    apiClient
+      .get<
+        ApiResponse<LedgerEntryResponse[]>
+      >(`/api/customer-txn/${customerId}/transactions`, { params })
+      .then((r) => r.data),
 
   getDashboard: (from?: string, to?: string) => {
     const params = new URLSearchParams();

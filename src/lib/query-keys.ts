@@ -34,6 +34,13 @@ export const queryKeys = {
   customerTxn: {
     all: ["customer-txn"] as const,
     detail: (custId: string) => ["customer-txn", custId] as const,
+    transactions: (custId: string, params?: object) =>
+      ["customer-txn", custId, "transactions", params] as const,
+  },
+  stockAdjustments: {
+    all: ["stock-adjustments"] as const,
+    lists: () => ["stock-adjustments"] as const,
+    detail: (id: string) => ["stock-adjustments", id] as const,
   },
   stocks: {
     all: ["stocks"] as const,

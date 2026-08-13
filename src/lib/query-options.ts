@@ -31,6 +31,17 @@ export const customerTxnOptions = (custId: string) =>
   queryOptions({
     queryKey: queryKeys.customerTxn.detail(custId),
     queryFn: () => api.getCustomerTxnSummary(custId),
+    select: (res) => res.data,
+    enabled: !!custId,
+  });
+
+export const customerTransactionsOptions = (
+  custId: string,
+  params: { entryType?: string; page?: number; limit?: number } = {},
+) =>
+  queryOptions({
+    queryKey: queryKeys.customerTxn.transactions(custId, params),
+    queryFn: () => api.getCustomerTransactions(custId, params),
     enabled: !!custId,
   });
 
@@ -83,6 +94,12 @@ export const vendorsOptions = queryOptions({
 export const purchasesOptions = queryOptions({
   queryKey: queryKeys.purchases.lists(),
   queryFn: api.getPurchases,
+  select: (res) => res.data,
+});
+
+export const stockAdjustmentsOptions = queryOptions({
+  queryKey: queryKeys.stockAdjustments.lists(),
+  queryFn: api.getStockAdjustments,
   select: (res) => res.data,
 });
 

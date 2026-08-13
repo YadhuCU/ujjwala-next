@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, ReceiptText, Trash2 } from "lucide-react";
 import { useCustomers, useDeleteMutation } from "@/hooks/use-api";
 import { DeleteAlert } from "@/components/delete-alert";
 import { queryKeys } from "@/lib/query-keys";
@@ -44,6 +44,19 @@ export function CustomerViewComponent() {
     },
     { accessorKey: "phone", header: "Phone" },
   ];
+
+  // The ledger view is read-only, so it is gated on read permission
+  columns.push({
+    id: "transactions",
+    header: "Ledger",
+    cell: ({ row }) => (
+      <Button variant="ghost" size="icon" asChild title="Transactions">
+        <Link href={`/customer-txn/${row.original.id}`}>
+          <ReceiptText className="w-4 h-4" />
+        </Link>
+      </Button>
+    ),
+  });
 
   if (customerDeletePermission || customerUpdatePermission) {
     columns.push({

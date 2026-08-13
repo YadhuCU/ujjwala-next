@@ -21,8 +21,21 @@ npm run lint
 ```
 
 ```bash
+npm test
+```
+
+```bash
 npx prisma migrate dev
 ```
+
+Tests are vitest, colocated as `src/**/*.test.ts`, and cover what runs without a
+database: payload schemas, serializers, pure rules and the report exporters.
+Service-level tests (the ledger invariants, void-and-repost round-trips) still
+need a test database and are not written yet.
+
+A fresh database is `npx prisma migrate deploy` then `npx prisma db seed`.
+`prisma/migrations/0_init` is the baseline; the seed's passwords are dev
+defaults and must not be used in production.
 
 Prisma client is generated into `src/generated/client` (enums re-exported from
 `src/generated/enums`) — import from there, never from `@prisma/client`.
@@ -52,16 +65,16 @@ Modules are being reworked one at a time onto the layout described below.
 | dom-sale | done | done |
 | arb-sale | done (reference module) | done |
 | commercial-sale | done | done |
-| customer-txn | done | **pending** (no page yet — balance/history/payment UI) |
+| customer-txn | done | done (`/customer-txn/[id]`, linked from the customer list) |
 | expense | done | done |
-| stock-adjustment | done | **pending** (no page yet) |
+| stock-adjustment | done | done (`/stock-adjustments`, create + log only) |
 | report, dashboard | done | done (pages are pre-refactor but working) |
 | stock | done | done |
 | users | done | done |
 
-Every module is now on the layout below. What is left is UI-only: a customer-txn
-page (balance / ledger history / record + reverse payment) and a stock-adjustment
-page — both already have complete APIs behind them.
+Every module is now on the layout below, server and client. What remains is
+polish: the report and dashboard *pages* predate the conventions (filters and
+fetching inline, ad-hoc types), and service-level tests need a test database.
 
 The legacy `Sale` / `Collection` / `RentProduct` / `RentTransaction` models are gone
 from the schema, and the code that used them has been deleted: `api/sales/**`,

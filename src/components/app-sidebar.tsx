@@ -37,6 +37,8 @@ import {
   Flame,
   Truck,
   ShoppingBag,
+  SlidersHorizontal,
+  type LucideIcon,
 } from "lucide-react";
 import { Permission, PERMISSIONS } from "@/lib/permissions";
 
@@ -44,7 +46,7 @@ type NavItem = {
   title: string;
   href: string;
   requiredPermissions?: Permission[];
-  icon?: any;
+  icon?: LucideIcon;
   sub?: NavItem[];
 };
 
@@ -83,6 +85,12 @@ const sidebarMenu: NavItem[] = [
     title: "Stock",
     href: "/stock",
     icon: BarChart3,
+    requiredPermissions: [PERMISSIONS.STOCK_READ],
+  },
+  {
+    title: "Stock Adjustment",
+    href: "/stock-adjustments",
+    icon: SlidersHorizontal,
     requiredPermissions: [PERMISSIONS.STOCK_READ],
   },
   {
@@ -186,6 +194,9 @@ function NavbarItemComponent({
     return null;
   }
 
+  // Sub-links carry no icon
+  const Icon = props.icon;
+
   return (
     <SidebarMenuItem key={href}>
       <SidebarMenuButton
@@ -194,7 +205,7 @@ function NavbarItemComponent({
         className="data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
       >
         <Link href={href}>
-          <props.icon className="w-4 h-4" />
+          {Icon && <Icon className="w-4 h-4" />}
           <span>{title}</span>
         </Link>
       </SidebarMenuButton>
