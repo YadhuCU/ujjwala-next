@@ -39,6 +39,7 @@ import {
   ShoppingBag,
   SlidersHorizontal,
   type LucideIcon,
+  Warehouse,
 } from "lucide-react";
 import { Permission, PERMISSIONS } from "@/lib/permissions";
 
@@ -85,6 +86,12 @@ const sidebarMenu: NavItem[] = [
     title: "Stock",
     href: "/stock",
     icon: BarChart3,
+    requiredPermissions: [PERMISSIONS.STOCK_READ],
+  },
+  {
+    title: "Godown",
+    href: "/godown",
+    icon: Warehouse,
     requiredPermissions: [PERMISSIONS.STOCK_READ],
   },
   {

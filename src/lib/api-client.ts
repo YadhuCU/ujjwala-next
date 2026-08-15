@@ -17,6 +17,8 @@ import { ExpenseResponse } from "@/module/expense/expense.serializer";
 import { UserResponse } from "@/module/user/user.serializer";
 import { StockResponse } from "@/module/stock/stock.serializer";
 import { StockAdjustmentResponse } from "@/module/stock-adjustment/stock-adjustment.serializer";
+import { GodownStatusResponse } from "@/module/godown/godown.service";
+import { MovementResponse } from "@/module/godown/godown.serializer";
 import {
   ExpenseReportResponse,
   PurchaseReportResponse,
@@ -119,6 +121,23 @@ export const api = {
     apiClient
       .get<ApiResponse<PurchaseResponse[]>>("/api/purchases")
       .then((r) => r.data),
+  getGodownStatus: () =>
+    apiClient
+      .get<ApiResponse<GodownStatusResponse>>("/api/godown")
+      .then((r) => r.data),
+
+  getGodownMovements: (params?: {
+    productId?: number;
+    txnType?: string;
+    page?: number;
+    limit?: number;
+  }) =>
+    apiClient
+      .get<
+        ApiResponse<MovementResponse[]>
+      >("/api/godown/movements", { params })
+      .then((r) => r.data),
+
   getStockAdjustments: () =>
     apiClient
       .get<ApiResponse<StockAdjustmentResponse[]>>("/api/stock-adjustments")

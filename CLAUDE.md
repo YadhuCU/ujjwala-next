@@ -309,6 +309,12 @@ is no `session.user.role` — compare against `ROLES`, never a string literal.
   the godown cache, and never updated or deleted — post a correcting adjustment
   instead. `writeStockAdjustment(tx, …)` is exported so other modules post
   adjustments inside their own transaction rather than writing ledger rows by hand.
+- **Godown** — read-only view at `/godown` over `GodownInventory` plus the
+  `CylinderTransaction` ledger: filled and empty per product, how many are with
+  customers, and every movement behind them. It re-derives each product's totals
+  from the ledger and flags any row where the cache disagrees, so the invariant
+  is visible in the UI rather than only in the tests. Non-cylinder products are
+  excluded — their godown row would always read zero.
 - **Stock** — batches normally come from a purchase and are read-only here
   (`isManual: false` in the response; the UI links back to the purchase). A manual
   batch is allowed for opening stock, and because nothing else would tell the

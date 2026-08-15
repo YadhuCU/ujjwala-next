@@ -97,6 +97,21 @@ export const purchasesOptions = queryOptions({
   select: (res) => res.data,
 });
 
+export const godownStatusOptions = queryOptions({
+  queryKey: queryKeys.godown.status(),
+  queryFn: api.getGodownStatus,
+  select: (res) => res.data,
+});
+
+export const godownMovementsOptions = (
+  params: { productId?: number; txnType?: string; limit?: number } = {},
+) =>
+  queryOptions({
+    queryKey: queryKeys.godown.movements(params),
+    queryFn: () => api.getGodownMovements(params),
+    select: (res) => res.data,
+  });
+
 export const stockAdjustmentsOptions = queryOptions({
   queryKey: queryKeys.stockAdjustments.lists(),
   queryFn: api.getStockAdjustments,
