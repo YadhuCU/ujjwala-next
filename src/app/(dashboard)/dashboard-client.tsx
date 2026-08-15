@@ -13,6 +13,7 @@ import { ProductBreakdown } from "./_components/product-breakdown";
 import { InventoryAndTransactions } from "./_components/inventory-txns";
 import { CommercialAlerts } from "./_components/commercial-alerts";
 import { QuickActions } from "./_components/quick-actions";
+import { GodownPreview } from "./_components/godown-preview";
 import { ROLES } from "@/lib/permissions";
 
 export default function DashboardPage() {
@@ -76,6 +77,9 @@ export default function DashboardPage() {
           onDateRangeChange={setDateRange}
         />
       </div>
+
+      {/* Cylinder position first — it is the question the agency asks most */}
+      <GodownPreview />
 
       <QuickActions />
 

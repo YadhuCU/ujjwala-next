@@ -19,8 +19,9 @@ partly true.
       — low-stock table + `commercialAnalytics` (cylinders out, high balances)
 - [x] Dashboard | Add Customer information about pending amount, cylinder
 - [x] Dashboard | Sale Trend
-- [ ] Dashboard | Move Stock information to Top
-      — stock sits fifth, under KPIs / trend / product breakdown
+- [x] Dashboard | Move Stock information to Top
+      — the dashboard now opens with a godown panel: filled, empty, out with
+      customers, and the busiest products, above everything else
 - [ ] Dashboard | Change Revenue name to Sale
       — still "Total Revenue", "Revenue & Profit Trend", "Revenue by Product"
 - [x] Product | Add Product type ARB, Domestic, Commercial and Other (Dropdown)
@@ -79,13 +80,13 @@ Office User Type Changes,
 
 ## Summary
 
-22 done, 13 outstanding. Everything outstanding is a **feature or UI-polish
+23 done, 12 outstanding. Everything outstanding is a **feature or UI-polish
 request** — none of it is refactor debt, and none of it blocks a production
 cutover. The clusters worth deciding on:
 
-1. **Dashboard rework** (10 items) — rename Revenue → Sale, reorder stock to the
-   top, drop Recent Transactions, add expense/profit pies, per-card export,
-   cash/cheque split, and finish the per-role card rules.
+1. **Dashboard rework** (9 items) — rename Revenue → Sale, drop Recent
+   Transactions, add expense/profit pies, per-card export, cash/cheque split,
+   and a today-scoped stock card.
 2. **Role-based field rules** (2 items) — hide discount from sales users and
    lock the report date range for them.
 3. **Two new reports** — customer-wise and customer outstanding/dues.

@@ -152,8 +152,9 @@ Product, filled −1, reason "Physical count short by one".
 ### Step 12 — Reports and dashboard
 
 `/reports/dom-sale` → set the date range → **Search** → **Export**
-(Excel or PDF). Then the dashboard: revenue, profit, collections, trend,
-low-stock, customers holding cylinders too long.
+(Excel or PDF). Then the dashboard, which opens with the same godown position
+you showed in step 4 — cylinders first, money second — followed by revenue,
+profit, collections, the trend, and the customers worth chasing.
 
 > Say: every report scopes to who is asking. An owner sees the whole agency; a
 > staff member sees only their own paperwork.
@@ -167,7 +168,7 @@ fewer options — no reports, no purchases, no edit or delete.
 
 | Area | Where | What it does |
 |---|---|---|
-| Dashboard | `/` | Revenue, profit, expenses, collections, daily trend, revenue by product, low stock, customers holding cylinders or debt too long |
+| Dashboard | `/` | Opens with the godown position — filled, empty, out with customers — then revenue, profit, expenses, collections, daily trend, revenue by product, low stock, and customers holding cylinders or debt too long |
 | Godown | `/godown` | Filled/empty per product, cylinders with customers, full movement ledger, cache-vs-ledger check |
 | Stock | `/stock` | Batches on hand; manual batches for opening stock (posts an adjustment) |
 | Stock adjustments | `/stock-adjustments` | Manual corrections with a mandatory reason; append-only log |
