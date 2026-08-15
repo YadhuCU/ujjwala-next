@@ -21,7 +21,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
       icon: IndianRupee,
       gradient: "from-blue-600 to-indigo-700",
       shadow: "shadow-blue-500/20",
-      staffVisible: true,
+      staffVisible: false,
     },
     {
       title: "Net Profit",

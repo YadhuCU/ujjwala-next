@@ -146,9 +146,11 @@ export async function getDashboard(
       where: { isDeleted: false, date: range, ...scope },
       select: { amount: true, date: true },
     }),
-    // Collections = every credit on the money ledger, invoice-linked or not
+    // Collections = every credit on the money ledger, invoice-linked or not.
+    // Scoped like the sales above: staff see what they collected, not the
+    // agency's whole intake.
     prisma.customerPaymentLedger.findMany({
-      where: { entryType: LedgerEntryType.PAYMENT, createdAt: range },
+      where: { entryType: LedgerEntryType.PAYMENT, createdAt: range, ...scope },
       select: { amount: true, createdAt: true },
     }),
     prisma.customer.count({ where: { isDeleted: false } }),

@@ -9,10 +9,9 @@ partly true.
 - [x] User Type | Add New Usertype - Sales, total - Owner, Office, Sales
       — seeded as `OWNER` / `OFFICE_STAFF` / `FIELD_STAFF`
 - [x] Commercial Sale | Payment Type - Cash, Cheque
-- [ ] ARB Product | New Sale Type (All Usertype)
-      — the ARB module is complete, but **`FIELD_STAFF` has no sale-create
-      permission at all** (not ARB, domestic or commercial), so the "Sales" user
-      type cannot record any sale. Seed decision to confirm.
+- [x] ARB Product | New Sale Type (All Usertype)
+      — `FIELD_STAFF` now has create on all three sale types (read-own only,
+      no update or delete), plus the product and stock reads a sale form needs
 - [ ] Dashboard | Add Check & Cash Details in Collection Card
       — collections is one total; the ledger has `paymentType`, so the split is
       available but not surfaced
@@ -49,9 +48,10 @@ Owner User Type Changes,
 - [ ] Dashboard | Export Every Card — no export anywhere on the dashboard
 
 Office User Type Changes,
-- [ ] Dashboard | Remove Reveneu Card, Net Profit
-      — Net Profit is hidden from staff, **Total Revenue is still shown**
-- [ ] Dashboard | Remove Reveneu & Profit Card — same as above
+- [x] Dashboard | Remove Reveneu Card, Net Profit
+      — both hidden from non-owners; Collections is now scoped to what that
+      user collected, so the card they keep shows their own figure
+- [x] Dashboard | Remove Reveneu & Profit Card — same as above
 - [x] Dashboard | Remove Revenue by Product Card — hidden for non-owners
 - [ ] Dashboard | Pie chart Expence, and Sale — not built
 - [x] Dashboard | Pie chart Sale by Proeduct. — revenue-by-product pie (owner only)
@@ -79,15 +79,14 @@ Office User Type Changes,
 
 ## Summary
 
-19 done, 16 outstanding. Everything outstanding is a **feature or UI-polish
+22 done, 13 outstanding. Everything outstanding is a **feature or UI-polish
 request** — none of it is refactor debt, and none of it blocks a production
 cutover. The clusters worth deciding on:
 
 1. **Dashboard rework** (10 items) — rename Revenue → Sale, reorder stock to the
    top, drop Recent Transactions, add expense/profit pies, per-card export,
    cash/cheque split, and finish the per-role card rules.
-2. **Role-based field rules** (3 items) — hide discount from sales users, lock
-   the report date range for them, and decide whether `FIELD_STAFF` should be
-   able to create sales at all.
+2. **Role-based field rules** (2 items) — hide discount from sales users and
+   lock the report date range for them.
 3. **Two new reports** — customer-wise and customer outstanding/dues.
 4. **Product pricing** — drop `Product.salePrice` in favour of the batch price.

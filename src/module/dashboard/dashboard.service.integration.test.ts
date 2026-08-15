@@ -113,6 +113,28 @@ describe("staff scoping", () => {
     expect(forStaff.kpis.domSaleCount).toBe(1);
   });
 
+  // Collections is the one money card staff still see, so it must not show
+  // them the agency's whole intake.
+  it("shows staff only the collections they recorded", async () => {
+    await sell(ownerId, 1000, 1);
+    await CustomerTxnService.recordPayment(
+      customerId,
+      { amount: 500, paymentMethod: PaymentType.CASH, notes: undefined },
+      ownerId,
+    );
+    await CustomerTxnService.recordPayment(
+      customerId,
+      { amount: 200, paymentMethod: PaymentType.CASH, notes: undefined },
+      staffId,
+    );
+
+    const forOwner = await DashboardService.getDashboard(range, owner());
+    const forStaff = await DashboardService.getDashboard(range, staff());
+
+    expect(forOwner.kpis.totalCollections).toBe(700);
+    expect(forStaff.kpis.totalCollections).toBe(200);
+  });
+
   it("reports the role back to the client", async () => {
     const forOwner = await DashboardService.getDashboard(range, owner());
     const forStaff = await DashboardService.getDashboard(range, staff());

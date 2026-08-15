@@ -75,15 +75,24 @@ const ROLE_PERMISSIONS = {
     PERMISSIONS.EXPENSE_READ,
     PERMISSIONS.EXPENSE_READ_OWN,
 
-    // Sales
+    // Sales — field staff record sales in the field, so they create as well
+    // as read. They still only ever see their own (READ_OWN), and they cannot
+    // update or delete a posted sale; a correction goes through the office.
+    PERMISSIONS.COMMERCIAL_SALE_CREATE,
     PERMISSIONS.COMMERCIAL_SALE_READ,
     PERMISSIONS.COMMERCIAL_SALE_READ_OWN,
 
+    PERMISSIONS.DOMESTIC_SALE_CREATE,
     PERMISSIONS.DOMESTIC_SALE_READ,
     PERMISSIONS.DOMESTIC_SALE_READ_OWN,
 
+    PERMISSIONS.ARB_SALE_CREATE,
     PERMISSIONS.ARB_SALE_READ,
     PERMISSIONS.ARB_SALE_READ_OWN,
+
+    // Selling needs the catalogue and the batches to sell from
+    PERMISSIONS.PRODUCT_READ,
+    PERMISSIONS.STOCK_READ,
 
     // Location
     PERMISSIONS.LOCATION_READ,
