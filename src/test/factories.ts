@@ -17,6 +17,21 @@ export async function makeUser(name = "Test Owner") {
   });
 }
 
+export async function makeRole(name: string) {
+  return prisma.role.create({ data: { name } });
+}
+
+/** A user holding the given roles, for the guards that count owners. */
+export async function makeUserWithRoles(roleIds: number[], name = "Staff") {
+  const user = await makeUser(name);
+
+  await prisma.userRole.createMany({
+    data: roleIds.map((roleId) => ({ userId: user.id, roleId })),
+  });
+
+  return user;
+}
+
 export async function makeProduct(
   type: ProductType = ProductType.DOMESTIC,
   overrides: { name?: string; salePrice?: number } = {},

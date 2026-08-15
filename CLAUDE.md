@@ -36,7 +36,8 @@ Two vitest suites, both colocated with the code:
 
 - `*.test.ts` — no database. Payload schemas, serializers, pure rules, exporters.
 - `*.integration.test.ts` — real Postgres. Services end to end: godown and
-  balance movements, guards, void-and-repost.
+  balance movements, guards, void-and-repost. Every service has one; keep it
+  that way when adding a module.
 
 The integration suite creates and migrates its own database on first run.
 `TEST_DATABASE_URL` overrides it; otherwise `DATABASE_URL` is reused with `_test`
