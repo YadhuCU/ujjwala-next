@@ -3,7 +3,6 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +25,6 @@ import {
 } from "@/components/ui/form";
 import { useStocks, useCustomers } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
-import { customerTxnOptions } from "@/lib/query-options";
 import {
   DomSaleFormSchema,
   DomSaleFormValues,
@@ -76,9 +74,9 @@ export function DomSaleForm({
     name: "items",
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() cannot be memoized; these values are display-only
   const watchedItems = form.watch("items");
 
-  const watchedDiscount = form.watch("discount") || 0;
   const selectedCustomerId = form.watch("customerId");
 
   /**

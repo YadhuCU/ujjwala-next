@@ -21,7 +21,7 @@ export const ProtectedPage = ({ requiredPermission, children }: ProtectedPagePro
     if (!hasPermission(requiredPermission)) {
       router.replace("/403")
     }
-  }, [requiredPermission, hasPermission, router])
+  }, [requiredPermission, hasPermission, router, status])
 
   if (status === "loading") {
     return <LayoutLoader />

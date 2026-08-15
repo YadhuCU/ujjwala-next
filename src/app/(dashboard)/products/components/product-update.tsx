@@ -8,7 +8,6 @@ import { queryKeys } from "@/lib/query-keys";
 import { ProductForm } from "./product-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ProductResponse } from "@/module/product/product.serializer";
-import { ApiResponse } from "@/lib/response";
 
 export default function ProductUpdateComponent() {
   const router = useRouter();

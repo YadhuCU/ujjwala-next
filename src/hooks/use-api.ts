@@ -4,7 +4,6 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { api, apiClient } from "@/lib/api-client";
 import {

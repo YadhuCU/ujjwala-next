@@ -70,9 +70,9 @@ export function ARBSaleForm({
     name: "items",
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() cannot be memoized; these values are display-only
   const watchedItems = form.watch("items");
 
-  const watchedDiscount = form.watch("discount") || 0;
   const selectedCustomerId = form.watch("customerId");
 
   /**

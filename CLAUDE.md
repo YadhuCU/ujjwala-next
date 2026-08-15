@@ -74,7 +74,8 @@ as regressions.
 
 Modules are being reworked one at a time onto the layout described below.
 
-`npm run build` passes and `src/` is free of type errors — keep it that way.
+`npm run build` passes, `src/` is free of type errors, and `npm run lint` is
+clean — keep it that way.
 
 | Module | Server | Client |
 |---|---|---|
@@ -263,8 +264,7 @@ Other module-specific rules:
 
 Roles live on the session as **names** (`OWNER`, `OFFICE_STAFF`, `FIELD_STAFF`) in
 `session.user.roles: string[]`, matching `ROLES` in `src/lib/permissions.ts`. There
-is no `session.user.role`, and the `USER_ROLES` strings in `src/lib/constants.ts`
-("Owner"/"Office"/"Sales") are a dead legacy vocabulary — never compare against them.
+is no `session.user.role` — compare against `ROLES`, never a string literal.
 - **Customer** — creation seeds `CustomerInitialCylinderBalance` +
   `CustomerCylinderLedger` per product, an `OPENING` ledger row if
   `initialPendingAmount > 0`, and always a `CustomerBalance` row (even at 0) —

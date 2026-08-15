@@ -7,7 +7,6 @@ import { useApiMutation } from "@/hooks/use-api";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { VendorForm } from "./vendor-form";
-import { ApiResponse } from "@/lib/response";
 import { VendorResponse } from "@/module/vendor/vendor.serializer";
 
 export default function VendorUpdateComponent() {

@@ -77,6 +77,7 @@ export function CommercialSaleForm({
     name: "items",
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() cannot be memoized; these values are display-only
   const watchedItems = form.watch("items");
   const selectedCustomerId = form.watch("customerId");
 
