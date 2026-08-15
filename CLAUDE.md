@@ -70,6 +70,11 @@ Note: `src/app/(dashboard)/commercial-sales/**` and `src/app/api/reports/**` sti
 have pre-existing type errors — they have not been refactored yet. Don't treat them
 as regressions.
 
+CI (`.github/workflows/ci.yml`) runs lint, type-check, both test suites and the
+build on every push and PR, against a Postgres service container. Its last step
+migrates and seeds a *fresh* database, so the production cutover path is proven
+on every run rather than the first time it is needed.
+
 ## Refactor status (branch `refactor-vibe-code`)
 
 Modules are being reworked one at a time onto the layout described below.
