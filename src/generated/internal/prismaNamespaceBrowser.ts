@@ -439,6 +439,7 @@ export const CustomerPaymentLedgerScalarFieldEnum = {
   amount: 'amount',
   refType: 'refType',
   refId: 'refId',
+  voidedEntryId: 'voidedEntryId',
   notes: 'notes',
   createdById: 'createdById',
   createdAt: 'createdAt'

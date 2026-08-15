@@ -157,6 +157,29 @@ describe("reversePayment", () => {
     expect(cached).toBe(summed);
   });
 
+  it("links the reversal to the payment it undoes", async () => {
+    const customer = await CustomerService.createCustomer(
+      customerInput(1000),
+      userId,
+    );
+
+    const { ledgerEntry: payment } = await CustomerTxnService.recordPayment(
+      customer.id,
+      { amount: 400, paymentMethod: PaymentType.CASH, notes: undefined },
+      userId,
+    );
+
+    const { ledgerEntry: reversal } = await CustomerTxnService.reversePayment(
+      customer.id,
+      payment.id,
+      userId,
+    );
+
+    expect(reversal.voidedEntryId).toBe(payment.id);
+  });
+
+  // voidedEntryId is @unique, so a second reversal cannot exist even if the
+  // guard were bypassed.
   it("refuses to reverse the same payment twice", async () => {
     const customer = await CustomerService.createCustomer(
       customerInput(1000),

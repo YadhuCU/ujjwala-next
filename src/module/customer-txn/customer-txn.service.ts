@@ -29,8 +29,8 @@ async function assertCustomerExists(
   return customer;
 }
 
-// A payment can only be reversed once. There is no voidedEntryId column on
-// CustomerPaymentLedger yet, so the reversal is matched on its notes marker.
+// A payment can only be reversed once — `voidedEntryId` is @unique, so the
+// database enforces it too; this check is what turns that into a clean 409.
 async function assertPaymentReversible(
   tx: Prisma.TransactionClient,
   customerId: number,
@@ -42,20 +42,13 @@ async function assertPaymentReversible(
       customerId,
       entryType: LedgerEntryType.PAYMENT,
     },
+    include: { voidedBy: { select: { id: true } } },
   });
 
   if (!payment)
     throw new NotFoundError(`Payment #${paymentId} not found for this customer`);
 
-  const alreadyReversed = await tx.customerPaymentLedger.findFirst({
-    where: {
-      customerId,
-      entryType: LedgerEntryType.ADJUSTMENT,
-      notes: reversalNote(paymentId),
-    },
-  });
-
-  if (alreadyReversed)
+  if (payment.voidedBy.length > 0)
     throw new ConflictError(`Payment #${paymentId} is already reversed`);
 
   return payment;
@@ -208,6 +201,7 @@ export async function reversePayment(
         amount: reversalAmount,
         refType: payment.refType,
         refId: payment.refId,
+        voidedEntryId: paymentId,
         notes: reversalNote(paymentId),
         createdById: userId,
       },

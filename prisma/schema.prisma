@@ -649,6 +649,11 @@ model CustomerPaymentLedger {
   amount      Decimal         @db.Decimal(10, 2)
   refType     RefType         @map("ref_type")
   refId       Int             @map("ref_id")
+  /// If this row reverses a previous entry, point to that entry here.
+  /// An entry can only be reversed once (@unique enforces this).
+  voidedEntryId Int?          @unique @map("voided_entry_id")
+  voidedEntry   CustomerPaymentLedger?  @relation("LedgerVoidChain", fields: [voidedEntryId], references: [id])
+  voidedBy      CustomerPaymentLedger[] @relation("LedgerVoidChain")
   notes       String?
   createdById Int?            @map("created_by_id")
   createdBy   User?           @relation("PaymentsCreatedBy", fields: [createdById], references: [id])

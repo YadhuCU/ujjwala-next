@@ -94,24 +94,61 @@ const ROLE_PERMISSIONS = {
 // USERS
 // =========================================================
 
+/**
+ * Seed passwords come from the environment. Dev falls back to a well-known
+ * value so a fresh checkout just works; production has no fallback and the
+ * seed refuses to run without one, so a real deployment can never end up with
+ * a published password.
+ *
+ *   SEED_OWNER_PASSWORD   SEED_OFFICE_PASSWORD   SEED_FIELD_PASSWORD
+ *
+ * SEED_PASSWORD sets all three at once.
+ */
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+const MIN_PASSWORD_LENGTH = 8;
+
+function seedPassword(envKey: string, devFallback: string): string {
+  const value = process.env[envKey] ?? process.env.SEED_PASSWORD;
+
+  if (!value) {
+    if (IS_PRODUCTION) {
+      throw new Error(
+        `${envKey} (or SEED_PASSWORD) must be set when seeding in production.`,
+      );
+    }
+
+    console.warn(`⚠️  ${envKey} not set — using the development default.`);
+    return devFallback;
+  }
+
+  if (value.length < MIN_PASSWORD_LENGTH) {
+    throw new Error(
+      `${envKey} must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+    );
+  }
+
+  return value;
+}
+
 const USERS = [
   {
     username: "owner",
-    password: "owner123",
+    password: seedPassword("SEED_OWNER_PASSWORD", "owner123"),
     name: "Owner User",
     roles: ["OWNER"],
   },
 
   {
     username: "office",
-    password: "office123",
+    password: seedPassword("SEED_OFFICE_PASSWORD", "office123"),
     name: "Office Staff",
     roles: ["OFFICE_STAFF"],
   },
 
   {
     username: "field",
-    password: "field123",
+    password: seedPassword("SEED_FIELD_PASSWORD", "field123"),
     name: "Field Staff",
     roles: ["FIELD_STAFF"],
   },

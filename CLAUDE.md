@@ -51,8 +51,10 @@ Write integration tests against the invariants, not just the return value:
 directly would start the test in a state that already violates the invariant.
 
 A fresh database is `npx prisma migrate deploy` then `npx prisma db seed`.
-`prisma/migrations/0_init` is the baseline; the seed's passwords are dev
-defaults and must not be used in production.
+`prisma/migrations/0_init` is the baseline. Seed passwords come from
+`SEED_OWNER_PASSWORD` / `SEED_OFFICE_PASSWORD` / `SEED_FIELD_PASSWORD` (or
+`SEED_PASSWORD` for all three); with `NODE_ENV=production` the seed refuses to
+run without them, and in dev it warns and falls back to a known value.
 
 Prisma client is generated into `src/generated/client` (enums re-exported from
 `src/generated/enums`) — import from there, never from `@prisma/client`.
@@ -241,10 +243,8 @@ Other module-specific rules:
   exactly the movement each caused, so dispatches and returns both unwind.
 - **Customer txn** — `GET :id/balance`, `GET :id/transactions`,
   `POST :id/payments`, `DELETE :id/payments/:paymentId`. A payment reversal is an
-  `ADJUSTMENT` row, never a delete. Note: `CustomerPaymentLedger` has no
-  `voidedEntryId` column, so double-reversal is currently blocked by matching the
-  reversal's `notes` marker — add the column (`Int? @unique`) when the schema is
-  next migrated and switch the guard to it.
+  `ADJUSTMENT` row, never a delete, and it carries `voidedEntryId` back to the
+  entry it undoes — `@unique`, so an entry can only ever be reversed once.
 - **Expense** — private to its author; only `OWNER` sees everyone's. The service
   takes an `ExpenseActor { userId, roles }` and both filters lists and gates
   single-record access on it.

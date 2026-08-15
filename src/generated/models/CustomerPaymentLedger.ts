@@ -44,6 +44,7 @@ export type CustomerPaymentLedgerAvgAggregateOutputType = {
   customerId: number | null
   amount: runtime.Decimal | null
   refId: number | null
+  voidedEntryId: number | null
   createdById: number | null
 }
 
@@ -52,6 +53,7 @@ export type CustomerPaymentLedgerSumAggregateOutputType = {
   customerId: number | null
   amount: runtime.Decimal | null
   refId: number | null
+  voidedEntryId: number | null
   createdById: number | null
 }
 
@@ -62,6 +64,7 @@ export type CustomerPaymentLedgerMinAggregateOutputType = {
   amount: runtime.Decimal | null
   refType: $Enums.RefType | null
   refId: number | null
+  voidedEntryId: number | null
   notes: string | null
   createdById: number | null
   createdAt: Date | null
@@ -74,6 +77,7 @@ export type CustomerPaymentLedgerMaxAggregateOutputType = {
   amount: runtime.Decimal | null
   refType: $Enums.RefType | null
   refId: number | null
+  voidedEntryId: number | null
   notes: string | null
   createdById: number | null
   createdAt: Date | null
@@ -86,6 +90,7 @@ export type CustomerPaymentLedgerCountAggregateOutputType = {
   amount: number
   refType: number
   refId: number
+  voidedEntryId: number
   notes: number
   createdById: number
   createdAt: number
@@ -98,6 +103,7 @@ export type CustomerPaymentLedgerAvgAggregateInputType = {
   customerId?: true
   amount?: true
   refId?: true
+  voidedEntryId?: true
   createdById?: true
 }
 
@@ -106,6 +112,7 @@ export type CustomerPaymentLedgerSumAggregateInputType = {
   customerId?: true
   amount?: true
   refId?: true
+  voidedEntryId?: true
   createdById?: true
 }
 
@@ -116,6 +123,7 @@ export type CustomerPaymentLedgerMinAggregateInputType = {
   amount?: true
   refType?: true
   refId?: true
+  voidedEntryId?: true
   notes?: true
   createdById?: true
   createdAt?: true
@@ -128,6 +136,7 @@ export type CustomerPaymentLedgerMaxAggregateInputType = {
   amount?: true
   refType?: true
   refId?: true
+  voidedEntryId?: true
   notes?: true
   createdById?: true
   createdAt?: true
@@ -140,6 +149,7 @@ export type CustomerPaymentLedgerCountAggregateInputType = {
   amount?: true
   refType?: true
   refId?: true
+  voidedEntryId?: true
   notes?: true
   createdById?: true
   createdAt?: true
@@ -239,6 +249,7 @@ export type CustomerPaymentLedgerGroupByOutputType = {
   amount: runtime.Decimal
   refType: $Enums.RefType
   refId: number
+  voidedEntryId: number | null
   notes: string | null
   createdById: number | null
   createdAt: Date
@@ -274,10 +285,13 @@ export type CustomerPaymentLedgerWhereInput = {
   amount?: Prisma.DecimalFilter<"CustomerPaymentLedger"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFilter<"CustomerPaymentLedger"> | $Enums.RefType
   refId?: Prisma.IntFilter<"CustomerPaymentLedger"> | number
+  voidedEntryId?: Prisma.IntNullableFilter<"CustomerPaymentLedger"> | number | null
   notes?: Prisma.StringNullableFilter<"CustomerPaymentLedger"> | string | null
   createdById?: Prisma.IntNullableFilter<"CustomerPaymentLedger"> | number | null
   createdAt?: Prisma.DateTimeFilter<"CustomerPaymentLedger"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
+  voidedEntry?: Prisma.XOR<Prisma.CustomerPaymentLedgerNullableScalarRelationFilter, Prisma.CustomerPaymentLedgerWhereInput> | null
+  voidedBy?: Prisma.CustomerPaymentLedgerListRelationFilter
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
@@ -288,15 +302,19 @@ export type CustomerPaymentLedgerOrderByWithRelationInput = {
   amount?: Prisma.SortOrder
   refType?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  voidedEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
+  voidedEntry?: Prisma.CustomerPaymentLedgerOrderByWithRelationInput
+  voidedBy?: Prisma.CustomerPaymentLedgerOrderByRelationAggregateInput
   createdBy?: Prisma.UserOrderByWithRelationInput
 }
 
 export type CustomerPaymentLedgerWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  voidedEntryId?: number
   AND?: Prisma.CustomerPaymentLedgerWhereInput | Prisma.CustomerPaymentLedgerWhereInput[]
   OR?: Prisma.CustomerPaymentLedgerWhereInput[]
   NOT?: Prisma.CustomerPaymentLedgerWhereInput | Prisma.CustomerPaymentLedgerWhereInput[]
@@ -309,8 +327,10 @@ export type CustomerPaymentLedgerWhereUniqueInput = Prisma.AtLeast<{
   createdById?: Prisma.IntNullableFilter<"CustomerPaymentLedger"> | number | null
   createdAt?: Prisma.DateTimeFilter<"CustomerPaymentLedger"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
+  voidedEntry?: Prisma.XOR<Prisma.CustomerPaymentLedgerNullableScalarRelationFilter, Prisma.CustomerPaymentLedgerWhereInput> | null
+  voidedBy?: Prisma.CustomerPaymentLedgerListRelationFilter
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id">
+}, "id" | "voidedEntryId">
 
 export type CustomerPaymentLedgerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -319,6 +339,7 @@ export type CustomerPaymentLedgerOrderByWithAggregationInput = {
   amount?: Prisma.SortOrder
   refType?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  voidedEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -339,6 +360,7 @@ export type CustomerPaymentLedgerScalarWhereWithAggregatesInput = {
   amount?: Prisma.DecimalWithAggregatesFilter<"CustomerPaymentLedger"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeWithAggregatesFilter<"CustomerPaymentLedger"> | $Enums.RefType
   refId?: Prisma.IntWithAggregatesFilter<"CustomerPaymentLedger"> | number
+  voidedEntryId?: Prisma.IntNullableWithAggregatesFilter<"CustomerPaymentLedger"> | number | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"CustomerPaymentLedger"> | string | null
   createdById?: Prisma.IntNullableWithAggregatesFilter<"CustomerPaymentLedger"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerPaymentLedger"> | Date | string
@@ -352,6 +374,8 @@ export type CustomerPaymentLedgerCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutCustomerPaymentLedgerInput
+  voidedEntry?: Prisma.CustomerPaymentLedgerCreateNestedOneWithoutVoidedByInput
+  voidedBy?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutVoidedEntryInput
   createdBy?: Prisma.UserCreateNestedOneWithoutPaymentsCreatedInput
 }
 
@@ -362,9 +386,11 @@ export type CustomerPaymentLedgerUncheckedCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   refType: $Enums.RefType
   refId: number
+  voidedEntryId?: number | null
   notes?: string | null
   createdById?: number | null
   createdAt?: Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutVoidedEntryInput
 }
 
 export type CustomerPaymentLedgerUpdateInput = {
@@ -375,6 +401,8 @@ export type CustomerPaymentLedgerUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutCustomerPaymentLedgerNestedInput
+  voidedEntry?: Prisma.CustomerPaymentLedgerUpdateOneWithoutVoidedByNestedInput
+  voidedBy?: Prisma.CustomerPaymentLedgerUpdateManyWithoutVoidedEntryNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutPaymentsCreatedNestedInput
 }
 
@@ -385,9 +413,11 @@ export type CustomerPaymentLedgerUncheckedUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
   refId?: Prisma.IntFieldUpdateOperationsInput | number
+  voidedEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutVoidedEntryNestedInput
 }
 
 export type CustomerPaymentLedgerCreateManyInput = {
@@ -397,6 +427,7 @@ export type CustomerPaymentLedgerCreateManyInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   refType: $Enums.RefType
   refId: number
+  voidedEntryId?: number | null
   notes?: string | null
   createdById?: number | null
   createdAt?: Date | string
@@ -418,6 +449,7 @@ export type CustomerPaymentLedgerUncheckedUpdateManyInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
   refId?: Prisma.IntFieldUpdateOperationsInput | number
+  voidedEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -433,6 +465,11 @@ export type CustomerPaymentLedgerOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type CustomerPaymentLedgerNullableScalarRelationFilter = {
+  is?: Prisma.CustomerPaymentLedgerWhereInput | null
+  isNot?: Prisma.CustomerPaymentLedgerWhereInput | null
+}
+
 export type CustomerPaymentLedgerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
@@ -440,6 +477,7 @@ export type CustomerPaymentLedgerCountOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   refType?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  voidedEntryId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -450,6 +488,7 @@ export type CustomerPaymentLedgerAvgOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  voidedEntryId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
 }
 
@@ -460,6 +499,7 @@ export type CustomerPaymentLedgerMaxOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   refType?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  voidedEntryId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -472,6 +512,7 @@ export type CustomerPaymentLedgerMinOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   refType?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  voidedEntryId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -482,6 +523,7 @@ export type CustomerPaymentLedgerSumOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   refId?: Prisma.SortOrder
+  voidedEntryId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
 }
 
@@ -569,8 +611,66 @@ export type CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerNestedInput =
   deleteMany?: Prisma.CustomerPaymentLedgerScalarWhereInput | Prisma.CustomerPaymentLedgerScalarWhereInput[]
 }
 
+export type CustomerPaymentLedgerCreateNestedOneWithoutVoidedByInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedByInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedByInput>
+  connectOrCreate?: Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedByInput
+  connect?: Prisma.CustomerPaymentLedgerWhereUniqueInput
+}
+
+export type CustomerPaymentLedgerCreateNestedManyWithoutVoidedEntryInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput> | Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput[] | Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput[]
+  connectOrCreate?: Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput[]
+  createMany?: Prisma.CustomerPaymentLedgerCreateManyVoidedEntryInputEnvelope
+  connect?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+}
+
+export type CustomerPaymentLedgerUncheckedCreateNestedManyWithoutVoidedEntryInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput> | Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput[] | Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput[]
+  connectOrCreate?: Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput[]
+  createMany?: Prisma.CustomerPaymentLedgerCreateManyVoidedEntryInputEnvelope
+  connect?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+}
+
 export type EnumLedgerEntryTypeFieldUpdateOperationsInput = {
   set?: $Enums.LedgerEntryType
+}
+
+export type CustomerPaymentLedgerUpdateOneWithoutVoidedByNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedByInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedByInput>
+  connectOrCreate?: Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedByInput
+  upsert?: Prisma.CustomerPaymentLedgerUpsertWithoutVoidedByInput
+  disconnect?: Prisma.CustomerPaymentLedgerWhereInput | boolean
+  delete?: Prisma.CustomerPaymentLedgerWhereInput | boolean
+  connect?: Prisma.CustomerPaymentLedgerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerPaymentLedgerUpdateToOneWithWhereWithoutVoidedByInput, Prisma.CustomerPaymentLedgerUpdateWithoutVoidedByInput>, Prisma.CustomerPaymentLedgerUncheckedUpdateWithoutVoidedByInput>
+}
+
+export type CustomerPaymentLedgerUpdateManyWithoutVoidedEntryNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput> | Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput[] | Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput[]
+  connectOrCreate?: Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput[]
+  upsert?: Prisma.CustomerPaymentLedgerUpsertWithWhereUniqueWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerUpsertWithWhereUniqueWithoutVoidedEntryInput[]
+  createMany?: Prisma.CustomerPaymentLedgerCreateManyVoidedEntryInputEnvelope
+  set?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  delete?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  connect?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  update?: Prisma.CustomerPaymentLedgerUpdateWithWhereUniqueWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerUpdateWithWhereUniqueWithoutVoidedEntryInput[]
+  updateMany?: Prisma.CustomerPaymentLedgerUpdateManyWithWhereWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerUpdateManyWithWhereWithoutVoidedEntryInput[]
+  deleteMany?: Prisma.CustomerPaymentLedgerScalarWhereInput | Prisma.CustomerPaymentLedgerScalarWhereInput[]
+}
+
+export type CustomerPaymentLedgerUncheckedUpdateManyWithoutVoidedEntryNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput> | Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput[] | Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput[]
+  connectOrCreate?: Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput[]
+  upsert?: Prisma.CustomerPaymentLedgerUpsertWithWhereUniqueWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerUpsertWithWhereUniqueWithoutVoidedEntryInput[]
+  createMany?: Prisma.CustomerPaymentLedgerCreateManyVoidedEntryInputEnvelope
+  set?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  delete?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  connect?: Prisma.CustomerPaymentLedgerWhereUniqueInput | Prisma.CustomerPaymentLedgerWhereUniqueInput[]
+  update?: Prisma.CustomerPaymentLedgerUpdateWithWhereUniqueWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerUpdateWithWhereUniqueWithoutVoidedEntryInput[]
+  updateMany?: Prisma.CustomerPaymentLedgerUpdateManyWithWhereWithoutVoidedEntryInput | Prisma.CustomerPaymentLedgerUpdateManyWithWhereWithoutVoidedEntryInput[]
+  deleteMany?: Prisma.CustomerPaymentLedgerScalarWhereInput | Prisma.CustomerPaymentLedgerScalarWhereInput[]
 }
 
 export type CustomerPaymentLedgerCreateWithoutCreatedByInput = {
@@ -581,6 +681,8 @@ export type CustomerPaymentLedgerCreateWithoutCreatedByInput = {
   notes?: string | null
   createdAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutCustomerPaymentLedgerInput
+  voidedEntry?: Prisma.CustomerPaymentLedgerCreateNestedOneWithoutVoidedByInput
+  voidedBy?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutVoidedEntryInput
 }
 
 export type CustomerPaymentLedgerUncheckedCreateWithoutCreatedByInput = {
@@ -590,8 +692,10 @@ export type CustomerPaymentLedgerUncheckedCreateWithoutCreatedByInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   refType: $Enums.RefType
   refId: number
+  voidedEntryId?: number | null
   notes?: string | null
   createdAt?: Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutVoidedEntryInput
 }
 
 export type CustomerPaymentLedgerCreateOrConnectWithoutCreatedByInput = {
@@ -630,6 +734,7 @@ export type CustomerPaymentLedgerScalarWhereInput = {
   amount?: Prisma.DecimalFilter<"CustomerPaymentLedger"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFilter<"CustomerPaymentLedger"> | $Enums.RefType
   refId?: Prisma.IntFilter<"CustomerPaymentLedger"> | number
+  voidedEntryId?: Prisma.IntNullableFilter<"CustomerPaymentLedger"> | number | null
   notes?: Prisma.StringNullableFilter<"CustomerPaymentLedger"> | string | null
   createdById?: Prisma.IntNullableFilter<"CustomerPaymentLedger"> | number | null
   createdAt?: Prisma.DateTimeFilter<"CustomerPaymentLedger"> | Date | string
@@ -642,6 +747,8 @@ export type CustomerPaymentLedgerCreateWithoutCustomerInput = {
   refId: number
   notes?: string | null
   createdAt?: Date | string
+  voidedEntry?: Prisma.CustomerPaymentLedgerCreateNestedOneWithoutVoidedByInput
+  voidedBy?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutVoidedEntryInput
   createdBy?: Prisma.UserCreateNestedOneWithoutPaymentsCreatedInput
 }
 
@@ -651,9 +758,11 @@ export type CustomerPaymentLedgerUncheckedCreateWithoutCustomerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   refType: $Enums.RefType
   refId: number
+  voidedEntryId?: number | null
   notes?: string | null
   createdById?: number | null
   createdAt?: Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutVoidedEntryInput
 }
 
 export type CustomerPaymentLedgerCreateOrConnectWithoutCustomerInput = {
@@ -682,6 +791,123 @@ export type CustomerPaymentLedgerUpdateManyWithWhereWithoutCustomerInput = {
   data: Prisma.XOR<Prisma.CustomerPaymentLedgerUpdateManyMutationInput, Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerInput>
 }
 
+export type CustomerPaymentLedgerCreateWithoutVoidedByInput = {
+  entryType: $Enums.LedgerEntryType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType: $Enums.RefType
+  refId: number
+  notes?: string | null
+  createdAt?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutCustomerPaymentLedgerInput
+  voidedEntry?: Prisma.CustomerPaymentLedgerCreateNestedOneWithoutVoidedByInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutPaymentsCreatedInput
+}
+
+export type CustomerPaymentLedgerUncheckedCreateWithoutVoidedByInput = {
+  id?: number
+  customerId: number
+  entryType: $Enums.LedgerEntryType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType: $Enums.RefType
+  refId: number
+  voidedEntryId?: number | null
+  notes?: string | null
+  createdById?: number | null
+  createdAt?: Date | string
+}
+
+export type CustomerPaymentLedgerCreateOrConnectWithoutVoidedByInput = {
+  where: Prisma.CustomerPaymentLedgerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedByInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedByInput>
+}
+
+export type CustomerPaymentLedgerCreateWithoutVoidedEntryInput = {
+  entryType: $Enums.LedgerEntryType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType: $Enums.RefType
+  refId: number
+  notes?: string | null
+  createdAt?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutCustomerPaymentLedgerInput
+  voidedBy?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutVoidedEntryInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutPaymentsCreatedInput
+}
+
+export type CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput = {
+  id?: number
+  customerId: number
+  entryType: $Enums.LedgerEntryType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType: $Enums.RefType
+  refId: number
+  notes?: string | null
+  createdById?: number | null
+  createdAt?: Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutVoidedEntryInput
+}
+
+export type CustomerPaymentLedgerCreateOrConnectWithoutVoidedEntryInput = {
+  where: Prisma.CustomerPaymentLedgerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput>
+}
+
+export type CustomerPaymentLedgerCreateManyVoidedEntryInputEnvelope = {
+  data: Prisma.CustomerPaymentLedgerCreateManyVoidedEntryInput | Prisma.CustomerPaymentLedgerCreateManyVoidedEntryInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerPaymentLedgerUpsertWithoutVoidedByInput = {
+  update: Prisma.XOR<Prisma.CustomerPaymentLedgerUpdateWithoutVoidedByInput, Prisma.CustomerPaymentLedgerUncheckedUpdateWithoutVoidedByInput>
+  create: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedByInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedByInput>
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+}
+
+export type CustomerPaymentLedgerUpdateToOneWithWhereWithoutVoidedByInput = {
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+  data: Prisma.XOR<Prisma.CustomerPaymentLedgerUpdateWithoutVoidedByInput, Prisma.CustomerPaymentLedgerUncheckedUpdateWithoutVoidedByInput>
+}
+
+export type CustomerPaymentLedgerUpdateWithoutVoidedByInput = {
+  entryType?: Prisma.EnumLedgerEntryTypeFieldUpdateOperationsInput | $Enums.LedgerEntryType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
+  refId?: Prisma.IntFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutCustomerPaymentLedgerNestedInput
+  voidedEntry?: Prisma.CustomerPaymentLedgerUpdateOneWithoutVoidedByNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutPaymentsCreatedNestedInput
+}
+
+export type CustomerPaymentLedgerUncheckedUpdateWithoutVoidedByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  customerId?: Prisma.IntFieldUpdateOperationsInput | number
+  entryType?: Prisma.EnumLedgerEntryTypeFieldUpdateOperationsInput | $Enums.LedgerEntryType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
+  refId?: Prisma.IntFieldUpdateOperationsInput | number
+  voidedEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CustomerPaymentLedgerUpsertWithWhereUniqueWithoutVoidedEntryInput = {
+  where: Prisma.CustomerPaymentLedgerWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerPaymentLedgerUpdateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedUpdateWithoutVoidedEntryInput>
+  create: Prisma.XOR<Prisma.CustomerPaymentLedgerCreateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedCreateWithoutVoidedEntryInput>
+}
+
+export type CustomerPaymentLedgerUpdateWithWhereUniqueWithoutVoidedEntryInput = {
+  where: Prisma.CustomerPaymentLedgerWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerPaymentLedgerUpdateWithoutVoidedEntryInput, Prisma.CustomerPaymentLedgerUncheckedUpdateWithoutVoidedEntryInput>
+}
+
+export type CustomerPaymentLedgerUpdateManyWithWhereWithoutVoidedEntryInput = {
+  where: Prisma.CustomerPaymentLedgerScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerPaymentLedgerUpdateManyMutationInput, Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutVoidedEntryInput>
+}
+
 export type CustomerPaymentLedgerCreateManyCreatedByInput = {
   id?: number
   customerId: number
@@ -689,6 +915,7 @@ export type CustomerPaymentLedgerCreateManyCreatedByInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   refType: $Enums.RefType
   refId: number
+  voidedEntryId?: number | null
   notes?: string | null
   createdAt?: Date | string
 }
@@ -701,6 +928,8 @@ export type CustomerPaymentLedgerUpdateWithoutCreatedByInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutCustomerPaymentLedgerNestedInput
+  voidedEntry?: Prisma.CustomerPaymentLedgerUpdateOneWithoutVoidedByNestedInput
+  voidedBy?: Prisma.CustomerPaymentLedgerUpdateManyWithoutVoidedEntryNestedInput
 }
 
 export type CustomerPaymentLedgerUncheckedUpdateWithoutCreatedByInput = {
@@ -710,8 +939,10 @@ export type CustomerPaymentLedgerUncheckedUpdateWithoutCreatedByInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
   refId?: Prisma.IntFieldUpdateOperationsInput | number
+  voidedEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutVoidedEntryNestedInput
 }
 
 export type CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByInput = {
@@ -721,6 +952,7 @@ export type CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
   refId?: Prisma.IntFieldUpdateOperationsInput | number
+  voidedEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -731,6 +963,7 @@ export type CustomerPaymentLedgerCreateManyCustomerInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   refType: $Enums.RefType
   refId: number
+  voidedEntryId?: number | null
   notes?: string | null
   createdById?: number | null
   createdAt?: Date | string
@@ -743,6 +976,8 @@ export type CustomerPaymentLedgerUpdateWithoutCustomerInput = {
   refId?: Prisma.IntFieldUpdateOperationsInput | number
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voidedEntry?: Prisma.CustomerPaymentLedgerUpdateOneWithoutVoidedByNestedInput
+  voidedBy?: Prisma.CustomerPaymentLedgerUpdateManyWithoutVoidedEntryNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutPaymentsCreatedNestedInput
 }
 
@@ -752,13 +987,65 @@ export type CustomerPaymentLedgerUncheckedUpdateWithoutCustomerInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
   refId?: Prisma.IntFieldUpdateOperationsInput | number
+  voidedEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutVoidedEntryNestedInput
+}
+
+export type CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  entryType?: Prisma.EnumLedgerEntryTypeFieldUpdateOperationsInput | $Enums.LedgerEntryType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
+  refId?: Prisma.IntFieldUpdateOperationsInput | number
+  voidedEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerInput = {
+export type CustomerPaymentLedgerCreateManyVoidedEntryInput = {
+  id?: number
+  customerId: number
+  entryType: $Enums.LedgerEntryType
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType: $Enums.RefType
+  refId: number
+  notes?: string | null
+  createdById?: number | null
+  createdAt?: Date | string
+}
+
+export type CustomerPaymentLedgerUpdateWithoutVoidedEntryInput = {
+  entryType?: Prisma.EnumLedgerEntryTypeFieldUpdateOperationsInput | $Enums.LedgerEntryType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
+  refId?: Prisma.IntFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutCustomerPaymentLedgerNestedInput
+  voidedBy?: Prisma.CustomerPaymentLedgerUpdateManyWithoutVoidedEntryNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutPaymentsCreatedNestedInput
+}
+
+export type CustomerPaymentLedgerUncheckedUpdateWithoutVoidedEntryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  customerId?: Prisma.IntFieldUpdateOperationsInput | number
+  entryType?: Prisma.EnumLedgerEntryTypeFieldUpdateOperationsInput | $Enums.LedgerEntryType
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
+  refId?: Prisma.IntFieldUpdateOperationsInput | number
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voidedBy?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutVoidedEntryNestedInput
+}
+
+export type CustomerPaymentLedgerUncheckedUpdateManyWithoutVoidedEntryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  customerId?: Prisma.IntFieldUpdateOperationsInput | number
   entryType?: Prisma.EnumLedgerEntryTypeFieldUpdateOperationsInput | $Enums.LedgerEntryType
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   refType?: Prisma.EnumRefTypeFieldUpdateOperationsInput | $Enums.RefType
@@ -769,6 +1056,35 @@ export type CustomerPaymentLedgerUncheckedUpdateManyWithoutCustomerInput = {
 }
 
 
+/**
+ * Count Type CustomerPaymentLedgerCountOutputType
+ */
+
+export type CustomerPaymentLedgerCountOutputType = {
+  voidedBy: number
+}
+
+export type CustomerPaymentLedgerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  voidedBy?: boolean | CustomerPaymentLedgerCountOutputTypeCountVoidedByArgs
+}
+
+/**
+ * CustomerPaymentLedgerCountOutputType without action
+ */
+export type CustomerPaymentLedgerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPaymentLedgerCountOutputType
+   */
+  select?: Prisma.CustomerPaymentLedgerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CustomerPaymentLedgerCountOutputType without action
+ */
+export type CustomerPaymentLedgerCountOutputTypeCountVoidedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+}
+
 
 export type CustomerPaymentLedgerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -777,11 +1093,15 @@ export type CustomerPaymentLedgerSelect<ExtArgs extends runtime.Types.Extensions
   amount?: boolean
   refType?: boolean
   refId?: boolean
+  voidedEntryId?: boolean
   notes?: boolean
   createdById?: boolean
   createdAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  voidedEntry?: boolean | Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs>
+  voidedBy?: boolean | Prisma.CustomerPaymentLedger$voidedByArgs<ExtArgs>
   createdBy?: boolean | Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs>
+  _count?: boolean | Prisma.CustomerPaymentLedgerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["customerPaymentLedger"]>
 
 export type CustomerPaymentLedgerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -791,10 +1111,12 @@ export type CustomerPaymentLedgerSelectCreateManyAndReturn<ExtArgs extends runti
   amount?: boolean
   refType?: boolean
   refId?: boolean
+  voidedEntryId?: boolean
   notes?: boolean
   createdById?: boolean
   createdAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  voidedEntry?: boolean | Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs>
   createdBy?: boolean | Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["customerPaymentLedger"]>
 
@@ -805,10 +1127,12 @@ export type CustomerPaymentLedgerSelectUpdateManyAndReturn<ExtArgs extends runti
   amount?: boolean
   refType?: boolean
   refId?: boolean
+  voidedEntryId?: boolean
   notes?: boolean
   createdById?: boolean
   createdAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  voidedEntry?: boolean | Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs>
   createdBy?: boolean | Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs>
 }, ExtArgs["result"]["customerPaymentLedger"]>
 
@@ -819,22 +1143,28 @@ export type CustomerPaymentLedgerSelectScalar = {
   amount?: boolean
   refType?: boolean
   refId?: boolean
+  voidedEntryId?: boolean
   notes?: boolean
   createdById?: boolean
   createdAt?: boolean
 }
 
-export type CustomerPaymentLedgerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "entryType" | "amount" | "refType" | "refId" | "notes" | "createdById" | "createdAt", ExtArgs["result"]["customerPaymentLedger"]>
+export type CustomerPaymentLedgerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "customerId" | "entryType" | "amount" | "refType" | "refId" | "voidedEntryId" | "notes" | "createdById" | "createdAt", ExtArgs["result"]["customerPaymentLedger"]>
 export type CustomerPaymentLedgerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  voidedEntry?: boolean | Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs>
+  voidedBy?: boolean | Prisma.CustomerPaymentLedger$voidedByArgs<ExtArgs>
   createdBy?: boolean | Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs>
+  _count?: boolean | Prisma.CustomerPaymentLedgerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CustomerPaymentLedgerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  voidedEntry?: boolean | Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs>
   createdBy?: boolean | Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs>
 }
 export type CustomerPaymentLedgerIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  voidedEntry?: boolean | Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs>
   createdBy?: boolean | Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs>
 }
 
@@ -842,6 +1172,8 @@ export type $CustomerPaymentLedgerPayload<ExtArgs extends runtime.Types.Extensio
   name: "CustomerPaymentLedger"
   objects: {
     customer: Prisma.$CustomerPayload<ExtArgs>
+    voidedEntry: Prisma.$CustomerPaymentLedgerPayload<ExtArgs> | null
+    voidedBy: Prisma.$CustomerPaymentLedgerPayload<ExtArgs>[]
     createdBy: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -854,6 +1186,11 @@ export type $CustomerPaymentLedgerPayload<ExtArgs extends runtime.Types.Extensio
     amount: runtime.Decimal
     refType: $Enums.RefType
     refId: number
+    /**
+     * If this row reverses a previous entry, point to that entry here.
+     * An entry can only be reversed once (@unique enforces this).
+     */
+    voidedEntryId: number | null
     notes: string | null
     createdById: number | null
     createdAt: Date
@@ -1252,6 +1589,8 @@ readonly fields: CustomerPaymentLedgerFieldRefs;
 export interface Prisma__CustomerPaymentLedgerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   customer<T extends Prisma.CustomerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  voidedEntry<T extends Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerPaymentLedger$voidedEntryArgs<ExtArgs>>): Prisma.Prisma__CustomerPaymentLedgerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentLedgerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  voidedBy<T extends Prisma.CustomerPaymentLedger$voidedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerPaymentLedger$voidedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdBy<T extends Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerPaymentLedger$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1288,6 +1627,7 @@ export interface CustomerPaymentLedgerFieldRefs {
   readonly amount: Prisma.FieldRef<"CustomerPaymentLedger", 'Decimal'>
   readonly refType: Prisma.FieldRef<"CustomerPaymentLedger", 'RefType'>
   readonly refId: Prisma.FieldRef<"CustomerPaymentLedger", 'Int'>
+  readonly voidedEntryId: Prisma.FieldRef<"CustomerPaymentLedger", 'Int'>
   readonly notes: Prisma.FieldRef<"CustomerPaymentLedger", 'String'>
   readonly createdById: Prisma.FieldRef<"CustomerPaymentLedger", 'Int'>
   readonly createdAt: Prisma.FieldRef<"CustomerPaymentLedger", 'DateTime'>
@@ -1689,6 +2029,49 @@ export type CustomerPaymentLedgerDeleteManyArgs<ExtArgs extends runtime.Types.Ex
    * Limit how many CustomerPaymentLedgers to delete.
    */
   limit?: number
+}
+
+/**
+ * CustomerPaymentLedger.voidedEntry
+ */
+export type CustomerPaymentLedger$voidedEntryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPaymentLedger
+   */
+  select?: Prisma.CustomerPaymentLedgerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPaymentLedger
+   */
+  omit?: Prisma.CustomerPaymentLedgerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPaymentLedgerInclude<ExtArgs> | null
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+}
+
+/**
+ * CustomerPaymentLedger.voidedBy
+ */
+export type CustomerPaymentLedger$voidedByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPaymentLedger
+   */
+  select?: Prisma.CustomerPaymentLedgerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPaymentLedger
+   */
+  omit?: Prisma.CustomerPaymentLedgerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPaymentLedgerInclude<ExtArgs> | null
+  where?: Prisma.CustomerPaymentLedgerWhereInput
+  orderBy?: Prisma.CustomerPaymentLedgerOrderByWithRelationInput | Prisma.CustomerPaymentLedgerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerPaymentLedgerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerPaymentLedgerScalarFieldEnum | Prisma.CustomerPaymentLedgerScalarFieldEnum[]
 }
 
 /**
