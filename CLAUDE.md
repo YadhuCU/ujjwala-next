@@ -85,13 +85,12 @@ Modules are being reworked one at a time onto the layout described below.
 | customer-txn | done | done (`/customer-txn/[id]`, linked from the customer list) |
 | expense | done | done |
 | stock-adjustment | done | done (`/stock-adjustments`, create + log only) |
-| report, dashboard | done | done (pages are pre-refactor but working) |
+| report, dashboard | done | done |
 | stock | done | done |
 | users | done | done |
 
-Every module is now on the layout below, server and client. What remains is
-polish: the report and dashboard *pages* predate the conventions (filters and
-fetching inline, ad-hoc types), and service-level tests need a test database.
+Every module is now on the layout below, server and client, and every service
+has an integration test.
 
 The legacy `Sale` / `Collection` / `RentProduct` / `RentTransaction` models are gone
 from the schema, and the code that used them has been deleted: `api/sales/**`,
@@ -256,7 +255,11 @@ Other module-specific rules:
   pages consume that shape directly); every `/export` route renders through
   `report.export.ts`, where `excel` is CSV and `pdf` is tab-separated text.
   Sale-by-product rolls up the three `*SaleItem` tables, since line items — not
-  the invoice headers — carry the product.
+  the invoice headers — carry the product. The report pages share
+  `reports/_components` (filter card, summary tiles, results table, filter
+  state); dom / arb / commercial are one `SaleReportView` differing only by a
+  custody column. The dashboard's client type is the service's own
+  `DashboardResponse`, so the payload has one definition.
 
 Roles live on the session as **names** (`OWNER`, `OFFICE_STAFF`, `FIELD_STAFF`) in
 `session.user.roles: string[]`, matching `ROLES` in `src/lib/permissions.ts`. There

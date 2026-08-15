@@ -17,6 +17,12 @@ import { ExpenseResponse } from "@/module/expense/expense.serializer";
 import { UserResponse } from "@/module/user/user.serializer";
 import { StockResponse } from "@/module/stock/stock.serializer";
 import { StockAdjustmentResponse } from "@/module/stock-adjustment/stock-adjustment.serializer";
+import {
+  ExpenseReportResponse,
+  PurchaseReportResponse,
+  SaleByProductResponse,
+  SaleReportResponse,
+} from "@/module/report/report.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
@@ -166,7 +172,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/expense?${sp.toString()}`)
+      .get<ExpenseReportResponse>(`/api/reports/expense?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -215,7 +221,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/arb-sale?${sp.toString()}`)
+      .get<SaleReportResponse>(`/api/reports/arb-sale?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -266,7 +272,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/commercial-sale?${sp.toString()}`)
+      .get<SaleReportResponse>(`/api/reports/commercial-sale?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -317,7 +323,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/dom-sale?${sp.toString()}`)
+      .get<SaleReportResponse>(`/api/reports/dom-sale?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -366,7 +372,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/purchase?${sp.toString()}`)
+      .get<PurchaseReportResponse>(`/api/reports/purchase?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -411,7 +417,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/sale-by-product?${sp.toString()}`)
+      .get<SaleByProductResponse>(`/api/reports/sale-by-product?${sp.toString()}`)
       .then((r) => r.data);
   },
 

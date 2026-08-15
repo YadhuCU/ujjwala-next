@@ -37,7 +37,6 @@ type DailyBucket = {
   expense: number;
   profit: number;
   collections: number;
-  oldComSales: number;
   domSales: number;
   arbSales: number;
   newComSales: number;
@@ -95,8 +94,6 @@ function emptyTrend(startDate: Date, endDate: Date): Map<string, DailyBucket> {
       expense: 0,
       profit: 0,
       collections: 0,
-      // The legacy Sale model is gone — kept at 0 so the chart series survives
-      oldComSales: 0,
       domSales: 0,
       arbSales: 0,
       newComSales: 0,
@@ -401,8 +398,6 @@ export async function getDashboard(
       totalQtySold,
       customerCount,
       todayRevenue: round2(todayRevenue),
-      // Legacy Sale model removed — always 0, kept for the client's KPI grid
-      oldComSaleCount: 0,
       domSaleCount: domSales.length,
       arbSaleCount: arbSales.length,
       newComSaleCount: comSales.length,

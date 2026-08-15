@@ -3,6 +3,7 @@ import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
 import { SaleReportQuerySchema } from "@/module/report/report.payload.schema";
 import * as ReportService from "@/module/report/report.service";
+import { serializeSaleReportRow } from "@/module/report/report.serializer";
 
 export async function GET(req: NextRequest) {
   return withAuth(async ({ id, roles }) => {
@@ -15,6 +16,9 @@ export async function GET(req: NextRequest) {
       roles: roles ?? [],
     });
 
-    return NextResponse.json(report);
+    return NextResponse.json({
+      ...report,
+      data: report.data.map(serializeSaleReportRow),
+    });
   }, [PERMISSIONS.REPORT_READ]);
 }

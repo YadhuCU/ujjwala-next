@@ -63,8 +63,6 @@ describe("KPIs", () => {
     expect(data.kpis.domSaleCount).toBe(2);
     expect(data.kpis.arbSaleCount).toBe(0);
     expect(data.kpis.newComSaleCount).toBe(0);
-    // The legacy Sale model is gone; the field is kept at 0 for the UI
-    expect(data.kpis.oldComSaleCount).toBe(0);
   });
 
   it("subtracts cost of goods and expenses from profit", async () => {

@@ -107,3 +107,51 @@ export const rolesOptions = queryOptions({
   queryKey: queryKeys.roles.lists(),
   queryFn: api.getRoles,
 });
+
+// ─── Reports ────────────────────────────────────────────────────────────────
+// Every report is fetched only after the user hits Search, so these are always
+// consumed with `enabled`.
+
+export type SaleReportParams = {
+  from: string;
+  to: string;
+  customerId?: string;
+  staffId?: string;
+  page?: number;
+  limit?: number;
+};
+
+export const purchaseReportOptions = (params: {
+  from: string;
+  to: string;
+  vendorId?: string;
+  page?: number;
+  limit?: number;
+}) =>
+  queryOptions({
+    queryKey: queryKeys.purchaseReport.list(params),
+    queryFn: () => api.getPurchaseReport(params),
+  });
+
+export const expenseReportOptions = (params: {
+  from: string;
+  to: string;
+  staffId?: string;
+  page?: number;
+  limit?: number;
+}) =>
+  queryOptions({
+    queryKey: queryKeys.expenseReport.list(params),
+    queryFn: () => api.getExpenseReport(params),
+  });
+
+export const saleByProductReportOptions = (params: {
+  from: string;
+  to: string;
+  page?: number;
+  limit?: number;
+}) =>
+  queryOptions({
+    queryKey: queryKeys.saleByProductReport.list(params),
+    queryFn: () => api.getSaleByProductReport(params),
+  });
