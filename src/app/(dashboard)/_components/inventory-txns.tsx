@@ -101,7 +101,8 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
               </TableHeader>
               <TableBody>
                 {recentTxns.map((t) => (
-                  <TableRow key={t.id}>
+                  // Ids are only unique per sale model, so the type qualifies them
+                  <TableRow key={`${t.type}-${t.id}`}>
                     <TableCell className="font-medium font-mono text-xs">
                       {t.trNo}
                     </TableCell>

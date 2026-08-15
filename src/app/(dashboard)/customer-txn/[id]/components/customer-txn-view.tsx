@@ -8,6 +8,7 @@ import { Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -44,7 +45,7 @@ export function CustomerTxnViewComponent() {
 
   const { data: summary } = useSuspenseQuery(customerTxnOptions(customerId));
 
-  const { data: transactions } = useQuery({
+  const { data: transactions, isLoading: transactionsLoading } = useQuery({
     ...customerTransactionsOptions(customerId, {
       ...(entryType !== ALL && { entryType }),
       limit: 100,
@@ -204,11 +205,22 @@ export function CustomerTxnViewComponent() {
           </div>
         </CardHeader>
         <CardContent>
-          <DataTable
-            columns={columns}
-            data={transactions ?? []}
-            searchPlaceholder="Search transactions..."
-          />
+          {/* Without this the table shows its "no results" empty state while the
+              first page is still loading, which reads as "this customer has no
+              history" */}
+          {transactionsLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <Skeleton key={index} className="h-10 w-full" />
+              ))}
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={transactions ?? []}
+              searchPlaceholder="Search transactions..."
+            />
+          )}
         </CardContent>
       </Card>
 

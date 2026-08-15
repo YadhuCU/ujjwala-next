@@ -36,7 +36,12 @@ export function VendorForm({
 }: VendorFormProps) {
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(VendorFormSchema),
-    defaultValues: defaultValues ?? {},
+    defaultValues: defaultValues ?? {
+      name: "",
+      phone: "",
+      address: "",
+      gstNumber: "",
+    },
   });
 
   return (

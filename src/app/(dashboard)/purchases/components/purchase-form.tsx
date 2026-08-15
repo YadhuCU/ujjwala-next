@@ -57,7 +57,11 @@ export function PurchaseForm({
     resolver: zodResolver(
       PurchaseCreateFormSchema,
     ) as Resolver<PurchaseFormValues>,
-    defaultValues: defaultValues ?? {},
+    defaultValues: defaultValues ?? {
+      invoiceNo: "",
+      notes: "",
+      items: [],
+    },
   });
 
   const { fields, append, remove } = useFieldArray({

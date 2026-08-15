@@ -53,7 +53,16 @@ export function CustomerForm({
 
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(CustomerFormSchema) as Resolver<CustomerFormValues>,
-    defaultValues: defaultValues ?? {},
+    defaultValues: defaultValues ?? {
+      name: "",
+      phone: "",
+      address: "",
+      concernedPerson: "",
+      concernedPersonMobile: "",
+      gstNumber: "",
+      initialPendingAmount: 0,
+      initialCylinderBalances: [],
+    },
   });
 
   const { fields, append, remove } = useFieldArray({

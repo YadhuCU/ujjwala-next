@@ -46,7 +46,10 @@ export function ProductForm({
 }: ProductFormProps) {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema) as Resolver<ProductFormValues>,
-    defaultValues: defaultValues ?? {},
+    defaultValues: defaultValues ?? {
+      name: "",
+      weight: "",
+    },
   });
 
   return (
