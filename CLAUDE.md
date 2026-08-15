@@ -50,6 +50,27 @@ Write integration tests against the invariants, not just the return value:
 `seedGodown`, which posts a real `StockAdjustment` — writing `GodownInventory`
 directly would start the test in a state that already violates the invariant.
 
+Carrying the old production data across (`prisma/scripts/`):
+
+```bash
+LEGACY_DATABASE_URL=… npm run legacy:export   # read-only; writes prisma/data/legacy-export.json
+npm run legacy:import                          # dry run against the new DATABASE_URL
+npm run legacy:import -- --apply
+```
+
+The export forces a read-only session and never writes. It carries master data,
+what each customer owes and what each holds — not transactional history, which
+the append-only ledgers cannot represent faithfully; keep the old database as an
+archive. Anything the new schema cannot hold (negative cylinder custody, custody
+on a deleted product, unknown product types) lands in a `review` block and the
+import refuses to run until it is resolved or explicitly overridden.
+
+The import goes through the services, never raw inserts — that is what makes
+customers arrive with their `OPENING` ledger row and balance cache, products
+with their `GodownInventory` row, and stock batches with the `StockAdjustment`
+that gives the godown a count agreeing with the ledger. It is idempotent:
+anything already present by name is skipped.
+
 A fresh database is `npx prisma migrate deploy` then `npx prisma db seed`.
 `prisma/migrations/0_init` is the baseline. Seed passwords come from
 `SEED_OWNER_PASSWORD` / `SEED_OFFICE_PASSWORD` / `SEED_FIELD_PASSWORD` (or

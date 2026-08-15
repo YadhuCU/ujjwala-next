@@ -11,7 +11,9 @@
     "test": "vitest run --config vitest.config.mts",
     "test:watch": "vitest --config vitest.config.mts",
     "test:integration": "vitest run --config vitest.integration.config.mts",
-    "test:all": "npm run test && npm run test:integration"
+    "test:all": "npm run test && npm run test:integration",
+    "legacy:export": "tsx prisma/scripts/export-legacy-data.ts",
+    "legacy:import": "tsx prisma/scripts/import-legacy-data.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
