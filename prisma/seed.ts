@@ -26,9 +26,10 @@ const ROLE_PERMISSIONS = {
     // Dashboard
     PERMISSIONS.DASHBOARD_READ,
 
-    // Customer
+    // Customer — creating one needs the location dropdown to load
     PERMISSIONS.CUSTOMER_CREATE,
     PERMISSIONS.CUSTOMER_READ,
+    PERMISSIONS.LOCATION_READ,
 
     // Vendor
     PERMISSIONS.VENDOR_READ,
