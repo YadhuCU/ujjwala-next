@@ -33,8 +33,21 @@ when someone asks "how do we know this is right?".
 ```bash
 npx prisma migrate deploy     # build the schema
 npx prisma db seed            # roles, permissions, three users
-npm run dev                   # http://localhost:3000
+npm run build                 # ~60s, do this before the audience arrives
+npm run start                 # http://localhost:3000
 ```
+
+**Demo on the build, not `npm run dev`.** Dev mode compiles each route the
+first time you open it, so every new page stalls for a second or two and the
+first one is worse — live, that reads as a slow app. The production build
+serves HTML in well under 200 ms and prefetches every sidebar link, so
+navigation during the demo is instant. Build once beforehand; `npm run start`
+itself is ready in about a second.
+
+If you are presenting from a laptop other people can see over the network, note
+that `NEXTAUTH_URL` in `.env` is a LAN address (`http://192.168.18.99:3000`). It
+must match the address you actually open in the browser, or sign-in will bounce
+you back to the login page. Change it to match the machine, and rebuild.
 
 Seeded logins (development passwords — production takes them from
 `SEED_PASSWORD`):

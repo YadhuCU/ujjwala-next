@@ -1,6 +1,10 @@
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
+  // The agency runs this itself, on a LAN address rather than a public domain.
+  // Auth.js only trusts the request host automatically in dev, so without this
+  // a production `next start` rejects every sign-in with UntrustedHost.
+  trustHost: true,
   pages: {
     signIn: "/login",
   },
