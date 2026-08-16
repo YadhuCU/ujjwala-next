@@ -20,6 +20,7 @@ import { StockAdjustmentResponse } from "@/module/stock-adjustment/stock-adjustm
 import { GodownStatusResponse } from "@/module/godown/godown.service";
 import { MovementResponse } from "@/module/godown/godown.serializer";
 import { RoleResponse } from "@/module/role/role.serializer";
+import { RbacAuditResponse } from "@/module/role/rbac-audit.serializer";
 import type { PermissionMeta } from "@/lib/permissions";
 
 /** Slim role record for the user form's picker. */
@@ -167,6 +168,11 @@ export const api = {
       .get<
         ApiResponse<RoleOption[]>
       >("/api/roles", { params: { options: true } })
+      .then((r) => r.data),
+
+  getRbacAudit: (params?: object) =>
+    apiClient
+      .get<ApiResponse<RbacAuditResponse[]>>("/api/roles/audit", { params })
       .then((r) => r.data),
 
   getPermissionCatalogue: () =>

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { ROLES } from "@/lib/permissions";
-import { makeRole, makeUserWithRoles } from "@/test/factories";
+import { makeRole, makeUser, makeUserWithRoles } from "@/test/factories";
 import * as UserService from "./user.service";
 
 let ownerRoleId: number;
@@ -11,6 +11,7 @@ let staffRoleId: number;
 beforeEach(async () => {
   // isSystem is what marks the owner role now — a rename must not be able
   // to turn an owner into an ordinary user.
+  adminId = (await makeUser("Admin")).id;
   ownerRoleId = (await makeRole(ROLES.OWNER, true)).id;
   staffRoleId = (await makeRole(ROLES.OFFICE_STAFF)).id;
 });
@@ -43,13 +44,18 @@ describe("createUser", () => {
       UserService.createUser(userInput([9999])),
     ).rejects.toThrow(/Invalid role/);
 
-    expect(await prisma.user.count()).toBe(0);
+    // The whole transaction rolls back — no half-created user left behind.
+    expect(
+      await prisma.user.findUnique({ where: { username: "newuser" } }),
+    ).toBeNull();
   });
 });
 
 // An owner performing the change — the escalation guards need to know who is
-// acting, and these cases are about the other rules.
-const admin = () => ({ userId: 0, isOwner: true });
+// acting, and these cases are about the other rules. A real row, because the
+// audit log records the actor as a foreign key.
+let adminId: number;
+const admin = () => ({ userId: adminId, isOwner: true, name: "Admin" });
 
 describe("updateUser", () => {
   it("keeps the existing hash when no password is supplied", async () => {
@@ -208,8 +214,9 @@ describe("deleteUser", () => {
       search: undefined,
       isActive: undefined,
     });
-    expect(data.map((u) => u.id)).toEqual([actor.id]);
-    expect(meta.total).toBe(1);
+    expect(data.map((u) => u.id)).not.toContain(user.id);
+    expect(data.map((u) => u.id)).toContain(actor.id);
+    expect(meta.total).toBe(data.length);
   });
 });
 

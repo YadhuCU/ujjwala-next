@@ -55,6 +55,7 @@ export const ModelName = {
   UserRole: 'UserRole',
   Role: 'Role',
   Permission: 'Permission',
+  RbacAuditLog: 'RbacAuditLog',
   RolePermission: 'RolePermission',
   Location: 'Location',
   Customer: 'Customer',
@@ -144,6 +145,23 @@ export const PermissionScalarFieldEnum = {
 } as const
 
 export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
+
+
+export const RbacAuditLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  actorId: 'actorId',
+  actorName: 'actorName',
+  roleId: 'roleId',
+  roleName: 'roleName',
+  targetUserId: 'targetUserId',
+  targetUserName: 'targetUserName',
+  added: 'added',
+  removed: 'removed',
+  createdAt: 'createdAt'
+} as const
+
+export type RbacAuditLogScalarFieldEnum = (typeof RbacAuditLogScalarFieldEnum)[keyof typeof RbacAuditLogScalarFieldEnum]
 
 
 export const RolePermissionScalarFieldEnum = {

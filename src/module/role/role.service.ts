@@ -8,6 +8,8 @@ import {
 } from "@/lib/errors";
 import { PERMISSION_REGISTRY, type Permission } from "@/lib/permissions";
 import { invalidateRbac } from "@/lib/rbac";
+import { RbacAuditAction } from "@/generated/client";
+import { diffCodes, writeRbacAudit } from "./rbac-audit.service";
 import type {
   CreateRoleInput,
   RoleQuery,
@@ -36,6 +38,8 @@ export type RoleActor = {
   userId: number;
   permissions: Permission[];
   isOwner: boolean;
+  /** Recorded on the audit entry so it still reads after the account is gone. */
+  name?: string | null;
 };
 
 // =============================================================================
@@ -177,6 +181,14 @@ export async function createRole(input: CreateRoleInput, actor: RoleActor) {
 
     await replaceRolePermissions(tx, role.id, input.permissionCodes);
 
+    await writeRbacAudit(tx, {
+      action: RbacAuditAction.ROLE_CREATED,
+      actor,
+      roleId: role.id,
+      roleName: role.name,
+      added: [...input.permissionCodes].sort(),
+    });
+
     return tx.role.findUniqueOrThrow({
       where: { id: role.id },
       include: roleInclude,
@@ -261,6 +273,8 @@ export async function updateRole(
     assertRoleEditable(existing);
     await assertNameAvailable(tx, input.name, id);
 
+    const before = existing.rolePermissions.map((rp) => rp.permission.code);
+
     await tx.role.update({
       where: { id },
       data: { name: input.name, description: input.description },
@@ -268,6 +282,14 @@ export async function updateRole(
 
     await replaceRolePermissions(tx, id, input.permissionCodes);
     await invalidateHolders(tx, id);
+
+    await writeRbacAudit(tx, {
+      action: RbacAuditAction.ROLE_UPDATED,
+      actor,
+      roleId: id,
+      roleName: input.name,
+      ...diffCodes(before, input.permissionCodes),
+    });
 
     return tx.role.findUniqueOrThrow({ where: { id }, include: roleInclude });
   });
@@ -279,11 +301,21 @@ export async function updateRole(
 // DELETE
 // =============================================================================
 
-export async function deleteRole(id: number) {
+export async function deleteRole(id: number, actor: RoleActor) {
   return prisma.$transaction(async (tx) => {
     const role = await assertRoleExists(tx, id);
     assertRoleEditable(role);
     await assertRoleUnassigned(tx, id, role.name);
+
+    // Written before the delete so the entry describes what was there; the
+    // audit row keeps the name because the role's own row is about to go.
+    await writeRbacAudit(tx, {
+      action: RbacAuditAction.ROLE_DELETED,
+      actor,
+      roleId: id,
+      roleName: role.name,
+      removed: role.rolePermissions.map((rp) => rp.permission.code).sort(),
+    });
 
     await tx.role.delete({ where: { id } });
 

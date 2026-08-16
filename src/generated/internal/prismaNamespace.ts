@@ -388,6 +388,7 @@ export const ModelName = {
   UserRole: 'UserRole',
   Role: 'Role',
   Permission: 'Permission',
+  RbacAuditLog: 'RbacAuditLog',
   RolePermission: 'RolePermission',
   Location: 'Location',
   Customer: 'Customer',
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userRole" | "role" | "permission" | "rolePermission" | "location" | "customer" | "customerInitialCylinderBalance" | "product" | "vendor" | "godownInventory" | "cylinderTransaction" | "stock" | "purchase" | "purchaseItem" | "stockAdjustment" | "domSale" | "domSaleItem" | "arbSale" | "arbSaleItem" | "commercialSale" | "commercialSaleItem" | "expense" | "customerPaymentLedger" | "customerBalance" | "customerCylinderLedger"
+    modelProps: "user" | "userRole" | "role" | "permission" | "rbacAuditLog" | "rolePermission" | "location" | "customer" | "customerInitialCylinderBalance" | "product" | "vendor" | "godownInventory" | "cylinderTransaction" | "stock" | "purchase" | "purchaseItem" | "stockAdjustment" | "domSale" | "domSaleItem" | "arbSale" | "arbSaleItem" | "commercialSale" | "commercialSaleItem" | "expense" | "customerPaymentLedger" | "customerBalance" | "customerCylinderLedger"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -722,6 +723,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PermissionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PermissionCountAggregateOutputType> | number
+        }
+      }
+    }
+    RbacAuditLog: {
+      payload: Prisma.$RbacAuditLogPayload<ExtArgs>
+      fields: Prisma.RbacAuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RbacAuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RbacAuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.RbacAuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RbacAuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.RbacAuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.RbacAuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.RbacAuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RbacAuditLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>[]
+        }
+        delete: {
+          args: Prisma.RbacAuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>
+        }
+        update: {
+          args: Prisma.RbacAuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.RbacAuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RbacAuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RbacAuditLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.RbacAuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RbacAuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.RbacAuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRbacAuditLog>
+        }
+        groupBy: {
+          args: Prisma.RbacAuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RbacAuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RbacAuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RbacAuditLogCountAggregateOutputType> | number
         }
       }
     }
@@ -2443,6 +2518,23 @@ export const PermissionScalarFieldEnum = {
 export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
 
 
+export const RbacAuditLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  actorId: 'actorId',
+  actorName: 'actorName',
+  roleId: 'roleId',
+  roleName: 'roleName',
+  targetUserId: 'targetUserId',
+  targetUserName: 'targetUserName',
+  added: 'added',
+  removed: 'removed',
+  createdAt: 'createdAt'
+} as const
+
+export type RbacAuditLogScalarFieldEnum = (typeof RbacAuditLogScalarFieldEnum)[keyof typeof RbacAuditLogScalarFieldEnum]
+
+
 export const RolePermissionScalarFieldEnum = {
   id: 'id',
   roleId: 'roleId',
@@ -2854,6 +2946,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'RbacAuditAction'
+ */
+export type EnumRbacAuditActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RbacAuditAction'>
+    
+
+
+/**
+ * Reference to a field of type 'RbacAuditAction[]'
+ */
+export type ListEnumRbacAuditActionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RbacAuditAction[]'>
+    
+
+
+/**
  * Reference to a field of type 'Decimal'
  */
 export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -3092,6 +3198,7 @@ export type GlobalOmitConfig = {
   userRole?: Prisma.UserRoleOmit
   role?: Prisma.RoleOmit
   permission?: Prisma.PermissionOmit
+  rbacAuditLog?: Prisma.RbacAuditLogOmit
   rolePermission?: Prisma.RolePermissionOmit
   location?: Prisma.LocationOmit
   customer?: Prisma.CustomerOmit

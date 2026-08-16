@@ -38,6 +38,17 @@ export type Role = Prisma.RoleModel
  */
 export type Permission = Prisma.PermissionModel
 /**
+ * Model RbacAuditLog
+ * Who changed access, and to what. Append-only, like the cylinder and money
+ * ledgers — the point is to answer "why did everyone lose purchases yesterday",
+ * which an editable record cannot.
+ * 
+ * Names are denormalised on purpose: a role's own row is gone by the time
+ * anyone reads the entry describing its deletion, and a foreign key would take
+ * the audit entry with it.
+ */
+export type RbacAuditLog = Prisma.RbacAuditLogModel
+/**
  * Model RolePermission
  * 
  */

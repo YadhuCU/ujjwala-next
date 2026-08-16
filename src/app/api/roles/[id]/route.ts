@@ -18,7 +18,7 @@ export async function GET(_request: Request, { params }: Params) {
 
 export async function PUT(request: Request, { params }: Params) {
   return withAuth(
-    async ({ userId, permissions, isOwner }) => {
+    async ({ userId, permissions, isOwner, name }) => {
       const { id } = await params;
       const data = UpdateRoleSchema.parse(await request.json());
 
@@ -26,6 +26,7 @@ export async function PUT(request: Request, { params }: Params) {
         userId,
         permissions,
         isOwner,
+        name,
       });
 
       return formatResponse({
@@ -39,9 +40,14 @@ export async function PUT(request: Request, { params }: Params) {
 
 export async function DELETE(_request: Request, { params }: Params) {
   return withAuth(
-    async () => {
+    async ({ userId, permissions, isOwner, name }) => {
       const { id } = await params;
-      await RoleService.deleteRole(Number(id));
+      await RoleService.deleteRole(Number(id), {
+        userId,
+        permissions,
+        isOwner,
+        name,
+      });
 
       return formatResponse({ message: "Role deleted successfully", data: null });
     },

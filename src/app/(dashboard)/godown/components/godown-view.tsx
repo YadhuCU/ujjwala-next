@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { AlertTriangle, Cylinder, PackageOpen, Users } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,33 +55,6 @@ export function GodownViewComponent() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
-        <SummaryCard
-          title="Filled in godown"
-          value={totals.filledQty}
-          icon={<Cylinder className="h-4 w-4" />}
-          hint="Ready to sell or dispatch"
-        />
-        <SummaryCard
-          title="Empty in godown"
-          value={totals.emptyQty}
-          icon={<PackageOpen className="h-4 w-4" />}
-          hint="Waiting to go back for refill"
-        />
-        <SummaryCard
-          title="With customers"
-          value={totals.withCustomers}
-          icon={<Users className="h-4 w-4" />}
-          hint="Rented out, expected back"
-        />
-        <SummaryCard
-          title="Total cylinders"
-          value={totals.filledQty + totals.emptyQty + totals.withCustomers}
-          hint="Everything the agency owns"
-          highlight
-        />
-      </div>
-
       {/* The cache is only ever derived from the ledger, so a mismatch means
           something wrote one without the other — worth shouting about. */}
       {totals.outOfSync > 0 && (
@@ -294,35 +267,3 @@ function Delta({ value }: { value: number }) {
   );
 }
 
-function SummaryCard({
-  title,
-  value,
-  hint,
-  icon,
-  highlight,
-}: {
-  title: string;
-  value: number;
-  hint: string;
-  icon?: React.ReactNode;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className={highlight ? "border-primary" : ""}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
-          {icon}
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p
-          className={`text-3xl font-bold tabular-nums ${highlight ? "text-primary" : ""}`}
-        >
-          {value}
-        </p>
-        <p className="text-muted-foreground mt-1 text-xs">{hint}</p>
-      </CardContent>
-    </Card>
-  );
-}

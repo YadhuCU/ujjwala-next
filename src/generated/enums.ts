@@ -72,3 +72,13 @@ export const LedgerEntryType = {
 } as const
 
 export type LedgerEntryType = (typeof LedgerEntryType)[keyof typeof LedgerEntryType]
+
+
+export const RbacAuditAction = {
+  ROLE_CREATED: 'ROLE_CREATED',
+  ROLE_UPDATED: 'ROLE_UPDATED',
+  ROLE_DELETED: 'ROLE_DELETED',
+  USER_ROLES_CHANGED: 'USER_ROLES_CHANGED'
+} as const
+
+export type RbacAuditAction = (typeof RbacAuditAction)[keyof typeof RbacAuditAction]

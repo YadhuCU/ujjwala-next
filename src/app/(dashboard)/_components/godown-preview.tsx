@@ -29,9 +29,9 @@ export function GodownPreview() {
         <CardHeader className="pb-3">
           <Skeleton className="h-5 w-32" />
         </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-20 w-full" />
+        <CardContent className="space-y-2">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-8 w-full" />
           ))}
         </CardContent>
       </Card>
@@ -88,24 +88,6 @@ export function GodownPreview() {
           </Link>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Figure
-            label="Filled, ready to go"
-            value={totals.filledQty}
-            tone="text-emerald-600 dark:text-emerald-400"
-          />
-          <Figure label="Empty, awaiting refill" value={totals.emptyQty} />
-          <Figure
-            label="Out with customers"
-            value={totals.withCustomers}
-            tone={
-              totals.withCustomers > 0
-                ? "text-amber-600 dark:text-amber-400"
-                : undefined
-            }
-          />
-        </div>
-
         {shown.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {rows.length === 0
@@ -147,19 +129,3 @@ export function GodownPreview() {
   );
 }
 
-function Figure({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: number;
-  tone?: string;
-}) {
-  return (
-    <div className="bg-muted/40 rounded p-3">
-      <p className={`text-3xl font-bold tabular-nums ${tone ?? ""}`}>{value}</p>
-      <p className="text-muted-foreground mt-1 text-xs">{label}</p>
-    </div>
-  );
-}

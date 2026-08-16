@@ -1,7 +1,8 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { invalidateRbac } from "@/lib/rbac";
-import { Prisma } from "@/generated/client";
+import { Prisma, RbacAuditAction } from "@/generated/client";
+import { diffCodes, writeRbacAudit } from "@/module/role/rbac-audit.service";
 import {
   BadRequestError,
   ConflictError,
@@ -29,7 +30,12 @@ const PASSWORD_SALT_ROUNDS = 10;
 // =============================================================================
 
 /** Who is performing the change — required to stop privilege escalation. */
-export type UserActor = { userId: number; isOwner: boolean };
+export type UserActor = {
+  userId: number;
+  isOwner: boolean;
+  /** Recorded on the audit entry so it reads after the account is gone. */
+  name?: string | null;
+};
 
 // =============================================================================
 // GUARDS
@@ -249,7 +255,7 @@ export async function updateUser(
   const { userRoles, password, ...rest } = input;
 
   return prisma.$transaction(async (tx) => {
-    await assertUserExists(tx, id);
+    const existing = await assertUserExists(tx, id);
     const roles = await assertRolesExist(tx, userRoles);
 
     await assertMayAssignRoles(tx, id, roles, actor);
@@ -269,11 +275,27 @@ export async function updateUser(
       },
     });
 
+    const before = existing.userRoles.map((userRole) => userRole.role.name);
+
     await replaceUserRoles(tx, id, userRoles);
 
     // Their cached snapshot is now wrong; drop it so the change lands on the
     // next request instead of waiting out the TTL.
     invalidateRbac(id);
+
+    // Role names rather than permission codes: what an administrator chose.
+    const after = roles.map((role) => role.name);
+    const change = diffCodes(before, after);
+
+    if (change.added.length > 0 || change.removed.length > 0) {
+      await writeRbacAudit(tx, {
+        action: RbacAuditAction.USER_ROLES_CHANGED,
+        actor,
+        targetUserId: id,
+        targetUserName: existing.name ?? existing.username,
+        ...change,
+      });
+    }
 
     return tx.user.findUniqueOrThrow({ where: { id }, include: userInclude });
   });

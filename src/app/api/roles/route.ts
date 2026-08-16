@@ -31,12 +31,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(request: Request) {
   return withAuth(
-    async ({ userId, permissions, isOwner }) => {
+    async ({ userId, permissions, isOwner, name }) => {
       const data = CreateRoleSchema.parse(await request.json());
       const role = await RoleService.createRole(data, {
         userId,
         permissions,
         isOwner,
+        name,
       });
 
       return formatResponse({

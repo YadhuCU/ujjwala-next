@@ -117,6 +117,7 @@ export const queryKeys = {
     list: (params: object) => ["roles", "list", params] as const,
     options: () => ["roles", "options"] as const,
     detail: (id: string) => ["roles", id] as const,
+    audit: (params: object) => ["roles", "audit", params] as const,
   },
   permissions: {
     all: ["permissions"] as const,

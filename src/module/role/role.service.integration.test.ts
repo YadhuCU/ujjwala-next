@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { PERMISSIONS } from "@/lib/permissions";
-import { syncPermissionCatalogue } from "@/test/factories";
+import { makeUser, syncPermissionCatalogue } from "@/test/factories";
 import * as RoleService from "./role.service";
 
-const owner = () => ({ userId: 1, permissions: [], isOwner: true });
+// Real rows: the audit log's actor is a foreign key, so a fabricated id fails.
+let ownerId: number;
+let adminId: number;
+
+const owner = () => ({ userId: ownerId, permissions: [], isOwner: true });
 
 const limitedAdmin = (permissions: (typeof PERMISSIONS)[keyof typeof PERMISSIONS][]) => ({
-  userId: 2,
+  userId: adminId,
   permissions,
   isOwner: false,
 });
@@ -21,6 +25,8 @@ const input = (over: Partial<Parameters<typeof RoleService.createRole>[0]> = {})
 
 beforeEach(async () => {
   await syncPermissionCatalogue();
+  ownerId = (await makeUser("Owner")).id;
+  adminId = (await makeUser("Limited Admin")).id;
 });
 
 describe("createRole", () => {
@@ -119,7 +125,7 @@ describe("deleteRole", () => {
   it("deletes an unassigned role", async () => {
     const role = await RoleService.createRole(input(), owner());
 
-    await RoleService.deleteRole(role.id);
+    await RoleService.deleteRole(role.id, owner());
 
     expect(await prisma.role.findUnique({ where: { id: role.id } })).toBeNull();
   });
@@ -135,7 +141,7 @@ describe("deleteRole", () => {
       data: { userId: user.id, roleId: role.id },
     });
 
-    await expect(RoleService.deleteRole(role.id)).rejects.toThrow(
+    await expect(RoleService.deleteRole(role.id, owner())).rejects.toThrow(
       /assigned to 1 user/i,
     );
 
@@ -149,7 +155,7 @@ describe("deleteRole", () => {
       data: { name: "SYSTEM_OWNER", isSystem: true },
     });
 
-    await expect(RoleService.deleteRole(system.id)).rejects.toThrow(
+    await expect(RoleService.deleteRole(system.id, owner())).rejects.toThrow(
       /system role/i,
     );
   });

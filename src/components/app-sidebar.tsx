@@ -216,6 +216,19 @@ export function AppSidebar() {
   );
 }
 
+/**
+ * Is this link the section the user is currently in?
+ *
+ * A plain `pathname.startsWith(href)` matches sibling routes that merely share
+ * a prefix — being on /stock-adjustments lit up both "Stock" and "Stock
+ * Adjustment". Requiring the next character to be a separator fixes that while
+ * still keeping a section highlighted on its own child pages (/stock/add).
+ */
+export function isRouteActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 type NavbarItemComponentProps = Omit<NavItem, "sub">;
 
 function NavbarItemComponent({
@@ -240,7 +253,7 @@ function NavbarItemComponent({
     <SidebarMenuItem key={href}>
       <SidebarMenuButton
         asChild
-        isActive={href === "/" ? pathname === "/" : pathname.startsWith(href)}
+        isActive={isRouteActive(pathname, href)}
         className="data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
       >
         <Link href={href}>
@@ -255,9 +268,11 @@ function NavbarItemComponent({
 type SubNavbarItemComponentProps = NavItem;
 
 function SubNavbarItemComponent({
+  href,
   title,
   requiredPermissions,
   sub,
+  ...props
 }: SubNavbarItemComponentProps) {
   const { hasAnyPermission } = usePermission();
 
@@ -268,25 +283,50 @@ function SubNavbarItemComponent({
     return null;
   }
 
-  if (!sub || sub.length === 0) {
+  // Children carry their own permissions; a group whose children are all
+  // hidden should not render an empty expander.
+  const visible = (sub ?? []).filter(
+    (item) =>
+      !item.requiredPermissions ||
+      item.requiredPermissions.length === 0 ||
+      hasAnyPermission(item.requiredPermissions),
+  );
+
+  if (visible.length === 0) {
     return null;
   }
 
+  const Icon = props.icon ?? FileText;
+
+  // The group itself is a real route (/reports), so it can be the active item;
+  // and being anywhere inside the section should both highlight it and leave
+  // the group open rather than collapsing under the user.
+  const onIndex = pathname === href;
+  const inSection =
+    isRouteActive(pathname, href) ||
+    visible.some((item) => isRouteActive(pathname, item.href));
+
   return (
-    <Collapsible defaultOpen className="group/collapsible">
+    <Collapsible defaultOpen={inSection} className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton>
-            <FileText className="w-4 h-4" />
+          <SidebarMenuButton
+            isActive={onIndex}
+            className="data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
+          >
+            <Icon className="w-4 h-4" />
             <span>{title}</span>
             <ChevronDown className="ml-auto w-4 h-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
           <SidebarMenuSub>
-            {sub.map((item) => (
+            {visible.map((item) => (
               <SidebarMenuSubItem key={item.href}>
-                <SidebarMenuSubButton asChild isActive={pathname === item.href}>
+                <SidebarMenuSubButton
+                  asChild
+                  isActive={isRouteActive(pathname, item.href)}
+                >
                   <Link href={item.href}>{item.title}</Link>
                 </SidebarMenuSubButton>
               </SidebarMenuSubItem>

@@ -129,6 +129,12 @@ export const roleListOptions = (params: object = {}) =>
     queryFn: () => api.getRoles(params),
   });
 
+export const rbacAuditOptions = (params: object = {}) =>
+  queryOptions({
+    queryKey: queryKeys.roles.audit(params),
+    queryFn: () => api.getRbacAudit(params),
+  });
+
 export const permissionCatalogueOptions = queryOptions({
   queryKey: queryKeys.permissions.catalogue(),
   queryFn: api.getPermissionCatalogue,

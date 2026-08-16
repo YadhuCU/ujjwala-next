@@ -276,6 +276,7 @@ export type UserWhereInput = {
   expensesCreated?: Prisma.ExpenseListRelationFilter
   adjustmentsCreated?: Prisma.StockAdjustmentListRelationFilter
   paymentsCreated?: Prisma.CustomerPaymentLedgerListRelationFilter
+  rbacAuditEntries?: Prisma.RbacAuditLogListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -302,6 +303,7 @@ export type UserOrderByWithRelationInput = {
   expensesCreated?: Prisma.ExpenseOrderByRelationAggregateInput
   adjustmentsCreated?: Prisma.StockAdjustmentOrderByRelationAggregateInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerOrderByRelationAggregateInput
+  rbacAuditEntries?: Prisma.RbacAuditLogOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -331,6 +333,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   expensesCreated?: Prisma.ExpenseListRelationFilter
   adjustmentsCreated?: Prisma.StockAdjustmentListRelationFilter
   paymentsCreated?: Prisma.CustomerPaymentLedgerListRelationFilter
+  rbacAuditEntries?: Prisma.RbacAuditLogListRelationFilter
 }, "id" | "uuid" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -392,6 +395,7 @@ export type UserCreateInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -418,6 +422,7 @@ export type UserUncheckedCreateInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserUpdateInput = {
@@ -443,6 +448,7 @@ export type UserUpdateInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -469,6 +475,7 @@ export type UserUncheckedUpdateInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -608,6 +615,22 @@ export type UserUpdateOneRequiredWithoutUserRolesNestedInput = {
   upsert?: Prisma.UserUpsertWithoutUserRolesInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUserRolesInput, Prisma.UserUpdateWithoutUserRolesInput>, Prisma.UserUncheckedUpdateWithoutUserRolesInput>
+}
+
+export type UserCreateNestedOneWithoutRbacAuditEntriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRbacAuditEntriesInput, Prisma.UserUncheckedCreateWithoutRbacAuditEntriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRbacAuditEntriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutRbacAuditEntriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRbacAuditEntriesInput, Prisma.UserUncheckedCreateWithoutRbacAuditEntriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRbacAuditEntriesInput
+  upsert?: Prisma.UserUpsertWithoutRbacAuditEntriesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRbacAuditEntriesInput, Prisma.UserUpdateWithoutRbacAuditEntriesInput>, Prisma.UserUncheckedUpdateWithoutRbacAuditEntriesInput>
 }
 
 export type UserCreateNestedOneWithoutPurchasesCreatedInput = {
@@ -808,6 +831,7 @@ export type UserCreateWithoutUserRolesInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutUserRolesInput = {
@@ -833,6 +857,7 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutUserRolesInput = {
@@ -873,6 +898,7 @@ export type UserUpdateWithoutUserRolesInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUserRolesInput = {
@@ -887,6 +913,125 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutRbacAuditEntriesInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutRbacAuditEntriesInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutRbacAuditEntriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRbacAuditEntriesInput, Prisma.UserUncheckedCreateWithoutRbacAuditEntriesInput>
+}
+
+export type UserUpsertWithoutRbacAuditEntriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRbacAuditEntriesInput, Prisma.UserUncheckedUpdateWithoutRbacAuditEntriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRbacAuditEntriesInput, Prisma.UserUncheckedCreateWithoutRbacAuditEntriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRbacAuditEntriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRbacAuditEntriesInput, Prisma.UserUncheckedUpdateWithoutRbacAuditEntriesInput>
+}
+
+export type UserUpdateWithoutRbacAuditEntriesInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRbacAuditEntriesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -922,6 +1067,7 @@ export type UserCreateWithoutPurchasesCreatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutPurchasesCreatedInput = {
@@ -947,6 +1093,7 @@ export type UserUncheckedCreateWithoutPurchasesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutPurchasesCreatedInput = {
@@ -976,6 +1123,7 @@ export type UserCreateWithoutPurchasesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutPurchasesUpdatedInput = {
@@ -1001,6 +1149,7 @@ export type UserUncheckedCreateWithoutPurchasesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutPurchasesUpdatedInput = {
@@ -1041,6 +1190,7 @@ export type UserUpdateWithoutPurchasesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPurchasesCreatedInput = {
@@ -1066,6 +1216,7 @@ export type UserUncheckedUpdateWithoutPurchasesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutPurchasesUpdatedInput = {
@@ -1101,6 +1252,7 @@ export type UserUpdateWithoutPurchasesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPurchasesUpdatedInput = {
@@ -1126,6 +1278,7 @@ export type UserUncheckedUpdateWithoutPurchasesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutAdjustmentsCreatedInput = {
@@ -1150,6 +1303,7 @@ export type UserCreateWithoutAdjustmentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutAdjustmentsCreatedInput = {
@@ -1175,6 +1329,7 @@ export type UserUncheckedCreateWithoutAdjustmentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutAdjustmentsCreatedInput = {
@@ -1215,6 +1370,7 @@ export type UserUpdateWithoutAdjustmentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAdjustmentsCreatedInput = {
@@ -1240,6 +1396,7 @@ export type UserUncheckedUpdateWithoutAdjustmentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutDomSalesCreatedInput = {
@@ -1264,6 +1421,7 @@ export type UserCreateWithoutDomSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutDomSalesCreatedInput = {
@@ -1289,6 +1447,7 @@ export type UserUncheckedCreateWithoutDomSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutDomSalesCreatedInput = {
@@ -1318,6 +1477,7 @@ export type UserCreateWithoutDomSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutDomSalesUpdatedInput = {
@@ -1343,6 +1503,7 @@ export type UserUncheckedCreateWithoutDomSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutDomSalesUpdatedInput = {
@@ -1383,6 +1544,7 @@ export type UserUpdateWithoutDomSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDomSalesCreatedInput = {
@@ -1408,6 +1570,7 @@ export type UserUncheckedUpdateWithoutDomSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutDomSalesUpdatedInput = {
@@ -1443,6 +1606,7 @@ export type UserUpdateWithoutDomSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDomSalesUpdatedInput = {
@@ -1468,6 +1632,7 @@ export type UserUncheckedUpdateWithoutDomSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutArbSalesCreatedInput = {
@@ -1492,6 +1657,7 @@ export type UserCreateWithoutArbSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutArbSalesCreatedInput = {
@@ -1517,6 +1683,7 @@ export type UserUncheckedCreateWithoutArbSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutArbSalesCreatedInput = {
@@ -1546,6 +1713,7 @@ export type UserCreateWithoutArbSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutArbSalesUpdatedInput = {
@@ -1571,6 +1739,7 @@ export type UserUncheckedCreateWithoutArbSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutArbSalesUpdatedInput = {
@@ -1611,6 +1780,7 @@ export type UserUpdateWithoutArbSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArbSalesCreatedInput = {
@@ -1636,6 +1806,7 @@ export type UserUncheckedUpdateWithoutArbSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutArbSalesUpdatedInput = {
@@ -1671,6 +1842,7 @@ export type UserUpdateWithoutArbSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArbSalesUpdatedInput = {
@@ -1696,6 +1868,7 @@ export type UserUncheckedUpdateWithoutArbSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutCommercialSalesCreatedInput = {
@@ -1720,6 +1893,7 @@ export type UserCreateWithoutCommercialSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutCommercialSalesCreatedInput = {
@@ -1745,6 +1919,7 @@ export type UserUncheckedCreateWithoutCommercialSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutCommercialSalesCreatedInput = {
@@ -1774,6 +1949,7 @@ export type UserCreateWithoutCommercialSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutCommercialSalesUpdatedInput = {
@@ -1799,6 +1975,7 @@ export type UserUncheckedCreateWithoutCommercialSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutCommercialSalesUpdatedInput = {
@@ -1839,6 +2016,7 @@ export type UserUpdateWithoutCommercialSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommercialSalesCreatedInput = {
@@ -1864,6 +2042,7 @@ export type UserUncheckedUpdateWithoutCommercialSalesCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutCommercialSalesUpdatedInput = {
@@ -1899,6 +2078,7 @@ export type UserUpdateWithoutCommercialSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommercialSalesUpdatedInput = {
@@ -1924,6 +2104,7 @@ export type UserUncheckedUpdateWithoutCommercialSalesUpdatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutExpensesCreatedInput = {
@@ -1948,6 +2129,7 @@ export type UserCreateWithoutExpensesCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutExpensesCreatedInput = {
@@ -1973,6 +2155,7 @@ export type UserUncheckedCreateWithoutExpensesCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutExpensesCreatedInput = {
@@ -2013,6 +2196,7 @@ export type UserUpdateWithoutExpensesCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExpensesCreatedInput = {
@@ -2038,6 +2222,7 @@ export type UserUncheckedUpdateWithoutExpensesCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserCreateWithoutPaymentsCreatedInput = {
@@ -2062,6 +2247,7 @@ export type UserCreateWithoutPaymentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsCreatedInput = {
@@ -2087,6 +2273,7 @@ export type UserUncheckedCreateWithoutPaymentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
   expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsCreatedInput = {
@@ -2127,6 +2314,7 @@ export type UserUpdateWithoutPaymentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsCreatedInput = {
@@ -2152,6 +2340,7 @@ export type UserUncheckedUpdateWithoutPaymentsCreatedInput = {
   purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 
@@ -2172,6 +2361,7 @@ export type UserCountOutputType = {
   expensesCreated: number
   adjustmentsCreated: number
   paymentsCreated: number
+  rbacAuditEntries: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2187,6 +2377,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   expensesCreated?: boolean | UserCountOutputTypeCountExpensesCreatedArgs
   adjustmentsCreated?: boolean | UserCountOutputTypeCountAdjustmentsCreatedArgs
   paymentsCreated?: boolean | UserCountOutputTypeCountPaymentsCreatedArgs
+  rbacAuditEntries?: boolean | UserCountOutputTypeCountRbacAuditEntriesArgs
 }
 
 /**
@@ -2283,6 +2474,13 @@ export type UserCountOutputTypeCountPaymentsCreatedArgs<ExtArgs extends runtime.
   where?: Prisma.CustomerPaymentLedgerWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRbacAuditEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RbacAuditLogWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2308,6 +2506,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   expensesCreated?: boolean | Prisma.User$expensesCreatedArgs<ExtArgs>
   adjustmentsCreated?: boolean | Prisma.User$adjustmentsCreatedArgs<ExtArgs>
   paymentsCreated?: boolean | Prisma.User$paymentsCreatedArgs<ExtArgs>
+  rbacAuditEntries?: boolean | Prisma.User$rbacAuditEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2367,6 +2566,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   expensesCreated?: boolean | Prisma.User$expensesCreatedArgs<ExtArgs>
   adjustmentsCreated?: boolean | Prisma.User$adjustmentsCreatedArgs<ExtArgs>
   paymentsCreated?: boolean | Prisma.User$paymentsCreatedArgs<ExtArgs>
+  rbacAuditEntries?: boolean | Prisma.User$rbacAuditEntriesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2387,6 +2587,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     expensesCreated: Prisma.$ExpensePayload<ExtArgs>[]
     adjustmentsCreated: Prisma.$StockAdjustmentPayload<ExtArgs>[]
     paymentsCreated: Prisma.$CustomerPaymentLedgerPayload<ExtArgs>[]
+    rbacAuditEntries: Prisma.$RbacAuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2806,6 +3007,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   expensesCreated<T extends Prisma.User$expensesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$expensesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   adjustmentsCreated<T extends Prisma.User$adjustmentsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$adjustmentsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   paymentsCreated<T extends Prisma.User$paymentsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$paymentsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPaymentLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  rbacAuditEntries<T extends Prisma.User$rbacAuditEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rbacAuditEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RbacAuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3524,6 +3726,30 @@ export type User$paymentsCreatedArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.CustomerPaymentLedgerScalarFieldEnum | Prisma.CustomerPaymentLedgerScalarFieldEnum[]
+}
+
+/**
+ * User.rbacAuditEntries
+ */
+export type User$rbacAuditEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RbacAuditLog
+   */
+  select?: Prisma.RbacAuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RbacAuditLog
+   */
+  omit?: Prisma.RbacAuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RbacAuditLogInclude<ExtArgs> | null
+  where?: Prisma.RbacAuditLogWhereInput
+  orderBy?: Prisma.RbacAuditLogOrderByWithRelationInput | Prisma.RbacAuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.RbacAuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RbacAuditLogScalarFieldEnum | Prisma.RbacAuditLogScalarFieldEnum[]
 }
 
 /**
