@@ -15,8 +15,8 @@ net.setDefaultAutoSelectFamily(false);
  *
  *   LEGACY_DATABASE_URL=postgres://… npm run legacy:export
  *
- * This script never writes: the session is set read-only before the first
- * query, so even a mistake in here cannot modify production.
+ * This script never writes: every query runs inside a read-only transaction,
+ * so even a mistake in here cannot modify the source database.
  *
  * It deliberately does NOT export transactional history (legacy sales,
  * collections, rent transactions, purchases, expenses). Those models no longer
@@ -64,8 +64,14 @@ async function main() {
 
   await client.connect();
 
-  // Belt and braces: nothing this script does can write, whatever happens below
-  await client.query("SET default_transaction_read_only = on");
+  // Belt and braces: nothing this script does can write, whatever happens below.
+  //
+  // This must be a *transaction*, not `SET default_transaction_read_only = on`.
+  // Managed Postgres puts a connection pooler in front of the database, and a
+  // session-level SET leaks onto the pooled backend for whoever is handed it
+  // next — which silently makes the application read-only until the compute is
+  // restarted. A read-only transaction cannot escape its own scope.
+  await client.query("BEGIN TRANSACTION READ ONLY");
 
   const q = async (sql: string): Promise<Row[]> => (await client.query(sql)).rows;
 
@@ -278,6 +284,7 @@ async function main() {
   console.log(`\nWrote ${OUTPUT}`);
   console.log(`Review it, then: npm run legacy:import -- --apply`);
 
+  await client.query("COMMIT");
   await client.end();
 }
 

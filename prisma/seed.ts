@@ -1,11 +1,19 @@
 import "dotenv/config";
 
+import net from "node:net";
 import bcrypt from "bcryptjs";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/client";
 
 import { PERMISSION_REGISTRY, PERMISSIONS, ROLES } from "@/lib/permissions";
+
+// Managed Postgres (Neon and friends) answers DNS with several addresses,
+// including IPv6 ones many networks cannot reach. Node's happy-eyeballs gives
+// up before working through them, so pin to IPv4 — otherwise seeding a hosted
+// database fails with ETIMEDOUT on the first write. The same pin is in
+// prisma/scripts/export-legacy-data.ts for the same reason.
+net.setDefaultAutoSelectFamily(false);
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
