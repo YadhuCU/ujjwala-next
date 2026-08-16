@@ -96,6 +96,15 @@ Project → Settings → Environment Variables.
 `AUTH_TRUST_HOST` is not needed — `trustHost: true` is set in
 `src/lib/auth.config.ts`.
 
+### Put the functions in the same region as the database
+
+Vercel → Settings → Functions → Region. Neon `ujjwala` is in **us-east-1**, so
+choose **Washington D.C. (iad1)**. Every list endpoint pairs `findMany` with
+`count` inside one transaction; across regions the round trips alone can exhaust
+Prisma's window and the request fails with *"Unable to start a transaction in
+the given time"*. The client now allows 10s to acquire one, which absorbs the
+latency, but co-locating is the actual fix and costs nothing.
+
 ---
 
 ## 4. First deploy, step by step
