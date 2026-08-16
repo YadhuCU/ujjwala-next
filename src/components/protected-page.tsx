@@ -7,33 +7,43 @@ import { Fragment, ReactNode, useEffect } from "react";
 import LayoutLoader from "./layout-loader";
 
 type ProtectedPageProps = {
-  children: ReactNode,
-  requiredPermission: Permission
-}
+  children: ReactNode;
+  /**
+   * One permission, or several of which any will do — the same any-of
+   * semantics the sidebar uses, so a page and its nav link agree.
+   *
+   * This is presentation only. `withAuth` on the route is the real gate; this
+   * exists so an unauthorised user gets a clear 403 page instead of a shell
+   * that renders and then fails every request it makes.
+   */
+  requiredPermission: Permission | Permission[];
+};
 
-export const ProtectedPage = ({ requiredPermission, children }: ProtectedPageProps) => {
+export const ProtectedPage = ({
+  requiredPermission,
+  children,
+}: ProtectedPageProps) => {
   const router = useRouter();
-  const { hasPermission, status } = usePermission()
+  const { hasAnyPermission, status } = usePermission();
+
+  const required = Array.isArray(requiredPermission)
+    ? requiredPermission
+    : [requiredPermission];
+
+  const allowed = hasAnyPermission(required);
 
   useEffect(() => {
-    if(status === "loading") return;
-
-    if (!hasPermission(requiredPermission)) {
-      router.replace("/403")
-    }
-  }, [requiredPermission, hasPermission, router, status])
+    if (status === "loading") return;
+    if (!allowed) router.replace("/403");
+  }, [allowed, router, status]);
 
   if (status === "loading") {
-    return <LayoutLoader />
+    return <LayoutLoader />;
   }
 
-  if (!hasPermission(requiredPermission)) {
+  if (!allowed) {
     return null;
   }
 
-  return (
-    <Fragment>
-      {children}
-    </Fragment>
-  )
-}
+  return <Fragment>{children}</Fragment>;
+};

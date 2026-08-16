@@ -114,6 +114,12 @@ export const queryKeys = {
   roles: {
     all: ["roles"] as const,
     lists: () => ["roles"] as const,
+    list: (params: object) => ["roles", "list", params] as const,
+    options: () => ["roles", "options"] as const,
     detail: (id: string) => ["roles", id] as const,
+  },
+  permissions: {
+    all: ["permissions"] as const,
+    catalogue: () => ["permissions", "catalogue"] as const,
   },
 };

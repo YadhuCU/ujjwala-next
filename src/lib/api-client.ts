@@ -1,4 +1,4 @@
-import { Prisma, ProductType, Role } from "@/generated/client";
+import { Prisma, ProductType } from "@/generated/client";
 import axios from "axios";
 import { ProductResponse } from "../module/product/product.serializer";
 import { ApiResponse } from "./response";
@@ -19,6 +19,19 @@ import { StockResponse } from "@/module/stock/stock.serializer";
 import { StockAdjustmentResponse } from "@/module/stock-adjustment/stock-adjustment.serializer";
 import { GodownStatusResponse } from "@/module/godown/godown.service";
 import { MovementResponse } from "@/module/godown/godown.serializer";
+import { RoleResponse } from "@/module/role/role.serializer";
+import type { PermissionMeta } from "@/lib/permissions";
+
+/** Slim role record for the user form's picker. */
+export type RoleOption = {
+  id: number;
+  name: string;
+  description: string | null;
+  isSystem: boolean;
+};
+
+/** The permission catalogue, grouped for the role editor's matrix. */
+export type PermissionGroup = { module: string; permissions: PermissionMeta[] };
 import {
   ExpenseReportResponse,
   PurchaseReportResponse,
@@ -142,8 +155,24 @@ export const api = {
     apiClient
       .get<ApiResponse<StockAdjustmentResponse[]>>("/api/stock-adjustments")
       .then((r) => r.data),
-  getRoles: () =>
-    apiClient.get<ApiResponse<Role[]>>("/api/roles").then((r) => r.data),
+  // Full role records, paginated — the roles admin screen.
+  getRoles: (params?: object) =>
+    apiClient
+      .get<ApiResponse<RoleResponse[]>>("/api/roles", { params })
+      .then((r) => r.data),
+
+  // Just id + name, for the user form's role picker.
+  getRoleOptions: () =>
+    apiClient
+      .get<
+        ApiResponse<RoleOption[]>
+      >("/api/roles", { params: { options: true } })
+      .then((r) => r.data),
+
+  getPermissionCatalogue: () =>
+    apiClient
+      .get<ApiResponse<PermissionGroup[]>>("/api/permissions")
+      .then((r) => r.data),
 
   // ─── Detail (GET by id) ─────────────────────────────────
   getById: <T>(resource: string, id: string) =>

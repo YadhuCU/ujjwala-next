@@ -1,51 +1,54 @@
 import { useSession } from "next-auth/react";
-import { Permission, ROLES } from "@/lib/permissions";
+import { Permission } from "@/lib/permissions";
 import { useCallback, useMemo } from "react";
 
-// The session carries role *names* as seeded in the DB (OWNER / OFFICE_STAFF /
-// FIELD_STAFF) — a user can hold more than one.
-export function usePermissions() {
-  const { data: session } = useSession();
-  const roles = useMemo(
-    () => session?.user?.roles ?? [],
-    [session?.user?.roles],
-  );
-
-  const isAdmin = roles.includes(ROLES.OWNER);
-  const isOffice = roles.includes(ROLES.OFFICE_STAFF);
-  const isSales = roles.includes(ROLES.FIELD_STAFF);
-
-  return {
-    roles,
-    role: roles[0],
-    isAdmin,
-    isOffice,
-    isSales,
-  };
-}
-
+/**
+ * What the signed-in user may do, for deciding what to render.
+ *
+ * This is presentation only. The session's copy of the permission list is a
+ * hint refreshed on a timer — `withAuth` on the route is the real gate, and it
+ * re-reads from the database. Hiding a button here is a courtesy, not security.
+ *
+ * There used to be a second, role-based hook beside this one (`usePermissions`,
+ * plural) exposing `isAdmin`. It has gone: comparing role names is what stopped
+ * a newly created role from ever being granted anything.
+ */
 export function usePermission() {
   const { data: session, status } = useSession();
 
-  const permissions = useMemo(() => session?.user.permissions ?? [], [session?.user.permissions])
+  const permissions = useMemo(
+    () => session?.user.permissions ?? [],
+    [session?.user.permissions],
+  );
 
-  const hasPermission = useCallback(function (permission: Permission) {
-    return permissions.includes(permission)
-  }, [permissions])
+  // A system role is allowed everything, so the UI must agree with the server
+  // rather than looking for a permission row that may not exist.
+  const isOwner = session?.user.isOwner === true;
 
-  const hasAnyPermission = useCallback(function (required: Permission[]) {
-    return required.some(p => permissions.includes(p))
-  }, [permissions])
+  const hasPermission = useCallback(
+    (permission: Permission) => isOwner || permissions.includes(permission),
+    [permissions, isOwner],
+  );
 
-  const hasAllPermission = useCallback(function (required: Permission[]) {
-    return required.every(p => permissions.includes(p))
-  },[permissions])
+  const hasAnyPermission = useCallback(
+    (required: Permission[]) =>
+      isOwner || required.some((permission) => permissions.includes(permission)),
+    [permissions, isOwner],
+  );
+
+  const hasAllPermission = useCallback(
+    (required: Permission[]) =>
+      isOwner ||
+      required.every((permission) => permissions.includes(permission)),
+    [permissions, isOwner],
+  );
 
   return {
     status,
     permissions,
+    isOwner,
     hasPermission,
     hasAllPermission,
-    hasAnyPermission
-  }
+    hasAnyPermission,
+  };
 }

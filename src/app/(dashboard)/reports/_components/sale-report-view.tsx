@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { useCustomers, useUsers } from "@/hooks/use-api";
-import { usePermissions } from "@/hooks/use-permissions";
+import { usePermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import type { SaleReportParams } from "@/lib/query-options";
@@ -58,7 +59,10 @@ const ALL = "all";
  */
 export function SaleReportView({ kind }: { kind: SaleReportKind }) {
   const filters = useReportFilters();
-  const { isAdmin } = usePermissions();
+  // The staff drill-down only means something to someone who can see the
+  // whole agency; the service ignores a staffId sent by anyone else.
+  const { hasPermission } = usePermission();
+  const canFilterByStaff = hasPermission(PERMISSIONS.REPORT_READ_ALL);
 
   const [customerId, setCustomerId] = useState(ALL);
   const [staffId, setStaffId] = useState(ALL);
@@ -157,7 +161,7 @@ export function SaleReportView({ kind }: { kind: SaleReportKind }) {
           onChange={setCustomerId}
           options={customers}
         />
-        {isAdmin && (
+        {canFilterByStaff && (
           <ReportSelectFilter
             label="Staff"
             value={staffId}

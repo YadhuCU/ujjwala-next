@@ -119,8 +119,22 @@ export const stockAdjustmentsOptions = queryOptions({
 });
 
 export const rolesOptions = queryOptions({
-  queryKey: queryKeys.roles.lists(),
-  queryFn: api.getRoles,
+  queryKey: queryKeys.roles.options(),
+  queryFn: api.getRoleOptions,
+});
+
+export const roleListOptions = (params: object = {}) =>
+  queryOptions({
+    queryKey: queryKeys.roles.list(params),
+    queryFn: () => api.getRoles(params),
+  });
+
+export const permissionCatalogueOptions = queryOptions({
+  queryKey: queryKeys.permissions.catalogue(),
+  queryFn: api.getPermissionCatalogue,
+  select: (res) => res.data,
+  // The catalogue only changes when the application is redeployed.
+  staleTime: Infinity,
 });
 
 // ─── Reports ────────────────────────────────────────────────────────────────

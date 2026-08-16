@@ -1,6 +1,8 @@
 "use client";
 
 import { PageWrapper } from "@/components/page-wrapper";
+import { ProtectedPage } from "@/components/protected-page";
+import { PERMISSIONS } from "@/lib/permissions";
 import { api } from "@/lib/api-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import ARBSaleUpdateComponent from "../../components/arb-sale-update";
@@ -20,12 +22,14 @@ export default function Page() {
   });
 
   return (
-    <PageWrapper
-      title="Edit ARB Sale"
-      showBackButton
-      description={data.trNo ? `TR No: ${data.trNo}` : ""}
-    >
-      <ARBSaleUpdateComponent />
-    </PageWrapper>
+    <ProtectedPage requiredPermission={PERMISSIONS.ARB_SALE_UPDATE}>
+      <PageWrapper
+        title="Edit ARB Sale"
+        showBackButton
+        description={data.trNo ? `TR No: ${data.trNo}` : ""}
+      >
+        <ARBSaleUpdateComponent />
+      </PageWrapper>
+    </ProtectedPage>
   );
 }

@@ -40,6 +40,8 @@ import {
   SlidersHorizontal,
   type LucideIcon,
   Warehouse,
+  ShieldCheck,
+  FileBarChart,
 } from "lucide-react";
 import { Permission, PERMISSIONS } from "@/lib/permissions";
 
@@ -56,13 +58,19 @@ const sidebarMenu: NavItem[] = [
     title: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
-    requiredPermissions: [],
+    requiredPermissions: [PERMISSIONS.DASHBOARD_READ],
   },
   {
     title: "Users",
     href: "/users",
     icon: Users,
     requiredPermissions: [PERMISSIONS.USER_READ],
+  },
+  {
+    title: "Roles & Permissions",
+    href: "/roles",
+    icon: ShieldCheck,
+    requiredPermissions: [PERMISSIONS.ROLE_READ],
   },
   {
     title: "Locations",
@@ -137,17 +145,41 @@ const sidebarMenu: NavItem[] = [
     requiredPermissions: [PERMISSIONS.EXPENSE_READ],
   },
   {
-    title: "Repors",
+    title: "Reports",
     href: "/reports",
-    icon: Wallet,
-    requiredPermissions: [],
+    icon: FileBarChart,
+    requiredPermissions: [PERMISSIONS.REPORT_READ],
     sub: [
-      { title: "Commercial Sale Report", href: "/reports/commercial-sale" },
-      { title: "Domestic Sale Report", href: "/reports/dom-sale" },
-      { title: "Arb Sale Report", href: "/reports/arb-sale" },
-      { title: "Sale by Product Report", href: "/reports/sale-by-product" },
-      { title: "Expense Report", href: "/reports/expense" },
-      { title: "Purchase Report", href: "/reports/purchase" },
+      {
+        title: "Commercial Sale Report",
+        href: "/reports/commercial-sale",
+        requiredPermissions: [PERMISSIONS.REPORT_READ],
+      },
+      {
+        title: "Domestic Sale Report",
+        href: "/reports/dom-sale",
+        requiredPermissions: [PERMISSIONS.REPORT_READ],
+      },
+      {
+        title: "Arb Sale Report",
+        href: "/reports/arb-sale",
+        requiredPermissions: [PERMISSIONS.REPORT_READ],
+      },
+      {
+        title: "Sale by Product Report",
+        href: "/reports/sale-by-product",
+        requiredPermissions: [PERMISSIONS.REPORT_READ],
+      },
+      {
+        title: "Expense Report",
+        href: "/reports/expense",
+        requiredPermissions: [PERMISSIONS.REPORT_READ],
+      },
+      {
+        title: "Purchase Report",
+        href: "/reports/purchase",
+        requiredPermissions: [PERMISSIONS.REPORT_READ],
+      },
     ],
   },
 ];

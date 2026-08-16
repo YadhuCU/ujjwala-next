@@ -6,16 +6,12 @@ import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -50,9 +46,7 @@ export function UserForm({
 }: UserFormProps) {
   const { data: roles } = useSuspenseQuery({
     ...rolesOptions,
-    select: (res) => {
-      return res.data.map((x) => ({ label: x.name, value: x.id }));
-    },
+    select: (res) => res.data,
   });
 
   // On create the username and password are required; on edit the username is
@@ -151,29 +145,58 @@ export function UserForm({
                 </FormItem>
               )}
             />
+            {/* A user may hold several roles; their permissions are the union.
+                This used to be a single-select writing an array of one, which
+                silently dropped the extra roles of a multi-role user on save. */}
             <FormField
               control={form.control}
               name="userRoles"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange([Number(value)])}
-                    value={String(field.value[0] ?? "")}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {roles.map((role) => (
-                        <SelectItem key={role.value} value={String(role.value)}>
-                          {role.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Roles</FormLabel>
+                  <FormDescription>
+                    Pick one or more. The user can do anything any of their
+                    roles allows.
+                  </FormDescription>
+                  <FormControl>
+                    <div className="grid gap-2 rounded-lg border p-3 sm:grid-cols-2">
+                      {roles.map((role) => {
+                        const checked = field.value.includes(role.id);
+
+                        return (
+                          <label
+                            key={role.id}
+                            className="hover:bg-muted/40 flex cursor-pointer items-start gap-3 rounded p-2"
+                          >
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={() =>
+                                field.onChange(
+                                  checked
+                                    ? field.value.filter((id) => id !== role.id)
+                                    : [...field.value, role.id],
+                                )
+                              }
+                              className="mt-0.5"
+                            />
+                            <span className="min-w-0">
+                              <span className="flex items-center gap-2 text-sm font-medium">
+                                {role.name}
+                                {role.isSystem && (
+                                  <Badge variant="outline">full access</Badge>
+                                )}
+                              </span>
+                              {role.description && (
+                                <span className="text-muted-foreground block text-xs">
+                                  {role.description}
+                                </span>
+                              )}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

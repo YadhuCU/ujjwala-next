@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { PageWrapper } from "@/components/page-wrapper";
+import { ProtectedPage } from "@/components/protected-page";
 import { LocationViewComponent } from "./components/location-view";
 import { PERMISSIONS } from "@/lib/permissions";
 
@@ -13,21 +14,23 @@ export default function LocationsPage() {
   const createLocationPermission = hasPermission(PERMISSIONS.LOCATION_CREATE);
 
   return (
-    <PageWrapper
-      title="Locations"
-      showBackButton
-      addButton={
-        createLocationPermission && (
-          <Button asChild className="ml-auto">
-            <Link href="/locations/add">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Location
-            </Link>
-          </Button>
-        )
-      }
-    >
-      <LocationViewComponent />
-    </PageWrapper>
+    <ProtectedPage requiredPermission={PERMISSIONS.LOCATION_READ}>
+      <PageWrapper
+        title="Locations"
+        showBackButton
+        addButton={
+          createLocationPermission && (
+            <Button asChild className="ml-auto">
+              <Link href="/locations/add">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Location
+              </Link>
+            </Button>
+          )
+        }
+      >
+        <LocationViewComponent />
+      </PageWrapper>
+    </ProtectedPage>
   );
 }

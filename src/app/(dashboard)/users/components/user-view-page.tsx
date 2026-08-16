@@ -65,7 +65,7 @@ export const UserViewPage = () => {
     { accessorKey: "mobile", header: "Mobile" },
     {
       accessorKey: "userRoles",
-      header: "Role",
+      header: "Roles",
       cell: ({ row }) => {
         const u = row.original;
         return (

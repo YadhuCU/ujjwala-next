@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { invalidateRbac } from "@/lib/rbac";
 import { Prisma } from "@/generated/client";
 import {
   BadRequestError,
@@ -270,6 +271,10 @@ export async function updateUser(
 
     await replaceUserRoles(tx, id, userRoles);
 
+    // Their cached snapshot is now wrong; drop it so the change lands on the
+    // next request instead of waiting out the TTL.
+    invalidateRbac(id);
+
     return tx.user.findUniqueOrThrow({ where: { id }, include: userInclude });
   });
 }
@@ -293,6 +298,9 @@ export async function setUserActive(
 
     await tx.user.update({ where: { id }, data: { isActive } });
 
+    // Deactivation has to bite now, not in thirty seconds.
+    invalidateRbac(id);
+
     return tx.user.findUniqueOrThrow({ where: { id }, include: userInclude });
   });
 }
@@ -308,9 +316,14 @@ export async function deleteUser(id: number, actorId: number) {
     assertNotSelf(id, actorId, "delete");
     await assertNotLastOwner(tx, id, "delete");
 
-    return tx.user.update({
+    const deleted = await tx.user.update({
       where: { id },
       data: { isDeleted: true, isActive: false },
     });
+
+    // End their session now rather than at the end of the TTL.
+    invalidateRbac(id);
+
+    return deleted;
   });
 }

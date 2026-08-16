@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUsers } from "@/hooks/use-api";
-import { usePermissions } from "@/hooks/use-permissions";
+import { usePermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { api } from "@/lib/api-client";
 import { expenseReportOptions } from "@/lib/query-options";
 import type { ExpenseReportResponse } from "@/module/report/report.serializer";
@@ -28,7 +29,10 @@ const ALL = "all";
 
 export function ExpenseReportView() {
   const filters = useReportFilters();
-  const { isAdmin } = usePermissions();
+  // The staff drill-down only means something to someone who can see the
+  // whole agency; the service ignores a staffId sent by anyone else.
+  const { hasPermission } = usePermission();
+  const canFilterByStaff = hasPermission(PERMISSIONS.REPORT_READ_ALL);
   const [staffId, setStaffId] = useState(ALL);
 
   const { data: staffUsers = [] } = useUsers();
@@ -65,7 +69,7 @@ export function ExpenseReportView() {
     <div className="space-y-6">
       <ReportFilterCard filters={filters}>
         {/* Staff only ever see their own spending, so the filter is owner-only */}
-        {isAdmin && (
+        {canFilterByStaff && (
           <ReportSelectFilter
             label="Staff"
             value={staffId}

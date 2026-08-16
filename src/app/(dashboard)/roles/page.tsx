@@ -1,35 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/page-wrapper";
 import { ProtectedPage } from "@/components/protected-page";
-import PurchasesViewComponent from "./components/purchase-view";
 import { usePermission } from "@/hooks/use-permissions";
 import { PERMISSIONS } from "@/lib/permissions";
+import { RoleViewComponent } from "./components/role-view";
 
-export default function PurchasesPage() {
+export default function RolesPage() {
   const { hasPermission } = usePermission();
 
-  const createPurchasePermission = hasPermission(PERMISSIONS.PURCHASE_CREATE);
-
   return (
-    <ProtectedPage requiredPermission={PERMISSIONS.PURCHASE_READ}>
+    <ProtectedPage requiredPermission={PERMISSIONS.ROLE_READ}>
       <PageWrapper
-        title="Purchases"
+        title="Roles & permissions"
         addButton={
-          createPurchasePermission && (
+          hasPermission(PERMISSIONS.ROLE_CREATE) && (
             <Button asChild className="ml-auto">
-              <Link href="/purchases/add">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Purchase
+              <Link href="/roles/add">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Role
               </Link>
             </Button>
           )
         }
       >
-        <PurchasesViewComponent />
+        <RoleViewComponent />
       </PageWrapper>
     </ProtectedPage>
   );

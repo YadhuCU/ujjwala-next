@@ -1,6 +1,8 @@
 "use client";
 
 import { PageWrapper } from "@/components/page-wrapper";
+import { ProtectedPage } from "@/components/protected-page";
+import { PERMISSIONS } from "@/lib/permissions";
 import { api } from "@/lib/api-client";
 import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -20,12 +22,14 @@ export default function EditDomSalePage() {
   });
 
   return (
-    <PageWrapper
-      title="Edit Domestic Sale"
-      showBackButton
-      description={domSale.trNo ? `TR No: ${domSale.trNo}` : ""}
-    >
-      <DomSaleUpdateComponent />
-    </PageWrapper>
+    <ProtectedPage requiredPermission={PERMISSIONS.DOMESTIC_SALE_UPDATE}>
+      <PageWrapper
+        title="Edit Domestic Sale"
+        showBackButton
+        description={domSale.trNo ? `TR No: ${domSale.trNo}` : ""}
+      >
+        <DomSaleUpdateComponent />
+      </PageWrapper>
+    </ProtectedPage>
   );
 }
