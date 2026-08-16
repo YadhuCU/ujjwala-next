@@ -106,7 +106,7 @@ clean — keep it that way.
 | Module | Server | Client |
 |---|---|---|
 | location, product, vendor, customer | done | done |
-| roles (read-only lookup, lives in the user module) | done | n/a |
+| role (RBAC administration) | done | done (`/roles`, permission matrix) |
 | purchase | done | done |
 | dom-sale | done | done |
 | arb-sale | done (reference module) | done |
@@ -288,9 +288,48 @@ Other module-specific rules:
   custody column. The dashboard's client type is the service's own
   `DashboardResponse`, so the payload has one definition.
 
-Roles live on the session as **names** (`OWNER`, `OFFICE_STAFF`, `FIELD_STAFF`) in
-`session.user.roles: string[]`, matching `ROLES` in `src/lib/permissions.ts`. There
-is no `session.user.role` — compare against `ROLES`, never a string literal.
+## RBAC
+
+**Never authorize on a role name.** Roles are user-created data; permissions are
+the contract. The one exception is `Role.isSystem`, which marks the OWNER role —
+structurally special because it is the way back in after a misconfiguration.
+
+- **The catalogue is code.** `PERMISSIONS` in `src/lib/permissions.ts` is the
+  source of truth for codes, and `PERMISSION_REGISTRY` carries the module and
+  label the admin UI renders. A unit test asserts they stay in step, so a new
+  permission cannot be added without becoming grantable. `prisma db seed` syncs
+  the catalogue *and deletes codes no longer in the registry*, taking their
+  grants with them.
+- **Roles are data.** Created, edited and deleted from `/roles`
+  (`src/module/role/`). A system role cannot be renamed, edited or deleted and
+  always holds everything — `isOwner` short-circuits every check in code, so a
+  permission added in a release works for the owner before the seed runs.
+- **Row-level scope is a granted pair**, resolved only in
+  `src/lib/access-scope.ts`: `resolveScope(actor, SCOPES.EXPENSE)` returns
+  `"all" | "own" | "none"`, and `scopeFilter` turns that into a `where` fragment.
+  `"none"` throws rather than returning a filter that matches nothing — an empty
+  list would look like an answer. Applies to expense, report and dashboard.
+- **`withAuth` re-reads permissions from the database**, through the per-instance
+  promise cache in `src/lib/rbac.ts` (~30s TTL, single-flight). It does *not*
+  trust the cookie: `auth()` with no arguments takes Auth.js's RSC branch, which
+  discards the refreshed `Set-Cookie`, so a token refreshed during an API request
+  never reaches the browser. The session's copy of `permissions` is a hint for
+  client rendering only, refreshed by `SessionProvider refetchInterval`.
+  A revoked permission or a deactivated user stops working within seconds; RBAC
+  writes call `invalidateRbac(userId)` to make it immediate.
+- `withAuth(handler, [A, B])` requires **both**; `{ anyOf: [...] }` requires one.
+- **Client gating is cosmetic.** `usePermission()` + `<ProtectedPage>` decide what
+  renders; `withAuth` is the only real boundary. Both honour the system-role
+  bypass so the UI agrees with the server.
+- **Escalation guards** live in `src/module/user/user.service.ts`: only an owner
+  may grant a system role or change another owner's password, nobody may edit
+  their own role assignments or grant a permission they do not hold, and a user
+  can never be left with zero roles. `assertNotLastOwner` keys on `isSystem`, not
+  the name — matching on `"OWNER"` made it fail *open* if the role were renamed.
+- Lost the owner password? `SEED_FORCE_OWNER_PASSWORD=1 npx prisma db seed`.
+
+`session.user` carries `roles: string[]`, `permissions: Permission[]` and
+`isOwner: boolean`. There is no `session.user.role`.
 - **Customer** — creation seeds `CustomerInitialCylinderBalance` +
   `CustomerCylinderLedger` per product, an `OPENING` ledger row if
   `initialPendingAmount > 0`, and always a `CustomerBalance` row (even at 0) —
@@ -323,7 +362,13 @@ is no `session.user.role` — compare against `ROLES`, never a string literal.
   takes a `reason`. Non-cylinder products skip that step, per the rule above.
   Lists hide drained batches unless `includeEmpty=true` (the sale forms want stock
   on hand; the stock page wants everything).
-- **Users** — passwords are hashed with bcrypt and stripped by the serializer,
+- **Role** — CRUD plus the permission matrix. Guards: a system role is immutable,
+  a role still held by users cannot be deleted (`UserRole.roleId` cascades, so an
+  unguarded delete would strip it silently and could leave a user with none), and
+  an actor may only grant permissions it holds. `GET /api/permissions` serves the
+  catalogue grouped by module for the editor.
+- **Users** — a user may hold **several** roles; effective permissions are the
+  union. Passwords are hashed with bcrypt and stripped by the serializer,
   which is the only path a `User` takes to a response. Username is set once and
   never updated; a blank password on edit keeps the existing hash. Guards: nobody
   may delete or deactivate their own account, and the last active `OWNER` cannot

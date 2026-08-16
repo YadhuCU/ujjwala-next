@@ -7,11 +7,15 @@ partly true.
 ## 22/02/2026
 
 - [x] User Type | Add New Usertype - Sales, total - Owner, Office, Sales
-      — seeded as `OWNER` / `OFFICE_STAFF` / `FIELD_STAFF`
+      — seeded as `OWNER` / `OFFICE_STAFF` / `FIELD_STAFF`, and any number of
+      further roles can now be created and given permissions from `/roles`
 - [x] Commercial Sale | Payment Type - Cash, Cheque
 - [x] ARB Product | New Sale Type (All Usertype)
-      — `FIELD_STAFF` now has create on all three sale types (read-own only,
-      no update or delete), plus the product and stock reads a sale form needs
+      — `FIELD_STAFF` has create on all three sale types (no update or delete),
+      plus the product and stock reads a sale form needs. Note: sale *lists* are
+      not scoped per author — anyone who can read a sale type sees every invoice
+      of it. Own-only scoping exists for expenses, reports and the dashboard; if
+      it is wanted for sales, that is a small addition to `SCOPES`.
 - [ ] Dashboard | Add Check & Cash Details in Collection Card
       — collections is one total; the ledger has `paymentType`, so the split is
       available but not surfaced
