@@ -290,6 +290,8 @@ Other module-specific rules:
 
 ## RBAC
 
+Per-module reference for configuring roles: `docs/RBAC.md`.
+
 **Never authorize on a role name.** Roles are user-created data; permissions are
 the contract. The one exception is `Role.isSystem`, which marks the OWNER role —
 structurally special because it is the way back in after a misconfiguration.
@@ -327,6 +329,12 @@ structurally special because it is the way back in after a misconfiguration.
   can never be left with zero roles. `assertNotLastOwner` keys on `isSystem`, not
   the name — matching on `"OWNER"` made it fail *open* if the role were renamed.
 - Lost the owner password? `SEED_FORCE_OWNER_PASSWORD=1 npx prisma db seed`.
+- **Every RBAC write is audited.** `writeRbacAudit(tx, …)` in
+  `src/module/role/rbac-audit.service.ts` takes the transaction client first,
+  like `writeStockAdjustment`, so the entry commits with the change it
+  describes. `RbacAuditLog` is append-only and denormalises role/user/actor
+  names, because the entry has to outlive what it describes. Readable at
+  `/roles/audit`.
 
 `session.user` carries `roles: string[]`, `permissions: Permission[]` and
 `isOwner: boolean`. There is no `session.user.role`.

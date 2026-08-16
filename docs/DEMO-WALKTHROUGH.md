@@ -67,7 +67,7 @@ below create it, so you can either rehearse them or do them live.
 
 ## 3. The demo script
 
-Twelve steps, roughly 15 minutes. Each says what to do and what to point out.
+Thirteen steps, roughly 18 minutes. Each says what to do and what to point out.
 
 ### Step 1 — Products (`/products`)
 
@@ -94,8 +94,9 @@ quantity 20, unit cost.
 
 ### Step 4 — Godown (`/godown`) ← the money shot
 
-> Say: 20 cylinders arrived, and here they are. Filled, empty, with customers,
-> and every movement that produced those numbers.
+> Say: 20 cylinders arrived, and here they are — filled and empty per product,
+> how many are out with customers, and every movement that produced those
+> numbers.
 
 Point at the **in sync** badge: the totals are re-derived from the ledger on
 every page load and compared to the running count. If they ever disagree, this
@@ -172,6 +173,32 @@ profit, collections, the trend, and the customers worth chasing.
 > Say: every report scopes to who is asking. An owner sees the whole agency; a
 > staff member sees only their own paperwork.
 
+### Step 13 — Access control (`/roles`) ← the answer to "can we control this?"
+
+Create a role, tick a few boxes, assign it to someone.
+
+> Say: every screen and every button is controlled from here. Roles are yours to
+> create — the system does not have a fixed list of job titles. A user can hold
+> more than one role and gets everything their roles allow.
+
+Point at **OWNER**, badged *system*: it cannot be edited or deleted, and always
+has full access. That is the guarantee you can never lock yourself out.
+
+Then **Access history**.
+
+> Say: every change to who can do what is recorded — who did it, when, and
+> exactly which permissions moved. It cannot be edited or deleted, and it keeps
+> the names even after a role is gone.
+
+Two things worth demonstrating live, because they surprise people:
+
+- Grant a role to `field` while they are **still logged in** on another screen.
+  Their access changes within about a minute without signing out.
+- Try to delete a role someone still holds — refused, with the number of users
+  to reassign.
+
+`docs/RBAC.md` is the full per-module reference if they ask for detail.
+
 **Optional finish:** log out, log in as `field`, and show the same app with
 fewer options — no reports, no purchases, no edit or delete.
 
@@ -181,7 +208,7 @@ fewer options — no reports, no purchases, no edit or delete.
 
 | Area | Where | What it does |
 |---|---|---|
-| Dashboard | `/` | Opens with the godown position — filled, empty, out with customers — then revenue, profit, expenses, collections, daily trend, revenue by product, low stock, and customers holding cylinders or debt too long |
+| Dashboard | `/` | Opens with the godown position per product, then revenue, profit, expenses, collections, daily trend, revenue by product, low stock, and customers holding cylinders or debt too long. Which cards appear depends on the viewer's permissions |
 | Godown | `/godown` | Filled/empty per product, cylinders with customers, full movement ledger, cache-vs-ledger check |
 | Stock | `/stock` | Batches on hand; manual batches for opening stock (posts an adjustment) |
 | Stock adjustments | `/stock-adjustments` | Manual corrections with a mandatory reason; append-only log |
@@ -193,7 +220,8 @@ fewer options — no reports, no purchases, no edit or delete.
 | Customer transactions | `/customer-txn/[id]` | Balance, cylinders held, full ledger, record and reverse payments |
 | Expenses | `/expenses` | Private to whoever recorded them; owners see everyone's |
 | Reports | `/reports/*` | Commercial, domestic, ARB, sale-by-product, expense, purchase — all with Excel/PDF export |
-| Users | `/users` | Accounts and roles, activate/deactivate |
+| Users | `/users` | Accounts and roles (a user may hold several), activate/deactivate |
+| Roles & permissions | `/roles` | Create roles and tick what they may do; `/roles/audit` records every change. See `docs/RBAC.md` |
 
 ---
 
@@ -237,8 +265,11 @@ more than the invoice total, deleting a customer who still owes money, deleting
 a rental with cylinders outstanding, deactivating the last owner: all refused,
 with the reason shown.
 
-**"Is it tested?"** — 42 unit tests and 137 integration tests against a real
+**"Is it tested?"** — 69 unit tests and 165 integration tests against a real
 database, plus CI that migrates and seeds a fresh database on every change.
+
+**"Can we control who sees what?"** — Step 13. Roles are created and edited in
+the app, not in code, and every change is recorded.
 
 ---
 
@@ -248,10 +279,12 @@ Honest list, so nothing surprises you mid-demo.
 
 - **Empty-cylinder counts start at zero** and only populate as rentals come
   back. Don't open the godown page expecting empties on a fresh database.
-- **The reports and dashboard have no per-role card rules yet** beyond hiding
-  revenue and profit from staff. The dashboard rework (rename Revenue → Sale,
-  stock at the top, expense/profit pies, per-card export) is still open — see
-  `TODO.md`.
+- **The dashboard rework** (rename Revenue → Sale, expense/profit pies, per-card
+  export, cash/cheque split) is still open — see `TODO.md`. Card visibility is
+  now permission-driven: `dashboard.financials` controls the money cards.
+- **Sale and purchase lists are not author-scoped** — anyone who can view a sale
+  type sees every invoice of it. Expenses, reports and the dashboard do
+  distinguish own records.
 - **No customer outstanding/dues report** yet. Per-customer balances live on the
   customer transactions page instead.
 - **Product still carries its own sale price**; the intent was to price from the
@@ -284,6 +317,8 @@ while the page still renders.
 /customer-txn/[id]      balance + ledger + payments
 /expenses               expenses         /expenses/add
 /products /vendors /locations /users
+/roles                  roles + permission matrix
+/roles/audit            who changed access, and when
 /reports/commercial-sale  /reports/dom-sale  /reports/arb-sale
 /reports/sale-by-product  /reports/expense   /reports/purchase
 ```
