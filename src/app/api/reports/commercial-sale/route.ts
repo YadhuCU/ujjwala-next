@@ -6,14 +6,15 @@ import * as ReportService from "@/module/report/report.service";
 import { serializeSaleReportRow } from "@/module/report/report.serializer";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async ({ id, roles }) => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const query = SaleReportQuerySchema.parse(
       Object.fromEntries(req.nextUrl.searchParams),
     );
 
     const report = await ReportService.getSaleReport("COMMERCIAL", query, {
-      userId: Number(id),
-      roles: roles ?? [],
+      userId,
+      permissions,
+      isOwner,
     });
 
     return NextResponse.json({

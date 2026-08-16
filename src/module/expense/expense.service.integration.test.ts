@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
-import { ROLES } from "@/lib/permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { makeUser } from "@/test/factories";
 import * as ExpenseService from "./expense.service";
 
@@ -8,11 +8,18 @@ let ownerId: number;
 let staffId: number;
 let otherStaffId: number;
 
-const owner = () => ({ userId: ownerId, roles: [ROLES.OWNER] });
-const staff = () => ({ userId: staffId, roles: [ROLES.OFFICE_STAFF] });
+// Scope is a granted permission now, not a role name — these actors say so.
+const owner = () => ({
+  userId: ownerId,
+  permissions: [PERMISSIONS.EXPENSE_READ_ALL],
+});
+const staff = () => ({
+  userId: staffId,
+  permissions: [PERMISSIONS.EXPENSE_READ_OWN],
+});
 const otherStaff = () => ({
   userId: otherStaffId,
-  roles: [ROLES.FIELD_STAFF],
+  permissions: [PERMISSIONS.EXPENSE_READ_OWN],
 });
 
 const query = { page: 1, limit: 20 };

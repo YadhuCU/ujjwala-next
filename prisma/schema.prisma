@@ -154,22 +154,38 @@ model UserRole {
 }
 
 model Role {
-  id              Int              @id @default(autoincrement())
-  name            String           @unique @db.VarChar(50)
-  description     String?
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
+  description String?
+  // A system role cannot be renamed, edited or deleted, and always holds every
+  // permission. It is what makes a lockout recoverable, so authorization checks
+  // key on this flag rather than on the role's name — a rename must never be
+  // able to turn an owner into an ordinary user.
+  isSystem    Boolean  @default(false) @map("is_system")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
   rolePermissions RolePermission[]
   userRoles       UserRole[]
 
   @@index([name])
+  @@index([isSystem])
   @@map("roles")
 }
 
 model Permission {
-  id              Int              @id @default(autoincrement())
-  code            String           @unique @db.VarChar(100)
-  description     String?
+  id          Int    @id @default(autoincrement())
+  code        String @unique @db.VarChar(100)
+  description String?
+  // Display metadata, synced from PERMISSION_REGISTRY in src/lib/permissions.ts
+  // so the role editor can group and label the matrix.
+  module      String @default("") @db.VarChar(50)
+  label       String @default("") @db.VarChar(120)
+  sortOrder   Int    @default(0) @map("sort_order")
+
   rolePermissions RolePermission[]
 
+  @@index([module, sortOrder])
   @@map("permissions")
 }
 

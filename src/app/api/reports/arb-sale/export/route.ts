@@ -13,7 +13,7 @@ import {
 } from "@/module/report/report.export";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async ({ id, roles }) => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const params = Object.fromEntries(req.nextUrl.searchParams);
     // Exports cover the full filtered range — page/limit are ignored on purpose
     const query = SaleReportQuerySchema.parse(params);
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const rows: SaleExportRow[] = await ReportService.getSaleReportRows(
       "ARB",
       query,
-      { userId: Number(id), roles: roles ?? [] },
+      { userId, permissions, isOwner },
     );
 
     return buildExportResponse({

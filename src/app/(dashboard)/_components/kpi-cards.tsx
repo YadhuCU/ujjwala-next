@@ -3,11 +3,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, DollarSign, Wallet, IndianRupee } from "lucide-react";
 import { DashboardData } from "./types";
-import { ROLES } from "@/lib/permissions";
 
 export function KpiCards({ data }: { data: DashboardData }) {
-  const { kpis, role } = data;
-  const isStaff = role !== ROLES.OWNER;
+  const { kpis, canSeeFinancials } = data;
   const profitMargin =
     kpis.totalRevenue > 0
       ? ((kpis.totalProfit / kpis.totalRevenue) * 100).toFixed(1)
@@ -21,7 +19,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
       icon: IndianRupee,
       gradient: "from-blue-600 to-indigo-700",
       shadow: "shadow-blue-500/20",
-      staffVisible: false,
+      financial: true,
     },
     {
       title: "Net Profit",
@@ -34,7 +32,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
           : "from-red-500 to-rose-600",
       shadow:
         kpis.totalProfit >= 0 ? "shadow-emerald-500/20" : "shadow-red-500/20",
-      staffVisible: false,
+      financial: true,
     },
     {
       title: "Total Expenses",
@@ -43,7 +41,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
       icon: Wallet,
       gradient: "from-rose-500 to-pink-600",
       shadow: "shadow-rose-500/20",
-      staffVisible: false,
+      financial: true,
     },
     {
       title: "Collections",
@@ -52,17 +50,18 @@ export function KpiCards({ data }: { data: DashboardData }) {
       icon: DollarSign,
       gradient: "from-violet-500 to-purple-600",
       shadow: "shadow-violet-500/20",
-      staffVisible: true,
+      financial: false,
     },
   ];
 
-  const visibleKpiCards = isStaff
-    ? kpiCards.filter((c) => c.staffVisible)
-    : kpiCards;
+  // Money totals are their own grant, separate from how far the figures reach.
+  const visibleKpiCards = canSeeFinancials
+    ? kpiCards
+    : kpiCards.filter((card) => !card.financial);
 
   return (
     <div
-      className={`grid gap-4 sm:grid-cols-2 ${isStaff ? "lg:grid-cols-2" : "lg:grid-cols-4"}`}
+      className={`grid gap-4 sm:grid-cols-2 ${canSeeFinancials ? "lg:grid-cols-4" : "lg:grid-cols-2"}`}
     >
       {visibleKpiCards.map((card) => (
         <Card

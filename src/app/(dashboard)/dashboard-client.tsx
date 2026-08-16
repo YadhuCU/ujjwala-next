@@ -14,7 +14,6 @@ import { InventoryAndTransactions } from "./_components/inventory-txns";
 import { CommercialAlerts } from "./_components/commercial-alerts";
 import { QuickActions } from "./_components/quick-actions";
 import { GodownPreview } from "./_components/godown-preview";
-import { ROLES } from "@/lib/permissions";
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
@@ -58,7 +57,7 @@ export default function DashboardPage() {
     );
   }
 
-  const isStaff = data.role !== ROLES.OWNER;
+  const isStaff = data.scope !== "all";
 
   return (
     <div className="space-y-6">

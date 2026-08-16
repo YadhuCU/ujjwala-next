@@ -5,7 +5,7 @@ import {
   ProductType,
   PurchaseType,
 } from "@/generated/client";
-import { ROLES } from "@/lib/permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import {
   makeCustomer,
   makeProduct,
@@ -26,8 +26,14 @@ let staffId: number;
 let customerId: number;
 let otherCustomerId: number;
 
-const owner = () => ({ userId: ownerId, roles: [ROLES.OWNER] });
-const staff = () => ({ userId: staffId, roles: [ROLES.OFFICE_STAFF] });
+const owner = () => ({
+  userId: ownerId,
+  permissions: [PERMISSIONS.REPORT_READ_ALL],
+});
+const staff = () => ({
+  userId: staffId,
+  permissions: [PERMISSIONS.REPORT_READ_OWN],
+});
 
 const range = {
   from: new Date("2026-08-01"),
@@ -214,10 +220,10 @@ describe("sale-by-product report", () => {
       ownerId,
     );
 
-    const report = await ReportService.getSaleByProductReport({
-      from: range.from,
-      to: range.to,
-    });
+    const report = await ReportService.getSaleByProductReport(
+      { from: range.from, to: range.to },
+      owner(),
+    );
 
     const byName = Object.fromEntries(
       report.data.map((row) => [row.productName, row]),
@@ -262,10 +268,10 @@ describe("sale-by-product report", () => {
       ownerId,
     );
 
-    const report = await ReportService.getSaleByProductReport({
-      from: range.from,
-      to: range.to,
-    });
+    const report = await ReportService.getSaleByProductReport(
+      { from: range.from, to: range.to },
+      owner(),
+    );
 
     expect(report.data.map((r) => r.productName)).toEqual(["Big", "Small"]);
   });
@@ -301,14 +307,14 @@ describe("purchase report", () => {
     await buy(vendorA.id, 1000);
     await buy(vendorB.id, 250);
 
-    const all = await ReportService.getPurchaseReport(range);
+    const all = await ReportService.getPurchaseReport(range, owner());
     expect(all.summary.invoiceCount).toBe(2);
     expect(all.summary.totalAmount).toBe(1250);
 
-    const onlyA = await ReportService.getPurchaseReport({
-      ...range,
-      vendorId: vendorA.id,
-    });
+    const onlyA = await ReportService.getPurchaseReport(
+      { ...range, vendorId: vendorA.id },
+      owner(),
+    );
     expect(onlyA.summary.totalAmount).toBe(1000);
   });
 });

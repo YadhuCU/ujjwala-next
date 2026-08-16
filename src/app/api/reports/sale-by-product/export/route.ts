@@ -9,13 +9,13 @@ import * as ReportService from "@/module/report/report.service";
 import { buildExportResponse } from "@/module/report/report.export";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async () => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const params = Object.fromEntries(req.nextUrl.searchParams);
     const query = SaleByProductQuerySchema.parse(params);
     const format = ExportFormatSchema.parse(params.format ?? "excel");
 
     const { data, summary } =
-      await ReportService.getSaleByProductReport(query);
+      await ReportService.getSaleByProductReport(query, { userId, permissions, isOwner });
 
     return buildExportResponse({
       format,

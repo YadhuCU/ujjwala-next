@@ -24,6 +24,7 @@ export const SaleReportQuerySchema = DateRangeSchema.extend({
 export const PurchaseReportQuerySchema = DateRangeSchema.extend({
   ...PaginationSchema.shape,
   vendorId: z.preprocess(allToUndefined, z.coerce.number().int().optional()),
+  staffId: z.preprocess(allToUndefined, z.coerce.number().int().optional()),
 });
 
 export const ExpenseReportQuerySchema = DateRangeSchema.extend({

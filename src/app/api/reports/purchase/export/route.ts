@@ -9,12 +9,12 @@ import * as ReportService from "@/module/report/report.service";
 import { buildExportResponse } from "@/module/report/report.export";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async () => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const params = Object.fromEntries(req.nextUrl.searchParams);
     const query = PurchaseReportQuerySchema.parse(params);
     const format = ExportFormatSchema.parse(params.format ?? "excel");
 
-    const rows = await ReportService.getPurchaseReportRows(query);
+    const rows = await ReportService.getPurchaseReportRows(query, { userId, permissions, isOwner });
     const totalAmount = rows.reduce(
       (sum, row) => sum + Number(row.totalCost ?? 0),
       0,

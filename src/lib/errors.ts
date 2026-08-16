@@ -5,11 +5,16 @@ export class AppError extends Error {
   constructor(message: string, statusCode = 500, errors?: unknown) {
     super(message);
 
-    this.name = "AppError";
     this.statusCode = statusCode;
     this.errors = errors;
 
-    Object.setPrototypeOf(this, AppError.prototype);
+    // Restore the prototype of whichever subclass was actually constructed.
+    // Pinning it to AppError.prototype here would make `err instanceof
+    // ForbiddenError` false for every subclass, and name them all "AppError".
+    const proto = new.target?.prototype ?? AppError.prototype;
+    Object.setPrototypeOf(this, proto);
+
+    this.name = new.target?.name ?? "AppError";
   }
 }
 

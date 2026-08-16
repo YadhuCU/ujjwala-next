@@ -1,7 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/client";
-import { ForbiddenError, NotFoundError } from "@/lib/errors";
-import { ROLES } from "@/lib/permissions";
+import { NotFoundError } from "@/lib/errors";
+import { SCOPES } from "@/lib/permissions";
+import {
+  assertCanAccessRecord,
+  resolveScope,
+  scopeFilter,
+  type Actor,
+} from "@/lib/access-scope";
 import type {
   CreateExpenseInput,
   ExpenseQuery,
@@ -20,16 +26,9 @@ const expenseInclude = {
 // INTERNAL TYPES
 // =============================================================================
 
-// Who is asking — expenses are private to their author unless you are an owner.
-export type ExpenseActor = { userId: number; roles: string[] };
-
-// =============================================================================
-// PURE HELPERS
-// =============================================================================
-
-function isOwner(actor: ExpenseActor): boolean {
-  return actor.roles.includes(ROLES.OWNER);
-}
+// Who is asking. Whether they see everyone's spending or only their own is a
+// granted permission (expense.read.all vs expense.read.own), not a role name.
+export type ExpenseActor = Actor;
 
 // =============================================================================
 // GUARDS
@@ -47,8 +46,12 @@ async function assertExpenseExists(
 
   if (!expense) throw new NotFoundError(`Expense #${id} not found`);
 
-  if (!isOwner(actor) && expense.createdById !== actor.userId)
-    throw new ForbiddenError("You can only manage expenses you created");
+  assertCanAccessRecord(
+    actor,
+    resolveScope(actor, SCOPES.EXPENSE),
+    expense,
+    "You can only manage expenses you created",
+  );
 
   return expense;
 }
@@ -77,8 +80,8 @@ export async function getExpenses(query: ExpenseQuery, actor: ExpenseActor) {
 
   const where = {
     isDeleted: false,
-    // Non-owners only ever see their own spending
-    ...(!isOwner(actor) && { createdById: actor.userId }),
+    // "all" adds nothing; "own" narrows to this user; "none" throws.
+    ...scopeFilter(actor, resolveScope(actor, SCOPES.EXPENSE)),
     ...(search && {
       expense: { contains: search, mode: "insensitive" as const },
     }),

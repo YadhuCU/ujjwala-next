@@ -3,12 +3,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
 import { DashboardData } from "./types";
-import { ROLES } from "@/lib/permissions";
 
 export function CommercialAlerts({ data }: { data: DashboardData }) {
-  const { commercialAnalytics, role } = data;
+  const { commercialAnalytics, scope } = data;
   
-  if (role !== ROLES.OWNER) return null;
+  // Agency-wide customer alerts only make sense to someone who sees the agency.
+  if (scope !== "all") return null;
 
   return (
     <div className="space-y-4">

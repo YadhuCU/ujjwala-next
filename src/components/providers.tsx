@@ -129,7 +129,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <SessionProvider>
+      {/* Re-poll /api/auth/session so a permission change reaches the UI without
+          a sign-out. That endpoint is the one path that both runs the database
+          refresh and persists the resulting cookie. */}
+      <SessionProvider refetchInterval={60} refetchOnWindowFocus>
         <QueryErrorResetBoundary>
           <QueryClientProvider client={queryClient}>
             {children}

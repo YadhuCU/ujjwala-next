@@ -5,14 +5,15 @@ import { DashboardQuerySchema } from "@/module/dashboard/dashboard.payload.schem
 import * as DashboardService from "@/module/dashboard/dashboard.service";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async ({ id, roles }) => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const query = DashboardQuerySchema.parse(
       Object.fromEntries(req.nextUrl.searchParams),
     );
 
     const data = await DashboardService.getDashboard(query, {
-      userId: Number(id),
-      roles: roles ?? [],
+      userId,
+      permissions,
+      isOwner,
     });
 
     return NextResponse.json(data);

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { BadRequestError } from "@/lib/errors";
-import { ROLES } from "@/lib/permissions";
+import { SCOPES } from "@/lib/permissions";
+import { resolveScope, scopeFilter, type Actor } from "@/lib/access-scope";
 import { CommercialSaleType } from "@/generated/client";
 import type {
   ExpenseReportQuery,
@@ -28,9 +29,10 @@ const saleInclude = {
 // INTERNAL TYPES
 // =============================================================================
 
-// Staff only ever see their own paperwork; owners see everything and may filter
-// down to one staff member.
-export type ReportActor = { userId: number; roles: string[] };
+// Whether a user reports on the whole agency or only their own paperwork is a
+// granted permission (report.read.all vs report.read.own). Agency-wide sight
+// also unlocks narrowing to a single staff member.
+export type ReportActor = Actor;
 
 type SaleHeader = {
   totalAmount: { toNumber(): number } | null;
@@ -40,10 +42,6 @@ type SaleHeader = {
 // =============================================================================
 // PURE HELPERS
 // =============================================================================
-
-function isOwner(actor: ReportActor): boolean {
-  return actor.roles.includes(ROLES.OWNER);
-}
 
 // The UI sends plain dates — the end date has to cover the whole day.
 function assertAndNormalizeRange(from: Date, to: Date) {
@@ -60,7 +58,12 @@ function assertAndNormalizeRange(from: Date, to: Date) {
 }
 
 function authorFilter(actor: ReportActor, staffId?: number) {
-  if (!isOwner(actor)) return { createdById: actor.userId };
+  const scope = resolveScope(actor, SCOPES.REPORT);
+
+  // Own-scope users are pinned to their own rows; a staffId they send by hand
+  // is ignored rather than honoured. "none" must not fall through to {}, which
+  // would read as agency-wide.
+  if (scope !== "all") return scopeFilter(actor, scope);
   if (staffId) return { createdById: staffId };
   return {};
 }
@@ -166,13 +169,14 @@ export async function getSaleReportRows(
 // PURCHASE REPORT
 // =============================================================================
 
-function buildPurchaseWhere(query: PurchaseReportQuery) {
+function buildPurchaseWhere(query: PurchaseReportQuery, actor: ReportActor) {
   const { fromDate, toDate } = assertAndNormalizeRange(query.from, query.to);
 
   return {
     isDeleted: false,
     purchaseDate: { gte: fromDate, lte: toDate },
     ...(query.vendorId && { vendorId: query.vendorId }),
+    ...authorFilter(actor, query.staffId),
   };
 }
 
@@ -181,8 +185,11 @@ const purchaseInclude = {
   items: { include: { product: { select: { name: true } } } },
 } as const;
 
-export async function getPurchaseReport(query: PurchaseReportQuery) {
-  const where = buildPurchaseWhere(query);
+export async function getPurchaseReport(
+  query: PurchaseReportQuery,
+  actor: ReportActor,
+) {
+  const where = buildPurchaseWhere(query, actor);
   const { page, limit } = query;
 
   const [data, total, aggregate] = await Promise.all([
@@ -207,9 +214,12 @@ export async function getPurchaseReport(query: PurchaseReportQuery) {
   };
 }
 
-export async function getPurchaseReportRows(query: PurchaseReportQuery) {
+export async function getPurchaseReportRows(
+  query: PurchaseReportQuery,
+  actor: ReportActor,
+) {
   return prisma.purchase.findMany({
-    where: buildPurchaseWhere(query),
+    where: buildPurchaseWhere(query, actor),
     include: purchaseInclude,
     orderBy: { purchaseDate: "desc" },
   });
@@ -286,13 +296,19 @@ type ProductRow = {
   totalAmount: number;
 };
 
-export async function getSaleByProductReport(query: SaleByProductQuery) {
+export async function getSaleByProductReport(
+  query: SaleByProductQuery,
+  actor: ReportActor,
+) {
   const { fromDate, toDate } = assertAndNormalizeRange(query.from, query.to);
   const range = { gte: fromDate, lte: toDate };
 
+  // The scope applies to the parent invoice — line items carry no author.
+  const author = authorFilter(actor);
+
   const [domItems, arbItems, comItems] = await Promise.all([
     prisma.domSaleItem.findMany({
-      where: { domSale: { isDeleted: false, createdAt: range } },
+      where: { domSale: { isDeleted: false, createdAt: range, ...author } },
       select: {
         quantity: true,
         netTotal: true,
@@ -300,7 +316,7 @@ export async function getSaleByProductReport(query: SaleByProductQuery) {
       },
     }),
     prisma.arbSaleItem.findMany({
-      where: { arbSale: { isDeleted: false, createdAt: range } },
+      where: { arbSale: { isDeleted: false, createdAt: range, ...author } },
       select: {
         quantity: true,
         netTotal: true,
@@ -309,7 +325,9 @@ export async function getSaleByProductReport(query: SaleByProductQuery) {
     }),
     prisma.commercialSaleItem.findMany({
       // Rentals are billed too, so both line types count as sales revenue
-      where: { commercialSale: { isDeleted: false, createdAt: range } },
+      where: {
+        commercialSale: { isDeleted: false, createdAt: range, ...author },
+      },
       select: {
         quantity: true,
         netTotal: true,

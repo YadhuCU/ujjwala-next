@@ -9,14 +9,15 @@ import * as ReportService from "@/module/report/report.service";
 import { buildExportResponse } from "@/module/report/report.export";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async ({ id, roles }) => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const params = Object.fromEntries(req.nextUrl.searchParams);
     const query = ExpenseReportQuerySchema.parse(params);
     const format = ExportFormatSchema.parse(params.format ?? "excel");
 
     const rows = await ReportService.getExpenseReportRows(query, {
-      userId: Number(id),
-      roles: roles ?? [],
+      userId,
+      permissions,
+      isOwner,
     });
 
     const totalAmount = rows.reduce(

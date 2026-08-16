@@ -6,12 +6,12 @@ import * as ReportService from "@/module/report/report.service";
 import { serializePurchaseReportRow } from "@/module/report/report.serializer";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async () => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const query = PurchaseReportQuerySchema.parse(
       Object.fromEntries(req.nextUrl.searchParams),
     );
 
-    const report = await ReportService.getPurchaseReport(query);
+    const report = await ReportService.getPurchaseReport(query, { userId, permissions, isOwner });
 
     return NextResponse.json({
       ...report,

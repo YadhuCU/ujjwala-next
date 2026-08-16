@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Package } from "lucide-react";
 import { DashboardData } from "./types";
-import { ROLES } from "@/lib/permissions";
 
 const COLORS = [
   "hsl(221, 83%, 53%)",
@@ -20,8 +19,7 @@ const COLORS = [
 ];
 
 export function ProductBreakdown({ data }: { data: DashboardData }) {
-  const { productBreakdown, role } = data;
-  const isStaff = role !== ROLES.OWNER;
+  const { productBreakdown, canSeeFinancials } = data;
 
   const productConfig = React.useMemo(() => {
     if (!productBreakdown) return {} as ChartConfig;
@@ -32,7 +30,7 @@ export function ProductBreakdown({ data }: { data: DashboardData }) {
     return cfg;
   }, [productBreakdown]);
 
-  if (isStaff) return null;
+  if (!canSeeFinancials) return null;
 
   return (
     <Card className="lg:col-span-2">

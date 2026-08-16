@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { TrendingUp, BarChart3 } from "lucide-react";
 import { DashboardData } from "./types";
-import { ROLES } from "@/lib/permissions";
 
 const trendConfig = {
   revenue: { label: "Revenue", color: "hsl(221, 83%, 53%)" },
@@ -21,20 +20,23 @@ const salesTypeConfig = {
 } satisfies ChartConfig;
 
 export function TrendCharts({ data }: { data: DashboardData }) {
-  const { dailyTrend, role } = data;
-  const isStaff = role !== ROLES.OWNER;
+  const { dailyTrend, canSeeFinancials, scope } = data;
+  // Cost and profit series are money; the wording follows how far the
+  // figures reach, which is a different grant.
+  const hideMoney = !canSeeFinancials;
+  const ownOnly = scope === "own";
 
   return (
-    <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-7"}`}>
+    <div className={`grid gap-6 ${hideMoney ? "" : "lg:grid-cols-7"}`}>
       {/* Revenue & Profit Trend — Area Chart */}
-      <Card className={isStaff ? "" : "lg:col-span-4"}>
+      <Card className={hideMoney ? "" : "lg:col-span-4"}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-emerald-500" />
-            {isStaff ? "Your Sales Trend" : "Revenue & Profit Trend"}
+            {ownOnly ? "Your Sales Trend" : "Revenue & Profit Trend"}
           </CardTitle>
           <CardDescription>
-            {isStaff
+            {hideMoney
               ? "Daily revenue from your sales"
               : "Daily revenue, profit, and expenses over the selected period"}
           </CardDescription>
@@ -108,7 +110,7 @@ export function TrendCharts({ data }: { data: DashboardData }) {
                 fill="url(#fillRevenue)"
                 strokeWidth={2}
               />
-              {!isStaff && (
+              {!hideMoney && (
                 <Area
                   type="monotone"
                   dataKey="profit"
@@ -117,7 +119,7 @@ export function TrendCharts({ data }: { data: DashboardData }) {
                   strokeWidth={2}
                 />
               )}
-              {!isStaff && (
+              {!hideMoney && (
                 <Area
                   type="monotone"
                   dataKey="expense"
@@ -133,7 +135,7 @@ export function TrendCharts({ data }: { data: DashboardData }) {
       </Card>
 
       {/* Sales by Type — Bar Chart (admin only) */}
-      {!isStaff && (
+      {!hideMoney && (
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

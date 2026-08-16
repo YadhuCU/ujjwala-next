@@ -8,16 +8,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Package, ShoppingCart, ArrowUpRight } from "lucide-react";
 import { DashboardData } from "./types";
-import { ROLES } from "@/lib/permissions";
 
 export function InventoryAndTransactions({ data }: { data: DashboardData }) {
-  const { lowStock, recentTxns, role } = data;
-  const isStaff = role !== ROLES.OWNER;
+  const { lowStock, recentTxns, scope } = data;
+  // Low stock is an agency-wide figure, not scoped to the viewer.
+  const hideAgencyWide = scope !== "all";
 
   return (
-    <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-2"}`}>
+    <div className={`grid gap-6 ${hideAgencyWide ? "" : "lg:grid-cols-2"}`}>
       {/* Low Stock Alert (admin only) */}
-      {!isStaff && (
+      {!hideAgencyWide && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

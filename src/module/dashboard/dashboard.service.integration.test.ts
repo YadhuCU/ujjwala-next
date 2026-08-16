@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { PaymentType, ProductType } from "@/generated/client";
-import { ROLES } from "@/lib/permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import {
   makeCustomer,
   makeProduct,
@@ -17,8 +17,17 @@ let ownerId: number;
 let staffId: number;
 let customerId: number;
 
-const owner = () => ({ userId: ownerId, roles: [ROLES.OWNER] });
-const staff = () => ({ userId: staffId, roles: [ROLES.OFFICE_STAFF] });
+const owner = () => ({
+  userId: ownerId,
+  permissions: [
+    PERMISSIONS.DASHBOARD_READ_ALL,
+    PERMISSIONS.DASHBOARD_FINANCIALS,
+  ],
+});
+const staff = () => ({
+  userId: staffId,
+  permissions: [PERMISSIONS.DASHBOARD_READ_OWN],
+});
 
 // The dashboard defaults to the last 30 days, so tests use today's date
 const today = new Date();
@@ -135,12 +144,30 @@ describe("staff scoping", () => {
     expect(forStaff.kpis.totalCollections).toBe(200);
   });
 
-  it("reports the role back to the client", async () => {
+  // The client used to receive a role name and compare it to "OWNER", which
+  // meant a new role could never be shown agency-wide figures.
+  it("reports scope and financial visibility, not a role name", async () => {
     const forOwner = await DashboardService.getDashboard(range, owner());
     const forStaff = await DashboardService.getDashboard(range, staff());
 
-    expect(forOwner.role).toBe(ROLES.OWNER);
-    expect(forStaff.role).toBe(ROLES.OFFICE_STAFF);
+    expect(forOwner.scope).toBe("all");
+    expect(forOwner.canSeeFinancials).toBe(true);
+
+    expect(forStaff.scope).toBe("own");
+    expect(forStaff.canSeeFinancials).toBe(false);
+  });
+
+  it("shows money totals to any role granted them, agency-wide or not", async () => {
+    const result = await DashboardService.getDashboard(range, {
+      userId: staffId,
+      permissions: [
+        PERMISSIONS.DASHBOARD_READ_OWN,
+        PERMISSIONS.DASHBOARD_FINANCIALS,
+      ],
+    });
+
+    expect(result.scope).toBe("own");
+    expect(result.canSeeFinancials).toBe(true);
   });
 });
 

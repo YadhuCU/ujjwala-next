@@ -26,19 +26,15 @@ export const authConfig = {
 
       return true;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id as string;
-        token.roles = user.roles;
-        token.permissions = user.permissions;
-      }
-      return token;
-    },
+    // No `jwt` callback here on purpose. This config is bundled for the edge
+    // middleware, where Prisma cannot run, and the real implementation needs a
+    // database. It lives in `auth.ts`; Auth.js supplies a passthrough default.
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
         session.user.roles = token.roles;
         session.user.permissions = token.permissions;
+        session.user.isOwner = token.isOwner;
       }
       return session;
     },

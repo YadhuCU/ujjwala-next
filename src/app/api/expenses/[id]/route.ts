@@ -11,12 +11,13 @@ type Props = {
 };
 
 export async function GET(_req: NextRequest, { params }: Props) {
-  return withAuth(async ({ id: userId, roles }) => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const { id } = await params;
 
     const expense = await ExpenseService.getExpenseById(Number(id), {
-      userId: Number(userId),
-      roles: roles ?? [],
+      userId,
+      permissions,
+      isOwner,
     });
 
     return formatResponse({ data: serializeExpense(expense) });
@@ -25,13 +26,14 @@ export async function GET(_req: NextRequest, { params }: Props) {
 
 export async function PUT(req: NextRequest, { params }: Props) {
   return withAuth(
-    async ({ id: userId, roles }) => {
+    async ({ userId, permissions, isOwner }) => {
       const { id } = await params;
       const data = UpdateExpenseSchema.parse(await req.json());
 
       const expense = await ExpenseService.updateExpense(Number(id), data, {
-        userId: Number(userId),
-        roles: roles ?? [],
+        userId,
+        permissions,
+        isOwner,
       });
 
       return formatResponse({
@@ -45,12 +47,13 @@ export async function PUT(req: NextRequest, { params }: Props) {
 
 export async function DELETE(_req: NextRequest, { params }: Props) {
   return withAuth(
-    async ({ id: userId, roles }) => {
+    async ({ userId, permissions, isOwner }) => {
       const { id } = await params;
 
       await ExpenseService.deleteExpense(Number(id), {
-        userId: Number(userId),
-        roles: roles ?? [],
+        userId,
+        permissions,
+        isOwner,
       });
 
       return formatResponse({

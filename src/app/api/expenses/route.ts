@@ -10,13 +10,14 @@ import * as ExpenseService from "@/module/expense/expense.service";
 import { serializeExpenses } from "@/module/expense/expense.serializer";
 
 export async function GET(req: NextRequest) {
-  return withAuth(async ({ id, roles }) => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const params = Object.fromEntries(req.nextUrl.searchParams);
     const query = ExpenseQuerySchema.parse(params);
 
     const result = await ExpenseService.getExpenses(query, {
-      userId: Number(id),
-      roles: roles ?? [],
+      userId,
+      permissions,
+      isOwner,
     });
 
     return formatResponse({

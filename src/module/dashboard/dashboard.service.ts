@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { ROLES } from "@/lib/permissions";
+import { PERMISSIONS, SCOPES } from "@/lib/permissions";
+import { resolveScope, scopeFilter, type Actor } from "@/lib/access-scope";
 import { LedgerEntryType } from "@/generated/client";
 import type { DashboardQuery } from "./dashboard.payload.schema";
 
@@ -28,7 +29,9 @@ const CHART_COLORS = [
 // INTERNAL TYPES
 // =============================================================================
 
-export type DashboardActor = { userId: number; roles: string[] };
+// Whether the figures cover the whole agency or only this user's own records
+// is a granted permission, as is whether money totals are shown at all.
+export type DashboardActor = Actor;
 
 type DailyBucket = {
   date: string;
@@ -45,10 +48,6 @@ type DailyBucket = {
 // =============================================================================
 // PURE HELPERS
 // =============================================================================
-
-function isOwner(actor: DashboardActor): boolean {
-  return actor.roles.includes(ROLES.OWNER);
-}
 
 function dayKey(date: Date): string {
   return date.toISOString().split("T")[0];
@@ -114,8 +113,12 @@ export async function getDashboard(
   const { startDate, endDate, todayStart } = resolveRange(query);
   const range = { gte: startDate, lte: endDate };
 
-  // Staff see only what they recorded themselves
-  const scope = isOwner(actor) ? {} : { createdById: actor.userId };
+  // "all" adds nothing; "own" narrows to this user; "none" throws.
+  const accessScope = resolveScope(actor, SCOPES.DASHBOARD);
+  const scope = scopeFilter(actor, accessScope);
+  const canSeeFinancials =
+    actor.isOwner === true ||
+    actor.permissions.includes(PERMISSIONS.DASHBOARD_FINANCIALS);
   const saleWhere = { isDeleted: false, createdAt: range, ...scope };
 
   const saleInclude = {
@@ -391,7 +394,10 @@ export async function getDashboard(
   }));
 
   return {
-    role: isOwner(actor) ? ROLES.OWNER : (actor.roles[0] ?? ""),
+    // The client used to receive a role name and compare it to "OWNER".
+    // These two flags say what it actually needs to know.
+    scope: accessScope,
+    canSeeFinancials,
     kpis: {
       totalRevenue: round2(totalRevenue),
       totalProfit: round2(totalRevenue - totalCost - totalExpenses),
