@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/client";
 
-import { PERMISSIONS } from "@/lib/permissions";
+import { PERMISSION_REGISTRY, PERMISSIONS, ROLES } from "@/lib/permissions";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -17,88 +17,81 @@ const prisma = new PrismaClient({
 
 // =========================================================
 // ROLE DEFINITIONS
+//
+// OWNER is a *system* role: it always holds every permission, cannot be edited
+// or deleted from the UI, and is what makes a misconfiguration recoverable.
+//
+// The other two are starting points only. They are seeded on first run and
+// never re-granted afterwards, because they are editable in the app now and
+// re-seeding must not silently undo an administrator's changes.
 // =========================================================
 
-const ROLE_PERMISSIONS = {
-  OWNER: Object.values(PERMISSIONS),
+const STARTER_ROLES = {
+  [ROLES.OFFICE_STAFF]: {
+    description: "Office staff — records paperwork and sees their own records",
+    permissions: [
+      PERMISSIONS.DASHBOARD_READ,
+      PERMISSIONS.DASHBOARD_READ_OWN,
 
-  OFFICE_STAFF: [
-    // Dashboard
-    PERMISSIONS.DASHBOARD_READ,
+      // Creating a customer needs the location dropdown to load
+      PERMISSIONS.CUSTOMER_CREATE,
+      PERMISSIONS.CUSTOMER_READ,
+      PERMISSIONS.LOCATION_READ,
 
-    // Customer — creating one needs the location dropdown to load
-    PERMISSIONS.CUSTOMER_CREATE,
-    PERMISSIONS.CUSTOMER_READ,
-    PERMISSIONS.LOCATION_READ,
+      PERMISSIONS.VENDOR_READ,
 
-    // Vendor
-    PERMISSIONS.VENDOR_READ,
+      PERMISSIONS.EXPENSE_CREATE,
+      PERMISSIONS.EXPENSE_READ,
+      PERMISSIONS.EXPENSE_READ_OWN,
 
-    // Expense
-    PERMISSIONS.EXPENSE_CREATE,
-    PERMISSIONS.EXPENSE_READ,
-    PERMISSIONS.EXPENSE_READ_OWN,
+      PERMISSIONS.COMMERCIAL_SALE_CREATE,
+      PERMISSIONS.COMMERCIAL_SALE_READ,
 
-    // Commercial Sale
-    PERMISSIONS.COMMERCIAL_SALE_CREATE,
-    PERMISSIONS.COMMERCIAL_SALE_READ,
-    PERMISSIONS.COMMERCIAL_SALE_READ_OWN,
+      PERMISSIONS.DOMESTIC_SALE_CREATE,
+      PERMISSIONS.DOMESTIC_SALE_READ,
 
-    // Domestic Sale
-    PERMISSIONS.DOMESTIC_SALE_CREATE,
-    PERMISSIONS.DOMESTIC_SALE_READ,
-    PERMISSIONS.DOMESTIC_SALE_READ_OWN,
+      PERMISSIONS.ARB_SALE_CREATE,
+      PERMISSIONS.ARB_SALE_READ,
 
-    // Arb Sale
-    PERMISSIONS.ARB_SALE_CREATE,
-    PERMISSIONS.ARB_SALE_READ,
-    PERMISSIONS.ARB_SALE_READ_OWN,
+      PERMISSIONS.PRODUCT_READ,
+      PERMISSIONS.STOCK_READ,
 
-    // Product
-    PERMISSIONS.PRODUCT_READ,
+      PERMISSIONS.REPORT_READ,
+      PERMISSIONS.REPORT_READ_OWN,
+    ],
+  },
 
-    // Stock
-    PERMISSIONS.STOCK_READ,
+  [ROLES.FIELD_STAFF]: {
+    description: "Field staff — records sales in the field",
+    permissions: [
+      PERMISSIONS.DASHBOARD_READ,
+      PERMISSIONS.DASHBOARD_READ_OWN,
 
-    // Reports
-    PERMISSIONS.REPORT_READ,
-  ],
+      PERMISSIONS.CUSTOMER_READ,
 
-  FIELD_STAFF: [
-    // Dashboard
-    PERMISSIONS.DASHBOARD_READ,
+      PERMISSIONS.EXPENSE_CREATE,
+      PERMISSIONS.EXPENSE_READ,
+      PERMISSIONS.EXPENSE_READ_OWN,
 
-    // Customer
-    PERMISSIONS.CUSTOMER_READ,
+      // Field staff record sales, so they create as well as read. They cannot
+      // update or delete a posted sale; a correction goes through the office.
+      PERMISSIONS.COMMERCIAL_SALE_CREATE,
+      PERMISSIONS.COMMERCIAL_SALE_READ,
 
-    // Expense
-    PERMISSIONS.EXPENSE_CREATE,
-    PERMISSIONS.EXPENSE_READ,
-    PERMISSIONS.EXPENSE_READ_OWN,
+      PERMISSIONS.DOMESTIC_SALE_CREATE,
+      PERMISSIONS.DOMESTIC_SALE_READ,
 
-    // Sales — field staff record sales in the field, so they create as well
-    // as read. They still only ever see their own (READ_OWN), and they cannot
-    // update or delete a posted sale; a correction goes through the office.
-    PERMISSIONS.COMMERCIAL_SALE_CREATE,
-    PERMISSIONS.COMMERCIAL_SALE_READ,
-    PERMISSIONS.COMMERCIAL_SALE_READ_OWN,
+      PERMISSIONS.ARB_SALE_CREATE,
+      PERMISSIONS.ARB_SALE_READ,
 
-    PERMISSIONS.DOMESTIC_SALE_CREATE,
-    PERMISSIONS.DOMESTIC_SALE_READ,
-    PERMISSIONS.DOMESTIC_SALE_READ_OWN,
+      // Selling needs the catalogue and the batches to sell from
+      PERMISSIONS.PRODUCT_READ,
+      PERMISSIONS.STOCK_READ,
 
-    PERMISSIONS.ARB_SALE_CREATE,
-    PERMISSIONS.ARB_SALE_READ,
-    PERMISSIONS.ARB_SALE_READ_OWN,
-
-    // Selling needs the catalogue and the batches to sell from
-    PERMISSIONS.PRODUCT_READ,
-    PERMISSIONS.STOCK_READ,
-
-    // Location
-    PERMISSIONS.LOCATION_READ,
-  ],
-} as const;
+      PERMISSIONS.LOCATION_READ,
+    ],
+  },
+};
 
 // =========================================================
 // USERS
@@ -117,6 +110,14 @@ const ROLE_PERMISSIONS = {
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
 const MIN_PASSWORD_LENGTH = 8;
+
+/**
+ * Break glass. Normally the seed never touches an existing user's password, so
+ * re-running it cannot undo a deliberate change — which also means a lost owner
+ * password is unrecoverable without database access. Setting this resets the
+ * owner's password and re-attaches the system role.
+ */
+const FORCE_OWNER_RESET = process.env.SEED_FORCE_OWNER_PASSWORD === "1";
 
 function seedPassword(envKey: string, devFallback: string): string {
   const value = process.env[envKey] ?? process.env.SEED_PASSWORD;
@@ -146,21 +147,21 @@ const USERS = [
     username: "owner",
     password: seedPassword("SEED_OWNER_PASSWORD", "owner123"),
     name: "Owner User",
-    roles: ["OWNER"],
+    roles: [ROLES.OWNER],
   },
 
   {
     username: "office",
     password: seedPassword("SEED_OFFICE_PASSWORD", "office123"),
     name: "Office Staff",
-    roles: ["OFFICE_STAFF"],
+    roles: [ROLES.OFFICE_STAFF],
   },
 
   {
     username: "field",
     password: seedPassword("SEED_FIELD_PASSWORD", "field123"),
     name: "Field Staff",
-    roles: ["FIELD_STAFF"],
+    roles: [ROLES.FIELD_STAFF],
   },
 ] as const;
 
@@ -172,116 +173,186 @@ async function main() {
   console.log("🌱 Starting seed...");
 
   // =========================================================
-  // CREATE ALL PERMISSIONS
+  // SYNC THE PERMISSION CATALOGUE
+  //
+  // A true sync, not an append. The old seed only ever added, so removing a
+  // permission from source left both the row and every grant of it in place —
+  // access nobody could see in the code.
   // =========================================================
 
-  const permissions = Object.values(PERMISSIONS);
+  for (const [index, entry] of PERMISSION_REGISTRY.entries()) {
+    const data = {
+      module: entry.module,
+      label: entry.label,
+      description: entry.description ?? null,
+      sortOrder: index,
+    };
 
-  for (const permission of permissions) {
     await prisma.permission.upsert({
-      where: {
-        code: permission,
-      },
-
-      create: {
-        code: permission,
-      },
-
-      update: {},
+      where: { code: entry.code },
+      create: { code: entry.code, ...data },
+      update: data,
     });
   }
 
-  console.log("✅ Permissions synced");
+  const liveCodes = PERMISSION_REGISTRY.map((entry) => entry.code);
+  const { count: removed } = await prisma.permission.deleteMany({
+    where: { code: { notIn: liveCodes } },
+  });
 
-  // =========================================================
-  // CREATE ROLES
-  // =========================================================
-
-  const rolesMap: Record<string, number> = {};
-
-  for (const roleName of Object.keys(ROLE_PERMISSIONS)) {
-    const role = await prisma.role.upsert({
-      where: {
-        name: roleName,
-      },
-
-      create: {
-        name: roleName,
-      },
-
-      update: {},
-    });
-
-    rolesMap[roleName] = role.id;
-  }
-
-  console.log("✅ Roles synced");
-
-  // =========================================================
-  // FETCH ALL DB PERMISSIONS
-  // =========================================================
-
-  const dbPermissions = await prisma.permission.findMany();
-
-  const permissionMap = new Map(
-    dbPermissions.map((p) => [p.code, p.id])
+  console.log(
+    `✅ Permissions synced (${liveCodes.length} live${removed ? `, ${removed} retired` : ""})`,
   );
 
   // =========================================================
-  // ASSIGN ROLE PERMISSIONS
+  // SYSTEM ROLE
+  // Always present, always complete. Re-granted on every run so that adding a
+  // permission in a release cannot lock the owner out of the new feature.
   // =========================================================
 
-  for (const [roleName, permissions] of Object.entries(
-    ROLE_PERMISSIONS
-  )) {
-    const roleId = rolesMap[roleName];
+  const ownerRole = await prisma.role.upsert({
+    where: { name: ROLES.OWNER },
+    create: {
+      name: ROLES.OWNER,
+      description: "Full access. Cannot be edited or deleted.",
+      isSystem: true,
+    },
+    update: { isSystem: true },
+  });
 
-    for (const permissionCode of permissions) {
-      const permissionId =
-        permissionMap.get(permissionCode);
+  const allPermissions = await prisma.permission.findMany({
+    select: { id: true, code: true },
+  });
 
-      if (!permissionId) {
-        continue;
-      }
+  await prisma.rolePermission.deleteMany({ where: { roleId: ownerRole.id } });
+  await prisma.rolePermission.createMany({
+    data: allPermissions.map((permission) => ({
+      roleId: ownerRole.id,
+      permissionId: permission.id,
+    })),
+    skipDuplicates: true,
+  });
 
-      await prisma.rolePermission.upsert({
-        where: {
-          roleId_permissionId: {
-            roleId,
-            permissionId,
-          },
-        },
+  console.log("✅ System role synced");
 
-        create: {
-          roleId,
-          permissionId,
-        },
+  // =========================================================
+  // STARTER ROLES
+  // Seeded once. Never re-granted — they are editable in the app now.
+  // =========================================================
 
-        update: {},
+  const permissionByCode = new Map(allPermissions.map((p) => [p.code, p.id]));
+  const roleIds: Record<string, number> = { [ROLES.OWNER]: ownerRole.id };
+
+  for (const [name, definition] of Object.entries(STARTER_ROLES)) {
+    const existing = await prisma.role.findUnique({ where: { name } });
+
+    if (existing) {
+      roleIds[name] = existing.id;
+      console.log(`↷ ${name} already exists — leaving its permissions alone`);
+      continue;
+    }
+
+    const role = await prisma.role.create({
+      data: { name, description: definition.description },
+    });
+
+    await prisma.rolePermission.createMany({
+      data: definition.permissions
+        .map((code) => permissionByCode.get(code))
+        .filter((id): id is number => id !== undefined)
+        .map((permissionId) => ({ roleId: role.id, permissionId })),
+      skipDuplicates: true,
+    });
+
+    roleIds[name] = role.id;
+  }
+
+  console.log("✅ Starter roles synced");
+
+  // =========================================================
+  // BACKFILL: every module read needs a scope
+  //
+  // Scoping used to be implicit — "not the OWNER role" meant own-records-only.
+  // Now it is a granted permission, so a role upgraded from before this change
+  // holds e.g. dashboard.read with no scope beside it, which reads as no access
+  // at all. Grant the narrower ".own" wherever a scope is missing entirely.
+  //
+  // Idempotent, and it never overrides a deliberate choice: a role that already
+  // has either half of the pair is left alone.
+  // =========================================================
+
+  const SCOPE_BACKFILL = [
+    {
+      gate: PERMISSIONS.EXPENSE_READ,
+      own: PERMISSIONS.EXPENSE_READ_OWN,
+      all: PERMISSIONS.EXPENSE_READ_ALL,
+    },
+    {
+      gate: PERMISSIONS.REPORT_READ,
+      own: PERMISSIONS.REPORT_READ_OWN,
+      all: PERMISSIONS.REPORT_READ_ALL,
+    },
+    {
+      gate: PERMISSIONS.DASHBOARD_READ,
+      own: PERMISSIONS.DASHBOARD_READ_OWN,
+      all: PERMISSIONS.DASHBOARD_READ_ALL,
+    },
+  ];
+
+  const editableRoles = await prisma.role.findMany({
+    where: { isSystem: false },
+    include: { rolePermissions: { include: { permission: true } } },
+  });
+
+  let backfilled = 0;
+
+  for (const role of editableRoles) {
+    const held = new Set(
+      role.rolePermissions.map((rolePermission) => rolePermission.permission.code),
+    );
+
+    for (const scope of SCOPE_BACKFILL) {
+      const needsScope =
+        held.has(scope.gate) && !held.has(scope.own) && !held.has(scope.all);
+
+      if (!needsScope) continue;
+
+      const permissionId = permissionByCode.get(scope.own);
+      if (!permissionId) continue;
+
+      await prisma.rolePermission.create({
+        data: { roleId: role.id, permissionId },
       });
+
+      console.log(`  + ${role.name}: ${scope.own}`);
+      backfilled += 1;
     }
   }
 
-  console.log("✅ Role permissions synced");
+  console.log(
+    backfilled > 0
+      ? `✅ Scope backfill applied (${backfilled} grant${backfilled === 1 ? "" : "s"})`
+      : "✅ Scope backfill — nothing to do",
+  );
 
   // =========================================================
-  // CREATE USERS
+  // USERS
   // =========================================================
 
   for (const user of USERS) {
-    const hashedPassword = await bcrypt.hash(
-      user.password,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    const isOwnerAccount = (user.roles as readonly string[]).includes(ROLES.OWNER);
+    const resetPassword = isOwnerAccount && FORCE_OWNER_RESET;
 
     const createdUser = await prisma.user.upsert({
-      where: {
-        username: user.username,
-      },
+      where: { username: user.username },
 
+      // Passwords are deliberately not touched on an existing account, so
+      // re-seeding cannot undo a deliberate change.
       update: {
         name: user.name,
         isActive: true,
+        ...(resetPassword && { password: hashedPassword }),
       },
 
       create: {
@@ -292,30 +363,24 @@ async function main() {
       },
     });
 
-    // =====================================================
-    // ASSIGN USER ROLES
-    // =====================================================
+    if (resetPassword)
+      console.log(`🔑 Reset the password for "${user.username}"`);
 
     for (const roleName of user.roles) {
       await prisma.userRole.upsert({
         where: {
-          roleId_userId: {
-            roleId: rolesMap[roleName],
-            userId: createdUser.id,
-          },
+          roleId_userId: { roleId: roleIds[roleName], userId: createdUser.id },
         },
-
-        create: {
-          roleId: rolesMap[roleName],
-          userId: createdUser.id,
-        },
-
+        create: { roleId: roleIds[roleName], userId: createdUser.id },
         update: {},
       });
     }
   }
 
   console.log("✅ Users synced");
+
+  if (FORCE_OWNER_RESET)
+    console.log("⚠️  SEED_FORCE_OWNER_PASSWORD was set — unset it for normal runs.");
 
   console.log("🎉 Seed completed");
 }

@@ -23,11 +23,14 @@ export async function GET(_request: Request, { params }: Props) {
 
 export async function PUT(req: NextRequest, { params }: Props) {
   return withAuth(
-    async () => {
+    async ({ userId, isOwner }) => {
       const { id } = await params;
       const data = UpdateUserSchema.parse(await req.json());
 
-      const user = await UserService.updateUser(Number(id), data);
+      const user = await UserService.updateUser(Number(id), data, {
+        userId,
+        isOwner,
+      });
 
       return formatResponse({
         data: serializeUser(user),

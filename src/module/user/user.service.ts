@@ -4,9 +4,9 @@ import { Prisma } from "@/generated/client";
 import {
   BadRequestError,
   ConflictError,
+  ForbiddenError,
   NotFoundError,
 } from "@/lib/errors";
-import { ROLES } from "@/lib/permissions";
 import type {
   CreateUserInput,
   UpdateUserInput,
@@ -22,6 +22,13 @@ const userInclude = {
 } as const;
 
 const PASSWORD_SALT_ROUNDS = 10;
+
+// =============================================================================
+// INTERNAL TYPES
+// =============================================================================
+
+/** Who is performing the change — required to stop privilege escalation. */
+export type UserActor = { userId: number; isOwner: boolean };
 
 // =============================================================================
 // GUARDS
@@ -52,6 +59,10 @@ async function assertRolesExist(
 
 // Locking every owner out of the system is unrecoverable without DB access, so
 // the last active owner cannot be deleted, deactivated, or demoted.
+//
+// Keyed on `isSystem`, not the role name: matching on "OWNER" meant that
+// renaming the role made this query return nothing, so the guard returned
+// without throwing — failing open exactly when it mattered.
 async function assertNotLastOwner(
   tx: Prisma.TransactionClient,
   userId: number,
@@ -59,7 +70,7 @@ async function assertNotLastOwner(
 ) {
   const owners = await tx.userRole.findMany({
     where: {
-      role: { name: ROLES.OWNER },
+      role: { isSystem: true },
       user: { isDeleted: false, isActive: true },
     },
     select: { userId: true },
@@ -77,6 +88,59 @@ function assertNotSelf(userId: number, actorId: number, action: string) {
     throw new BadRequestError(`You cannot ${action} your own account`);
 }
 
+/**
+ * Granting a system role is granting unrestricted access, so only someone who
+ * already has it may do so. Without this, `user.update` alone was enough to
+ * self-promote to owner: the existing guard only fired on demotion.
+ */
+async function assertMayAssignRoles(
+  tx: Prisma.TransactionClient,
+  targetId: number,
+  roles: { id: number; isSystem: boolean }[],
+  actor: UserActor,
+) {
+  if (actor.isOwner) return;
+
+  if (roles.some((role) => role.isSystem))
+    throw new ForbiddenError("Only an owner may grant a system role");
+
+  // Changing your own roles is how a self-promotion starts; an owner has to do it.
+  if (targetId === actor.userId) {
+    const current = await tx.userRole.findMany({
+      where: { userId: targetId },
+      select: { roleId: true },
+    });
+
+    const before = new Set(current.map((row) => row.roleId));
+    const after = new Set(roles.map((role) => role.id));
+    const changed =
+      before.size !== after.size || [...after].some((id) => !before.has(id));
+
+    if (changed)
+      throw new ForbiddenError("You cannot change your own role assignments");
+  }
+}
+
+/**
+ * A password reset is an account takeover if the target outranks you, so only
+ * an owner may set another owner's password.
+ */
+async function assertMaySetPassword(
+  tx: Prisma.TransactionClient,
+  targetId: number,
+  actor: UserActor,
+) {
+  if (actor.isOwner) return;
+
+  const targetIsOwner = await tx.userRole.findFirst({
+    where: { userId: targetId, role: { isSystem: true } },
+    select: { id: true },
+  });
+
+  if (targetIsOwner)
+    throw new ForbiddenError("Only an owner may change an owner's password");
+}
+
 // =============================================================================
 // WRITE HELPERS
 // =============================================================================
@@ -86,6 +150,11 @@ async function replaceUserRoles(
   userId: number,
   roleIds: number[],
 ) {
+  // A user with no roles authenticates and then fails every request with no
+  // cause to point at. Refuse rather than create that state.
+  if (roleIds.length === 0)
+    throw new BadRequestError("A user must hold at least one role");
+
   await tx.userRole.deleteMany({ where: { userId } });
 
   await tx.userRole.createMany({
@@ -120,14 +189,8 @@ export async function createUser(input: CreateUserInput) {
   });
 }
 
-// =============================================================================
-// ROLES
-// Read-only lookup — roles and their permissions are seeded, not managed in-app.
-// =============================================================================
-
-export async function getRoles() {
-  return prisma.role.findMany({ orderBy: { name: "asc" } });
-}
+// Roles used to be a read-only lookup living here. They are a module of their
+// own now — see `src/module/role/role.service.ts`.
 
 // =============================================================================
 // LIST
@@ -177,15 +240,22 @@ export async function getUserById(id: number) {
 // UPDATE
 // =============================================================================
 
-export async function updateUser(id: number, input: UpdateUserInput) {
+export async function updateUser(
+  id: number,
+  input: UpdateUserInput,
+  actor: UserActor,
+) {
   const { userRoles, password, ...rest } = input;
 
   return prisma.$transaction(async (tx) => {
     await assertUserExists(tx, id);
     const roles = await assertRolesExist(tx, userRoles);
 
+    await assertMayAssignRoles(tx, id, roles, actor);
+    if (password) await assertMaySetPassword(tx, id, actor);
+
     // Dropping the owner role counts as demoting them
-    const keepsOwner = roles.some((role) => role.name === ROLES.OWNER);
+    const keepsOwner = roles.some((role) => role.isSystem);
     if (!keepsOwner) await assertNotLastOwner(tx, id, "demote");
 
     await tx.user.update({

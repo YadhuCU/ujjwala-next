@@ -9,7 +9,9 @@ let ownerRoleId: number;
 let staffRoleId: number;
 
 beforeEach(async () => {
-  ownerRoleId = (await makeRole(ROLES.OWNER)).id;
+  // isSystem is what marks the owner role now — a rename must not be able
+  // to turn an owner into an ordinary user.
+  ownerRoleId = (await makeRole(ROLES.OWNER, true)).id;
   staffRoleId = (await makeRole(ROLES.OFFICE_STAFF)).id;
 });
 
@@ -45,6 +47,10 @@ describe("createUser", () => {
   });
 });
 
+// An owner performing the change — the escalation guards need to know who is
+// acting, and these cases are about the other rules.
+const admin = () => ({ userId: 0, isOwner: true });
+
 describe("updateUser", () => {
   it("keeps the existing hash when no password is supplied", async () => {
     const created = await UserService.createUser(userInput([staffRoleId]));
@@ -55,7 +61,7 @@ describe("updateUser", () => {
       email: undefined,
       mobile: undefined,
       userRoles: [staffRoleId],
-    });
+    }, admin());
 
     expect(updated.password).toBe(created.password);
     expect(updated.name).toBe("Renamed");
@@ -70,7 +76,7 @@ describe("updateUser", () => {
       email: undefined,
       mobile: undefined,
       userRoles: [staffRoleId],
-    });
+    }, admin());
 
     expect(updated.password).not.toBe(created.password);
     expect(await bcrypt.compare("a-different-one", updated.password)).toBe(
@@ -87,7 +93,7 @@ describe("updateUser", () => {
       email: undefined,
       mobile: undefined,
       userRoles: [ownerRoleId],
-    });
+    }, admin());
 
     expect(updated.userRoles.map((r) => r.role.name)).toEqual([ROLES.OWNER]);
   });
@@ -124,7 +130,7 @@ describe("last active owner", () => {
         email: undefined,
         mobile: undefined,
         userRoles: [staffRoleId],
-      }),
+      }, admin()),
     ).rejects.toThrow(/last active owner/);
   });
 
@@ -204,5 +210,111 @@ describe("deleteUser", () => {
     });
     expect(data.map((u) => u.id)).toEqual([actor.id]);
     expect(meta.total).toBe(1);
+  });
+});
+
+// =============================================================================
+// PRIVILEGE ESCALATION
+// updateUser used to take no actor at all, so anyone holding user.update could
+// promote themselves to owner or reset the owner's password.
+// =============================================================================
+
+describe("escalation guards", () => {
+  const staffActor = (userId: number) => ({ userId, isOwner: false });
+
+  it("stops a non-owner granting a system role", async () => {
+    const staff = await makeUserWithRoles([staffRoleId], "Ambitious");
+    const target = await makeUserWithRoles([staffRoleId], "Target");
+
+    await expect(
+      UserService.updateUser(
+        target.id,
+        {
+          name: "Target",
+          password: undefined,
+          email: undefined,
+          mobile: undefined,
+          userRoles: [ownerRoleId],
+        },
+        staffActor(staff.id),
+      ),
+    ).rejects.toThrow(/only an owner may grant a system role/i);
+  });
+
+  it("stops a non-owner changing their own role assignments", async () => {
+    const staff = await makeUserWithRoles([staffRoleId], "Self Promoter");
+    const other = await makeRole("ANOTHER");
+
+    await expect(
+      UserService.updateUser(
+        staff.id,
+        {
+          name: "Self Promoter",
+          password: undefined,
+          email: undefined,
+          mobile: undefined,
+          userRoles: [other.id],
+        },
+        staffActor(staff.id),
+      ),
+    ).rejects.toThrow(/cannot change your own role assignments/i);
+  });
+
+  it("lets a non-owner edit their own details without touching roles", async () => {
+    const staff = await makeUserWithRoles([staffRoleId], "Editor");
+
+    const updated = await UserService.updateUser(
+      staff.id,
+      {
+        name: "Edited",
+        password: undefined,
+        email: undefined,
+        mobile: undefined,
+        userRoles: [staffRoleId],
+      },
+      staffActor(staff.id),
+    );
+
+    expect(updated.name).toBe("Edited");
+  });
+
+  // Demoting the target sidesteps the system-role guard, so the password check
+  // has to stand on its own. Two owners, so the last-owner guard stays quiet.
+  it("stops a non-owner resetting an owner's password while demoting them", async () => {
+    const staff = await makeUserWithRoles([staffRoleId], "Attacker");
+    const target = await makeUserWithRoles([ownerRoleId], "The Owner");
+    await makeUserWithRoles([ownerRoleId], "Second Owner");
+
+    await expect(
+      UserService.updateUser(
+        target.id,
+        {
+          name: "The Owner",
+          password: "seized",
+          email: undefined,
+          mobile: undefined,
+          userRoles: [staffRoleId],
+        },
+        staffActor(staff.id),
+      ),
+    ).rejects.toThrow(/only an owner may change an owner's password/i);
+  });
+
+  it("refuses to leave a user with no roles", async () => {
+    const staff = await makeUserWithRoles([staffRoleId], "Roleless");
+
+    await expect(
+      UserService.updateUser(
+        staff.id,
+        {
+          name: "Roleless",
+          password: undefined,
+          email: undefined,
+          mobile: undefined,
+          userRoles: [],
+        },
+        admin(),
+      ),
+    ).rejects.toThrow(/at least one role/i);
   });
 });

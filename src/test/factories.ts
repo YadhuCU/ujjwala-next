@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ProductType } from "@/generated/client";
+import { PERMISSION_REGISTRY } from "@/lib/permissions";
 import { writeStockAdjustment } from "@/module/stock-adjustment/stock-adjustment.service";
 
 /**
@@ -17,8 +18,27 @@ export async function makeUser(name = "Test Owner") {
   });
 }
 
-export async function makeRole(name: string) {
-  return prisma.role.create({ data: { name } });
+export async function makeRole(name: string, isSystem = false) {
+  return prisma.role.create({ data: { name, isSystem } });
+}
+
+/**
+ * Mirror the code-defined permission catalogue into the database.
+ *
+ * Every test truncates every table, so a role service test would otherwise be
+ * granting codes that have no row to point at.
+ */
+export async function syncPermissionCatalogue() {
+  await prisma.permission.createMany({
+    data: PERMISSION_REGISTRY.map((entry, index) => ({
+      code: entry.code,
+      module: entry.module,
+      label: entry.label,
+      description: entry.description,
+      sortOrder: index,
+    })),
+    skipDuplicates: true,
+  });
 }
 
 /** A user holding the given roles, for the guards that count owners. */
