@@ -1,36 +1,35 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api, apiClient } from "@/lib/api-client";
 import {
   stocksOptions,
   customersOptions,
   locationsOptions,
-  productsOptions,
   usersOptions,
   vendorsOptions,
   purchasesOptions,
   arbSalesOptions,
   commercialSalesOptions,
 } from "@/lib/query-options";
-import { ProductType } from "@prisma/client";
+import { ProductType } from "@/generated/enums";
 
 // ─── Custom Query Hooks (reused in ≥2 components) ───────────────────────────
 
-export function useStocks(type?: ProductType) {
-  return useQuery(stocksOptions(type));
+export function useStocks(type?: ProductType, includeEmpty = false) {
+  return useSuspenseQuery(stocksOptions(type, includeEmpty));
 }
 
 export function useCustomers() {
-  return useQuery(customersOptions);
+  return useSuspenseQuery(customersOptions);
 }
 
 export function useLocations() {
-  return useQuery(locationsOptions);
-}
-
-export function useProducts(type?: ProductType) {
-  return useQuery(productsOptions(type));
+  return useSuspenseQuery(locationsOptions);
 }
 
 export function useUsers() {
@@ -38,11 +37,11 @@ export function useUsers() {
 }
 
 export function useVendors() {
-  return useQuery(vendorsOptions);
+  return useSuspenseQuery(vendorsOptions);
 }
 
 export function usePurchases() {
-  return useQuery(purchasesOptions);
+  return useSuspenseQuery(purchasesOptions);
 }
 
 export function useArbSales() {
@@ -65,20 +64,11 @@ interface MutationOptions {
   onError?: (error: unknown) => void;
 }
 
-function getAxiosError(error: unknown): string {
-  if (error instanceof AxiosError) {
-    return error.response?.data?.error || error.message || "Operation failed";
-  }
-  if (error instanceof Error) return error.message;
-  return "Operation failed";
-}
-
 export function useApiMutation<T = Record<string, unknown>>({
   url,
   method = "POST",
   invalidateKeys = [],
   onSuccess,
-  onError,
 }: MutationOptions) {
   const queryClient = useQueryClient();
 
@@ -96,10 +86,6 @@ export function useApiMutation<T = Record<string, unknown>>({
         queryClient.invalidateQueries({ queryKey: [...key] });
       });
       onSuccess?.();
-    },
-    onError: (error: Error) => {
-      if (onError) onError(error);
-      else toast.error(getAxiosError(error));
     },
   });
 }
@@ -124,9 +110,6 @@ export function useDeleteMutation({
       });
       toast.success("Deleted successfully");
       onSuccess?.();
-    },
-    onError: (error: Error) => {
-      toast.error(getAxiosError(error));
     },
   });
 }

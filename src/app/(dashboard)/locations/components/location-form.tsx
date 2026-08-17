@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,19 +13,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-export const locationSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  district: z.string().optional().or(z.literal("")),
-  pincode: z.string().optional().or(z.literal("")),
-  locality: z.string().optional().or(z.literal("")),
-});
-
-export type LocationFormValues = z.infer<typeof locationSchema>;
-
-// ─── Props ───────────────────────────────────────────────────────────────────
+import {
+  LocationFormSchema,
+  LocationFormValues,
+} from "@/module/location/location.form.schema";
 
 interface LocationFormProps {
   defaultValues?: LocationFormValues;
@@ -35,8 +25,6 @@ interface LocationFormProps {
   isPending: boolean;
 }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
 export function LocationForm({
   defaultValues,
   isEditMode = false,
@@ -44,13 +32,8 @@ export function LocationForm({
   isPending,
 }: LocationFormProps) {
   const form = useForm<LocationFormValues>({
-    resolver: zodResolver(locationSchema),
-    defaultValues: defaultValues ?? {
-      name: "",
-      district: "",
-      pincode: "",
-      locality: "",
-    },
+    resolver: zodResolver(LocationFormSchema),
+    defaultValues: defaultValues ?? {},
   });
 
   return (
@@ -117,8 +100,12 @@ export function LocationForm({
               )}
             />
             <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
+              <Button
+                type="submit"
+                disabled={!form.formState.isDirty}
+                isLoading={isPending}
+              >
+                {isEditMode ? "Update" : "Save"}
               </Button>
               <Button
                 type="button"

@@ -3,14 +3,9 @@
 // Each entity provides: .all (for invalidation), .lists() (for list queries),
 // and .detail(id) (for single-item queries).
 
-import { ProductType } from "@prisma/client";
+import { ProductType } from "@/generated/enums";
 
 export const queryKeys = {
-  sales: {
-    all: ["sales"] as const,
-    lists: () => ["sales"] as const,
-    detail: (id: string) => ["sales", id] as const,
-  },
   domSales: {
     all: ["dom-sales"] as const,
     lists: () => ["dom-sales"] as const,
@@ -39,10 +34,23 @@ export const queryKeys = {
   customerTxn: {
     all: ["customer-txn"] as const,
     detail: (custId: string) => ["customer-txn", custId] as const,
+    transactions: (custId: string, params?: object) =>
+      ["customer-txn", custId, "transactions", params] as const,
+  },
+  godown: {
+    all: ["godown"] as const,
+    status: () => ["godown", "status"] as const,
+    movements: (params?: object) => ["godown", "movements", params] as const,
+  },
+  stockAdjustments: {
+    all: ["stock-adjustments"] as const,
+    lists: () => ["stock-adjustments"] as const,
+    detail: (id: string) => ["stock-adjustments", id] as const,
   },
   stocks: {
     all: ["stocks"] as const,
-    lists: (type?: ProductType) => ["stocks", type] as const,
+    lists: (type?: ProductType, includeEmpty?: boolean) =>
+      ["stocks", type, includeEmpty] as const,
     detail: (id: string) => ["stocks", id] as const,
   },
   vendors: {
@@ -79,39 +87,40 @@ export const queryKeys = {
     all: ["dashboard"] as const,
     detail: (from?: string, to?: string) => ["dashboard", from, to] as const,
   },
-  saleReport: {
-    all: ["sale-report"] as const,
-    list: (params: object) =>
-      ["sale-report", params] as const,
-  },
   expenseReport: {
     all: ["expense-report"] as const,
-    list: (params: object) =>
-      ["expense-report", params] as const,
+    list: (params: object) => ["expense-report", params] as const,
   },
   arbSaleReport: {
     all: ["arb-sale-report"] as const,
-    list: (params: object) =>
-      ["arb-sale-report", params] as const,
+    list: (params: object) => ["arb-sale-report", params] as const,
   },
   commercialSaleReport: {
     all: ["commercial-sale-report"] as const,
-    list: (params: object) =>
-      ["commercial-sale-report", params] as const,
+    list: (params: object) => ["commercial-sale-report", params] as const,
   },
   domSaleReport: {
     all: ["dom-sale-report"] as const,
-    list: (params: object) =>
-      ["dom-sale-report", params] as const,
+    list: (params: object) => ["dom-sale-report", params] as const,
   },
   purchaseReport: {
     all: ["purchase-report"] as const,
-    list: (params: object) =>
-      ["purchase-report", params] as const,
+    list: (params: object) => ["purchase-report", params] as const,
   },
   saleByProductReport: {
     all: ["sale-by-product-report"] as const,
-    list: (params: object) =>
-      ["sale-by-product-report", params] as const,
+    list: (params: object) => ["sale-by-product-report", params] as const,
+  },
+  roles: {
+    all: ["roles"] as const,
+    lists: () => ["roles"] as const,
+    list: (params: object) => ["roles", "list", params] as const,
+    options: () => ["roles", "options"] as const,
+    detail: (id: string) => ["roles", id] as const,
+    audit: (params: object) => ["roles", "audit", params] as const,
+  },
+  permissions: {
+    all: ["permissions"] as const,
+    catalogue: () => ["permissions", "catalogue"] as const,
   },
 };

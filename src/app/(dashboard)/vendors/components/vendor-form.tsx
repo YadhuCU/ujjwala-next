@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,19 +14,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// ─── Schema ──────────────────────────────────────────────────────────────────
-
-export const vendorSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  phone: z.string().optional().or(z.literal("")),
-  address: z.string().optional().or(z.literal("")),
-  gstNumber: z.string().optional().or(z.literal("")),
-});
-
-export type VendorFormValues = z.infer<typeof vendorSchema>;
-
-// ─── Props ───────────────────────────────────────────────────────────────────
+import {
+  VendorFormValues,
+  VendorFormSchema,
+} from "@/module/vendor/vendor.form.schema";
 
 interface VendorFormProps {
   defaultValues?: VendorFormValues;
@@ -45,7 +35,7 @@ export function VendorForm({
   isPending,
 }: VendorFormProps) {
   const form = useForm<VendorFormValues>({
-    resolver: zodResolver(vendorSchema),
+    resolver: zodResolver(VendorFormSchema),
     defaultValues: defaultValues ?? {
       name: "",
       phone: "",
@@ -118,8 +108,12 @@ export function VendorForm({
               )}
             />
             <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
+              <Button
+                type="submit"
+                disabled={!form.formState.isDirty}
+                isLoading={isPending}
+              >
+                {isEditMode ? "Update" : "Save"}
               </Button>
               <Button
                 type="button"

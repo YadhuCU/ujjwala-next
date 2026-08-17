@@ -1,31 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useApiMutation } from "@/hooks/use-api";
-import { queryKeys } from "@/lib/query-keys";
-import { ExpenseForm } from "../components/expense-form";
-import type { ExpenseFormValues } from "../components/expense-form";
 import { PageWrapper } from "@/components/page-wrapper";
+import { ProtectedPage } from "@/components/protected-page";
+import { PERMISSIONS } from "@/lib/permissions";
+import { ExpenseCreateComponent } from "../components/expense-create";
 
-export default function AddExpensePage() {
-  const router = useRouter();
-
-  const createExpense = useApiMutation({
-    url: "/api/expenses",
-    invalidateKeys: [queryKeys.expenses.all],
-    onSuccess: () => {
-      toast.success("Expense added");
-      router.push("/expenses");
-    },
-  });
-
+export default function Page() {
   return (
-    <PageWrapper title="Add Expense" showBackButton>
-      <ExpenseForm
-        onSubmit={(values: ExpenseFormValues) => createExpense.mutate(values)}
-        isPending={createExpense.isPending}
-      />
-    </PageWrapper>
+    <ProtectedPage requiredPermission={PERMISSIONS.EXPENSE_CREATE}>
+      <PageWrapper title="Add Expense" showBackButton>
+        <ExpenseCreateComponent />
+      </PageWrapper>
+    </ProtectedPage>
   );
 }

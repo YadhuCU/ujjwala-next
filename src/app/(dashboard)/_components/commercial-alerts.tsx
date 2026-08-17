@@ -5,9 +5,10 @@ import { AlertTriangle } from "lucide-react";
 import { DashboardData } from "./types";
 
 export function CommercialAlerts({ data }: { data: DashboardData }) {
-  const { commercialAnalytics, role } = data;
+  const { commercialAnalytics, scope } = data;
   
-  if (role !== "Owner") return null;
+  // Agency-wide customer alerts only make sense to someone who sees the agency.
+  if (scope !== "all") return null;
 
   return (
     <div className="space-y-4">

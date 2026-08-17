@@ -1,7 +1,10 @@
 import type { NextAuthConfig } from "next-auth";
-import { UserRole } from "./constants";
 
 export const authConfig = {
+  // The agency runs this itself, on a LAN address rather than a public domain.
+  // Auth.js only trusts the request host automatically in dev, so without this
+  // a production `next start` rejects every sign-in with UntrustedHost.
+  trustHost: true,
   pages: {
     signIn: "/login",
   },
@@ -14,36 +17,24 @@ export const authConfig = {
       if (isApiAuthRoute) return true;
 
       if (isPublicRoute) {
+        // Prevent logged-in users from visiting login page
         if (isLoggedIn) return Response.redirect(new URL("/", nextUrl));
         return true;
       }
 
       if (!isLoggedIn) return false;
 
-      // Owner only pages
-      const ADMIN_ONLY_PAGES = ["/users"];
-      const role = (auth?.user as { role?: string })?.role;
-      const isGoingToAdminPage = ADMIN_ONLY_PAGES.some(
-        (p) => nextUrl.pathname === p || nextUrl.pathname.startsWith(p + "/")
-      );
-
-      if (isGoingToAdminPage && role !== "Owner") {
-        return Response.redirect(new URL("/", nextUrl));
-      }
-
       return true;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id as string;
-        token.role = (user as { role: string }).role as UserRole;
-      }
-      return token;
-    },
+    // No `jwt` callback here on purpose. This config is bundled for the edge
+    // middleware, where Prisma cannot run, and the real implementation needs a
+    // database. It lives in `auth.ts`; Auth.js supplies a passthrough default.
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
+        session.user.id = token.id;
+        session.user.roles = token.roles;
+        session.user.permissions = token.permissions;
+        session.user.isOwner = token.isOwner;
       }
       return session;
     },

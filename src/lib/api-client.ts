@@ -1,31 +1,67 @@
+import { Prisma, ProductType } from "@/generated/client";
 import axios from "axios";
-import { Prisma } from "@prisma/client";
-import type {
-  Expense,
-  Location,
-  Product,
-  Account,
-  Vendor,
-  ProductType,
-} from "@prisma/client";
+import { ProductResponse } from "../module/product/product.serializer";
+import { ApiResponse } from "./response";
+import { VendorResponse } from "../module/vendor/vendor.serializer";
+import { CustomerResponse } from "@/module/customer/customer.serializer";
+import { LocationResponse } from "@/module/location/location.serializer";
+import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
+import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
+import {
+  CustomerSummaryResponse,
+  LedgerEntryResponse,
+} from "@/module/customer-txn/customer-txn.serializer";
+import { ArbSaleResponse } from "@/module/arb-sale/arb-sale.serializer";
+import { CommercialSaleResponse } from "@/module/commercial-sale/commercial-sale.serializer";
+import { ExpenseResponse } from "@/module/expense/expense.serializer";
+import { UserResponse } from "@/module/user/user.serializer";
+import { StockResponse } from "@/module/stock/stock.serializer";
+import { StockAdjustmentResponse } from "@/module/stock-adjustment/stock-adjustment.serializer";
+import { GodownStatusResponse } from "@/module/godown/godown.service";
+import { MovementResponse } from "@/module/godown/godown.serializer";
+import { RoleResponse } from "@/module/role/role.serializer";
+import { RbacAuditResponse } from "@/module/role/rbac-audit.serializer";
+import type { PermissionMeta } from "@/lib/permissions";
+
+/** Slim role record for the user form's picker. */
+export type RoleOption = {
+  id: number;
+  name: string;
+  description: string | null;
+  isSystem: boolean;
+};
+
+/** The permission catalogue, grouped for the role editor's matrix. */
+export type PermissionGroup = { module: string; permissions: PermissionMeta[] };
+import {
+  ExpenseReportResponse,
+  PurchaseReportResponse,
+  SaleByProductResponse,
+  SaleReportResponse,
+} from "@/module/report/report.serializer";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
 
-export type SalePayload = Prisma.SaleGetPayload<{
-  include: { stock: true; customer: true; product: true };
-}>;
-
 export type DomSalePayload = Prisma.DomSaleGetPayload<{
-  include: { customer: true; items: { include: { stock: true; product: true } } };
+  include: {
+    customer: true;
+    items: { include: { stock: true; product: true } };
+  };
 }>;
 
 export type ArbSalePayload = Prisma.ArbSaleGetPayload<{
-  include: { customer: true; items: { include: { stock: true; product: true } } };
+  include: {
+    customer: true;
+    items: { include: { stock: true; product: true } };
+  };
 }>;
 
 export type CommercialSalePayload = Prisma.CommercialSaleGetPayload<{
-  include: { customer: true; items: { include: { stock: true; product: true } } };
+  include: {
+    customer: true;
+    items: { include: { stock: true; product: true } };
+  };
 }>;
 
 export type StockPayload = Prisma.StockGetPayload<{
@@ -40,7 +76,7 @@ export type PurchasePayload = Prisma.PurchaseGetPayload<{
   include: { vendor: true; items: { include: { product: true } } };
 }>;
 
-export type UserPayload = Omit<Account, "password">;
+
 
 // ─── Axios Client Instance ──────────────────────────────────────────────────
 // Single axios instance used across the app.
@@ -55,42 +91,115 @@ export const apiClient = axios.create({
 
 export const api = {
   // ─── List (GET all) ─────────────────────────────────────
-  getSales: () => apiClient.get<SalePayload[]>("/api/sales").then((r) => r.data),
-  getDomSales: () => apiClient.get<DomSalePayload[]>("/api/dom-sales").then((r) => r.data),
-  getArbSales: () => apiClient.get<{ data: ArbSalePayload[], pagination: unknown }>("/api/arb-sales").then((r) => r.data.data),
-  getCommercialSales: () => apiClient.get<{ data: CommercialSalePayload[], pagination: unknown }>("/api/commercial-sales").then((r) => r.data.data),
-  getExpenses: () => apiClient.get<Expense[]>("/api/expenses").then((r) => r.data),
-  getCustomers: () => apiClient.get<CustomerPayload[]>("/api/customers").then((r) => r.data),
-  getStocks: (type?: ProductType) => apiClient.get<StockPayload[]>("/api/stock", { params: { type } }).then((r) => r.data),
-  getLocations: () => apiClient.get<Location[]>("/api/locations").then((r) => r.data),
-  getProducts: (type?: ProductType) => apiClient.get<Product[]>("/api/products", { params: { type } }).then((r) => r.data),
-  getUsers: () => apiClient.get<UserPayload[]>("/api/users").then((r) => r.data),
-  getVendors: () => apiClient.get<Vendor[]>("/api/vendors").then((r) => r.data),
-  getPurchases: () => apiClient.get<PurchasePayload[]>("/api/purchases").then((r) => r.data),
+  getDomSales: () =>
+    apiClient
+      .get<ApiResponse<DomSaleResponse[]>>("/api/dom-sales")
+      .then((r) => r.data),
+  getArbSales: () =>
+    apiClient
+      .get<ApiResponse<ArbSaleResponse[]>>("/api/arb-sales")
+      .then((r) => r.data),
+  getCommercialSales: () =>
+    apiClient
+      .get<ApiResponse<CommercialSaleResponse[]>>("/api/commercial-sales")
+      .then((r) => r.data),
+  getExpenses: () =>
+    apiClient
+      .get<ApiResponse<ExpenseResponse[]>>("/api/expenses")
+      .then((r) => r.data),
+  getCustomers: () =>
+    apiClient
+      .get<ApiResponse<CustomerResponse[]>>("/api/customers")
+      .then((r) => r.data),
+  getStocks: (params?: { type?: ProductType; includeEmpty?: boolean }) =>
+    apiClient
+      .get<ApiResponse<StockResponse[]>>("/api/stock", { params })
+      .then((r) => r.data),
+  getLocations: () =>
+    apiClient
+      .get<ApiResponse<LocationResponse[]>>("/api/locations")
+      .then((r) => r.data),
+  getProducts: (type?: ProductType) =>
+    apiClient
+      .get<
+        ApiResponse<ProductResponse[]>
+      >("/api/products", { params: { type } })
+      .then((r) => r.data),
+  getUsers: () =>
+    apiClient.get<ApiResponse<UserResponse[]>>("/api/users").then((r) => r.data),
+  getVendors: () =>
+    apiClient
+      .get<ApiResponse<VendorResponse[]>>("/api/vendors")
+      .then((r) => r.data),
+  getPurchases: () =>
+    apiClient
+      .get<ApiResponse<PurchaseResponse[]>>("/api/purchases")
+      .then((r) => r.data),
+  getGodownStatus: () =>
+    apiClient
+      .get<ApiResponse<GodownStatusResponse>>("/api/godown")
+      .then((r) => r.data),
+
+  getGodownMovements: (params?: {
+    productId?: number;
+    txnType?: string;
+    page?: number;
+    limit?: number;
+  }) =>
+    apiClient
+      .get<
+        ApiResponse<MovementResponse[]>
+      >("/api/godown/movements", { params })
+      .then((r) => r.data),
+
+  getStockAdjustments: () =>
+    apiClient
+      .get<ApiResponse<StockAdjustmentResponse[]>>("/api/stock-adjustments")
+      .then((r) => r.data),
+  // Full role records, paginated — the roles admin screen.
+  getRoles: (params?: object) =>
+    apiClient
+      .get<ApiResponse<RoleResponse[]>>("/api/roles", { params })
+      .then((r) => r.data),
+
+  // Just id + name, for the user form's role picker.
+  getRoleOptions: () =>
+    apiClient
+      .get<
+        ApiResponse<RoleOption[]>
+      >("/api/roles", { params: { options: true } })
+      .then((r) => r.data),
+
+  getRbacAudit: (params?: object) =>
+    apiClient
+      .get<ApiResponse<RbacAuditResponse[]>>("/api/roles/audit", { params })
+      .then((r) => r.data),
+
+  getPermissionCatalogue: () =>
+    apiClient
+      .get<ApiResponse<PermissionGroup[]>>("/api/permissions")
+      .then((r) => r.data),
 
   // ─── Detail (GET by id) ─────────────────────────────────
   getById: <T>(resource: string, id: string) =>
-    apiClient.get<T>(`/api/${resource}/${id}`).then((r) => r.data),
+    apiClient.get<ApiResponse<T>>(`/api/${resource}/${id}`).then((r) => r.data),
 
   // ─── Custom GET endpoints ───────────────────────────────
-  getCustomerTxn: (custId: string) =>
+  getCustomerTxnSummary: (customerId: string) =>
     apiClient
-      .get<{
-        rent_qty: number;
-        pending_amount: number;
-        cylinder_breakdown?: {
-          stockId: number | null;
-          stockBatchNo: string | null;
-          productName: string;
-          quantity: number;
-        }[];
-        breakdown?: {
-          commercial: number;
-          domestic: number;
-          arb: number;
-          initial: number;
-        };
-      }>(`/api/customer-txn?cust_id=${custId}`)
+      .get<
+        ApiResponse<CustomerSummaryResponse>
+      >(`/api/customer-txn/${customerId}/balance`)
+      .then((r) => r.data),
+
+  getCustomerTransactions: (
+    customerId: string,
+    params?: { entryType?: string; page?: number; limit?: number },
+  ) =>
+    apiClient
+      .get<
+        ApiResponse<LedgerEntryResponse[]>
+      >(`/api/customer-txn/${customerId}/transactions`, { params })
       .then((r) => r.data),
 
   getDashboard: (from?: string, to?: string) => {
@@ -101,56 +210,6 @@ export const api = {
     return apiClient
       .get<Record<string, unknown>>(`/api/dashboard${qs ? `?${qs}` : ""}`)
       .then((r) => r.data);
-  },
-
-  getSaleReport: (params: {
-    from: string;
-    to: string;
-    customerId?: string;
-    staffId?: string;
-    page?: number;
-    limit?: number;
-  }) => {
-    const sp = new URLSearchParams();
-    sp.set("from", params.from);
-    sp.set("to", params.to);
-    if (params.customerId) sp.set("customerId", params.customerId);
-    if (params.staffId) sp.set("staffId", params.staffId);
-    if (params.page) sp.set("page", String(params.page));
-    if (params.limit) sp.set("limit", String(params.limit));
-    return apiClient
-      .get(`/api/reports/sales?${sp.toString()}`)
-      .then((r) => r.data);
-  },
-
-  exportSaleReport: async (params: {
-    from: string;
-    to: string;
-    customerId?: string;
-    staffId?: string;
-    format: "excel" | "pdf";
-  }) => {
-    const sp = new URLSearchParams();
-    sp.set("from", params.from);
-    sp.set("to", params.to);
-    sp.set("format", params.format);
-    if (params.customerId) sp.set("customerId", params.customerId);
-    if (params.staffId) sp.set("staffId", params.staffId);
-    const response = await apiClient.get(
-      `/api/reports/sales/export?${sp.toString()}`,
-      { responseType: "blob" }
-    );
-    const disposition = response.headers["content-disposition"] || "";
-    const match = disposition.match(/filename="?(.+?)"?$/);
-    const fallbackExt = params.format === "excel" ? "csv" : "txt";
-    const filename =
-      match?.[1] || `sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
-    const url = URL.createObjectURL(response.data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
   },
 
   getExpenseReport: (params: {
@@ -167,7 +226,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/expense?${sp.toString()}`)
+      .get<ExpenseReportResponse>(`/api/reports/expense?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -184,13 +243,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/expense/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `expense_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `expense_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -215,7 +275,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/arb-sale?${sp.toString()}`)
+      .get<SaleReportResponse>(`/api/reports/arb-sale?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -234,13 +294,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/arb-sale/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `arb_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `arb_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -265,7 +326,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/commercial-sale?${sp.toString()}`)
+      .get<SaleReportResponse>(`/api/reports/commercial-sale?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -284,13 +345,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/commercial-sale/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `commercial_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `commercial_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -315,7 +377,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/dom-sale?${sp.toString()}`)
+      .get<SaleReportResponse>(`/api/reports/dom-sale?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -334,13 +396,14 @@ export const api = {
     if (params.staffId) sp.set("staffId", params.staffId);
     const response = await apiClient.get(
       `/api/reports/dom-sale/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `dom_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `dom_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -363,7 +426,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/purchase?${sp.toString()}`)
+      .get<PurchaseReportResponse>(`/api/reports/purchase?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -380,13 +443,14 @@ export const api = {
     if (params.vendorId) sp.set("vendorId", params.vendorId);
     const response = await apiClient.get(
       `/api/reports/purchase/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `purchase_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `purchase_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -407,7 +471,7 @@ export const api = {
     if (params.page) sp.set("page", String(params.page));
     if (params.limit) sp.set("limit", String(params.limit));
     return apiClient
-      .get(`/api/reports/sale-by-product?${sp.toString()}`)
+      .get<SaleByProductResponse>(`/api/reports/sale-by-product?${sp.toString()}`)
       .then((r) => r.data);
   },
 
@@ -422,13 +486,14 @@ export const api = {
     sp.set("format", params.format);
     const response = await apiClient.get(
       `/api/reports/sale-by-product/export?${sp.toString()}`,
-      { responseType: "blob" }
+      { responseType: "blob" },
     );
     const disposition = response.headers["content-disposition"] || "";
     const match = disposition.match(/filename="?(.+?)"?$/);
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
-      match?.[1] || `sale_by_product_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      match?.[1] ||
+      `sale_by_product_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -436,13 +501,6 @@ export const api = {
     a.click();
     URL.revokeObjectURL(url);
   },
-
-  // ─── Payment Methods ──────────────────────────────────────
-  recordDomSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
-    apiClient.post(`/api/dom-sales/${id}/payment`, payload).then(r => r.data),
-
-  recordArbSalePayment: (id: string, payload: { amount: number; notes?: string }) =>
-    apiClient.post(`/api/arb-sales/${id}/payment`, payload).then(r => r.data),
 
   // ─── Mutations ──────────────────────────────────────────
   create: <T>(url: string, data: T) =>

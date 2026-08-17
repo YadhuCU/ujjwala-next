@@ -1,36 +1,44 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import {
+  CreateExpenseSchema,
+  ExpenseQuerySchema,
+} from "@/module/expense/expense.payload.schema";
+import * as ExpenseService from "@/module/expense/expense.service";
+import { serializeExpenses } from "@/module/expense/expense.serializer";
 
-export async function GET() {
-  return withAuth(async ({ userId, role }) => {
-    const where: Record<string, unknown> = { isDeleted: false };
-    if (role !== "Owner") where.createdById = userId;
+export async function GET(req: NextRequest) {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
+    const params = Object.fromEntries(req.nextUrl.searchParams);
+    const query = ExpenseQuerySchema.parse(params);
 
-    const expenses = await prisma.expense.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
+    const result = await ExpenseService.getExpenses(query, {
+      userId,
+      permissions,
+      isOwner,
     });
-    return NextResponse.json(expenses);
-  });
+
+    return formatResponse({
+      data: serializeExpenses(result.data),
+      meta: result.meta,
+    });
+  }, [PERMISSIONS.EXPENSE_READ]);
 }
 
 export async function POST(request: Request) {
-  return withAuth(async ({ userId }) => {
-    try {
-      const data = await request.json();
-      const expense = await prisma.expense.create({
-        data: {
-          expense: data.expense,
-          date: data.date ? new Date(data.date) : new Date(),
-          amount: data.amount != null ? Number(data.amount) : null,
-          createdById: userId,
-        },
+  return withAuth(
+    async ({ id }) => {
+      const data = CreateExpenseSchema.parse(await request.json());
+      const expense = await ExpenseService.createExpense(data, Number(id));
+
+      return formatResponse({
+        data: expense,
+        status: 201,
+        message: "Expense created successfully",
       });
-      return NextResponse.json(expense, { status: 201 });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to create expense";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  });
+    },
+    [PERMISSIONS.EXPENSE_CREATE],
+  );
 }

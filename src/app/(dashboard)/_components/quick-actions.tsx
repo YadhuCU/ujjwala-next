@@ -3,9 +3,71 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Package } from "lucide-react";
+import { FileText, Package, Plus } from "lucide-react";
+import { usePermission } from "@/hooks/use-permissions";
+import { PERMISSIONS, type Permission } from "@/lib/permissions";
+
+type Action = {
+  label: string;
+  href: string;
+  permission: Permission;
+  variant?: "default" | "secondary" | "outline";
+  icon?: "plus" | "package" | "report";
+};
+
+// Offering an action the user cannot perform just sends them to a 403
+const ACTIONS: Action[] = [
+  {
+    label: "New Commercial Sale",
+    href: "/commercial-sales/add",
+    permission: PERMISSIONS.COMMERCIAL_SALE_CREATE,
+  },
+  {
+    label: "New Domestic Sale",
+    href: "/dom-sales/add",
+    permission: PERMISSIONS.DOMESTIC_SALE_CREATE,
+    variant: "secondary",
+  },
+  {
+    label: "New ARB Sale",
+    href: "/arb-sales/add",
+    permission: PERMISSIONS.ARB_SALE_CREATE,
+    variant: "secondary",
+  },
+  {
+    label: "Add Expense",
+    href: "/expenses/add",
+    permission: PERMISSIONS.EXPENSE_CREATE,
+    variant: "outline",
+  },
+  {
+    label: "New Purchase",
+    href: "/purchases/add",
+    permission: PERMISSIONS.PURCHASE_CREATE,
+    variant: "outline",
+  },
+  {
+    label: "Manage Stock",
+    href: "/stock",
+    permission: PERMISSIONS.STOCK_READ,
+    variant: "outline",
+    icon: "package",
+  },
+  {
+    label: "Reports",
+    href: "/reports/commercial-sale",
+    permission: PERMISSIONS.REPORT_READ,
+    variant: "outline",
+    icon: "report",
+  },
+];
 
 export function QuickActions() {
+  const { hasPermission } = usePermission();
+  const actions = ACTIONS.filter((action) => hasPermission(action.permission));
+
+  if (actions.length === 0) return null;
+
   return (
     <Card>
       <CardHeader>
@@ -13,44 +75,28 @@ export function QuickActions() {
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/sales/add">
-              <Plus className="w-4 h-4 mr-2" />
-              New Commercial Sale
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/dom-sales/add">
-              <Plus className="w-4 h-4 mr-2" />
-              New Domestic Sale
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/arb-sales/add">
-              <Plus className="w-4 h-4 mr-2" />
-              New ARB Sale
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/expenses/add">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Expense
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/purchases/add">
-              <Plus className="w-4 h-4 mr-2" />
-              New Purchase
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/stock">
-              <Package className="w-4 h-4 mr-2" />
-              Manage Stock
-            </Link>
-          </Button>
+          {actions.map((action) => (
+            <Button
+              key={action.href}
+              asChild
+              variant={action.variant ?? "default"}
+            >
+              <Link href={action.href}>
+                <Icon kind={action.icon} />
+                {action.label}
+              </Link>
+            </Button>
+          ))}
         </div>
       </CardContent>
     </Card>
   );
+}
+
+function Icon({ kind }: { kind?: Action["icon"] }) {
+  const className = "w-4 h-4 mr-2";
+
+  if (kind === "package") return <Package className={className} />;
+  if (kind === "report") return <FileText className={className} />;
+  return <Plus className={className} />;
 }

@@ -35,6 +35,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = React.useState("");
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table returns an unmemoizable instance by design
   const table = useReactTable({
     data,
     columns,

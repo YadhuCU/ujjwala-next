@@ -1,75 +1,81 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import {
+  SetUserActiveSchema,
+  UpdateUserSchema,
+} from "@/module/user/user.payload.schema";
+import * as UserService from "@/module/user/user.service";
+import { serializeUser } from "@/module/user/user.serializer";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const user = await prisma.account.findUnique({
-      where: { id: parseInt(id) },
-    });
-    if (!user) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...safeUser } = user;
-    return NextResponse.json(safeUser);
-  });
+    const user = await UserService.getUserById(Number(id));
+    return formatResponse({ data: serializeUser(user) });
+  }, [PERMISSIONS.USER_READ]);
 }
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    try {
+export async function PUT(req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ userId, isOwner, name }) => {
       const { id } = await params;
-      const data = await request.json();
+      const data = UpdateUserSchema.parse(await req.json());
 
-      const updateData: Record<string, unknown> = {
-        name: data.name,
-        email: data.email,
-        mobile: data.mobile,
-        role: data.role,
-      };
-
-      if (data.password) {
-        updateData.password = await bcrypt.hash(data.password, 10);
-      }
-
-      const user = await prisma.account.update({
-        where: { id: parseInt(id) },
-        data: updateData,
+      const user = await UserService.updateUser(Number(id), data, {
+        userId,
+        isOwner,
+        name,
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...safeUser } = user;
-      return NextResponse.json(safeUser);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to update";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, "Owner");
-}
-
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    const { id } = await params;
-    await prisma.account.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
-    return NextResponse.json({ success: true });
-  }, "Owner");
-}
-
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    const { id } = await params;
-    const data = await request.json();
-
-    if (typeof data.isActive === "boolean") {
-      await prisma.account.update({
-        where: { id: parseInt(id) },
-        data: { isActive: data.isActive },
+      return formatResponse({
+        data: serializeUser(user),
+        message: "User updated successfully",
       });
-    }
+    },
+    [PERMISSIONS.USER_UPDATE],
+  );
+}
 
-    return NextResponse.json({ success: true });
-  }, "Owner");
+// Activate / deactivate — a login switch, not a delete.
+export async function PATCH(req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: actorId }) => {
+      const { id } = await params;
+      const { isActive } = SetUserActiveSchema.parse(await req.json());
+
+      const user = await UserService.setUserActive(
+        Number(id),
+        isActive,
+        Number(actorId),
+      );
+
+      return formatResponse({
+        data: serializeUser(user),
+        message: isActive ? "User activated" : "User deactivated",
+      });
+    },
+    [PERMISSIONS.USER_UPDATE],
+  );
+}
+
+export async function DELETE(_req: NextRequest, { params }: Props) {
+  return withAuth(
+    async ({ id: actorId }) => {
+      const { id } = await params;
+
+      await UserService.deleteUser(Number(id), Number(actorId));
+
+      return formatResponse({
+        data: null,
+        message: "User deleted successfully",
+      });
+    },
+    [PERMISSIONS.USER_DELETE],
+  );
 }

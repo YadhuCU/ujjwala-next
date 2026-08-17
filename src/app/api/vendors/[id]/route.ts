@@ -1,59 +1,46 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import { UpdateVendorSchema } from "@/module/vendor/vendor.payload.schema";
+import * as VendorService from "@/module/vendor/vendor.service";
+import { serializeVendor } from "@/module/vendor/vendor.serializer";
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const vendor = await prisma.vendor.findUnique({
-      where: { id: parseInt(id) },
-    });
-    if (!vendor) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-    return NextResponse.json(vendor);
-  });
+    const vendor = await VendorService.getVendorById(Number(id));
+    return formatResponse({ data: serializeVendor(vendor) });
+  }, [PERMISSIONS.VENDOR_READ]);
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  return withAuth(async () => {
-    try {
-      const { id } = await params;
-      const data = await request.json();
-      const vendor = await prisma.vendor.update({
-        where: { id: parseInt(id) },
-        data: {
-          name: data.name,
-          phone: data.phone || null,
-          address: data.address || null,
-          gstNumber: data.gstNumber || null,
-        },
-      });
-      return NextResponse.json(vendor);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, "Owner");
-}
-
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    await prisma.vendor.update({
-      where: { id: parseInt(id) },
-      data: { isDeleted: true },
+    const data = UpdateVendorSchema.parse(await req.json());
+
+    const vendor = await VendorService.updateVendor(Number(id), data);
+
+    return formatResponse({
+      data: serializeVendor(vendor),
+      message: "Vendor updated successfully",
     });
-    return NextResponse.json({ success: true });
-  }, "Owner");
+  }, [PERMISSIONS.VENDOR_UPDATE]);
+}
+
+export async function DELETE(_request: Request, { params }: Props) {
+  return withAuth(async () => {
+    const { id } = await params;
+
+    await VendorService.deleteVendor(Number(id));
+
+    return formatResponse({
+      data: null,
+      message: "Vendor deleted successfully",
+    });
+  }, [PERMISSIONS.VENDOR_DELETE]);
 }

@@ -1,44 +1,41 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import {
+  CreateUserSchema,
+  UserQuerySchema,
+} from "@/module/user/user.payload.schema";
+import * as UserService from "@/module/user/user.service";
+import {
+  serializeUser,
+  serializeUsers,
+} from "@/module/user/user.serializer";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   return withAuth(async () => {
-    const users = await prisma.account.findMany({
-      where: { isDeleted: false },
-      orderBy: { createdAt: "desc" },
-    });
-    const safeUsers = users.map((user) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...rest } = user;
-      return rest;
-    });
-    return NextResponse.json(safeUsers);
-  }, "Owner");
+    const query = UserQuerySchema.parse(
+      Object.fromEntries(req.nextUrl.searchParams),
+    );
+
+    const { data, meta } = await UserService.getUsers(query);
+
+    return formatResponse({ data: serializeUsers(data), meta });
+  }, [PERMISSIONS.USER_READ]);
 }
 
 export async function POST(request: Request) {
-  return withAuth(async () => {
-    try {
-      const data = await request.json();
-      const hashedPassword = await bcrypt.hash(data.password, 10);
-      const user = await prisma.account.create({
-        data: {
-          username: data.username,
-          name: data.name,
-          password: hashedPassword,
-          email: data.email,
-          mobile: data.mobile,
-          role: data.role,
-        },
+  return withAuth(
+    async () => {
+      const data = CreateUserSchema.parse(await request.json());
+      const user = await UserService.createUser(data);
+
+      return formatResponse({
+        data: serializeUser(user),
+        status: 201,
+        message: "User created successfully",
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...safeUser } = user;
-      return NextResponse.json(safeUser, { status: 201 });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to create user";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, "Owner");
+    },
+    [PERMISSIONS.USER_CREATE],
+  );
 }

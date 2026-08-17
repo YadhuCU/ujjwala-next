@@ -1,346 +1,294 @@
+// =============================================================================
+// LPG Distribution Management System — Prisma Schema
+// =============================================================================
+//
+// SOURCE OF TRUTH
+// ───────────────
+//   Cylinder stock  → CylinderTransaction (append-only ledger)
+//                     GodownInventory     = materialized cache (recompute from ledger)
+//                     CustomerCylinderLedger = materialized cache (recompute from ledger)
+//
+//   Customer money  → CustomerPaymentLedger (append-only ledger)
+//                     CustomerBalance     = materialized cache (recompute from ledger)
+//
+// UPDATE STRATEGY
+// ───────────────
+//   Sales / Purchases are never hard-updated at the row level.
+//   To correct a posted transaction:
+//     1. Soft-delete the original (isDeleted = true, mark reason).
+//     2. Append reversal rows to CylinderTransaction (voidedTxnId points to original).
+//     3. Append a reversal row to CustomerPaymentLedger.
+//     4. Post new corrected rows.
+//     5. Recompute GodownInventory and CustomerBalance materialized caches.
+//   updatedById tracks who last touched the record for the audit trail.
+//
+// NAMING CONVENTIONS
+// ──────────────────
+//   Model names  : PascalCase singular   (e.g. DomSale, PurchaseItem)
+//   Table names  : snake_case plural     (e.g. dom_sales, purchase_items)
+//   Column names : snake_case            (via @map where needed)
+//   Enum values  : SCREAMING_SNAKE_CASE
+//
+// =============================================================================
+
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+/// How the customer pays on a sale.
 enum PaymentType {
-  cash
-  cheque
+  CASH
+  CHEQUE
 }
 
+/// Product classification — drives which sale flow to use.
 enum ProductType {
-  ARB
-  Domestic
-  Commercial
-  Other
+  ARB // Auto-refill / Bulk LPG
+  DOMESTIC // 14.2 kg domestic cylinder
+  COMMERCIAL // 19 kg / 47.5 kg commercial cylinder
+  OTHER
 }
 
-enum UserRole {
-  Owner
-  Office
-  Sales
+/// Every movement of cylinders is recorded as one of these types.
+/// Used in CylinderTransaction to compute filled/empty deltas.
+enum TxnType {
+  /// Vendor refills our empty cylinders → empties out (+emptyDelta -ve), filled in (+filledDelta +ve)
+  PURCHASE_FILL
+  /// Vendor sells brand-new full cylinders → filled in (+filledDelta +ve), no empties exchanged
+  PURCHASE_FULL
+  /// Domestic / ARB sale delivered to customer → filled out (-filledDelta)
+  SALE_OUT
+  /// Commercial rent: cylinders dispatched to customer → filled out (-filledDelta)
+  RENT_DELIVERY
+  /// Empty cylinder received back from customer → empties in (+emptyDelta)
+  CYLINDER_RETURN
+  /// Admin-only manual stock correction — requires a StockAdjustment record with reason
+  ADJUSTMENT
+
+  @@map("txn_type")
 }
 
-model Account {
+/// Identifies which business document a CylinderTransaction or ledger entry relates to.
+enum RefType {
+  PURCHASE // references Purchase.id
+  INVOICE // references CommercialSale.id | DomSale.id | ArbSale.id
+  MANUAL // references StockAdjustment.id or CustomerPaymentLedger manual entry
+
+  @@map("ref_type")
+}
+
+/// Sub-type of a purchase line item.
+enum PurchaseType {
+  FILL // vendor refills our empties
+  FULL // vendor supplies new full cylinders
+
+  @@map("purchase_type")
+}
+
+/// Whether a commercial sale line item is a rental or an outright sale.
+enum CommercialSaleType {
+  RENT
+  SALE
+}
+
+/// Classification of a CustomerPaymentLedger entry.
+enum LedgerEntryType {
+  SALE_CHARGE // debit: amount owed from a new invoice
+  PAYMENT // credit: cash / cheque received from customer
+  ADJUSTMENT // manual correction (admin only)
+  OPENING // one-time opening balance during data migration
+}
+
+// =============================================================================
+// AUTH & RBAC
+// =============================================================================
+
+model User {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  username  String   @unique @db.VarChar(40)
+  name      String?  @db.VarChar(200)
+  password  String // store bcrypt hash, never plaintext
+  isActive  Boolean  @default(true) @map("is_active")
+  email     String?  @db.VarChar(50)
+  mobile    String?  @db.VarChar(20)
+  isDeleted Boolean  @default(false) @map("is_deleted")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userRoles              UserRole[]
+  domSalesCreated        DomSale[]               @relation("DomSalesCreatedBy")
+  domSalesUpdated        DomSale[]               @relation("DomSalesUpdatedBy")
+  arbSalesCreated        ArbSale[]               @relation("ArbSalesCreatedBy")
+  arbSalesUpdated        ArbSale[]               @relation("ArbSalesUpdatedBy")
+  commercialSalesCreated CommercialSale[]        @relation("CommercialSalesCreatedBy")
+  commercialSalesUpdated CommercialSale[]        @relation("CommercialSalesUpdatedBy")
+  purchasesCreated       Purchase[]              @relation("PurchasesCreatedBy")
+  purchasesUpdated       Purchase[]              @relation("PurchasesUpdatedBy")
+  expensesCreated        Expense[]               @relation("ExpensesCreatedBy")
+  adjustmentsCreated     StockAdjustment[]       @relation("StockAdjustmentsCreatedBy")
+  paymentsCreated        CustomerPaymentLedger[] @relation("PaymentsCreatedBy")
+  rbacAuditEntries       RbacAuditLog[]          @relation("RbacAuditActor")
+
+  @@map("users")
+}
+
+model UserRole {
+  id        Int      @id @default(autoincrement())
+  roleId    Int      @map("role_id")
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([roleId, userId])
+  @@map("user_roles")
+}
+
+model Role {
   id          Int      @id @default(autoincrement())
-  uuid        String   @default(uuid())
-  username    String   @unique @db.VarChar(40)
-  name        String?  @db.VarChar(200)
-  password    String
-  isActive    Boolean  @default(true) @map("is_active")
-  isLogin     Boolean  @default(false) @map("is_login")
-  firstLogin  Boolean  @default(false) @map("first_login")
-  isSuperuser Boolean  @default(false) @map("is_superuser")
-  email       String?  @db.VarChar(50)
-  mobile      String?  @db.VarChar(20)
-  role        UserRole @default(Sales)
+  name        String   @unique @db.VarChar(50)
+  description String?
+  // A system role cannot be renamed, edited or deleted, and always holds every
+  // permission. It is what makes a lockout recoverable, so authorization checks
+  // key on this flag rather than on the role's name — a rename must never be
+  // able to turn an owner into an ordinary user.
+  isSystem    Boolean  @default(false) @map("is_system")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  isDeleted   Boolean  @default(false) @map("is_deleted")
 
-  salesCreated            Sale[]           @relation("SalesCreated")
-  domSalesCreated         DomSale[]        @relation("DomSalesCreated")
-  arbSalesCreated         ArbSale[]        @relation("ArbSalesCreated")
-  commercialSalesCreated  CommercialSale[] @relation("CommercialSalesCreated")
-  collectionsCreated      Collection[]     @relation("CollectionsCreated")
-  expensesCreated         Expense[]        @relation("ExpensesCreated")
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
 
-  @@map("accounts")
+  @@index([name])
+  @@index([isSystem])
+  @@map("roles")
 }
 
+model Permission {
+  id          Int    @id @default(autoincrement())
+  code        String @unique @db.VarChar(100)
+  description String?
+  // Display metadata, synced from PERMISSION_REGISTRY in src/lib/permissions.ts
+  // so the role editor can group and label the matrix.
+  module      String @default("") @db.VarChar(50)
+  label       String @default("") @db.VarChar(120)
+  sortOrder   Int    @default(0) @map("sort_order")
+
+  rolePermissions RolePermission[]
+
+  @@index([module, sortOrder])
+  @@map("permissions")
+}
+
+enum RbacAuditAction {
+  ROLE_CREATED
+  ROLE_UPDATED
+  ROLE_DELETED
+  USER_ROLES_CHANGED
+}
+
+/// Who changed access, and to what. Append-only, like the cylinder and money
+/// ledgers — the point is to answer "why did everyone lose purchases yesterday",
+/// which an editable record cannot.
+///
+/// Names are denormalised on purpose: a role's own row is gone by the time
+/// anyone reads the entry describing its deletion, and a foreign key would take
+/// the audit entry with it.
+model RbacAuditLog {
+  id     Int             @id @default(autoincrement())
+  action RbacAuditAction
+
+  actorId   Int?    @map("actor_id")
+  actor     User?   @relation("RbacAuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorName String? @map("actor_name") @db.VarChar(200)
+
+  roleId   Int?    @map("role_id")
+  roleName String? @map("role_name") @db.VarChar(50)
+
+  targetUserId   Int?    @map("target_user_id")
+  targetUserName String? @map("target_user_name") @db.VarChar(200)
+
+  /// Permission codes, or role names for USER_ROLES_CHANGED.
+  added   String[]
+  removed String[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([roleId])
+  @@index([targetUserId])
+  @@map("rbac_audit_logs")
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+  roleId       Int        @map("role_id")
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permissionId Int        @map("permission_id")
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// =============================================================================
+// MASTER DATA
+// =============================================================================
+
 model Location {
-  id        Int        @id @default(autoincrement())
-  name      String?    @unique @db.VarChar(50)
-  district  String?    @db.VarChar(50)
-  pincode   String?    @db.VarChar(10)
-  locality  String?    @db.VarChar(50)
-  isDeleted Boolean    @default(false) @map("is_deleted")
-  createdAt DateTime   @default(now()) @map("created_at")
+  id        Int      @id @default(autoincrement())
+  name      String?  @unique @db.VarChar(50)
+  district  String?  @db.VarChar(50)
+  pincode   String?  @db.VarChar(10)
+  locality  String?  @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   customers Customer[]
 
   @@map("locations")
 }
 
 model Customer {
-  id                     Int               @id @default(autoincrement())
-  name                   String?           @unique @db.VarChar(50)
-  address                String?
-  phone                  String?           @db.VarChar(10)
-  locationId             Int?              @map("location_id")
-  location               Location?         @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  concernedPerson        String?           @map("concerned_person") @db.VarChar(30)
-  concernedPersonMobile  String?           @map("concerned_person_mobile") @db.VarChar(30)
-  discount               Int?
-  gstNumber              String?           @map("gst_number") @db.VarChar(15)
-  initialCylinderBalance Int               @default(0) @map("initial_cylinder_balance")
-  initialPendingAmount   Decimal           @default(0.00) @map("initial_pending_amount") @db.Decimal(10, 2)
-  isDeleted              Boolean           @default(false) @map("is_deleted")
-  createdAt              DateTime          @default(now()) @map("created_at")
-  sales                  Sale[]
-  collections            Collection[]
-  rentProducts           RentProduct[]
-  rentTransactions       RentTransaction[]
-  arbSales               ArbSale[]
-  domSales               DomSale[]
-  commercialSales        CommercialSale[]
+  id                    Int       @id @default(autoincrement())
+  name                  String    @unique @db.VarChar(50)
+  address               String?
+  phone                 String?   @db.VarChar(10)
+  locationId            Int?      @map("location_id")
+  /// SetNull so deleting a location doesn't cascade-delete all its customers.
+  location              Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  concernedPerson       String?   @map("concerned_person") @db.VarChar(30)
+  concernedPersonMobile String?   @map("concerned_person_mobile") @db.VarChar(30)
+  /// Default discount % applied automatically when creating invoices.
+  discount              Int?
+  gstNumber             String?   @map("gst_number") @db.VarChar(15)
+  initialPendingAmount  Decimal   @default(0.00) @map("initial_pending_amount") @db.Decimal(10, 2)
+  isDeleted             Boolean   @default(false) @map("is_deleted")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
   initialCylinderBalances CustomerInitialCylinderBalance[]
+  arbSales                ArbSale[]
+  domSales                DomSale[]
+  commercialSales         CommercialSale[]
+  /// MATERIALIZED CACHE — source of truth is CustomerPaymentLedger.
+  customerBalance         CustomerBalance?
+  customerPaymentLedger   CustomerPaymentLedger[]
+  /// MATERIALIZED CACHE — source of truth is CylinderTransaction.
+  customerCylinderLedgers CustomerCylinderLedger[]
 
   @@map("customers")
-}
-
-model Product {
-  id        Int          @id @default(autoincrement())
-  name      String?      @unique @db.VarChar(50)
-  type      ProductType?
-  weight    String?      @db.VarChar(50)
-  salePrice Decimal?     @map("sale_price") @db.Decimal(10, 2)
-
-  isDeleted            Boolean                          @default(false) @map("is_deleted")
-  createdAt            DateTime                         @default(now()) @map("created_at")
-  stocks               Stock[]
-  sales                Sale[]
-  domSaleItems         DomSaleItem[]
-  arbSaleItems         ArbSaleItem[]
-  commercialSaleItems  CommercialSaleItem[]
-  purchaseItems        PurchaseItem[]
-  initialCylinderBalances CustomerInitialCylinderBalance[]
-
-  @@map("products")
-}
-
-model Stock {
-  id               Int               @id @default(autoincrement())
-  batchNo          String?           @unique @map("batch_no") @db.VarChar(50)
-  productId        Int?              @map("product_id")
-  product          Product?          @relation(fields: [productId], references: [id], onDelete: Cascade)
-  invoiceNo        String?           @map("invoice_no") @db.VarChar(50)
-  quantity         Int               @default(0)
-  productCost      Decimal?          @map("product_cost") @db.Decimal(10, 2)
-  vendorId         Int?              @map("vendor_id")
-  vendor           Vendor?           @relation(fields: [vendorId], references: [id])
-  purchaseId       Int?              @map("purchase_id")
-  purchase         Purchase?         @relation(fields: [purchaseId], references: [id])
-  isDeleted        Boolean           @default(false) @map("is_deleted")
-  createdAt        DateTime          @default(now()) @map("created_at")
-  sales                  Sale[]
-  domSaleItems           DomSaleItem[]
-  arbSaleItems           ArbSaleItem[]
-  commercialSaleItems    CommercialSaleItem[]
-  rentProducts           RentProduct[]
-  rentTransactions       RentTransaction[]
-
-  @@map("stocks")
-}
-
-enum SaleType {
-  sale
-  rent
-}
-
-model Sale {
-  id               Int               @id @default(autoincrement())
-  trNo             String?           @map("tr_no") @db.VarChar(30)
-  stockId          Int?              @map("stock_id")
-  stock            Stock?            @relation(fields: [stockId], references: [id], onDelete: Cascade)
-  customerId       Int?              @map("customer_id")
-  customer         Customer?         @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  isOffer          Boolean           @default(false) @map("is_offer")
-  discount         Int?
-  productId        Int?              @map("product_id")
-  product          Product?          @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity         Int               @default(0)
-  productCost      Decimal?          @map("product_cost") @db.Decimal(10, 2)
-  salePrice        Decimal?          @map("sale_price") @db.Decimal(10, 2)
-  netTotal         Decimal?          @map("net_total") @db.Decimal(10, 2)
-  createdById      Int?              @map("created_by_id")
-  createdBy        Account?          @relation("SalesCreated", fields: [createdById], references: [id])
-  isDeleted        Boolean           @default(false) @map("is_deleted")
-  createdAt        DateTime          @default(now()) @map("created_at")
-  rentTransactions RentTransaction[]
-  saleType         SaleType          @default(rent) @map("sale_type")
-  paymentType      PaymentType       @default(cash) @map("payment_type")
-
-  @@map("sales")
-}
-
-model DomSale {
-  id          Int           @id @default(autoincrement())
-  trNo        String?       @map("tr_no") @db.VarChar(30)
-  totalAmount Decimal?      @map("total_amount") @db.Decimal(10, 2)
-  customerId  Int?          @map("customer_id")
-  customer    Customer?     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  paymentType PaymentType   @default(cash) @map("payment_type")
-  discount    Decimal?      @db.Decimal(10, 2)
-  notes       String?
-  createdById Int?          @map("created_by_id")
-  createdBy   Account?      @relation("DomSalesCreated", fields: [createdById], references: [id])
-  isDeleted   Boolean       @default(false) @map("is_deleted")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  paidAmount  Decimal       @default(0) @map("paid_amount") @db.Decimal(10, 2)
-
-  items       DomSaleItem[]
-  collections Collection[]
-
-  @@map("dom_sales")
-}
-
-model DomSaleItem {
-  id        Int      @id @default(autoincrement())
-  domSaleId Int      @map("dom_sale_id")
-  domSale   DomSale  @relation(fields: [domSaleId], references: [id], onDelete: Cascade)
-  stockId   Int?     @map("stock_id")
-  stock     Stock?   @relation(fields: [stockId], references: [id])
-  productId Int?     @map("product_id")
-  product   Product? @relation(fields: [productId], references: [id])
-  quantity  Int      @default(0)
-  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
-  netTotal  Decimal? @map("net_total") @db.Decimal(10, 2)
-
-  @@map("dom_sale_items")
-}
-
-model Collection {
-  id               Int             @id @default(autoincrement())
-  trNo             String?         @map("tr_no") @db.VarChar(30)
-  customerId       Int?            @map("customer_id")
-  customer         Customer?       @relation(fields: [customerId], references: [id])
-  domSaleId        Int?            @map("dom_sale_id")
-  domSale          DomSale?        @relation(fields: [domSaleId], references: [id])
-  arbSaleId        Int?            @map("arb_sale_id")
-  arbSale          ArbSale?        @relation(fields: [arbSaleId], references: [id])
-  commercialSaleId Int?            @map("commercial_sale_id")
-  commercialSale   CommercialSale? @relation(fields: [commercialSaleId], references: [id])
-  amount           Decimal?        @db.Decimal(10, 2)
-  createdById      Int?            @map("created_by_id")
-  createdBy        Account?        @relation("CollectionsCreated", fields: [createdById], references: [id])
-  isDeleted        Boolean         @default(false) @map("is_deleted")
-  createdAt        DateTime        @default(now()) @map("created_at")
-
-  @@map("collections")
-}
-
-model Expense {
-  id          Int       @id @default(autoincrement())
-  expense     String?   @db.VarChar(30)
-  date        DateTime? @db.Date
-  amount      Decimal?  @db.Decimal(10, 2)
-  createdById Int?      @map("created_by_id")
-  createdBy   Account?  @relation("ExpensesCreated", fields: [createdById], references: [id])
-  isDeleted   Boolean   @default(false) @map("is_deleted")
-  createdAt   DateTime  @default(now()) @map("created_at")
-
-  @@map("expenses")
-}
-
-model RentProduct {
-  id         Int       @id @default(autoincrement())
-  customerId Int?      @map("customer_id")
-  customer   Customer? @relation(fields: [customerId], references: [id])
-  stockId    Int?      @map("stock_id")
-  stock      Stock?    @relation(fields: [stockId], references: [id], onDelete: Cascade)
-  quantity   Int       @default(0)
-  isDeleted  Boolean   @default(false) @map("is_deleted")
-  createdAt  DateTime  @default(now()) @map("created_at")
-
-  @@map("rent_products")
-}
-
-model RentTransaction {
-  id                   Int                 @id @default(autoincrement())
-  customerId           Int                 @map("customer_id")
-  customer             Customer            @relation(fields: [customerId], references: [id])
-  stockId              Int                 @map("stock_id")
-  stock                Stock               @relation(fields: [stockId], references: [id], onDelete: Cascade)
-  saleId               Int?                @map("sale_id")
-  sale                 Sale?               @relation(fields: [saleId], references: [id], onDelete: SetNull)
-  commercialSaleItemId Int?                @map("commercial_sale_item_id")
-  commercialSaleItem   CommercialSaleItem? @relation(fields: [commercialSaleItemId], references: [id], onDelete: SetNull)
-  filledOut            Int                 @default(0) @map("filled_out")
-  emptyIn              Int                 @default(0) @map("empty_in")
-  createdAt            DateTime            @default(now()) @map("created_at")
-
-  @@map("rent_transactions")
-}
-
-model ArbSale {
-  id          Int         @id @default(autoincrement())
-  trNo        String?     @map("tr_no") @db.VarChar(30)
-  totalAmount Decimal?    @map("total_amount") @db.Decimal(10, 2)
-  customerId  Int?        @map("customer_id")
-  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  paymentType PaymentType @default(cash) @map("payment_type")
-  discount    Decimal?    @db.Decimal(10, 2)
-  notes       String?
-  createdById Int?        @map("created_by_id")
-  createdBy   Account?    @relation("ArbSalesCreated", fields: [createdById], references: [id])
-  isDeleted   Boolean     @default(false) @map("is_deleted")
-  createdAt   DateTime    @default(now()) @map("created_at")
-  paidAmount  Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
-
-  items       ArbSaleItem[]
-  collections Collection[]
-
-  @@map("arb_sales")
-}
-
-model ArbSaleItem {
-  id        Int      @id @default(autoincrement())
-  arbSaleId Int      @map("arb_sale_id")
-  arbSale   ArbSale  @relation(fields: [arbSaleId], references: [id], onDelete: Cascade)
-  stockId   Int?     @map("stock_id")
-  stock     Stock?   @relation(fields: [stockId], references: [id])
-  productId Int?     @map("product_id")
-  product   Product? @relation(fields: [productId], references: [id])
-  quantity  Int      @default(0)
-  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
-  netTotal  Decimal? @map("net_total") @db.Decimal(10, 2)
-
-  @@map("arb_sale_items")
-}
-
-model CommercialSale {
-  id          Int                  @id @default(autoincrement())
-  trNo        String?              @map("tr_no") @db.VarChar(30)
-  totalAmount Decimal?             @map("total_amount") @db.Decimal(10, 2)
-  customerId  Int?                 @map("customer_id")
-  customer    Customer?            @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  paymentType PaymentType          @default(cash) @map("payment_type")
-  discount    Decimal?             @db.Decimal(10, 2)
-  notes       String?
-  createdById Int?                 @map("created_by_id")
-  createdBy   Account?             @relation("CommercialSalesCreated", fields: [createdById], references: [id])
-  isDeleted   Boolean              @default(false) @map("is_deleted")
-  createdAt   DateTime             @default(now()) @map("created_at")
-  paidAmount  Decimal              @default(0) @map("paid_amount") @db.Decimal(10, 2)
-
-  items       CommercialSaleItem[]
-  collections Collection[]
-
-  @@map("commercial_sales")
-}
-
-model CommercialSaleItem {
-  id                   Int            @id @default(autoincrement())
-  commercialSaleId     Int            @map("commercial_sale_id")
-  commercialSale       CommercialSale @relation(fields: [commercialSaleId], references: [id], onDelete: Cascade)
-  stockId              Int?           @map("stock_id")
-  stock                Stock?         @relation(fields: [stockId], references: [id])
-  productId            Int?           @map("product_id")
-  product              Product?       @relation(fields: [productId], references: [id])
-  saleType             SaleType       @default(rent) @map("sale_type")
-  quantity             Int            @default(0)
-  salePrice            Decimal?       @map("sale_price") @db.Decimal(10, 2)
-  netTotal             Decimal?       @map("net_total") @db.Decimal(10, 2)
-  cylindersDispatched  Int            @default(0) @map("cylinders_dispatched")
-  cylindersReturned    Int            @default(0) @map("cylinders_returned")
-
-  rentTransactions RentTransaction[]
-
-  @@map("commercial_sale_items")
 }
 
 model CustomerInitialCylinderBalance {
@@ -348,12 +296,40 @@ model CustomerInitialCylinderBalance {
   customerId Int      @map("customer_id")
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   productId  Int      @map("product_id")
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity   Int      @default(0)
-  createdAt  DateTime @default(now()) @map("created_at")
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  qty        Int
 
-  @@unique([customerId, productId])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([customerId, productId]) // ← one row per customer+product pair
   @@map("customer_initial_cylinder_balances")
+}
+
+model Product {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique @db.VarChar(50)
+  type      ProductType
+  /// Human-readable weight label, e.g. "14.2 kg", "19 kg".
+  weight    String?     @db.VarChar(50)
+  /// Default sale price; can be overridden at invoice-item level.
+  salePrice Decimal?    @map("sale_price") @db.Decimal(10, 2)
+  isDeleted Boolean     @default(false) @map("is_deleted")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  stocks                          Stock[]
+  domSaleItems                    DomSaleItem[]
+  arbSaleItems                    ArbSaleItem[]
+  commercialSaleItems             CommercialSaleItem[]
+  purchaseItems                   PurchaseItem[]
+  stockAdjustments                StockAdjustment[]
+  /// MATERIALIZED CACHE — source of truth is CylinderTransaction.
+  godownInventory                 GodownInventory?
+  cylinderTransactions            CylinderTransaction[]
+  customerCylinderLedgers         CustomerCylinderLedger[]
+  customerInitialCylinderBalances CustomerInitialCylinderBalance[]
+
+  @@map("products")
 }
 
 model Vendor {
@@ -364,6 +340,7 @@ model Vendor {
   gstNumber String?  @map("gst_number") @db.VarChar(15)
   isDeleted Boolean  @default(false) @map("is_deleted")
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   purchases Purchase[]
   stocks    Stock[]
@@ -371,16 +348,127 @@ model Vendor {
   @@map("vendors")
 }
 
+// =============================================================================
+// INVENTORY — GODOWN (MATERIALIZED CACHE)
+// =============================================================================
+
+/// Materialized snapshot of godown cylinder stock per product.
+///
+/// DO NOT write to this table from business logic directly.
+/// Always recompute it by summing CylinderTransaction.filledDelta / emptyDelta
+/// for refType = PURCHASE or INVOICE (godown side only).
+///
+/// Formula:
+///   filledQty = SUM(filledDelta) across all CylinderTransactions for this product
+///   emptyQty  = SUM(emptyDelta)  across all CylinderTransactions for this product
+model GodownInventory {
+  id        Int      @id @default(autoincrement())
+  productId Int      @unique @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  filledQty Int      @map("filled_qty")
+  emptyQty  Int      @map("empty_qty")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("godown_inventory")
+}
+
+// =============================================================================
+// INVENTORY — CYLINDER TRANSACTION LEDGER (SOURCE OF TRUTH)
+// =============================================================================
+
+/// Append-only ledger recording every cylinder movement.
+///
+/// This is the canonical record for all stock changes.
+/// GodownInventory and CustomerCylinderLedger are derived from it.
+///
+/// RULES:
+///   • Never UPDATE or DELETE rows — treat as immutable.
+///   • To correct a mistake, write a reversal row and set voidedTxnId
+///     to point to the row being corrected.
+///   • To apply a manual correction, use TxnType.ADJUSTMENT and create
+///     a corresponding StockAdjustment record (refType=MANUAL, refId=StockAdjustment.id).
+///
+/// Delta semantics (from the GODOWN perspective):
+///   filledDelta > 0  → filled cylinders arrived in godown
+///   filledDelta < 0  → filled cylinders left godown
+///   emptyDelta  > 0  → empty cylinders arrived in godown
+///   emptyDelta  < 0  → empty cylinders left godown
+model CylinderTransaction {
+  id          Int                   @id @default(autoincrement())
+  productId   Int                   @map("product_id")
+  /// Restrict prevents accidental product deletion when transactions exist.
+  product     Product               @relation(fields: [productId], references: [id], onDelete: Restrict)
+  txnType     TxnType               @map("txn_type")
+  filledDelta Int                   @map("filled_delta")
+  emptyDelta  Int                   @map("empty_delta")
+  refType     RefType               @map("ref_type")
+  /// The id of the Purchase / DomSale / ArbSale / CommercialSale / StockAdjustment this belongs to.
+  refId       Int                   @map("ref_id")
+  /// If this row is a void/reversal of a previous transaction, point to that row here.
+  /// A transaction can only be voided once (@unique enforces this).
+  voidedTxnId Int?                  @unique @map("voided_txn_id")
+  voidedTxn   CylinderTransaction?  @relation("VoidChain", fields: [voidedTxnId], references: [id])
+  voidedBy    CylinderTransaction[] @relation("VoidChain")
+  notes       String?
+  createdAt   DateTime              @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@index([refType, refId])
+  @@map("cylinder_transactions")
+}
+
+// =============================================================================
+// STOCK BATCHES
+// =============================================================================
+
+/// A physical batch of cylinders received from a vendor in a purchase.
+/// Links a PurchaseItem to the sale items that drew from it.
+/// Enables batch-level traceability (which batch went to which customer).
+model Stock {
+  id          Int       @id @default(autoincrement())
+  /// Vendor batch / lot number. Unique because the same batch number
+  /// should never arrive twice — if it does, create a new Stock row.
+  batchNo     String    @unique @map("batch_no") @db.VarChar(50)
+  productId   Int?      @map("product_id")
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  invoiceNo   String?   @map("invoice_no") @db.VarChar(50)
+  quantity    Int       @default(0)
+  productCost Decimal?  @map("product_cost") @db.Decimal(10, 2)
+  vendorId    Int?      @map("vendor_id")
+  vendor      Vendor?   @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  purchaseId  Int?      @map("purchase_id")
+  purchase    Purchase? @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  domSaleItems        DomSaleItem[]
+  arbSaleItems        ArbSaleItem[]
+  commercialSaleItems CommercialSaleItem[]
+
+  @@map("stocks")
+}
+
+// =============================================================================
+// PURCHASES
+// =============================================================================
+
 model Purchase {
   id           Int      @id @default(autoincrement())
   invoiceNo    String?  @unique @map("invoice_no") @db.VarChar(50)
   vendorId     Int      @map("vendor_id")
-  vendor       Vendor   @relation(fields: [vendorId], references: [id])
-  totalAmount  Decimal? @map("total_amount") @db.Decimal(10, 2)
-  purchaseDate DateTime @default(now()) @map("purchase_date")
+  vendor       Vendor   @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  totalCost    Decimal  @map("total_cost") @db.Decimal(10, 2)
+  purchaseDate DateTime @default(now()) @map("purchase_date") @db.Date
   notes        String?
   isDeleted    Boolean  @default(false) @map("is_deleted")
+  createdById  Int?     @map("created_by_id")
+  createdBy    User?    @relation("PurchasesCreatedBy", fields: [createdById], references: [id])
+  updatedById  Int?     @map("updated_by_id")
+  updatedBy    User?    @relation("PurchasesUpdatedBy", fields: [updatedById], references: [id])
   createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   items  PurchaseItem[]
   stocks Stock[]
@@ -389,16 +477,303 @@ model Purchase {
 }
 
 model PurchaseItem {
-  id         Int      @id @default(autoincrement())
-  purchaseId Int      @map("purchase_id")
-  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  productId  Int      @map("product_id")
-  product    Product  @relation(fields: [productId], references: [id])
-  batchNo    String   @map("batch_no") @db.VarChar(50)
-  quantity   Int      @default(0)
-  unitCost   Decimal? @map("unit_cost") @db.Decimal(10, 2)
-  totalCost  Decimal? @map("total_cost") @db.Decimal(10, 2)
-  createdAt  DateTime @default(now()) @map("created_at")
+  id           Int          @id @default(autoincrement())
+  purchaseId   Int          @map("purchase_id")
+  purchase     Purchase     @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId    Int          @map("product_id")
+  product      Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  /// Corresponds to Stock.batchNo for traceability.
+  batchNo      String       @map("batch_no") @db.VarChar(50)
+  quantity     Int          @default(0)
+  unitCost     Decimal?     @map("unit_cost") @db.Decimal(10, 2)
+  totalCost    Decimal?     @map("total_cost") @db.Decimal(10, 2)
+  purchaseType PurchaseType @map("purchase_type")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
 
   @@map("purchase_items")
+}
+
+// =============================================================================
+// MANUAL STOCK ADJUSTMENT
+// =============================================================================
+
+/// Every ADJUSTMENT CylinderTransaction must have a matching StockAdjustment.
+/// refType=MANUAL, refId=StockAdjustment.id in the corresponding CylinderTransaction.
+/// This ensures adjustments are never anonymous — they always carry a reason and an owner.
+model StockAdjustment {
+  id          Int      @id @default(autoincrement())
+  productId   Int      @map("product_id")
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  filledDelta Int      @map("filled_delta")
+  emptyDelta  Int      @map("empty_delta")
+  /// Mandatory explanation — required before the admin can save.
+  reason      String
+  createdById Int?     @map("created_by_id")
+  createdBy   User?    @relation("StockAdjustmentsCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("stock_adjustments")
+}
+
+// =============================================================================
+// DOMESTIC SALES
+// =============================================================================
+
+model DomSale {
+  id          Int         @id @default(autoincrement())
+  /// Human-readable transaction reference. Must be unique across all dom sales.
+  trNo        String?     @unique @map("tr_no") @db.VarChar(30)
+  customerId  Int         @map("customer_id")
+  /// Restrict: do not allow customer deletion if sales exist.
+  customer    Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
+  paidAmount  Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  discount    Decimal?    @db.Decimal(10, 2)
+  paymentType PaymentType @default(CASH) @map("payment_type")
+  notes       String?
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  createdById Int?        @map("created_by_id")
+  createdBy   User?       @relation("DomSalesCreatedBy", fields: [createdById], references: [id])
+  updatedById Int?        @map("updated_by_id")
+  updatedBy   User?       @relation("DomSalesUpdatedBy", fields: [updatedById], references: [id])
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  items DomSaleItem[]
+
+  @@index([customerId])
+  @@map("dom_sales")
+}
+
+model DomSaleItem {
+  id        Int      @id @default(autoincrement())
+  domSaleId Int      @map("dom_sale_id")
+  domSale   DomSale  @relation(fields: [domSaleId], references: [id], onDelete: Cascade)
+  productId Int      @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  stockId   Int      @map("stock_id")
+  stock     Stock    @relation(fields: [stockId], references: [id], onDelete: Restrict)
+  quantity  Int      @default(0)
+  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
+  netTotal  Decimal? @map("net_total") @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("dom_sale_items")
+}
+
+// =============================================================================
+// ARB SALES
+// =============================================================================
+
+model ArbSale {
+  id          Int         @id @default(autoincrement())
+  trNo        String?     @unique @map("tr_no") @db.VarChar(30)
+  customerId  Int         @map("customer_id")
+  customer    Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
+  paidAmount  Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  discount    Decimal?    @db.Decimal(10, 2)
+  paymentType PaymentType @default(CASH) @map("payment_type")
+  notes       String?
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  createdById Int?        @map("created_by_id")
+  createdBy   User?       @relation("ArbSalesCreatedBy", fields: [createdById], references: [id])
+  updatedById Int?        @map("updated_by_id")
+  updatedBy   User?       @relation("ArbSalesUpdatedBy", fields: [updatedById], references: [id])
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  items ArbSaleItem[]
+
+  @@index([customerId])
+  @@map("arb_sales")
+}
+
+model ArbSaleItem {
+  id        Int      @id @default(autoincrement())
+  arbSaleId Int      @map("arb_sale_id")
+  arbSale   ArbSale  @relation(fields: [arbSaleId], references: [id], onDelete: Cascade)
+  productId Int      @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  stockId   Int      @map("stock_id")
+  stock     Stock    @relation(fields: [stockId], references: [id], onDelete: Restrict)
+  quantity  Int      @default(0)
+  salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
+  netTotal  Decimal? @map("net_total") @db.Decimal(10, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("arb_sale_items")
+}
+
+// =============================================================================
+// COMMERCIAL SALES (RENT + SALE)
+// =============================================================================
+
+model CommercialSale {
+  id          Int         @id @default(autoincrement())
+  trNo        String?     @unique @map("tr_no") @db.VarChar(30)
+  customerId  Int?        @map("customer_id")
+  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  totalAmount Decimal?    @map("total_amount") @db.Decimal(10, 2)
+  paidAmount  Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  discount    Decimal?    @db.Decimal(10, 2)
+  paymentType PaymentType @default(CASH) @map("payment_type")
+  invoiceDate DateTime    @map("invoice_date") @db.Date
+  notes       String?
+  isDeleted   Boolean     @default(false) @map("is_deleted")
+  createdById Int?        @map("created_by_id")
+  createdBy   User?       @relation("CommercialSalesCreatedBy", fields: [createdById], references: [id])
+  updatedById Int?        @map("updated_by_id")
+  updatedBy   User?       @relation("CommercialSalesUpdatedBy", fields: [updatedById], references: [id])
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  items CommercialSaleItem[]
+
+  @@index([customerId])
+  @@index([invoiceDate])
+  @@map("commercial_sales")
+}
+
+model CommercialSaleItem {
+  id                  Int                @id @default(autoincrement())
+  commercialSaleId    Int                @map("commercial_sale_id")
+  commercialSale      CommercialSale     @relation(fields: [commercialSaleId], references: [id], onDelete: Cascade)
+  productId           Int?               @map("product_id")
+  product             Product?           @relation(fields: [productId], references: [id], onDelete: Restrict)
+  stockId             Int?               @map("stock_id")
+  stock               Stock?             @relation(fields: [stockId], references: [id], onDelete: Restrict)
+  saleType            CommercialSaleType @map("sale_type")
+  quantity            Int                @default(0)
+  salePrice           Decimal?           @map("sale_price") @db.Decimal(10, 2)
+  netTotal            Decimal?           @map("net_total") @db.Decimal(10, 2)
+  /// For RENT lines: how many cylinders left the godown on this invoice.
+  cylindersDispatched Int                @default(0) @map("cylinders_dispatched")
+  /// For RENT lines: how many cylinders were returned by the customer (may be updated later).
+  cylindersReturned   Int                @default(0) @map("cylinders_returned")
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+
+  @@map("commercial_sale_items")
+}
+
+// =============================================================================
+// EXPENSES
+// =============================================================================
+
+model Expense {
+  id          Int       @id @default(autoincrement())
+  /// Category or short description, e.g. "Vehicle fuel", "Office supplies".
+  expense     String?   @db.VarChar(100)
+  date        DateTime? @db.Date
+  amount      Decimal?  @db.Decimal(10, 2)
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  createdById Int?      @map("created_by_id")
+  createdBy   User?     @relation("ExpensesCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("expenses")
+}
+
+// =============================================================================
+// CUSTOMER FINANCIAL LEDGER (SOURCE OF TRUTH FOR MONEY)
+// =============================================================================
+
+/// Append-only ledger for all customer money events.
+///
+/// This is the canonical record for customer balances.
+/// CustomerBalance is derived from this by summing amount per customer.
+///
+/// RULES:
+///   • Never UPDATE or DELETE rows.
+///   • To reverse a charge, append a new row with a negative amount of the same type.
+///   • amount > 0 means the customer owes more (debit).
+///   • amount < 0 means the customer has paid / credit applied (credit).
+///
+/// On every new sale:   append entryType=SALE_CHARGE, amount=totalAmount-paidAmount, refType=INVOICE, refId=<sale id>
+/// On every payment:    append entryType=PAYMENT,     amount=-paymentAmount,         refType=MANUAL,  refId=<payment record>
+/// On opening balance:  append entryType=OPENING,     amount=initialPendingAmount,   refType=MANUAL,  refId=Customer.id
+model CustomerPaymentLedger {
+  id          Int             @id @default(autoincrement())
+  customerId  Int             @map("customer_id")
+  customer    Customer        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  entryType   LedgerEntryType @map("entry_type")
+  /// Positive = customer owes more; Negative = balance reduced.
+  amount      Decimal         @db.Decimal(10, 2)
+  refType     RefType         @map("ref_type")
+  refId       Int             @map("ref_id")
+  /// If this row reverses a previous entry, point to that entry here.
+  /// An entry can only be reversed once (@unique enforces this).
+  voidedEntryId Int?          @unique @map("voided_entry_id")
+  voidedEntry   CustomerPaymentLedger?  @relation("LedgerVoidChain", fields: [voidedEntryId], references: [id])
+  voidedBy      CustomerPaymentLedger[] @relation("LedgerVoidChain")
+  notes       String?
+  createdById Int?            @map("created_by_id")
+  createdBy   User?           @relation("PaymentsCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@index([customerId])
+  @@index([refType, refId])
+  @@map("customer_payment_ledger")
+}
+
+// =============================================================================
+// CUSTOMER BALANCE (MATERIALIZED CACHE)
+// =============================================================================
+
+/// Materialized running total for quick balance look-up.
+///
+/// pendingAmount = SUM(CustomerPaymentLedger.amount) for this customer.
+/// pendingAmount > 0 → customer owes money.
+/// pendingAmount < 0 → customer has a credit balance.
+///
+/// Rebuild query:
+///   UPDATE customer_balances cb
+///   SET pending_amount = (
+///     SELECT COALESCE(SUM(amount), 0)
+///     FROM customer_payment_ledger
+///     WHERE customer_id = cb.customer_id
+///   )
+model CustomerBalance {
+  id            Int      @id @default(autoincrement())
+  customerId    Int      @unique @map("customer_id")
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  pendingAmount Decimal  @map("pending_amount") @db.Decimal(10, 2)
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("customer_balances")
+}
+
+// =============================================================================
+// CUSTOMER CYLINDER LEDGER (MATERIALIZED CACHE)
+// =============================================================================
+
+/// Materialized per-product cylinder balance per customer.
+///
+/// pendingCylinder = net cylinders dispatched but not yet returned by this customer
+///                 = SUM(cylindersDispatched) - SUM(cylindersReturned)
+///                   from CommercialSaleItem for this customer+product.
+///
+/// pendingCylinder > 0 → customer holds cylinders that haven't been returned.
+///
+/// This is ONLY updated for commercial-rent flows; domestic/ARB flows don't track
+/// per-customer cylinder custody (cylinders are sold outright).
+model CustomerCylinderLedger {
+  id              Int      @id @default(autoincrement())
+  customerId      Int      @map("customer_id")
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  productId       Int      @map("product_id")
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  pendingCylinder Int      @default(0) @map("pending_cylinder")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([productId, customerId])
+  @@index([customerId])
+  @@map("customer_cylinder_ledgers")
 }

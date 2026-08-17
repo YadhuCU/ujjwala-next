@@ -10,13 +10,14 @@ import { AlertTriangle, Package, ShoppingCart, ArrowUpRight } from "lucide-react
 import { DashboardData } from "./types";
 
 export function InventoryAndTransactions({ data }: { data: DashboardData }) {
-  const { lowStock, recentTxns, role } = data;
-  const isStaff = role !== "Owner";
+  const { lowStock, recentTxns, scope } = data;
+  // Low stock is an agency-wide figure, not scoped to the viewer.
+  const hideAgencyWide = scope !== "all";
 
   return (
-    <div className={`grid gap-6 ${isStaff ? "" : "lg:grid-cols-2"}`}>
+    <div className={`grid gap-6 ${hideAgencyWide ? "" : "lg:grid-cols-2"}`}>
       {/* Low Stock Alert (admin only) */}
-      {!isStaff && (
+      {!hideAgencyWide && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -75,7 +76,7 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
               Recent Transactions
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/sales" className="text-xs">
+              <Link href="/commercial-sales" className="text-xs">
                 View All <ArrowUpRight className="ml-1 w-3 h-3" />
               </Link>
             </Button>
@@ -100,7 +101,8 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
               </TableHeader>
               <TableBody>
                 {recentTxns.map((t) => (
-                  <TableRow key={t.id}>
+                  // Ids are only unique per sale model, so the type qualifies them
+                  <TableRow key={`${t.type}-${t.id}`}>
                     <TableCell className="font-medium font-mono text-xs">
                       {t.trNo}
                     </TableCell>

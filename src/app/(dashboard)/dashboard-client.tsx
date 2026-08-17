@@ -13,6 +13,7 @@ import { ProductBreakdown } from "./_components/product-breakdown";
 import { InventoryAndTransactions } from "./_components/inventory-txns";
 import { CommercialAlerts } from "./_components/commercial-alerts";
 import { QuickActions } from "./_components/quick-actions";
+import { GodownPreview } from "./_components/godown-preview";
 
 export default function DashboardPage() {
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
@@ -56,7 +57,7 @@ export default function DashboardPage() {
     );
   }
 
-  const isStaff = data.role !== "Owner";
+  const isStaff = data.scope !== "all";
 
   return (
     <div className="space-y-6">
@@ -75,6 +76,9 @@ export default function DashboardPage() {
           onDateRangeChange={setDateRange}
         />
       </div>
+
+      {/* Cylinder position first — it is the question the agency asks most */}
+      <GodownPreview />
 
       <QuickActions />
 

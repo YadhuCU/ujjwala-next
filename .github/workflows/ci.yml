@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main, refactor-vibe-code]
+  pull_request:
+
+concurrency:
+  # A new push supersedes an in-flight run for the same branch
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ujjwala_ci
+        ports:
+          - 5432:5432
+        # The job must not start querying before Postgres accepts connections
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # The integration suite truncates every table, so it gets its own
+      # database — the name has to end in _test or src/test/env.ts refuses.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ujjwala_ci?schema=public
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ujjwala_ci_test?schema=public
+      NEXTAUTH_SECRET: ci-secret-not-used-outside-ci
+      NEXTAUTH_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Every later step needs the generated client
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Lint
+        run: npm run lint
+
+      # next-env.d.ts is generated, not committed (Next's own .gitignore), and
+      # it is what declares modules for image imports and the typed routes.
+      # Without it `tsc` cannot resolve `import img from "…/foo.png"` and the
+      # type-check fails on a clean checkout while passing on any machine that
+      # has run a build. `next typegen` writes it without a full build.
+      - name: Generate Next types
+        run: npx next typegen
+
+      - name: Type-check
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Unit tests
+        run: npm test
+
+      # Creates and migrates ujjwala_ci_test on first run
+      - name: Integration tests
+        run: npm run test:integration
+
+      - name: Build
+        run: npm run build
+
+      # A fresh database must come up from the migrations alone — this is the
+      # production cutover path, so it is worth proving on every run.
+      - name: Migrate and seed a fresh database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ujjwala_fresh?schema=public
+          SEED_PASSWORD: ci-seed-password
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE ujjwala_fresh;'
+          npx prisma migrate deploy
+          npx prisma db seed

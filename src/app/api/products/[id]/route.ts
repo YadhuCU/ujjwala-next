@@ -1,46 +1,46 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAuth } from "@/lib/api-auth";
+import { PERMISSIONS } from "@/lib/permissions";
+import { formatResponse } from "@/lib/response";
+import { UpdateProductSchema } from "@/module/product/product.payload.schema";
+import * as ProductService from "@/module/product/product.service";
+import { serializeProduct } from "@/module/product/product.serializer";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    const product = await prisma.product.findUnique({
-      where: { id: parseInt(id) },
+    const product = await ProductService.getProductById(Number(id));
+    return formatResponse({ data: serializeProduct(product) });
+  }, [PERMISSIONS.PRODUCT_READ]);
+}
+
+export async function PUT(req: NextRequest, { params }: Props) {
+  return withAuth(async () => {
+    const { id } = await params;
+    const data = UpdateProductSchema.parse(await req.json());
+
+    const product = await ProductService.updateProduct(Number(id), data);
+
+    return formatResponse({
+      data: serializeProduct(product),
+      message: "Product updated successfully",
     });
-    if (!product) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-    return NextResponse.json(product);
-  });
+  }, [PERMISSIONS.PRODUCT_UPDATE]);
 }
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withAuth(async () => {
-    try {
-      const { id } = await params;
-      const data = await request.json();
-      const product = await prisma.product.update({
-        where: { id: parseInt(id) },
-        data: {
-          name: data.name,
-          type: data.type || null,
-          weight: data.weight,
-          salePrice: data.salePrice != null ? Number(data.salePrice) : null,
-        },
-      });
-      return NextResponse.json(product);
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to update";
-      return NextResponse.json({ error: message }, { status: 400 });
-    }
-  }, "Owner");
-}
-
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_request: Request, { params }: Props) {
   return withAuth(async () => {
     const { id } = await params;
-    await prisma.product.update({ where: { id: parseInt(id) }, data: { isDeleted: true } });
-    return NextResponse.json({ success: true });
-  }, "Owner");
+
+    await ProductService.deleteProduct(Number(id));
+
+    return formatResponse({
+      data: null,
+      message: "Product deleted successfully",
+    });
+  }, [PERMISSIONS.PRODUCT_DELETE]);
 }
