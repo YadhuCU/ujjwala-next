@@ -49,22 +49,32 @@ Migrations `0_init` → `20260816120000_rbac_audit_log`, then the seed: 28 table
 three logins. **No business data** — the old customers, balances and cylinder
 custody are in the backup, not in the live database.
 
-### Bringing the old data across, if wanted
+### The legacy data was deliberately not imported
 
-The carry-over file is already exported, so this does not need the old database:
+The agency chose a fresh start, so the old customers, balances and cylinder
+custody stay in the backup and never entered the live database. This also
+retired the seven negative-custody rows that would otherwise have had to be
+resolved first — see §2, kept for the record.
+
+The carry-over file is still there and still valid, so the decision is
+reversible. It does not need the old database:
 
 ```bash
 LEGACY_EXPORT_PATH=~/ujjwala-backups/ujjwala-carryover-20260816-1617.json \
   npm run legacy:import -- --apply
 ```
 
-It carries master data, what each customer owes and what each holds — not
+It would carry master data, what each customer owes and what each holds — not
 transactional history, which the append-only ledgers cannot represent
-faithfully. **Seven rows block it until someone decides**; see §2.
+faithfully.
 
 ---
 
-## 2. The seven rows blocking an import
+## 2. For the record: the rows that would have blocked an import
+
+Not applicable now that the agency has chosen a fresh start (§1). Kept because
+it documents a real data-quality gap in the old system, which is worth knowing
+if anyone ever revisits that archive.
 
 The new schema forbids negative cylinder custody:
 
@@ -125,7 +135,7 @@ latency, but co-locating is the actual fix and costs nothing.
 
    `PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK` is needed against Neon, whose
    connection handling times out Prisma's advisory lock. The seed is idempotent.
-3. **Optionally import the legacy data** (§1).
+3. Legacy import — **not done, by choice** (§1).
 4. **Redeploy** in Vercel so the build picks up the variables.
 5. **Sign in as `owner`** and change the seeded passwords at `/users`.
 

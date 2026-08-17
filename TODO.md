@@ -82,11 +82,22 @@ Office User Type Changes,
 - [ ] Report | Customer Pending Report(Or Customer Outstanding Report Or Customer Dues Report) - To view the closing balace of the customers.
 - [x] Dashboard | Add ARB Sales
 
+## Deployment status (2026-08-16)
+
+The Neon `ujjwala` database was wiped and rebuilt on the new schema, and the
+branch is deployed from GitHub to Vercel. **The agency chose a fresh start —
+the legacy data was deliberately not imported.** A verified backup of the old
+database is kept in `~/ujjwala-backups/`; see `docs/DEPLOYMENT.md`.
+
+That closes the cutover questions that were open: the seven negative-custody
+rows, the two customers in credit, and recreating the five legacy `accounts`
+as users are all moot. `npm run legacy:export` / `legacy:import` stay in the
+repo as working tooling, unused.
+
 ## Summary
 
 23 done, 12 outstanding. Everything outstanding is a **feature or UI-polish
-request** — none of it is refactor debt, and none of it blocks a production
-cutover. The clusters worth deciding on:
+request** — none of it is refactor debt. The clusters worth deciding on:
 
 1. **Dashboard rework** (9 items) — rename Revenue → Sale, drop Recent
    Transactions, add expense/profit pies, per-card export, cash/cheque split,
