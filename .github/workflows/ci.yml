@@ -55,6 +55,14 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # next-env.d.ts is generated, not committed (Next's own .gitignore), and
+      # it is what declares modules for image imports and the typed routes.
+      # Without it `tsc` cannot resolve `import img from "…/foo.png"` and the
+      # type-check fails on a clean checkout while passing on any machine that
+      # has run a build. `next typegen` writes it without a full build.
+      - name: Generate Next types
+        run: npx next typegen
+
       - name: Type-check
         run: npx tsc --noEmit -p tsconfig.json
 
