@@ -290,7 +290,7 @@ export function CommercialSaleForm({
 
                 return (
                   <Card key={field.id} className="p-4">
-                    <div className="grid gap-3 md:grid-cols-5 items-start">
+                    <div className="grid gap-3 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-start">
                       {/* Stock Selection */}
                       <FormField
                         control={form.control}
