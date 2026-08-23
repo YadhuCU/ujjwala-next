@@ -23,6 +23,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  sortStockOldestFirst,
+  stockOptionLabel,
+} from "@/module/stock/stock.display";
 import { useStocks, useCustomers } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
 import { PaymentType, ProductType } from "@/generated/enums";
@@ -45,7 +49,11 @@ export function ARBSaleForm({
   isPending,
 }: ARBSaleFormProps) {
   const { data: stocks } = useStocks(ProductType.ARB);
-  const availableStocks = stocks.filter((s) => s.quantity > 0);
+  // Oldest batch first — the person taking the order should be offered
+  // the stock that has been sitting longest.
+  const availableStocks = sortStockOldestFirst(
+    stocks.filter((s) => s.quantity > 0),
+  );
 
   const { data: customers } = useCustomers();
 
@@ -297,15 +305,14 @@ export function ARBSaleForm({
                                 <FormControl>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select Stock">
-                                      {selectedStock?.product?.name}
+                                      {selectedStock ? stockOptionLabel(selectedStock) : null}
                                     </SelectValue>
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   {availableStocks.map((s) => (
                                     <SelectItem key={s.id} value={String(s.id)}>
-                                      {s.product?.name} (Batch: {s.batchNo}) -
-                                      Qty: {s.quantity}
+                                      {stockOptionLabel(s)}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
