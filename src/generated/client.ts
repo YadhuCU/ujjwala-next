@@ -186,6 +186,19 @@ export type ArbSaleItem = Prisma.ArbSaleItemModel
  */
 export type CommercialSale = Prisma.CommercialSaleModel
 /**
+ * Model CommercialSaleReturn
+ * Cylinders collected from the customer while this invoice was being written.
+ * 
+ * Deliberately NOT tied to a line item. A customer's custody can come from an
+ * opening balance with no invoice behind it at all, so a collection cannot
+ * always be attributed to something they were once dispatched — it reduces
+ * what the customer holds, per product, and nothing more.
+ * 
+ * The per-line cylindersReturned counter still exists for the correction flow
+ * that records a return against one specific invoice line.
+ */
+export type CommercialSaleReturn = Prisma.CommercialSaleReturnModel
+/**
  * Model CommercialSaleItem
  * 
  */

@@ -27,6 +27,7 @@ function buildSale(
     createdAt: new Date("2026-08-14"),
     updatedAt: new Date("2026-08-14"),
     customer: { id: 7, name: "Hotel Blue" },
+    returns: [],
     items: items.map((item, index) => ({
       id: index + 1,
       commercialSaleId: 1,

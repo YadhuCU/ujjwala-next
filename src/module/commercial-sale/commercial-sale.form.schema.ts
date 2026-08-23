@@ -34,6 +34,22 @@ export const CommercialSaleFormSchema = z.object({
     .optional(),
 
   items: z.array(CommercialSaleItemFormSchema),
+
+  // Cylinders collected from the customer during this visit. A row per product
+  // they hold, so quantity 0 simply means nothing came back for that one — the
+  // form strips those before submitting.
+  returns: z
+    .array(
+      z.object({
+        productId: z.number().int(),
+        quantity: z.coerce
+          .number()
+          .int()
+          .min(0, "Cannot be negative")
+          .default(0),
+      }),
+    )
+    .default([]),
 });
 
 export type CommercialSaleFormValues = z.infer<typeof CommercialSaleFormSchema>;

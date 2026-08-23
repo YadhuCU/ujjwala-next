@@ -216,6 +216,7 @@ describe("sale-by-product report", () => {
             salePrice: 100,
           },
         ],
+        returns: [],
       },
       ownerId,
     );

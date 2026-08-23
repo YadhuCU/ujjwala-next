@@ -263,8 +263,14 @@ Other module-specific rules:
   from a `Stock` batch and out of the godown (`RENT_DELIVERY` / `SALE_OUT`);
   `RENT` additionally tracks custody (`cylindersDispatched` /
   `cylindersReturned`, mirrored in `CustomerCylinderLedger.pendingCylinder`).
-  Returns are a separate event (`PATCH /api/commercial-sales/:id/return`), never
-  an edit of the invoice. An invoice that already has returns recorded cannot be
+  **Cylinders collected are recorded on the invoice being written**, as
+  `CommercialSaleReturn` rows keyed on product, not on a line item — custody
+  can come from an opening balance with no invoice behind it, so a collection
+  cannot always be attributed to something once dispatched. They are checked
+  against the holding *before* this invoice dispatches anything, and an invoice
+  may carry no sale lines at all (a collection-only visit). `PATCH
+  /api/commercial-sales/:id/return` still records a return against one specific
+  line, and remains the correction path; an invoice with one cannot be edited. An invoice that already has returns recorded cannot be
   updated, and one with cylinders still outstanding cannot be deleted. Its
   reverse phase reads the invoice's own `CylinderTransaction` rows and undoes
   exactly the movement each caused, so dispatches and returns both unwind.
