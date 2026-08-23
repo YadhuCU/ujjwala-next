@@ -9,6 +9,7 @@ export type CommercialSaleWithRelations = Prisma.CommercialSaleGetPayload<{
         stock: true;
       };
     };
+    returns: { include: { product: true } };
   };
 }>;
 
@@ -43,6 +44,15 @@ export function serializeCommercialSale(sale: CommercialSaleWithRelations) {
 
       // Cylinders still with the customer for this line (RENT lines only)
       cylindersOutstanding: item.cylindersDispatched - item.cylindersReturned,
+    })),
+
+    // Cylinders collected from the customer while this invoice was written.
+    // Not tied to a line: they came off the customer's overall holding.
+    returns: sale.returns.map((row) => ({
+      id: row.id,
+      productId: row.productId,
+      quantity: row.quantity,
+      product: row.product ?? undefined,
     })),
   };
 }

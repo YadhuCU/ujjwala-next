@@ -39,6 +39,12 @@ export function CommercialSaleUpdateComponent() {
     ...data,
     invoiceDate: new Date(data.invoiceDate),
     notes: data.notes ?? "",
+    // What this invoice already collected. The form merges these with what the
+    // customer currently holds, so a product returned in full still shows.
+    returns: data.returns.map((row) => ({
+      productId: row.productId,
+      quantity: row.quantity,
+    })),
   } as CommercialSaleFormValues;
 
   return (

@@ -73,6 +73,7 @@ export const ModelName = {
   ArbSale: 'ArbSale',
   ArbSaleItem: 'ArbSaleItem',
   CommercialSale: 'CommercialSale',
+  CommercialSaleReturn: 'CommercialSaleReturn',
   CommercialSaleItem: 'CommercialSaleItem',
   Expense: 'Expense',
   CustomerPaymentLedger: 'CustomerPaymentLedger',
@@ -422,6 +423,17 @@ export const CommercialSaleScalarFieldEnum = {
 } as const
 
 export type CommercialSaleScalarFieldEnum = (typeof CommercialSaleScalarFieldEnum)[keyof typeof CommercialSaleScalarFieldEnum]
+
+
+export const CommercialSaleReturnScalarFieldEnum = {
+  id: 'id',
+  commercialSaleId: 'commercialSaleId',
+  productId: 'productId',
+  quantity: 'quantity',
+  createdAt: 'createdAt'
+} as const
+
+export type CommercialSaleReturnScalarFieldEnum = (typeof CommercialSaleReturnScalarFieldEnum)[keyof typeof CommercialSaleReturnScalarFieldEnum]
 
 
 export const CommercialSaleItemScalarFieldEnum = {

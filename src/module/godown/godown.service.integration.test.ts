@@ -71,6 +71,7 @@ describe("getGodownStatus", () => {
             salePrice: 100,
           },
         ],
+        returns: [],
       },
       userId,
     );

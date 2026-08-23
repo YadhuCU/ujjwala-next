@@ -26,6 +26,7 @@ const commercialSaleInclude = {
       stock: true,
     },
   },
+  returns: { include: { product: true } },
 } as const;
 
 // =============================================================================
@@ -189,6 +190,50 @@ function assertNoOutstandingCylinders(items: OriginalSaleItem[]) {
     );
 }
 
+/**
+ * What the customer holds right now, per product, before this invoice touches
+ * anything. Collected cylinders are checked against this rather than against
+ * the post-dispatch figure: cylinders delivered full on this visit cannot be
+ * the ones handed back on the same visit.
+ */
+async function fetchCustomerHoldings(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+): Promise<Map<number, number>> {
+  const ledgers = await tx.customerCylinderLedger.findMany({
+    where: { customerId },
+    select: { productId: true, pendingCylinder: true },
+  });
+
+  return new Map(ledgers.map((l) => [l.productId, l.pendingCylinder]));
+}
+
+async function assertCustomerHoldsCylinders(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+  returns: ProductQty[],
+) {
+  if (returns.length === 0) return;
+
+  const held = await fetchCustomerHoldings(tx, customerId);
+
+  for (const { productId, quantity } of returns) {
+    const holding = held.get(productId) ?? 0;
+
+    if (quantity > holding) {
+      const product = await tx.product.findUnique({
+        where: { id: productId },
+        select: { name: true },
+      });
+
+      throw new ConflictError(
+        `Cannot collect ${quantity} × ${product?.name ?? `product #${productId}`} — the customer holds ${holding}`,
+        { productId, holding, quantity },
+      );
+    }
+  }
+}
+
 // =============================================================================
 // WRITE HELPERS
 // =============================================================================
@@ -294,6 +339,77 @@ async function applyCustomerCylinderDelta(
       },
     });
   }
+}
+
+/**
+ * Cylinders collected from the customer while this invoice was written.
+ *
+ * Four effects, exactly like the per-invoice return flow: a record on the
+ * invoice, a row on the append-only cylinder ledger, empties into the godown,
+ * and the customer's custody comes down.
+ */
+async function writeRecordedReturns(
+  tx: Prisma.TransactionClient,
+  commercialSaleId: number,
+  customerId: number,
+  returns: ProductQty[],
+) {
+  for (const { productId, quantity } of returns) {
+    await tx.commercialSaleReturn.create({
+      data: { commercialSaleId, productId, quantity },
+    });
+
+    await tx.cylinderTransaction.create({
+      data: {
+        productId,
+        txnType: TxnType.CYLINDER_RETURN,
+        filledDelta: 0,
+        emptyDelta: quantity,
+        refType: RefType.INVOICE,
+        refId: commercialSaleId,
+        notes: `Cylinders collected — COM #${commercialSaleId}`,
+      },
+    });
+
+    // The godown row may not exist yet for a product never held there
+    await tx.godownInventory.upsert({
+      where: { productId },
+      update: { emptyQty: { increment: quantity } },
+      create: { productId, filledQty: 0, emptyQty: quantity },
+    });
+
+    await tx.customerCylinderLedger.update({
+      where: { productId_customerId: { productId, customerId } },
+      data: { pendingCylinder: { decrement: quantity } },
+    });
+  }
+}
+
+/**
+ * Undo the custody half of the collections on this invoice.
+ *
+ * The godown and ledger halves are already handled by
+ * `reverseCylinderTransactions`, which voids every cylinder row the invoice
+ * wrote — collections included. Only the customer's holding needs restoring
+ * here, and the records themselves removed so a repost does not double them.
+ */
+async function reverseRecordedReturns(
+  tx: Prisma.TransactionClient,
+  commercialSaleId: number,
+  customerId: number,
+) {
+  const recorded = await tx.commercialSaleReturn.findMany({
+    where: { commercialSaleId },
+  });
+
+  for (const { productId, quantity } of recorded) {
+    await tx.customerCylinderLedger.update({
+      where: { productId_customerId: { productId, customerId } },
+      data: { pendingCylinder: { increment: quantity } },
+    });
+  }
+
+  await tx.commercialSaleReturn.deleteMany({ where: { commercialSaleId } });
 }
 
 // Restores Stock.quantity when reversing a sale (update or delete)
@@ -449,13 +565,17 @@ export async function createCommercialSale(
   input: CreateCommercialSaleInput,
   userId: number,
 ) {
-  const { items, customerId, paidAmount, discount, ...header } = input;
+  const { items, returns, customerId, paidAmount, discount, ...header } = input;
   const { totalAmount } = computeTotals(items, discount ?? 0);
 
   if (paidAmount > totalAmount)
     throw new BadRequestError("Paid amount cannot exceed total amount");
 
   return prisma.$transaction(async (tx) => {
+    // 0. Collected cylinders must be ones the customer already held — checked
+    //    before anything is dispatched on this invoice.
+    await assertCustomerHoldsCylinders(tx, customerId, returns);
+
     // 1. Validate stock batches + build stockMap { stockId → { productId, … } }
     const stockMap = await assertAndFetchStocks(tx, items);
 
@@ -490,6 +610,9 @@ export async function createCommercialSale(
 
     // 7. Customer cylinder custody — RENT lines only
     await applyCustomerCylinderDelta(tx, customerId, rentQtys, 1);
+
+    // 7b. Cylinders collected on this visit come off the customer's custody
+    await writeRecordedReturns(tx, sale.id, customerId, returns);
 
     // 8. Customer money ledger + balance
     await applyCustomerLedger(
@@ -568,7 +691,7 @@ export async function updateCommercialSale(
   input: UpdateCommercialSaleInput,
   userId: number,
 ) {
-  const { items, customerId, paidAmount, discount, ...header } = input;
+  const { items, returns, customerId, paidAmount, discount, ...header } = input;
   const { totalAmount } = computeTotals(items, discount ?? 0);
 
   if (paidAmount > totalAmount)
@@ -577,7 +700,9 @@ export async function updateCommercialSale(
   return prisma.$transaction(async (tx) => {
     const original = await assertCommercialSaleExists(tx, id);
 
-    // Returns are their own event — an invoice with returns cannot be rewritten
+    // A return recorded against a *line* is its own later event — that invoice
+    // cannot be rewritten. Cylinders collected on the invoice itself are part
+    // of it, and are reversed and reposted like everything else below.
     assertNoReturnsRecorded(original.items);
 
     // ── REVERSE PHASE ────────────────────────────────────────────────────────
@@ -596,6 +721,9 @@ export async function updateCommercialSale(
       -1,
     );
 
+    // 3b. Put back whatever this invoice collected, so the repost starts level
+    await reverseRecordedReturns(tx, id, original.customerId!);
+
     // 4. Reverse customer money ledger
     await reverseCustomerLedger(
       tx,
@@ -611,7 +739,9 @@ export async function updateCommercialSale(
 
     // ── REPOST PHASE ─────────────────────────────────────────────────────────
 
-    // 6. Validate new stock batches + godown availability
+    // 6. Validate new stock batches + godown availability. Holdings are read
+    //    after the reversal above, so they reflect the pre-invoice position.
+    await assertCustomerHoldsCylinders(tx, customerId, returns);
     const stockMap = await assertAndFetchStocks(tx, items);
     const productQtys = resolveProductQtys(items, stockMap);
     await assertGodownHasFilled(tx, productQtys);
@@ -624,6 +754,7 @@ export async function updateCommercialSale(
 
     // 9. Apply new cylinder custody + money ledger
     await applyCustomerCylinderDelta(tx, customerId, rentQtys, 1);
+    await writeRecordedReturns(tx, id, customerId, returns);
     await applyCustomerLedger(
       tx,
       customerId,
@@ -753,6 +884,9 @@ export async function deleteCommercialSale(id: number, userId: number) {
 
     // 2. Restore Stock.quantity
     await restoreStockQuantities(tx, original.items);
+
+    // 2b. Whatever this invoice collected goes back onto the customer
+    await reverseRecordedReturns(tx, id, original.customerId!);
 
     // 3. Reverse customer money ledger
     await reverseCustomerLedger(

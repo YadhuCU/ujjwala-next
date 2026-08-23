@@ -406,6 +406,7 @@ export const ModelName = {
   ArbSale: 'ArbSale',
   ArbSaleItem: 'ArbSaleItem',
   CommercialSale: 'CommercialSale',
+  CommercialSaleReturn: 'CommercialSaleReturn',
   CommercialSaleItem: 'CommercialSaleItem',
   Expense: 'Expense',
   CustomerPaymentLedger: 'CustomerPaymentLedger',
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userRole" | "role" | "permission" | "rbacAuditLog" | "rolePermission" | "location" | "customer" | "customerInitialCylinderBalance" | "product" | "vendor" | "godownInventory" | "cylinderTransaction" | "stock" | "purchase" | "purchaseItem" | "stockAdjustment" | "domSale" | "domSaleItem" | "arbSale" | "arbSaleItem" | "commercialSale" | "commercialSaleItem" | "expense" | "customerPaymentLedger" | "customerBalance" | "customerCylinderLedger"
+    modelProps: "user" | "userRole" | "role" | "permission" | "rbacAuditLog" | "rolePermission" | "location" | "customer" | "customerInitialCylinderBalance" | "product" | "vendor" | "godownInventory" | "cylinderTransaction" | "stock" | "purchase" | "purchaseItem" | "stockAdjustment" | "domSale" | "domSaleItem" | "arbSale" | "arbSaleItem" | "commercialSale" | "commercialSaleReturn" | "commercialSaleItem" | "expense" | "customerPaymentLedger" | "customerBalance" | "customerCylinderLedger"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2058,6 +2059,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CommercialSaleReturn: {
+      payload: Prisma.$CommercialSaleReturnPayload<ExtArgs>
+      fields: Prisma.CommercialSaleReturnFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CommercialSaleReturnFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CommercialSaleReturnFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>
+        }
+        findFirst: {
+          args: Prisma.CommercialSaleReturnFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CommercialSaleReturnFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>
+        }
+        findMany: {
+          args: Prisma.CommercialSaleReturnFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>[]
+        }
+        create: {
+          args: Prisma.CommercialSaleReturnCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>
+        }
+        createMany: {
+          args: Prisma.CommercialSaleReturnCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CommercialSaleReturnCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>[]
+        }
+        delete: {
+          args: Prisma.CommercialSaleReturnDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>
+        }
+        update: {
+          args: Prisma.CommercialSaleReturnUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>
+        }
+        deleteMany: {
+          args: Prisma.CommercialSaleReturnDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CommercialSaleReturnUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CommercialSaleReturnUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>[]
+        }
+        upsert: {
+          args: Prisma.CommercialSaleReturnUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CommercialSaleReturnPayload>
+        }
+        aggregate: {
+          args: Prisma.CommercialSaleReturnAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCommercialSaleReturn>
+        }
+        groupBy: {
+          args: Prisma.CommercialSaleReturnGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommercialSaleReturnGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CommercialSaleReturnCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CommercialSaleReturnCountAggregateOutputType> | number
+        }
+      }
+    }
     CommercialSaleItem: {
       payload: Prisma.$CommercialSaleItemPayload<ExtArgs>
       fields: Prisma.CommercialSaleItemFieldRefs
@@ -2795,6 +2870,17 @@ export const CommercialSaleScalarFieldEnum = {
 export type CommercialSaleScalarFieldEnum = (typeof CommercialSaleScalarFieldEnum)[keyof typeof CommercialSaleScalarFieldEnum]
 
 
+export const CommercialSaleReturnScalarFieldEnum = {
+  id: 'id',
+  commercialSaleId: 'commercialSaleId',
+  productId: 'productId',
+  quantity: 'quantity',
+  createdAt: 'createdAt'
+} as const
+
+export type CommercialSaleReturnScalarFieldEnum = (typeof CommercialSaleReturnScalarFieldEnum)[keyof typeof CommercialSaleReturnScalarFieldEnum]
+
+
 export const CommercialSaleItemScalarFieldEnum = {
   id: 'id',
   commercialSaleId: 'commercialSaleId',
@@ -3216,6 +3302,7 @@ export type GlobalOmitConfig = {
   arbSale?: Prisma.ArbSaleOmit
   arbSaleItem?: Prisma.ArbSaleItemOmit
   commercialSale?: Prisma.CommercialSaleOmit
+  commercialSaleReturn?: Prisma.CommercialSaleReturnOmit
   commercialSaleItem?: Prisma.CommercialSaleItemOmit
   expense?: Prisma.ExpenseOmit
   customerPaymentLedger?: Prisma.CustomerPaymentLedgerOmit

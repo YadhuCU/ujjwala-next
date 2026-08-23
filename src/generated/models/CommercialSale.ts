@@ -316,6 +316,7 @@ export type CommercialSaleWhereInput = {
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.CommercialSaleItemListRelationFilter
+  returns?: Prisma.CommercialSaleReturnListRelationFilter
 }
 
 export type CommercialSaleOrderByWithRelationInput = {
@@ -337,6 +338,7 @@ export type CommercialSaleOrderByWithRelationInput = {
   createdBy?: Prisma.UserOrderByWithRelationInput
   updatedBy?: Prisma.UserOrderByWithRelationInput
   items?: Prisma.CommercialSaleItemOrderByRelationAggregateInput
+  returns?: Prisma.CommercialSaleReturnOrderByRelationAggregateInput
 }
 
 export type CommercialSaleWhereUniqueInput = Prisma.AtLeast<{
@@ -361,6 +363,7 @@ export type CommercialSaleWhereUniqueInput = Prisma.AtLeast<{
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.CommercialSaleItemListRelationFilter
+  returns?: Prisma.CommercialSaleReturnListRelationFilter
 }, "id" | "trNo">
 
 export type CommercialSaleOrderByWithAggregationInput = {
@@ -420,6 +423,7 @@ export type CommercialSaleCreateInput = {
   createdBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesCreatedInput
   updatedBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesUpdatedInput
   items?: Prisma.CommercialSaleItemCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleUncheckedCreateInput = {
@@ -438,6 +442,7 @@ export type CommercialSaleUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnUncheckedCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleUpdateInput = {
@@ -455,6 +460,7 @@ export type CommercialSaleUpdateInput = {
   createdBy?: Prisma.UserUpdateOneWithoutCommercialSalesCreatedNestedInput
   updatedBy?: Prisma.UserUpdateOneWithoutCommercialSalesUpdatedNestedInput
   items?: Prisma.CommercialSaleItemUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateInput = {
@@ -473,6 +479,7 @@ export type CommercialSaleUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUncheckedUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleCreateManyInput = {
@@ -734,6 +741,20 @@ export type CommercialSaleUncheckedUpdateManyWithoutCustomerNestedInput = {
   deleteMany?: Prisma.CommercialSaleScalarWhereInput | Prisma.CommercialSaleScalarWhereInput[]
 }
 
+export type CommercialSaleCreateNestedOneWithoutReturnsInput = {
+  create?: Prisma.XOR<Prisma.CommercialSaleCreateWithoutReturnsInput, Prisma.CommercialSaleUncheckedCreateWithoutReturnsInput>
+  connectOrCreate?: Prisma.CommercialSaleCreateOrConnectWithoutReturnsInput
+  connect?: Prisma.CommercialSaleWhereUniqueInput
+}
+
+export type CommercialSaleUpdateOneRequiredWithoutReturnsNestedInput = {
+  create?: Prisma.XOR<Prisma.CommercialSaleCreateWithoutReturnsInput, Prisma.CommercialSaleUncheckedCreateWithoutReturnsInput>
+  connectOrCreate?: Prisma.CommercialSaleCreateOrConnectWithoutReturnsInput
+  upsert?: Prisma.CommercialSaleUpsertWithoutReturnsInput
+  connect?: Prisma.CommercialSaleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CommercialSaleUpdateToOneWithWhereWithoutReturnsInput, Prisma.CommercialSaleUpdateWithoutReturnsInput>, Prisma.CommercialSaleUncheckedUpdateWithoutReturnsInput>
+}
+
 export type CommercialSaleCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.CommercialSaleCreateWithoutItemsInput, Prisma.CommercialSaleUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.CommercialSaleCreateOrConnectWithoutItemsInput
@@ -762,6 +783,7 @@ export type CommercialSaleCreateWithoutCreatedByInput = {
   customer?: Prisma.CustomerCreateNestedOneWithoutCommercialSalesInput
   updatedBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesUpdatedInput
   items?: Prisma.CommercialSaleItemCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleUncheckedCreateWithoutCreatedByInput = {
@@ -779,6 +801,7 @@ export type CommercialSaleUncheckedCreateWithoutCreatedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnUncheckedCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleCreateOrConnectWithoutCreatedByInput = {
@@ -805,6 +828,7 @@ export type CommercialSaleCreateWithoutUpdatedByInput = {
   customer?: Prisma.CustomerCreateNestedOneWithoutCommercialSalesInput
   createdBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesCreatedInput
   items?: Prisma.CommercialSaleItemCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleUncheckedCreateWithoutUpdatedByInput = {
@@ -822,6 +846,7 @@ export type CommercialSaleUncheckedCreateWithoutUpdatedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnUncheckedCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleCreateOrConnectWithoutUpdatedByInput = {
@@ -900,6 +925,7 @@ export type CommercialSaleCreateWithoutCustomerInput = {
   createdBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesCreatedInput
   updatedBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesUpdatedInput
   items?: Prisma.CommercialSaleItemCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleUncheckedCreateWithoutCustomerInput = {
@@ -917,6 +943,7 @@ export type CommercialSaleUncheckedCreateWithoutCustomerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutCommercialSaleInput
+  returns?: Prisma.CommercialSaleReturnUncheckedCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleCreateOrConnectWithoutCustomerInput = {
@@ -945,6 +972,92 @@ export type CommercialSaleUpdateManyWithWhereWithoutCustomerInput = {
   data: Prisma.XOR<Prisma.CommercialSaleUpdateManyMutationInput, Prisma.CommercialSaleUncheckedUpdateManyWithoutCustomerInput>
 }
 
+export type CommercialSaleCreateWithoutReturnsInput = {
+  trNo?: string | null
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  invoiceDate: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer?: Prisma.CustomerCreateNestedOneWithoutCommercialSalesInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesUpdatedInput
+  items?: Prisma.CommercialSaleItemCreateNestedManyWithoutCommercialSaleInput
+}
+
+export type CommercialSaleUncheckedCreateWithoutReturnsInput = {
+  id?: number
+  trNo?: string | null
+  customerId?: number | null
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: $Enums.PaymentType
+  invoiceDate: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.CommercialSaleItemUncheckedCreateNestedManyWithoutCommercialSaleInput
+}
+
+export type CommercialSaleCreateOrConnectWithoutReturnsInput = {
+  where: Prisma.CommercialSaleWhereUniqueInput
+  create: Prisma.XOR<Prisma.CommercialSaleCreateWithoutReturnsInput, Prisma.CommercialSaleUncheckedCreateWithoutReturnsInput>
+}
+
+export type CommercialSaleUpsertWithoutReturnsInput = {
+  update: Prisma.XOR<Prisma.CommercialSaleUpdateWithoutReturnsInput, Prisma.CommercialSaleUncheckedUpdateWithoutReturnsInput>
+  create: Prisma.XOR<Prisma.CommercialSaleCreateWithoutReturnsInput, Prisma.CommercialSaleUncheckedCreateWithoutReturnsInput>
+  where?: Prisma.CommercialSaleWhereInput
+}
+
+export type CommercialSaleUpdateToOneWithWhereWithoutReturnsInput = {
+  where?: Prisma.CommercialSaleWhereInput
+  data: Prisma.XOR<Prisma.CommercialSaleUpdateWithoutReturnsInput, Prisma.CommercialSaleUncheckedUpdateWithoutReturnsInput>
+}
+
+export type CommercialSaleUpdateWithoutReturnsInput = {
+  trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneWithoutCommercialSalesNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCommercialSalesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutCommercialSalesUpdatedNestedInput
+  items?: Prisma.CommercialSaleItemUpdateManyWithoutCommercialSaleNestedInput
+}
+
+export type CommercialSaleUncheckedUpdateWithoutReturnsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
+  invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleNestedInput
+}
+
 export type CommercialSaleCreateWithoutItemsInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -959,6 +1072,7 @@ export type CommercialSaleCreateWithoutItemsInput = {
   customer?: Prisma.CustomerCreateNestedOneWithoutCommercialSalesInput
   createdBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesCreatedInput
   updatedBy?: Prisma.UserCreateNestedOneWithoutCommercialSalesUpdatedInput
+  returns?: Prisma.CommercialSaleReturnCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleUncheckedCreateWithoutItemsInput = {
@@ -976,6 +1090,7 @@ export type CommercialSaleUncheckedCreateWithoutItemsInput = {
   updatedById?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  returns?: Prisma.CommercialSaleReturnUncheckedCreateNestedManyWithoutCommercialSaleInput
 }
 
 export type CommercialSaleCreateOrConnectWithoutItemsInput = {
@@ -1008,6 +1123,7 @@ export type CommercialSaleUpdateWithoutItemsInput = {
   customer?: Prisma.CustomerUpdateOneWithoutCommercialSalesNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutCommercialSalesCreatedNestedInput
   updatedBy?: Prisma.UserUpdateOneWithoutCommercialSalesUpdatedNestedInput
+  returns?: Prisma.CommercialSaleReturnUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateWithoutItemsInput = {
@@ -1025,6 +1141,7 @@ export type CommercialSaleUncheckedUpdateWithoutItemsInput = {
   updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  returns?: Prisma.CommercialSaleReturnUncheckedUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleCreateManyCreatedByInput = {
@@ -1073,6 +1190,7 @@ export type CommercialSaleUpdateWithoutCreatedByInput = {
   customer?: Prisma.CustomerUpdateOneWithoutCommercialSalesNestedInput
   updatedBy?: Prisma.UserUpdateOneWithoutCommercialSalesUpdatedNestedInput
   items?: Prisma.CommercialSaleItemUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateWithoutCreatedByInput = {
@@ -1090,6 +1208,7 @@ export type CommercialSaleUncheckedUpdateWithoutCreatedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUncheckedUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1122,6 +1241,7 @@ export type CommercialSaleUpdateWithoutUpdatedByInput = {
   customer?: Prisma.CustomerUpdateOneWithoutCommercialSalesNestedInput
   createdBy?: Prisma.UserUpdateOneWithoutCommercialSalesCreatedNestedInput
   items?: Prisma.CommercialSaleItemUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateWithoutUpdatedByInput = {
@@ -1139,6 +1259,7 @@ export type CommercialSaleUncheckedUpdateWithoutUpdatedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUncheckedUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -1187,6 +1308,7 @@ export type CommercialSaleUpdateWithoutCustomerInput = {
   createdBy?: Prisma.UserUpdateOneWithoutCommercialSalesCreatedNestedInput
   updatedBy?: Prisma.UserUpdateOneWithoutCommercialSalesUpdatedNestedInput
   items?: Prisma.CommercialSaleItemUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateWithoutCustomerInput = {
@@ -1204,6 +1326,7 @@ export type CommercialSaleUncheckedUpdateWithoutCustomerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleNestedInput
+  returns?: Prisma.CommercialSaleReturnUncheckedUpdateManyWithoutCommercialSaleNestedInput
 }
 
 export type CommercialSaleUncheckedUpdateManyWithoutCustomerInput = {
@@ -1229,10 +1352,12 @@ export type CommercialSaleUncheckedUpdateManyWithoutCustomerInput = {
 
 export type CommercialSaleCountOutputType = {
   items: number
+  returns: number
 }
 
 export type CommercialSaleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | CommercialSaleCountOutputTypeCountItemsArgs
+  returns?: boolean | CommercialSaleCountOutputTypeCountReturnsArgs
 }
 
 /**
@@ -1250,6 +1375,13 @@ export type CommercialSaleCountOutputTypeDefaultArgs<ExtArgs extends runtime.Typ
  */
 export type CommercialSaleCountOutputTypeCountItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CommercialSaleItemWhereInput
+}
+
+/**
+ * CommercialSaleCountOutputType without action
+ */
+export type CommercialSaleCountOutputTypeCountReturnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommercialSaleReturnWhereInput
 }
 
 
@@ -1272,6 +1404,7 @@ export type CommercialSaleSelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdBy?: boolean | Prisma.CommercialSale$createdByArgs<ExtArgs>
   updatedBy?: boolean | Prisma.CommercialSale$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.CommercialSale$itemsArgs<ExtArgs>
+  returns?: boolean | Prisma.CommercialSale$returnsArgs<ExtArgs>
   _count?: boolean | Prisma.CommercialSaleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["commercialSale"]>
 
@@ -1338,6 +1471,7 @@ export type CommercialSaleInclude<ExtArgs extends runtime.Types.Extensions.Inter
   createdBy?: boolean | Prisma.CommercialSale$createdByArgs<ExtArgs>
   updatedBy?: boolean | Prisma.CommercialSale$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.CommercialSale$itemsArgs<ExtArgs>
+  returns?: boolean | Prisma.CommercialSale$returnsArgs<ExtArgs>
   _count?: boolean | Prisma.CommercialSaleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CommercialSaleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1358,6 +1492,7 @@ export type $CommercialSalePayload<ExtArgs extends runtime.Types.Extensions.Inte
     createdBy: Prisma.$UserPayload<ExtArgs> | null
     updatedBy: Prisma.$UserPayload<ExtArgs> | null
     items: Prisma.$CommercialSaleItemPayload<ExtArgs>[]
+    returns: Prisma.$CommercialSaleReturnPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1772,6 +1907,7 @@ export interface Prisma__CommercialSaleClient<T, Null = never, ExtArgs extends r
   createdBy<T extends Prisma.CommercialSale$createdByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSale$createdByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   updatedBy<T extends Prisma.CommercialSale$updatedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSale$updatedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.CommercialSale$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSale$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSaleItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  returns<T extends Prisma.CommercialSale$returnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommercialSale$returnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSaleReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2294,6 +2430,30 @@ export type CommercialSale$itemsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.CommercialSaleItemScalarFieldEnum | Prisma.CommercialSaleItemScalarFieldEnum[]
+}
+
+/**
+ * CommercialSale.returns
+ */
+export type CommercialSale$returnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommercialSaleReturn
+   */
+  select?: Prisma.CommercialSaleReturnSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommercialSaleReturn
+   */
+  omit?: Prisma.CommercialSaleReturnOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommercialSaleReturnInclude<ExtArgs> | null
+  where?: Prisma.CommercialSaleReturnWhereInput
+  orderBy?: Prisma.CommercialSaleReturnOrderByWithRelationInput | Prisma.CommercialSaleReturnOrderByWithRelationInput[]
+  cursor?: Prisma.CommercialSaleReturnWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommercialSaleReturnScalarFieldEnum | Prisma.CommercialSaleReturnScalarFieldEnum[]
 }
 
 /**

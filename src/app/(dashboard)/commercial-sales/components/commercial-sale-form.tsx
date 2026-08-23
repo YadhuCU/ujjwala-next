@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
@@ -28,8 +29,10 @@ import {
   sortStockOldestFirst,
   stockOptionLabel,
 } from "@/module/stock/stock.display";
+import { useQuery } from "@tanstack/react-query";
+import { customerTxnOptions } from "@/lib/query-options";
 import { useStocks, useCustomers } from "@/hooks/use-api";
-import { Plus, Trash2 } from "lucide-react";
+import { Cylinder, Plus, Trash2 } from "lucide-react";
 import { CommercialSaleType, PaymentType, ProductType } from "@/generated/enums";
 import { CustomerTxnInfo } from "../../_components/customer-txn-info";
 import {
@@ -85,9 +88,72 @@ export function CommercialSaleForm({
     name: "items",
   });
 
+  // Rows sit at 0 until something actually came back; only send the real ones.
+  const handleSubmit = (values: CommercialSaleFormValues) =>
+    onSubmit({
+      ...values,
+      returns: (values.returns ?? []).filter((row) => Number(row.quantity) > 0),
+    });
+
   // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() cannot be memoized; these values are display-only
   const watchedItems = form.watch("items");
   const selectedCustomerId = form.watch("customerId");
+
+  /**
+   * What the customer holds right now, so staff can record what came back on
+   * this visit instead of hunting for the invoice it went out on.
+   */
+  const { data: customerSummary } = useQuery({
+    ...customerTxnOptions(String(selectedCustomerId)),
+    enabled: !!selectedCustomerId,
+    select: (res) => res.data,
+  });
+
+  /**
+   * One row per product the customer holds.
+   *
+   * On edit, a product this invoice already collected in full no longer shows
+   * as held — it has to be merged back in, or the recorded quantity would
+   * silently vanish from the form and be wiped on save.
+   */
+  const returnRows = useMemo(() => {
+    const held = customerSummary?.pendingCylinders ?? [];
+
+    const rows = held.map((row) => ({
+      productId: row.productId,
+      name: row.product?.name ?? `Product #${row.productId}`,
+      held: row.pendingCylinder,
+    }));
+
+    const seen = new Set(rows.map((r) => r.productId));
+
+    for (const recorded of defaultValues?.returns ?? []) {
+      if (seen.has(recorded.productId)) continue;
+      rows.push({
+        productId: recorded.productId,
+        name: `Product #${recorded.productId}`,
+        held: 0,
+      });
+    }
+
+    return rows;
+  }, [customerSummary, defaultValues]);
+
+  // Keep the form's `returns` array lined up with the rows on screen, without
+  // discarding anything already typed.
+  useEffect(() => {
+    const current = form.getValues("returns") ?? [];
+    const byProduct = new Map(current.map((r) => [r.productId, r.quantity]));
+
+    form.setValue(
+      "returns",
+      returnRows.map((row) => ({
+        productId: row.productId,
+        quantity: byProduct.get(row.productId) ?? 0,
+      })),
+      { shouldDirty: false },
+    );
+  }, [returnRows, form]);
 
   /**
    * Computes grand total from all line items — display only.
@@ -116,7 +182,7 @@ export function CommercialSaleForm({
       <CardContent>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
             {/* Customer Transaction Info */}
@@ -439,6 +505,61 @@ export function CommercialSaleForm({
                 );
               })}
             </div>
+
+            {/* ─── Cylinders collected on this visit ──────────────── */}
+            {selectedCustomerId ? (
+              <div className="pt-2">
+                <div className="mb-3 flex items-center gap-2">
+                  <Cylinder className="text-muted-foreground h-4 w-4" />
+                  <h3 className="font-semibold">Cylinders collected</h3>
+                </div>
+
+                {returnRows.length === 0 ? (
+                  <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-sm">
+                    This customer is not holding any cylinders, so there is
+                    nothing to collect.
+                  </p>
+                ) : (
+                  <div className="space-y-2 rounded-lg border p-3">
+                    <p className="text-muted-foreground text-xs">
+                      Enter what came back on this visit. Leave a row at 0 if
+                      nothing was collected for that product.
+                    </p>
+
+                    {returnRows.map((row, index) => (
+                      <FormField
+                        key={row.productId}
+                        control={form.control}
+                        name={`returns.${index}.quantity`}
+                        render={({ field }) => (
+                          <FormItem className="grid grid-cols-[minmax(0,1fr)_auto_7rem] items-center gap-3 space-y-0">
+                            <FormLabel className="truncate font-normal">
+                              {row.name}
+                            </FormLabel>
+                            <span className="text-muted-foreground text-xs tabular-nums">
+                              {row.held} held
+                            </span>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={row.held}
+                                inputMode="numeric"
+                                {...field}
+                                value={field.value ?? 0}
+                              />
+                            </FormControl>
+                            <div className="col-span-3">
+                              <FormMessage />
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
 
             {/* ─── Grand Total ──────────────────── */}
             <div className="flex flex-col items-end pt-4 border-t space-y-2">
