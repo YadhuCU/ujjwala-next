@@ -24,6 +24,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { DatePicker } from "@/components/ui/date-picker";
+import {
+  sortStockOldestFirst,
+  stockOptionLabel,
+} from "@/module/stock/stock.display";
 import { useStocks, useCustomers } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
 import { CommercialSaleType, PaymentType, ProductType } from "@/generated/enums";
@@ -49,7 +53,11 @@ export function CommercialSaleForm({
   isPending,
 }: CommercialSaleFormProps) {
   const { data: stocks } = useStocks(ProductType.COMMERCIAL);
-  const availableStocks = stocks.filter((s) => s.quantity > 0);
+  // Oldest batch first — the person taking the order should be offered
+  // the stock that has been sitting longest.
+  const availableStocks = sortStockOldestFirst(
+    stocks.filter((s) => s.quantity > 0),
+  );
 
   const { data: customers } = useCustomers();
 
@@ -282,7 +290,7 @@ export function CommercialSaleForm({
 
                 return (
                   <Card key={field.id} className="p-4">
-                    <div className="grid gap-3 md:grid-cols-5 items-start">
+                    <div className="grid gap-3 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-start">
                       {/* Stock Selection */}
                       <FormField
                         control={form.control}
@@ -315,15 +323,14 @@ export function CommercialSaleForm({
                                 <FormControl>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select Stock">
-                                      {selectedStock?.product?.name}
+                                      {selectedStock ? stockOptionLabel(selectedStock) : null}
                                     </SelectValue>
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   {availableStocks.map((s) => (
                                     <SelectItem key={s.id} value={String(s.id)}>
-                                      {s.product?.name} (Batch: {s.batchNo}) -
-                                      Qty: {s.quantity}
+                                      {stockOptionLabel(s)}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
