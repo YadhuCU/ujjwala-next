@@ -4,6 +4,7 @@ import {
   saleExportColumns,
   type SaleExportRow,
 } from "./report.export";
+import { toSaleLines } from "./report.lines";
 
 function buildRow(overrides: Partial<SaleExportRow> = {}): SaleExportRow {
   return {
@@ -36,11 +37,38 @@ async function bodyOf(response: Response) {
 }
 
 describe("saleExportColumns", () => {
-  it("computes balance as total minus paid", () => {
-    const columns = saleExportColumns();
-    const balance = columns.find((c) => c.header === "Balance")!;
+  const firstLine = () => toSaleLines([buildRow()])[0];
 
-    expect(balance.value(buildRow())).toBe("600.00");
+  it("computes balance as total minus paid", () => {
+    const balance = saleExportColumns().find((c) => c.header === "Balance")!;
+
+    expect(balance.value(firstLine())).toBe("600.00");
+  });
+
+  it("gives item, quantity and type their own columns", () => {
+    const columns = saleExportColumns({ withType: true });
+    const value = (header: string) =>
+      columns.find((c) => c.header === header)!.value(firstLine());
+
+    expect(value("Item")).toBe("19 kg Commercial");
+    expect(value("Quantity")).toBe(10);
+    expect(value("Type")).toBe("RENT");
+  });
+
+  // ARB lines are neither rented nor sold outright — there is no type to show.
+  it("leaves the type column out unless asked", () => {
+    expect(saleExportColumns().map((c) => c.header)).not.toContain("Type");
+  });
+
+  it("writes an invoice's money on its first line only", () => {
+    const row = buildRow({
+      items: [buildRow().items[0], { ...buildRow().items[0], product: { name: "47.5 kg" } }],
+    });
+    const [first, second] = toSaleLines([row]);
+    const total = saleExportColumns().find((c) => c.header === "Total Amount")!;
+
+    expect(total.value(first)).toBe("1000.00");
+    expect(total.value(second)).toBe("");
   });
 
   it("adds a custody column only when asked", () => {
@@ -48,13 +76,12 @@ describe("saleExportColumns", () => {
       "Cylinders With Customer",
     );
 
-    const withCustody = saleExportColumns(true);
-    const custody = withCustody.find(
+    const custody = saleExportColumns({ withCustody: true }).find(
       (c) => c.header === "Cylinders With Customer",
     )!;
 
-    // 10 dispatched, 4 back
-    expect(custody.value(buildRow())).toBe(6);
+    // 10 dispatched, 4 back — per line now
+    expect(custody.value(firstLine())).toBe(6);
   });
 });
 

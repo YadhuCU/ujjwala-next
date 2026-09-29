@@ -1,4 +1,5 @@
 import type { ExportFormat } from "./report.payload.schema";
+import type { SaleLine } from "./report.lines";
 
 // =============================================================================
 // EXPORT RENDERERS
@@ -71,53 +72,60 @@ export type SaleExportRow = {
 
 const money = (value: Money) => Number(value ?? 0).toFixed(2);
 
-export function saleExportColumns(
+/**
+ * One row per item sold — see report.lines.ts. Money that belongs to the
+ * invoice (discount, total, paid, balance) is written on its first line only,
+ * so the columns still sum to the real figures.
+ */
+export function saleExportColumns({
+  withType = false,
   withCustody = false,
-): ExportColumn<SaleExportRow>[] {
-  const columns: ExportColumn<SaleExportRow>[] = [
-    { header: "Tr No", value: (r) => r.trNo ?? "" },
+}: {
+  /** Dom and commercial lines are RENT or SALE; ARB lines have no type. */
+  withType?: boolean;
+  withCustody?: boolean;
+} = {}): ExportColumn<SaleLine<SaleExportRow>>[] {
+  const invoiceMoney = (line: SaleLine<SaleExportRow>, value: string) =>
+    line.first ? value : "";
+
+  const columns: ExportColumn<SaleLine<SaleExportRow>>[] = [
+    { header: "Tr No", value: (l) => l.sale.trNo ?? "" },
     {
       header: "Date",
-      value: (r) => new Date(r.createdAt).toLocaleDateString("en-IN"),
+      value: (l) => new Date(l.sale.createdAt).toLocaleDateString("en-IN"),
     },
-    { header: "Customer", value: (r) => r.customer?.name ?? "" },
-    {
-      header: "Products (Qty)",
-      value: (r) =>
-        r.items
-          .map((i) => `${i.product?.name ?? ""} (${i.quantity})`)
-          .join(", "),
-    },
-    {
-      header: "Batches",
-      value: (r) =>
-        r.items
-          .map((i) => i.stock?.batchNo)
-          .filter(Boolean)
-          .join(", "),
-    },
-    { header: "Discount", value: (r) => money(r.discount) },
-    { header: "Total Amount", value: (r) => money(r.totalAmount) },
-    { header: "Paid Amount", value: (r) => money(r.paidAmount) },
+    { header: "Customer", value: (l) => l.sale.customer?.name ?? "" },
+    { header: "Item", value: (l) => l.item?.product?.name ?? "" },
+    { header: "Batch", value: (l) => l.item?.stock?.batchNo ?? "" },
+    ...(withType
+      ? [{ header: "Type", value: (l: SaleLine<SaleExportRow>) => l.item?.saleType ?? "" }]
+      : []),
+    { header: "Quantity", value: (l) => l.item?.quantity ?? "" },
+    ...(withCustody
+      ? [
+          {
+            header: "Cylinders With Customer",
+            value: (l: SaleLine<SaleExportRow>) =>
+              l.item
+                ? (l.item.cylindersDispatched ?? 0) - (l.item.cylindersReturned ?? 0)
+                : "",
+          },
+        ]
+      : []),
+    { header: "Discount", value: (l) => invoiceMoney(l, money(l.sale.discount)) },
+    { header: "Total Amount", value: (l) => invoiceMoney(l, money(l.sale.totalAmount)) },
+    { header: "Paid Amount", value: (l) => invoiceMoney(l, money(l.sale.paidAmount)) },
     {
       header: "Balance",
-      value: (r) => (Number(r.totalAmount ?? 0) - Number(r.paidAmount ?? 0)).toFixed(2),
-    },
-    { header: "Payment Type", value: (r) => r.paymentType ?? "" },
-    { header: "Recorded By", value: (r) => r.createdBy?.name ?? "" },
-  ];
-
-  if (withCustody) {
-    columns.splice(5, 0, {
-      header: "Cylinders With Customer",
-      value: (r) =>
-        r.items.reduce(
-          (sum, i) =>
-            sum + ((i.cylindersDispatched ?? 0) - (i.cylindersReturned ?? 0)),
-          0,
+      value: (l) =>
+        invoiceMoney(
+          l,
+          (Number(l.sale.totalAmount ?? 0) - Number(l.sale.paidAmount ?? 0)).toFixed(2),
         ),
-    });
-  }
+    },
+    { header: "Payment Type", value: (l) => l.sale.paymentType ?? "" },
+    { header: "Recorded By", value: (l) => l.sale.createdBy?.name ?? "" },
+  ];
 
   return columns;
 }
