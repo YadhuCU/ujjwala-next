@@ -157,6 +157,27 @@ latency, but co-locating is the actual fix and costs nothing.
   client component or a dynamic route.
 - `npm run build` takes about a minute; `next start` is ready in about a second.
 
+### Do not run migrations in the Vercel build
+
+The project's Build Command was overridden in the Vercel dashboard to
+`npx prisma generate && npx prisma migrate deploy && next build`. That breaks
+two ways:
+
+- **It fails intermittently.** `DATABASE_URL` is Neon's pooled endpoint, and
+  Prisma's advisory lock times out through the pooler — `P1002`, "The database
+  server was reached but timed out" — even when there is nothing to migrate.
+- **Every preview build migrates the shared database.** A branch carrying a new
+  migration would change the UAT schema the moment it was pushed, before review,
+  and before the code that needs it is merged.
+
+Leave the Build Command at the default (`npm run build`; `postinstall` already
+generates the client) and run migrations deliberately, from a machine, against
+the **direct** endpoint:
+
+```bash
+DATABASE_URL='<neon url without -pooler>' PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=true npx prisma migrate deploy
+```
+
 ## 6. Rolling back
 
 The preview deployment is per-commit, so rolling back is redeploying an earlier
