@@ -190,7 +190,7 @@ export function CommercialSaleDetailsDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-5xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Invoice #{sale.trNo}</DialogTitle>
         </DialogHeader>

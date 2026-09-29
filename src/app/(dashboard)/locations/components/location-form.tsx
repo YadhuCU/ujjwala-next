@@ -45,7 +45,7 @@ export function LocationForm({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid lg:grid-cols-2 gap-4 items-start"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start"
           >
             <FormField
               control={form.control}
@@ -99,7 +99,7 @@ export function LocationForm({
                 </FormItem>
               )}
             />
-            <div className="flex gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 sm:flex pt-2">
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty}

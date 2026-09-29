@@ -16,6 +16,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -184,11 +185,23 @@ const sidebarMenu: NavItem[] = [
   },
 ];
 
+// On a phone the sidebar is a sheet over the page. Navigating does not unmount
+// the layout, so without this the sheet stays open on top of the page the user
+// just asked for.
+function useCloseOnNavigate() {
+  const { isMobile, setOpenMobile } = useSidebar();
+  return () => {
+    if (isMobile) setOpenMobile(false);
+  };
+}
+
 export function AppSidebar() {
+  const closeOnNavigate = useCloseOnNavigate();
+
   return (
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border px-6 py-4">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3" onClick={closeOnNavigate}>
           <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-md">
             <Flame className="w-5 h-5 text-primary-foreground" />
           </div>
@@ -238,6 +251,7 @@ function NavbarItemComponent({
   ...props
 }: NavbarItemComponentProps) {
   const { hasAnyPermission } = usePermission();
+  const closeOnNavigate = useCloseOnNavigate();
 
   const pathname = usePathname();
   const hasPermission = hasAnyPermission(requiredPermissions ?? []);
@@ -254,9 +268,9 @@ function NavbarItemComponent({
       <SidebarMenuButton
         asChild
         isActive={isRouteActive(pathname, href)}
-        className="data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
+        className="max-md:h-10 data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
       >
-        <Link href={href}>
+        <Link href={href} onClick={closeOnNavigate}>
           {Icon && <Icon className="w-4 h-4" />}
           <span>{title}</span>
         </Link>
@@ -275,6 +289,7 @@ function SubNavbarItemComponent({
   ...props
 }: SubNavbarItemComponentProps) {
   const { hasAnyPermission } = usePermission();
+  const closeOnNavigate = useCloseOnNavigate();
 
   const pathname = usePathname();
   const hasPermission = hasAnyPermission(requiredPermissions ?? []);
@@ -312,7 +327,7 @@ function SubNavbarItemComponent({
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
             isActive={onIndex}
-            className="data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
+            className="max-md:h-10 data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
           >
             <Icon className="w-4 h-4" />
             <span>{title}</span>
@@ -326,8 +341,11 @@ function SubNavbarItemComponent({
                 <SidebarMenuSubButton
                   asChild
                   isActive={isRouteActive(pathname, item.href)}
+                  className="max-md:h-9"
                 >
-                  <Link href={item.href}>{item.title}</Link>
+                  <Link href={item.href} onClick={closeOnNavigate}>
+                    {item.title}
+                  </Link>
                 </SidebarMenuSubButton>
               </SidebarMenuSubItem>
             ))}

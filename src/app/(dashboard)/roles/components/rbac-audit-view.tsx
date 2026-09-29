@@ -28,8 +28,39 @@ export function RbacAuditViewComponent() {
 
   return (
     <Card>
-      <CardContent className="pt-6">
-        <div className="overflow-x-auto">
+      <CardContent className="pt-6 max-sm:pt-0">
+        {/* Phones: one entry per block, the change badges given the full width */}
+        <ul className="divide-y md:hidden">
+          {entries.length === 0 ? (
+            <li className="text-muted-foreground py-8 text-center text-sm">
+              No access changes recorded yet. Creating or editing a role, or
+              changing which roles a user holds, appears here.
+            </li>
+          ) : (
+            entries.map((entry) => (
+              <li key={entry.id} className="space-y-1.5 py-3 text-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="min-w-0 font-medium">
+                    {entry.roleName ?? entry.targetUserName ?? "—"}
+                  </span>
+                  <span className="text-muted-foreground shrink-0 text-xs">
+                    {new Date(entry.createdAt).toLocaleString("en-IN", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  {ACTION_LABELS[entry.action] ?? entry.action} by{" "}
+                  {entry.actor}
+                </p>
+                <Change entry={entry} />
+              </li>
+            ))
+          )}
+        </ul>
+
+        <div className="hidden overflow-x-auto md:block">
           <Table>
             <TableHeader>
               <TableRow>

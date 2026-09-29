@@ -61,25 +61,25 @@ export function KpiCards({ data }: { data: DashboardData }) {
 
   return (
     <div
-      className={`grid gap-4 sm:grid-cols-2 ${canSeeFinancials ? "lg:grid-cols-4" : "lg:grid-cols-2"}`}
+      className={`grid grid-cols-2 gap-3 sm:gap-4 ${canSeeFinancials ? "lg:grid-cols-4" : "lg:grid-cols-2"}`}
     >
       {visibleKpiCards.map((card) => (
         <Card
           key={card.title}
           className={`relative overflow-hidden border-0 bg-linear-to-br ${card.gradient} text-white shadow-lg ${card.shadow}`}
         >
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-white/80">
+          <CardContent className="p-3 sm:p-5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0 space-y-1">
+                <p className="text-xs font-medium text-white/80 sm:text-sm">
                   {card.title}
                 </p>
-                <p className="text-2xl font-bold tracking-tight">
+                <p className="text-lg font-bold tracking-tight tabular-nums break-all sm:text-2xl">
                   {card.value}
                 </p>
                 <p className="text-xs text-white/60">{card.subtitle}</p>
               </div>
-              <card.icon className="w-9 h-9 text-white/20" />
+              <card.icon className="hidden h-9 w-9 shrink-0 text-white/20 sm:block" />
             </div>
           </CardContent>
         </Card>

@@ -53,7 +53,7 @@ export default function ReportsPage() {
         title="Reports"
         description="Each report covers a date range and can be exported to Excel or PDF."
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {REPORTS.map((report) => (
             <Link key={report.href} href={report.href} className="group">
               <Card className="hover:border-primary/50 h-full transition-colors">

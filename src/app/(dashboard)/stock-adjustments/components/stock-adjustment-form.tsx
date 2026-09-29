@@ -59,7 +59,7 @@ export function StockAdjustmentForm({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-4 lg:grid-cols-2 items-start"
+            className="grid grid-cols-1 gap-4 lg:grid-cols-2 items-start"
           >
             <FormField
               control={form.control}
@@ -156,7 +156,7 @@ export function StockAdjustmentForm({
               )}
             />
 
-            <div className="flex gap-3 lg:col-span-2">
+            <div className="grid grid-cols-2 gap-3 sm:flex lg:col-span-2">
               <Button type="submit" isLoading={isPending}>
                 Post Adjustment
               </Button>

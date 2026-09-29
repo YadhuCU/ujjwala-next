@@ -15,7 +15,7 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
   const hideAgencyWide = scope !== "all";
 
   return (
-    <div className={`grid gap-6 ${hideAgencyWide ? "" : "lg:grid-cols-2"}`}>
+    <div className={`grid grid-cols-1 gap-6 ${hideAgencyWide ? "" : "lg:grid-cols-2"}`}>
       {/* Low Stock Alert (admin only) */}
       {!hideAgencyWide && (
         <Card>
@@ -33,7 +33,26 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
                 <p className="text-sm">All stock levels are healthy</p>
               </div>
             ) : (
-              <Table>
+              <>
+              <ul className="divide-y md:hidden">
+                {lowStock.map((s) => (
+                  <li key={s.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{s.productName}</p>
+                      <p className="text-muted-foreground truncate font-mono text-xs">
+                        {s.batchNo}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={s.quantity <= 3 ? "destructive" : "secondary"}
+                      className="shrink-0 tabular-nums"
+                    >
+                      {s.quantity}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+              <Table className="hidden md:table">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Batch</TableHead>
@@ -62,6 +81,7 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
                   ))}
                 </TableBody>
               </Table>
+              </>
             )}
           </CardContent>
         </Card>
@@ -81,7 +101,7 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
               </Link>
             </Button>
           </div>
-          <CardDescription>Latest commercial sales</CardDescription>
+          <CardDescription>Latest sales across every type</CardDescription>
         </CardHeader>
         <CardContent>
           {recentTxns.length === 0 ? (
@@ -90,7 +110,23 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
               <p className="text-sm">No transactions yet</p>
             </div>
           ) : (
-            <Table>
+            <>
+            <ul className="divide-y md:hidden">
+              {recentTxns.map((t) => (
+                <li key={`${t.type}-${t.id}`} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{t.customer}</p>
+                    <p className="text-muted-foreground truncate text-xs">
+                      <span className="font-mono">{t.trNo}</span> · {t.product}
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-semibold tabular-nums">
+                    ₹{t.amount.toLocaleString("en-IN")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <Table className="hidden md:table">
               <TableHeader>
                 <TableRow>
                   <TableHead>TR No</TableHead>
@@ -115,6 +151,7 @@ export function InventoryAndTransactions({ data }: { data: DashboardData }) {
                 ))}
               </TableBody>
             </Table>
+            </>
           )}
         </CardContent>
       </Card>

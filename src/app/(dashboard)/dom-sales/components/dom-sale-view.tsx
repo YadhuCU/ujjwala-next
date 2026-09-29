@@ -169,7 +169,7 @@ export function DomesticSaleDetailsDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-5xl">
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Sale #{sale.trNo}</DialogTitle>
         </DialogHeader>

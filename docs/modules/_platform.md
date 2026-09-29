@@ -108,6 +108,45 @@ README known issues.
   content". Pass `undefined`, never `null`, when you want Radix's fallback to the
   selected item's text.
 
+## Mobile layout
+
+Most users are on phones, so every screen has to work at 360px. What holds it
+together, so a new screen does not undo it:
+
+- **A responsive grid needs a base column count.** `grid md:grid-cols-2` alone
+  gives implicit `auto` tracks on a phone, which grow to fit their content —
+  that is how the dashboard charts ended up wider than the screen and clipped.
+  Write `grid grid-cols-1 md:grid-cols-2` (`grid-cols-1` is `minmax(0,1fr)`).
+  The dialog overlay and content carry `grid-cols-1` for the same reason.
+- **`<DataTable>` renders cards below `md`** (`MobileRows` in
+  `src/components/data-table.tsx`): the first column is the title, a column
+  with `id: "actions"` sits top-right, the rest are label / value pairs, and
+  blank accessor values are dropped. So the first column of a list should be
+  the thing that identifies the row, and the actions column must keep the id
+  `actions`. `ReportResults` does the same (first column title, last column —
+  the money — opposite it, "—" and empty cells dropped). Hand-written tables
+  (dashboard, godown, access history) render a `md:hidden` list next to a
+  `hidden md:table` table.
+- **Mobile-only tweaks use `max-sm:` / `max-md:`**, not a small base value with
+  an `sm:` override, wherever a caller may pass its own padding. `Card`,
+  `CardHeader/Content/Footer` and `DialogContent` tighten to `px-4` / `py-4` on
+  phones this way, so a card that sets its own `p-4` cannot inherit the desktop
+  value through `tailwind-merge`.
+- **Tap targets**: `Button` (default and icon), `Input` and `SelectTrigger` are
+  40px tall below `md`, 36px above; select items get more padding. Inputs stay
+  `text-base` on phones so iOS does not zoom on focus.
+- `PageWrapper` puts the page's `addButton` on its own full-width row on a
+  phone. Form footers are `grid grid-cols-2 gap-3 sm:flex` (equal-width Save /
+  Cancel). Line-item cards are two columns on a phone: the product and the
+  line total span both (`[&>*:first-child]` / `[&>*:last-child]`), short
+  fields pair up.
+- The phone sidebar is a sheet; its links call `setOpenMobile(false)` so
+  navigating closes it. The date range picker shows one month below `md`.
+
+To check a change, drive the page at 390×844 and 360×800 and look at the
+screenshot — `scrollWidth` alone is not enough, because `main` scrolls and
+clipped content never widens the document.
+
 ## Testing
 
 - `npm test` — `*.test.ts`, no DB (schemas, serializers, pure rules).

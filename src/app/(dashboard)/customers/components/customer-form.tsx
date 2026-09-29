@@ -333,7 +333,7 @@ export function CustomerForm({
               ))}
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 sm:flex pt-2">
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty}

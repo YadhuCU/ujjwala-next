@@ -53,7 +53,7 @@ export function VendorForm({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-4 lg:grid-cols-2 items-start"
+            className="grid grid-cols-1 gap-4 lg:grid-cols-2 items-start"
           >
             <FormField
               control={form.control}
@@ -107,7 +107,7 @@ export function VendorForm({
                 </FormItem>
               )}
             />
-            <div className="flex gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 sm:flex pt-2">
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty}

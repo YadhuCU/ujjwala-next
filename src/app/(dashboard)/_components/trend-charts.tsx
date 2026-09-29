@@ -19,6 +19,9 @@ const salesTypeConfig = {
   arbSales:    { label: "ARB",        color: "hsl(35, 90%, 55%)"  },
 } satisfies ChartConfig;
 
+// ₹1.9L rather than ₹187298 — the full figure crowds a phone-width axis
+const compact = new Intl.NumberFormat("en-IN", { notation: "compact" });
+
 export function TrendCharts({ data }: { data: DashboardData }) {
   const { dailyTrend, canSeeFinancials, scope } = data;
   // Cost and profit series are money; the wording follows how far the
@@ -27,7 +30,7 @@ export function TrendCharts({ data }: { data: DashboardData }) {
   const ownOnly = scope === "own";
 
   return (
-    <div className={`grid gap-6 ${hideMoney ? "" : "lg:grid-cols-7"}`}>
+    <div className={`grid grid-cols-1 gap-6 ${hideMoney ? "" : "lg:grid-cols-7"}`}>
       {/* Revenue & Profit Trend — Area Chart */}
       <Card className={hideMoney ? "" : "lg:col-span-4"}>
         <CardHeader>
@@ -42,10 +45,10 @@ export function TrendCharts({ data }: { data: DashboardData }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={trendConfig} className="h-[300px] w-full">
+          <ChartContainer config={trendConfig} className="h-[240px] w-full sm:h-[300px]">
             <AreaChart
               data={dailyTrend}
-              margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
+              margin={{ top: 5, right: 4, left: 0, bottom: 0 }}
             >
               <defs>
                 <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -83,12 +86,14 @@ export function TrendCharts({ data }: { data: DashboardData }) {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
+                minTickGap={16}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(v) => `₹${v}`}
+                width={44}
+                tickFormatter={(v) => `₹${compact.format(v)}`}
               />
               <ChartTooltip
                 content={
@@ -149,11 +154,11 @@ export function TrendCharts({ data }: { data: DashboardData }) {
           <CardContent>
             <ChartContainer
               config={salesTypeConfig}
-              className="h-[300px] w-full"
+              className="h-[240px] w-full sm:h-[300px]"
             >
               <BarChart
                 data={dailyTrend}
-                margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
+                margin={{ top: 5, right: 4, left: 0, bottom: 0 }}
               >
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                 <XAxis
@@ -165,8 +170,9 @@ export function TrendCharts({ data }: { data: DashboardData }) {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
+                  minTickGap={16}
                 />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} width={32} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 <Bar

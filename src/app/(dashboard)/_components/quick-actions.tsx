@@ -74,12 +74,13 @@ export function QuickActions() {
         <CardTitle className="text-lg">Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
           {actions.map((action) => (
             <Button
               key={action.href}
               asChild
               variant={action.variant ?? "default"}
+              className="h-auto min-h-11 justify-start gap-2 px-3 py-2 text-left text-[13px] leading-tight whitespace-normal sm:min-h-9 sm:justify-center sm:text-sm"
             >
               <Link href={action.href}>
                 <Icon kind={action.icon} />
@@ -94,7 +95,7 @@ export function QuickActions() {
 }
 
 function Icon({ kind }: { kind?: Action["icon"] }) {
-  const className = "w-4 h-4 mr-2";
+  const className = "w-4 h-4 sm:mr-2";
 
   if (kind === "package") return <Package className={className} />;
   if (kind === "report") return <FileText className={className} />;
