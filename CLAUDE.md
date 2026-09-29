@@ -6,6 +6,11 @@ TanStack Query + react-hook-form/zod + shadcn-ui (Radix + Tailwind v4) + NextAut
 The agency buys cylinders from vendors, sells/rents them to customers, and tracks
 two things: **cylinder custody** (godown vs customer) and **customer money**.
 
+**Picking this project back up? Read [`docs/modules/README.md`](docs/modules/README.md)
+first** — the invariants, the open known issues, then one technical page per module
+and [`_platform.md`](docs/modules/_platform.md) for auth, RBAC internals, time,
+Prisma, testing and deployment. Keep those pages true when you change a module.
+
 ## Commands
 
 ```bash
