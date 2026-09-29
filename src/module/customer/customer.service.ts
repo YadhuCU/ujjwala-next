@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { isCylinderTypeProduct } from "@/module/product/product.rules";
 import { LedgerEntryType, Prisma, RefType } from "@/generated/client";
-import { ConflictError, NotFoundError } from "@/lib/errors";
+import { BadRequestError, ConflictError, NotFoundError } from "@/lib/errors";
 import type {
   CreateCustomerInput,
   CustomerQuery,
@@ -59,6 +60,9 @@ async function assertCustomerSettled(
     );
 }
 
+// Opening holdings are cylinders the customer already has. Only DOMESTIC and
+// COMMERCIAL products are cylinders — an opening "holding" of bulk gas or a
+// stove would be a count that nothing could ever hand back.
 async function assertProductsExist(
   tx: Prisma.TransactionClient,
   productIds: number[],
@@ -67,11 +71,17 @@ async function assertProductsExist(
 
   const products = await tx.product.findMany({
     where: { id: { in: productIds }, isDeleted: false },
-    select: { id: true },
+    select: { id: true, name: true, type: true },
   });
 
   if (products.length !== new Set(productIds).size)
     throw new NotFoundError("One or more products were not found");
+
+  const notCylinders = products.filter((p) => !isCylinderTypeProduct(p.type));
+  if (notCylinders.length > 0)
+    throw new BadRequestError(
+      `Only cylinders can be held by a customer: ${notCylinders.map((p) => p.name).join(", ")}`,
+    );
 }
 
 // =============================================================================

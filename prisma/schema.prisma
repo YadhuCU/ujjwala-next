@@ -164,7 +164,9 @@ model Role {
   // able to turn an owner into an ordinary user.
   isSystem    Boolean  @default(false) @map("is_system")
   createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  // @default(now()) matches the column default the rbac migration added for
+  // the backfill; without it every new migration tries to drop that default.
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   rolePermissions RolePermission[]
   userRoles       UserRole[]
@@ -558,6 +560,20 @@ model DomSaleItem {
   quantity  Int      @default(0)
   salePrice Decimal? @map("sale_price") @db.Decimal(10, 2)
   netTotal  Decimal? @map("net_total") @db.Decimal(10, 2)
+
+  /// RENT is a refill: a full cylinder goes out and the customer's empty comes
+  /// back. SALE is a cylinder sold outright. The enum is shared with commercial
+  /// sales, which make the same distinction. Existing rows were outright sales.
+  saleType            CommercialSaleType @default(SALE) @map("sale_type")
+  /// What this line added to the customer's domestic holding. Both SALE and
+  /// RENT count — every domestic cylinder at a customer is one that can come
+  /// back as an empty. Recorded rather than recomputed from quantity: sales
+  /// written before domestic custody was tracked added nothing, and reversing
+  /// one must take nothing away. Backfilled to 0 for those.
+  cylindersDispatched Int                @default(0) @map("cylinders_dispatched")
+  /// Empties the customer handed back on this line (RENT only).
+  emptiesCollected    Int                @default(0) @map("empties_collected")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

@@ -25,7 +25,7 @@ import { useLocations } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { productsOptions } from "@/lib/query-options";
-import { ProductType } from "@/generated/enums";
+import { isCylinderTypeProduct } from "@/module/product/product.rules";
 import {
   CustomerFormSchema,
   CustomerFormValues,
@@ -47,9 +47,15 @@ export function CustomerForm({
 }: CustomerFormProps) {
   const { data: locations = [] } = useLocations();
   const { data: rawProducts = [] } = useSuspenseQuery({
-    ...productsOptions(ProductType.COMMERCIAL),
+    ...productsOptions(),
   });
-  const commercialProducts = rawProducts;
+  // Every cylinder product — domestic as well as commercial, since domestic
+  // refills now collect the customer's empties and need to know how many they
+  // already hold. Bulk gas and accessories cannot be held, and the server
+  // refuses them too.
+  const cylinderProducts = rawProducts.filter((p) =>
+    isCylinderTypeProduct(p.type),
+  );
 
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(CustomerFormSchema) as Resolver<CustomerFormValues>,
@@ -283,7 +289,7 @@ export function CustomerForm({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {commercialProducts.map((p) => (
+                            {cylinderProducts.map((p) => (
                               <SelectItem key={p.id} value={String(p.id)}>
                                 {p.name}
                               </SelectItem>

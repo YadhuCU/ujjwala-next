@@ -72,7 +72,7 @@ async function domSale(
       paidAmount: 0,
       discount: undefined,
       notes: undefined,
-      items: [{ stockId: stock.id, quantity: 1, salePrice: amount }],
+      items: [{ stockId: stock.id, quantity: 1, salePrice: amount, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
     },
     createdBy,
   );
@@ -190,7 +190,7 @@ describe("sale-by-product report", () => {
         paidAmount: 0,
         discount: undefined,
         notes: undefined,
-        items: [{ stockId: domStock.id, quantity: 2, salePrice: 100 }],
+        items: [{ stockId: domStock.id, quantity: 2, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
       },
       ownerId,
     );

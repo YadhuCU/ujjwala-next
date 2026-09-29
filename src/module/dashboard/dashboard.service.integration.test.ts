@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { PaymentType, ProductType } from "@/generated/client";
+import {
+  CommercialSaleType,
+  PaymentType,
+  ProductType,
+} from "@/generated/client";
 import { PERMISSIONS } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import {
@@ -55,7 +59,7 @@ async function sell(createdBy: number, salePrice: number, quantity = 1) {
       paidAmount: 0,
       discount: undefined,
       notes: undefined,
-      items: [{ stockId: stock.id, quantity, salePrice }],
+      items: [{ stockId: stock.id, quantity, salePrice, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
     },
     createdBy,
   );
@@ -242,8 +246,7 @@ describe("commercial alerts", () => {
             stockId: (await makeStock((await makeProduct(ProductType.ARB)).id, 10))
               .id,
             quantity: 1,
-            salePrice: 5000,
-          },
+            salePrice: 5000, saleType: CommercialSaleType.SALE, emptiesCollected: 0 },
         ],
       },
       ownerId,

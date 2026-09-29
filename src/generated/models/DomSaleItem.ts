@@ -34,6 +34,8 @@ export type DomSaleItemAvgAggregateOutputType = {
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  cylindersDispatched: number | null
+  emptiesCollected: number | null
 }
 
 export type DomSaleItemSumAggregateOutputType = {
@@ -44,6 +46,8 @@ export type DomSaleItemSumAggregateOutputType = {
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  cylindersDispatched: number | null
+  emptiesCollected: number | null
 }
 
 export type DomSaleItemMinAggregateOutputType = {
@@ -54,6 +58,9 @@ export type DomSaleItemMinAggregateOutputType = {
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  saleType: $Enums.CommercialSaleType | null
+  cylindersDispatched: number | null
+  emptiesCollected: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +73,9 @@ export type DomSaleItemMaxAggregateOutputType = {
   quantity: number | null
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  saleType: $Enums.CommercialSaleType | null
+  cylindersDispatched: number | null
+  emptiesCollected: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +88,9 @@ export type DomSaleItemCountAggregateOutputType = {
   quantity: number
   salePrice: number
   netTotal: number
+  saleType: number
+  cylindersDispatched: number
+  emptiesCollected: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,6 +105,8 @@ export type DomSaleItemAvgAggregateInputType = {
   quantity?: true
   salePrice?: true
   netTotal?: true
+  cylindersDispatched?: true
+  emptiesCollected?: true
 }
 
 export type DomSaleItemSumAggregateInputType = {
@@ -102,6 +117,8 @@ export type DomSaleItemSumAggregateInputType = {
   quantity?: true
   salePrice?: true
   netTotal?: true
+  cylindersDispatched?: true
+  emptiesCollected?: true
 }
 
 export type DomSaleItemMinAggregateInputType = {
@@ -112,6 +129,9 @@ export type DomSaleItemMinAggregateInputType = {
   quantity?: true
   salePrice?: true
   netTotal?: true
+  saleType?: true
+  cylindersDispatched?: true
+  emptiesCollected?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +144,9 @@ export type DomSaleItemMaxAggregateInputType = {
   quantity?: true
   salePrice?: true
   netTotal?: true
+  saleType?: true
+  cylindersDispatched?: true
+  emptiesCollected?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -136,6 +159,9 @@ export type DomSaleItemCountAggregateInputType = {
   quantity?: true
   salePrice?: true
   netTotal?: true
+  saleType?: true
+  cylindersDispatched?: true
+  emptiesCollected?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -235,6 +261,9 @@ export type DomSaleItemGroupByOutputType = {
   quantity: number
   salePrice: runtime.Decimal | null
   netTotal: runtime.Decimal | null
+  saleType: $Enums.CommercialSaleType
+  cylindersDispatched: number
+  emptiesCollected: number
   createdAt: Date
   updatedAt: Date
   _count: DomSaleItemCountAggregateOutputType | null
@@ -270,6 +299,9 @@ export type DomSaleItemWhereInput = {
   quantity?: Prisma.IntFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFilter<"DomSaleItem"> | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFilter<"DomSaleItem"> | number
+  emptiesCollected?: Prisma.IntFilter<"DomSaleItem"> | number
   createdAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
   domSale?: Prisma.XOR<Prisma.DomSaleScalarRelationFilter, Prisma.DomSaleWhereInput>
@@ -285,6 +317,9 @@ export type DomSaleItemOrderByWithRelationInput = {
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
+  saleType?: Prisma.SortOrder
+  cylindersDispatched?: Prisma.SortOrder
+  emptiesCollected?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   domSale?: Prisma.DomSaleOrderByWithRelationInput
@@ -303,6 +338,9 @@ export type DomSaleItemWhereUniqueInput = Prisma.AtLeast<{
   quantity?: Prisma.IntFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFilter<"DomSaleItem"> | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFilter<"DomSaleItem"> | number
+  emptiesCollected?: Prisma.IntFilter<"DomSaleItem"> | number
   createdAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
   domSale?: Prisma.XOR<Prisma.DomSaleScalarRelationFilter, Prisma.DomSaleWhereInput>
@@ -318,6 +356,9 @@ export type DomSaleItemOrderByWithAggregationInput = {
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrderInput | Prisma.SortOrder
   netTotal?: Prisma.SortOrderInput | Prisma.SortOrder
+  saleType?: Prisma.SortOrder
+  cylindersDispatched?: Prisma.SortOrder
+  emptiesCollected?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DomSaleItemCountOrderByAggregateInput
@@ -338,6 +379,9 @@ export type DomSaleItemScalarWhereWithAggregatesInput = {
   quantity?: Prisma.IntWithAggregatesFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableWithAggregatesFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableWithAggregatesFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeWithAggregatesFilter<"DomSaleItem"> | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntWithAggregatesFilter<"DomSaleItem"> | number
+  emptiesCollected?: Prisma.IntWithAggregatesFilter<"DomSaleItem"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DomSaleItem"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DomSaleItem"> | Date | string
 }
@@ -346,6 +390,9 @@ export type DomSaleItemCreateInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   domSale: Prisma.DomSaleCreateNestedOneWithoutItemsInput
@@ -361,6 +408,9 @@ export type DomSaleItemUncheckedCreateInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -369,6 +419,9 @@ export type DomSaleItemUpdateInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSale?: Prisma.DomSaleUpdateOneRequiredWithoutItemsNestedInput
@@ -384,6 +437,9 @@ export type DomSaleItemUncheckedUpdateInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -396,6 +452,9 @@ export type DomSaleItemCreateManyInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -404,6 +463,9 @@ export type DomSaleItemUpdateManyMutationInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -416,6 +478,9 @@ export type DomSaleItemUncheckedUpdateManyInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -438,6 +503,9 @@ export type DomSaleItemCountOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  saleType?: Prisma.SortOrder
+  cylindersDispatched?: Prisma.SortOrder
+  emptiesCollected?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -450,6 +518,8 @@ export type DomSaleItemAvgOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  cylindersDispatched?: Prisma.SortOrder
+  emptiesCollected?: Prisma.SortOrder
 }
 
 export type DomSaleItemMaxOrderByAggregateInput = {
@@ -460,6 +530,9 @@ export type DomSaleItemMaxOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  saleType?: Prisma.SortOrder
+  cylindersDispatched?: Prisma.SortOrder
+  emptiesCollected?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -472,6 +545,9 @@ export type DomSaleItemMinOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  saleType?: Prisma.SortOrder
+  cylindersDispatched?: Prisma.SortOrder
+  emptiesCollected?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -484,6 +560,8 @@ export type DomSaleItemSumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
   salePrice?: Prisma.SortOrder
   netTotal?: Prisma.SortOrder
+  cylindersDispatched?: Prisma.SortOrder
+  emptiesCollected?: Prisma.SortOrder
 }
 
 export type DomSaleItemCreateNestedManyWithoutProductInput = {
@@ -612,10 +690,17 @@ export type DomSaleItemUncheckedUpdateManyWithoutDomSaleNestedInput = {
   deleteMany?: Prisma.DomSaleItemScalarWhereInput | Prisma.DomSaleItemScalarWhereInput[]
 }
 
+export type EnumCommercialSaleTypeFieldUpdateOperationsInput = {
+  set?: $Enums.CommercialSaleType
+}
+
 export type DomSaleItemCreateWithoutProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   domSale: Prisma.DomSaleCreateNestedOneWithoutItemsInput
@@ -629,6 +714,9 @@ export type DomSaleItemUncheckedCreateWithoutProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -670,6 +758,9 @@ export type DomSaleItemScalarWhereInput = {
   quantity?: Prisma.IntFilter<"DomSaleItem"> | number
   salePrice?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.DecimalNullableFilter<"DomSaleItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFilter<"DomSaleItem"> | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFilter<"DomSaleItem"> | number
+  emptiesCollected?: Prisma.IntFilter<"DomSaleItem"> | number
   createdAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DomSaleItem"> | Date | string
 }
@@ -678,6 +769,9 @@ export type DomSaleItemCreateWithoutStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   domSale: Prisma.DomSaleCreateNestedOneWithoutItemsInput
@@ -691,6 +785,9 @@ export type DomSaleItemUncheckedCreateWithoutStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -725,6 +822,9 @@ export type DomSaleItemCreateWithoutDomSaleInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   product: Prisma.ProductCreateNestedOneWithoutDomSaleItemsInput
@@ -738,6 +838,9 @@ export type DomSaleItemUncheckedCreateWithoutDomSaleInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -775,6 +878,9 @@ export type DomSaleItemCreateManyProductInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -783,6 +889,9 @@ export type DomSaleItemUpdateWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSale?: Prisma.DomSaleUpdateOneRequiredWithoutItemsNestedInput
@@ -796,6 +905,9 @@ export type DomSaleItemUncheckedUpdateWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -807,6 +919,9 @@ export type DomSaleItemUncheckedUpdateManyWithoutProductInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -818,6 +933,9 @@ export type DomSaleItemCreateManyStockInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -826,6 +944,9 @@ export type DomSaleItemUpdateWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSale?: Prisma.DomSaleUpdateOneRequiredWithoutItemsNestedInput
@@ -839,6 +960,9 @@ export type DomSaleItemUncheckedUpdateWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -850,6 +974,9 @@ export type DomSaleItemUncheckedUpdateManyWithoutStockInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -861,6 +988,9 @@ export type DomSaleItemCreateManyDomSaleInput = {
   quantity?: number
   salePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: $Enums.CommercialSaleType
+  cylindersDispatched?: number
+  emptiesCollected?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -869,6 +999,9 @@ export type DomSaleItemUpdateWithoutDomSaleInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product?: Prisma.ProductUpdateOneRequiredWithoutDomSaleItemsNestedInput
@@ -882,6 +1015,9 @@ export type DomSaleItemUncheckedUpdateWithoutDomSaleInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -893,6 +1029,9 @@ export type DomSaleItemUncheckedUpdateManyWithoutDomSaleInput = {
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   salePrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   netTotal?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  saleType?: Prisma.EnumCommercialSaleTypeFieldUpdateOperationsInput | $Enums.CommercialSaleType
+  cylindersDispatched?: Prisma.IntFieldUpdateOperationsInput | number
+  emptiesCollected?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -907,6 +1046,9 @@ export type DomSaleItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  saleType?: boolean
+  cylindersDispatched?: boolean
+  emptiesCollected?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
@@ -922,6 +1064,9 @@ export type DomSaleItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  saleType?: boolean
+  cylindersDispatched?: boolean
+  emptiesCollected?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
@@ -937,6 +1082,9 @@ export type DomSaleItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  saleType?: boolean
+  cylindersDispatched?: boolean
+  emptiesCollected?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
@@ -952,11 +1100,14 @@ export type DomSaleItemSelectScalar = {
   quantity?: boolean
   salePrice?: boolean
   netTotal?: boolean
+  saleType?: boolean
+  cylindersDispatched?: boolean
+  emptiesCollected?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DomSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "domSaleId" | "productId" | "stockId" | "quantity" | "salePrice" | "netTotal" | "createdAt" | "updatedAt", ExtArgs["result"]["domSaleItem"]>
+export type DomSaleItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "domSaleId" | "productId" | "stockId" | "quantity" | "salePrice" | "netTotal" | "saleType" | "cylindersDispatched" | "emptiesCollected" | "createdAt" | "updatedAt", ExtArgs["result"]["domSaleItem"]>
 export type DomSaleItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   domSale?: boolean | Prisma.DomSaleDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -988,6 +1139,24 @@ export type $DomSaleItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
     quantity: number
     salePrice: runtime.Decimal | null
     netTotal: runtime.Decimal | null
+    /**
+     * RENT is a refill: a full cylinder goes out and the customer's empty comes
+     * back. SALE is a cylinder sold outright. The enum is shared with commercial
+     * sales, which make the same distinction. Existing rows were outright sales.
+     */
+    saleType: $Enums.CommercialSaleType
+    /**
+     * What this line added to the customer's domestic holding. Both SALE and
+     * RENT count — every domestic cylinder at a customer is one that can come
+     * back as an empty. Recorded rather than recomputed from quantity: sales
+     * written before domestic custody was tracked added nothing, and reversing
+     * one must take nothing away. Backfilled to 0 for those.
+     */
+    cylindersDispatched: number
+    /**
+     * Empties the customer handed back on this line (RENT only).
+     */
+    emptiesCollected: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["domSaleItem"]>
@@ -1423,6 +1592,9 @@ export interface DomSaleItemFieldRefs {
   readonly quantity: Prisma.FieldRef<"DomSaleItem", 'Int'>
   readonly salePrice: Prisma.FieldRef<"DomSaleItem", 'Decimal'>
   readonly netTotal: Prisma.FieldRef<"DomSaleItem", 'Decimal'>
+  readonly saleType: Prisma.FieldRef<"DomSaleItem", 'CommercialSaleType'>
+  readonly cylindersDispatched: Prisma.FieldRef<"DomSaleItem", 'Int'>
+  readonly emptiesCollected: Prisma.FieldRef<"DomSaleItem", 'Int'>
   readonly createdAt: Prisma.FieldRef<"DomSaleItem", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DomSaleItem", 'DateTime'>
 }

@@ -1,13 +1,28 @@
-import { PaymentType } from "@/generated/enums";
+import { CommercialSaleType, PaymentType } from "@/generated/enums";
 import { z } from "zod";
 
 const emptyToUndefined = (v: unknown) => (v === "" ? undefined : v);
 
-export const DomSaleItemPayloadSchema = z.object({
-  stockId: z.number().int(), // optional batch traceability
-  quantity: z.number().int().min(1),
-  salePrice: z.number().min(0),
-});
+export const DomSaleItemPayloadSchema = z
+  .object({
+    stockId: z.number().int(), // optional batch traceability
+    quantity: z.number().int().min(1),
+    salePrice: z.number().min(0),
+    // RENT is a refill (full out, empty back); SALE is sold outright. Defaults
+    // to SALE, which is what every domestic line was before RENT existed.
+    saleType: z.enum(CommercialSaleType).default(CommercialSaleType.SALE),
+    // Empties handed back on this line. The form fills it with the quantity on
+    // a refill; it can be edited when the customer hands back more or fewer.
+    emptiesCollected: z.number().int().min(0).default(0),
+  })
+  .refine(
+    (item) =>
+      item.saleType === CommercialSaleType.RENT || item.emptiesCollected === 0,
+    {
+      message: "Empties are only collected on a refill (RENT)",
+      path: ["emptiesCollected"],
+    },
+  );
 
 const DomSalePayloadSchema = z.object({
   customerId: z.preprocess(emptyToUndefined, z.number().int()),

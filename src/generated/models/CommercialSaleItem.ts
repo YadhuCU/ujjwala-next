@@ -690,10 +690,6 @@ export type CommercialSaleItemUncheckedUpdateManyWithoutCommercialSaleNestedInpu
   deleteMany?: Prisma.CommercialSaleItemScalarWhereInput | Prisma.CommercialSaleItemScalarWhereInput[]
 }
 
-export type EnumCommercialSaleTypeFieldUpdateOperationsInput = {
-  set?: $Enums.CommercialSaleType
-}
-
 export type CommercialSaleItemCreateWithoutProductInput = {
   saleType: $Enums.CommercialSaleType
   quantity?: number
