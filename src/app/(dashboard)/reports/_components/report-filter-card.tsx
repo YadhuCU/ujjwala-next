@@ -35,12 +35,13 @@ export function ReportFilterCard({ filters, children }: ReportFilterCardProps) {
         <CardTitle>Filters</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center">
           {DATE_PRESETS.map((preset, index) => (
             <Button
               key={preset.label}
               variant={filters.activePreset === index ? "default" : "outline"}
               size="sm"
+              className="max-sm:h-9 max-sm:px-1.5 max-sm:text-[13px]"
               onClick={() => filters.applyPreset(index)}
             >
               {preset.label}
@@ -48,7 +49,7 @@ export function ReportFilterCard({ filters, children }: ReportFilterCardProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
           <DateField
             label="From Date"
             value={filters.fromDate}
@@ -62,7 +63,7 @@ export function ReportFilterCard({ filters, children }: ReportFilterCardProps) {
 
           {children}
 
-          <div className="flex items-end">
+          <div className="col-span-2 flex items-end md:col-span-1">
             <Button onClick={filters.search} className="w-full md:w-auto">
               <Search className="mr-2 h-4 w-4" />
               Search
@@ -91,7 +92,7 @@ function DateField({
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "w-full justify-start px-3 text-left font-normal",
               !value && "text-muted-foreground",
             )}
           >
@@ -126,7 +127,7 @@ export function ReportSelectFilter({
   allLabel?: string;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="col-span-2 space-y-2 md:col-span-1">
       <Label>{label}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-full">

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DateRangePickerProps {
   dateRange: DateRange | undefined;
@@ -16,13 +17,16 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ dateRange, onDateRangeChange, className }: DateRangePickerProps) {
+  // Two months side by side are wider than a phone
+  const isMobile = useIsMobile();
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           className={cn(
-            "w-[280px] justify-start text-left font-normal",
+            "w-full justify-start text-left font-normal sm:w-[280px]",
             !dateRange && "text-muted-foreground",
             className
           )}
@@ -41,12 +45,12 @@ export function DateRangePicker({ dateRange, onDateRangeChange, className }: Dat
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="end">
+      <PopoverContent className="w-auto p-0" align={isMobile ? "center" : "end"}>
         <Calendar
           mode="range"
           selected={dateRange}
           onSelect={onDateRangeChange}
-          numberOfMonths={2}
+          numberOfMonths={isMobile ? 1 : 2}
           defaultMonth={dateRange?.from}
         />
       </PopoverContent>

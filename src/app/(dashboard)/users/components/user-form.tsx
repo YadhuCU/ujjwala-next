@@ -74,7 +74,7 @@ export function UserForm({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid gap-4 lg:grid-cols-2 items-start"
+            className="grid grid-cols-1 gap-4 lg:grid-cols-2 items-start"
           >
             <FormField
               control={form.control}
@@ -159,7 +159,7 @@ export function UserForm({
                     roles allows.
                   </FormDescription>
                   <FormControl>
-                    <div className="grid gap-2 rounded-lg border p-3 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-2 rounded-lg border p-3 sm:grid-cols-2">
                       {roles.map((role) => {
                         const checked = field.value.includes(role.id);
 
@@ -201,7 +201,7 @@ export function UserForm({
                 </FormItem>
               )}
             />
-            <div className="flex gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 sm:flex pt-2">
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty}

@@ -13,7 +13,7 @@ export function CommercialAlerts({ data }: { data: DashboardData }) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold tracking-tight">Commercial Sale Alerts</h2>
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Missing Empty Cylinders */}
         <Card>
           <CardHeader className="pb-3">

@@ -99,9 +99,11 @@ export function GodownPreview() {
             {shown.map((row) => (
               <div
                 key={row.productId}
-                className="flex items-center justify-between gap-4 py-2 text-sm"
+                className="flex flex-col gap-1 py-2 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4"
               >
-                <span className="truncate font-medium">{row.productName}</span>
+                <span className="min-w-0 truncate font-medium">
+                  {row.productName}
+                </span>
                 <span className="text-muted-foreground flex shrink-0 items-center gap-3 tabular-nums">
                   <span>
                     <b className="text-foreground">{row.filledQty}</b> filled

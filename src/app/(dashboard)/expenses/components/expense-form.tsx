@@ -53,7 +53,7 @@ export function ExpenseForm({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid lg:grid-cols-2 gap-4 items-start"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start"
           >
             <FormField
               control={form.control}
@@ -105,7 +105,7 @@ export function ExpenseForm({
               )}
             />
 
-            <div className="flex gap-3 lg:col-span-2">
+            <div className="grid grid-cols-2 gap-3 sm:flex lg:col-span-2">
               <Button type="submit" isLoading={isPending}>
                 {isEditMode ? "Update Expense" : "Create Expense"}
               </Button>

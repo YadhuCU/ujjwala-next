@@ -7,7 +7,8 @@ Read in this order when picking the project back up:
 
 1. This file — the invariants and the known issues.
 2. [`_platform.md`](_platform.md) — auth, RBAC internals, time, the Prisma client,
-   the client data layer, testing, deployment. Everything cross-cutting.
+   the client data layer, mobile layout, testing, deployment. Everything
+   cross-cutting.
 3. The module you are about to touch.
 
 Also in `docs/`: [`RBAC.md`](../RBAC.md) (for whoever configures roles),

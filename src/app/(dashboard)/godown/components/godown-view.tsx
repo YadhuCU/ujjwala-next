@@ -78,7 +78,52 @@ export function GodownViewComponent() {
           <CardTitle>Godown by product</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          {/* Phones: one block per product — six columns would scroll away */}
+          <ul className="divide-y md:hidden">
+            {rows.length === 0 ? (
+              <li className="text-muted-foreground py-6 text-center text-sm">
+                No cylinder products yet. ARB and other stock is tracked by
+                batch on the{" "}
+                <Link href="/stock" className="underline">
+                  stock page
+                </Link>
+                .
+              </li>
+            ) : (
+              rows.map((row) => (
+                <li key={row.productId} className="space-y-2 py-3 text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="min-w-0 font-medium">
+                      {row.productName}
+                      {row.weight ? (
+                        <span className="text-muted-foreground">
+                          {" "}
+                          · {row.weight}
+                        </span>
+                      ) : null}
+                    </span>
+                    {row.inSync ? (
+                      <Badge variant="outline" className="shrink-0">
+                        in sync
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive" className="shrink-0">
+                        ledger {row.ledgerFilled} / {row.ledgerEmpty}
+                      </Badge>
+                    )}
+                  </div>
+                  <dl className="grid grid-cols-4 gap-2 text-center tabular-nums">
+                    <MobileStat label="Filled" value={row.filledQty} strong />
+                    <MobileStat label="Empty" value={row.emptyQty} />
+                    <MobileStat label="With cust." value={row.withCustomers} />
+                    <MobileStat label="Sellable" value={row.batchQty} />
+                  </dl>
+                </li>
+              ))
+            )}
+          </ul>
+
+          <div className="hidden overflow-x-auto md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -161,11 +206,11 @@ export function GodownViewComponent() {
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <CardTitle>Cylinder movements</CardTitle>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
             <Select value={txnType} onValueChange={setTxnType}>
-              <SelectTrigger className="w-[220px]">
+              <SelectTrigger className="min-w-0 flex-1 sm:w-[220px] sm:flex-none">
                 <SelectValue placeholder="All movements" />
               </SelectTrigger>
               <SelectContent>
@@ -190,7 +235,52 @@ export function GodownViewComponent() {
               ))}
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            <ul className="divide-y md:hidden">
+              {(movements ?? []).length === 0 ? (
+                <li className="text-muted-foreground py-6 text-center text-sm">
+                  No cylinder movements recorded yet.
+                </li>
+              ) : (
+                (movements ?? []).map((movement) => (
+                  <li key={movement.id} className="space-y-1 py-3 text-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="min-w-0 font-medium">
+                        {movement.product.name}
+                      </span>
+                      <span className="flex shrink-0 gap-3 text-xs tabular-nums">
+                        <span>
+                          <span className="text-muted-foreground">Filled </span>
+                          <Delta value={movement.filledDelta} />
+                        </span>
+                        <span>
+                          <span className="text-muted-foreground">Empty </span>
+                          <Delta value={movement.emptyDelta} />
+                        </span>
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      {new Date(movement.createdAt).toLocaleDateString("en-IN")}
+                      {" · "}
+                      {MOVEMENT_LABELS[movement.txnType] ?? movement.txnType}
+                      {" · "}
+                      {movement.refType} #{movement.refId}
+                      {movement.voidedTxnId ? (
+                        <Badge variant="outline" className="ml-2">
+                          reversal
+                        </Badge>
+                      ) : null}
+                    </p>
+                    {movement.notes && (
+                      <p className="text-muted-foreground truncate text-xs">
+                        {movement.notes}
+                      </p>
+                    )}
+                  </li>
+                ))
+              )}
+            </ul>
+            <div className="hidden overflow-x-auto md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -249,9 +339,29 @@ export function GodownViewComponent() {
                 </TableBody>
               </Table>
             </div>
+            </>
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function MobileStat({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: number;
+  strong?: boolean;
+}) {
+  return (
+    <div className="bg-muted/50 rounded px-1 py-1.5">
+      <dt className="text-muted-foreground text-[11px] leading-tight">
+        {label}
+      </dt>
+      <dd className={strong ? "font-semibold" : undefined}>{value}</dd>
     </div>
   );
 }

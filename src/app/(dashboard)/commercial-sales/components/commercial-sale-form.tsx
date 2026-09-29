@@ -190,7 +190,7 @@ export function CommercialSaleForm({
               <CustomerTxnInfo customerId={selectedCustomerId} />
             )}
 
-            <div className="grid gap-4 lg:grid-cols-2 place-content-stretch">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 place-content-stretch">
               <FormField
                 control={form.control}
                 name="customerId"
@@ -355,8 +355,8 @@ export function CommercialSaleForm({
                 const lineTotal = qty * price;
 
                 return (
-                  <Card key={field.id} className="p-4">
-                    <div className="grid gap-3 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-start">
+                  <Card key={field.id} className="p-3 sm:p-4">
+                    <div className="grid grid-cols-2 gap-3 [&>*:first-child]:col-span-2 [&>*:last-child]:col-span-2 md:[&>*:first-child]:col-span-1 md:[&>*:last-child]:col-span-1 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-start">
                       {/* Stock Selection */}
                       <FormField
                         control={form.control}
@@ -465,7 +465,7 @@ export function CommercialSaleForm({
                         control={form.control}
                         name={`items.${index}.salePrice`}
                         render={({ field: formField }) => (
-                          <FormItem>
+                          <FormItem className="max-md:col-span-2">
                             <FormLabel>Rate (₹)</FormLabel>
                             <FormControl>
                               <Input
@@ -484,8 +484,8 @@ export function CommercialSaleForm({
                       />
 
                       {/* Net Total (readonly calculation) */}
-                      <div className="flex items-end gap-2">
-                        <div className="mx-auto">
+                      <div className="flex items-end justify-between gap-2 border-t pt-2 md:justify-start md:border-0 md:pt-0">
+                        <div className="md:mx-auto">
                           <p className="text-xs text-muted-foreground mb-1">
                             Total
                           </p>
@@ -534,8 +534,8 @@ export function CommercialSaleForm({
                         control={form.control}
                         name={`returns.${index}.quantity`}
                         render={({ field }) => (
-                          <FormItem className="grid grid-cols-[minmax(0,1fr)_auto_7rem] items-center gap-3 space-y-0">
-                            <FormLabel className="truncate font-normal">
+                          <FormItem className="grid grid-cols-[minmax(0,1fr)_auto_5rem] items-center gap-3 space-y-0 sm:grid-cols-[minmax(0,1fr)_auto_7rem]">
+                            <FormLabel className="font-normal leading-snug sm:truncate">
                               {row.name}
                             </FormLabel>
                             <span className="text-muted-foreground text-xs tabular-nums">
@@ -566,14 +566,14 @@ export function CommercialSaleForm({
             {/* ─── Grand Total ──────────────────── */}
             <div className="flex flex-col items-end pt-4 border-t space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold">Grand Total: </span>
-                <p className="text-xl font-bold text-right">
+                <span className="text-lg font-bold sm:text-xl">Grand Total: </span>
+                <p className="text-lg font-bold text-right tabular-nums sm:text-xl">
                   ₹{grandTotal.toFixed(2)}
                 </p>
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:flex">
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty}

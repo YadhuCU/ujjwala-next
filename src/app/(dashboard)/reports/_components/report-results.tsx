@@ -46,17 +46,17 @@ export function ReportSummary({
   isLoading: boolean;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
       {tiles.map((tile) => (
         <Card key={tile.title} className={tile.highlight ? "border-primary" : ""}>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground text-sm">{tile.title}</p>
+          <CardContent className="pt-6 max-sm:pt-0">
+            <p className="text-muted-foreground text-xs sm:text-sm">{tile.title}</p>
             {isLoading ? (
               <Skeleton className="mt-1 h-7 w-24" />
             ) : (
               <p
                 className={cn(
-                  "text-2xl font-bold",
+                  "text-lg font-bold break-words tabular-nums sm:text-2xl",
                   tile.highlight && "text-primary",
                 )}
               >
@@ -128,8 +128,8 @@ export function ReportResults<T>({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>
+        <div className="flex items-center justify-between gap-3">
+          <CardTitle className="leading-snug">
             Results{" "}
             {pagination && (
               <span className="text-muted-foreground text-sm font-normal">
@@ -164,7 +164,13 @@ export function ReportResults<T>({
       </CardHeader>
 
       <CardContent>
-        <div className="overflow-x-auto">
+        <MobileResults
+          columns={columns}
+          rows={rows}
+          rowKey={rowKey}
+          isLoading={isLoading}
+        />
+        <div className="hidden overflow-x-auto md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -218,7 +224,7 @@ export function ReportResults<T>({
         </div>
 
         {pagination && pagination.totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between gap-2">
             <p className="text-muted-foreground text-sm">
               Page {pagination.page} of {pagination.totalPages}
             </p>
@@ -246,5 +252,75 @@ export function ReportResults<T>({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// Eleven columns do not fit a phone. Each row becomes a card instead: the
+// first column (the document number, the product) is its title, the last — the
+// money, in every report — sits opposite it, and the rest read as label /
+// value. Cells with nothing to say ("—", or money held back for the invoice's
+// first line) are left out rather than listed empty.
+function MobileResults<T>({
+  columns,
+  rows,
+  rowKey,
+  isLoading,
+}: Pick<ReportResultsProps<T>, "columns" | "rows" | "rowKey" | "isLoading">) {
+  if (isLoading) {
+    return (
+      <div className="space-y-3 md:hidden">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Skeleton key={index} className="h-24 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (rows.length === 0) {
+    return (
+      <p className="text-muted-foreground py-8 text-center text-sm md:hidden">
+        No results found for the selected filters.
+      </p>
+    );
+  }
+
+  const [first, ...rest] = columns;
+  const last = rest.length > 0 ? rest[rest.length - 1] : undefined;
+  const middle = last ? rest.slice(0, -1) : rest;
+  const isEmpty = (node: React.ReactNode) =>
+    node === null || node === undefined || node === "" || node === "—";
+
+  return (
+    <ul className="space-y-3 md:hidden">
+      {rows.map((row) => {
+        const trailing = last?.cell(row);
+        return (
+          <li key={rowKey(row)} className="rounded-lg border p-3 text-sm">
+            <div className="flex items-start justify-between gap-3">
+              <span className="min-w-0 font-semibold break-words">
+                {first?.cell(row)}
+              </span>
+              {!isEmpty(trailing) && (
+                <span className="shrink-0 font-semibold tabular-nums">
+                  {trailing}
+                </span>
+              )}
+            </div>
+            <dl className="mt-2 grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-3 gap-y-1.5">
+              {middle.map((column) => {
+                const value = column.cell(row);
+                if (isEmpty(value)) return null;
+                return (
+                  <div key={column.header} className="contents">
+                    <dt className="text-muted-foreground">{column.header}</dt>
+                    <dd className="min-w-0 text-right break-words">{value}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

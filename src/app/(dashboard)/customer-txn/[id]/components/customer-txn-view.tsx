@@ -138,14 +138,14 @@ export function CustomerTxnViewComponent() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Pending Amount</CardTitle>
           </CardHeader>
           <CardContent>
             <p
-              className={`text-3xl font-bold ${
+              className={`text-2xl font-bold tabular-nums sm:text-3xl ${
                 summary.pendingAmount > 0 ? "text-destructive" : ""
               }`}
             >
@@ -183,11 +183,11 @@ export function CustomerTxnViewComponent() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-4">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
           <CardTitle>Transaction History</CardTitle>
-          <div className="flex items-center gap-3">
+          <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-3">
             <Select value={entryType} onValueChange={setEntryType}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="min-w-0 flex-1 sm:w-[180px] sm:flex-none">
                 <SelectValue placeholder="All types" />
               </SelectTrigger>
               <SelectContent>

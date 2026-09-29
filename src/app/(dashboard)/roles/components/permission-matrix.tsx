@@ -101,7 +101,7 @@ export function PermissionMatrix({
         </div>
       )}
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         {catalogue.map((group) => {
           const codes = group.permissions.map((permission) => permission.code);
           const granted = codes.filter((code) => held.has(code)).length;

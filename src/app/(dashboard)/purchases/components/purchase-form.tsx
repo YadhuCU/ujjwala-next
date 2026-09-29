@@ -109,7 +109,7 @@ export function PurchaseForm({
             className="space-y-6"
           >
             {/* ─── Header Fields ──────────────────── */}
-            <div className="grid gap-4 lg:grid-cols-2 place-content-stretch">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 place-content-stretch">
               <FormField
                 control={form.control}
                 name="vendorId"
@@ -216,8 +216,8 @@ export function PurchaseForm({
                 const showPurchaseType = !chosen || isCylinderTypeProduct(chosen.type);
 
                 return (
-                  <Card key={field.id} className="p-4">
-                    <div className="grid gap-3 md:grid-cols-6 items-start">
+                  <Card key={field.id} className="p-3 sm:p-4">
+                    <div className="grid grid-cols-2 gap-3 [&>*:first-child]:col-span-2 [&>*:last-child]:col-span-2 md:[&>*:first-child]:col-span-1 md:[&>*:last-child]:col-span-1 md:grid-cols-6 items-start">
                       <FormField
                         control={form.control}
                         name={`items.${index}.productId`}
@@ -260,7 +260,7 @@ export function PurchaseForm({
                         control={form.control}
                         name={`items.${index}.purchaseType`}
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="col-span-2 md:col-span-1">
                             <FormLabel>Type</FormLabel>
                             <Select
                               onValueChange={field.onChange}
@@ -291,7 +291,7 @@ export function PurchaseForm({
                         control={form.control}
                         name={`items.${index}.batchNo`}
                         render={({ field: f }) => (
-                          <FormItem>
+                          <FormItem className="col-span-2 md:col-span-1">
                             <FormLabel>Batch No</FormLabel>
                             <FormControl>
                               <Input
@@ -343,7 +343,7 @@ export function PurchaseForm({
                           </FormItem>
                         )}
                       />
-                      <div className="flex items-end gap-2">
+                      <div className="flex items-end gap-2 border-t pt-2 md:border-0 md:pt-0">
                         <div className="flex-1">
                           <p className="text-xs text-muted-foreground mb-1">
                             Total
@@ -377,7 +377,7 @@ export function PurchaseForm({
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 pt-2 sm:flex">
               <Button
                 type="submit"
                 isLoading={isPending}
