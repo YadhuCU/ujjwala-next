@@ -1,5 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { LedgerEntryType, Prisma, RefType, TxnType } from "@/generated/client";
+import { businessDayKey } from "@/lib/business-day";
+import {
+  CommercialSaleType,
+  LedgerEntryType,
+  Prisma,
+  RefType,
+  TxnType,
+} from "@/generated/client";
 import { NotFoundError, BadRequestError, ConflictError } from "@/lib/errors";
 import type {
   CreateDomSaleInput,
@@ -33,6 +40,16 @@ type OriginalSaleItem = {
   stockId: number | null;
   productId: number | null;
   quantity: number;
+  cylindersDispatched: number;
+  emptiesCollected: number;
+};
+
+/** What an invoice does to the customer's domestic holding, per product. */
+type CustodyEffect = {
+  /** Empties handed back — checked against what the customer already held. */
+  collected: ProductQty[];
+  /** Net change to the holding: cylinders out minus empties back. */
+  net: ProductQty[];
 };
 
 // =============================================================================
@@ -51,7 +68,8 @@ function computeTotals(
 }
 
 function generateTrNo(saleId: number): string {
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  // India time: toISOString() is UTC, which dated a 02:00 sale the day before
+  const date = businessDayKey(new Date()).replace(/-/g, "");
   return `DOM-${date}-${String(saleId).padStart(5, "0")}`;
 }
 
@@ -71,17 +89,56 @@ function resolveProductQtys(
   }));
 }
 
-// Builds { productId -> total qty } from existing DB sale items (update/delete reversal)
-function resolveOriginalProductQtys(items: OriginalSaleItem[]): ProductQty[] {
-  const acc: Record<number, number> = {};
+function toProductQtys(acc: Map<number, number>): ProductQty[] {
+  return [...acc]
+    .filter(([, quantity]) => quantity !== 0)
+    .map(([productId, quantity]) => ({ productId, quantity }));
+}
+
+/**
+ * Every domestic cylinder that goes out adds to what the customer holds —
+ * outright SALE included, so that a customer who bought one can later hand
+ * its empty back for a refill. Empties collected on a RENT line come off.
+ */
+function resolveCustody(
+  items: CreateDomSaleInput["items"],
+  stockMap: Map<number, StockInfo>,
+): CustodyEffect {
+  const collected = new Map<number, number>();
+  const net = new Map<number, number>();
+
+  for (const item of items) {
+    const productId = stockMap.get(item.stockId)!.productId;
+    collected.set(productId, (collected.get(productId) ?? 0) + item.emptiesCollected);
+    net.set(
+      productId,
+      (net.get(productId) ?? 0) + item.quantity - item.emptiesCollected,
+    );
+  }
+
+  return { collected: toProductQtys(collected), net: toProductQtys(net) };
+}
+
+/**
+ * What a saved invoice did to the holding, read from what each line recorded.
+ * Sales from before domestic custody was tracked recorded 0 for both, so
+ * reversing one leaves the holding alone — as it should, since it never
+ * touched it.
+ */
+function resolveOriginalCustody(items: OriginalSaleItem[]): ProductQty[] {
+  const net = new Map<number, number>();
+
   for (const item of items) {
     if (!item.productId) continue;
-    acc[item.productId] = (acc[item.productId] ?? 0) + item.quantity;
+    net.set(
+      item.productId,
+      (net.get(item.productId) ?? 0) +
+        item.cylindersDispatched -
+        item.emptiesCollected,
+    );
   }
-  return Object.entries(acc).map(([productId, quantity]) => ({
-    productId: Number(productId),
-    quantity,
-  }));
+
+  return toProductQtys(net);
 }
 
 // =============================================================================
@@ -141,6 +198,73 @@ async function assertAndFetchStocks(
   return stockMap;
 }
 
+async function customerHoldings(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+): Promise<Map<number, number>> {
+  const ledgers = await tx.customerCylinderLedger.findMany({
+    where: { customerId },
+    select: { productId: true, pendingCylinder: true },
+  });
+  return new Map(ledgers.map((l) => [l.productId, l.pendingCylinder]));
+}
+
+async function productName(tx: Prisma.TransactionClient, productId: number) {
+  const product = await tx.product.findUnique({
+    where: { id: productId },
+    select: { name: true },
+  });
+  return product?.name ?? `product #${productId}`;
+}
+
+/**
+ * Empties handed back must be ones the customer already held before this
+ * invoice. Cylinders delivered full on the same visit cannot be the empties
+ * handed back on it.
+ */
+async function assertCustomerHoldsEmpties(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+  collected: ProductQty[],
+) {
+  if (collected.length === 0) return;
+
+  const held = await customerHoldings(tx, customerId);
+
+  for (const { productId, quantity } of collected) {
+    const holding = held.get(productId) ?? 0;
+    if (quantity > holding)
+      throw new ConflictError(
+        `Cannot collect ${quantity} empty ${await productName(tx, productId)} — the customer holds ${holding}. Record their existing cylinders on the customer, or collect fewer.`,
+        { productId, holding, quantity },
+      );
+  }
+}
+
+/**
+ * Reversing an invoice gives back what it did to the holding. If those
+ * cylinders have since come back on a later invoice, taking them off again
+ * would leave the customer holding a negative number — refuse, and say which
+ * invoice has to be corrected first.
+ */
+async function assertReversalKeepsCustody(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+  net: ProductQty[],
+) {
+  const held = await customerHoldings(tx, customerId);
+
+  for (const { productId, quantity } of net) {
+    if (quantity <= 0) continue;
+    const holding = held.get(productId) ?? 0;
+    if (holding - quantity < 0)
+      throw new ConflictError(
+        `${await productName(tx, productId)} from this invoice have since been handed back on a later invoice. Correct that one first.`,
+        { productId, holding, reversing: quantity },
+      );
+  }
+}
+
 // =============================================================================
 // WRITE HELPERS
 // =============================================================================
@@ -152,7 +276,9 @@ async function writeSaleItems(
   items: CreateDomSaleInput["items"],
   stockMap: Map<number, StockInfo>,
 ) {
-  // 1. DomSaleItem rows — productId derived from stock, not trusted from client
+  // 1. DomSaleItem rows — productId derived from stock, not trusted from client.
+  //    Each records what it did to the customer's holding, so a later reversal
+  //    undoes exactly that.
   await tx.domSaleItem.createMany({
     data: items.map((item) => ({
       domSaleId,
@@ -161,6 +287,9 @@ async function writeSaleItems(
       quantity: item.quantity,
       salePrice: item.salePrice,
       netTotal: Math.round(item.quantity * item.salePrice * 100) / 100,
+      saleType: item.saleType,
+      cylindersDispatched: item.quantity,
+      emptiesCollected: item.emptiesCollected,
     })),
   });
 
@@ -177,13 +306,26 @@ async function writeSaleItems(
     });
   }
 
-  // 3. CylinderTransaction — one SALE_OUT row per product (grouped)
-  const productQtys = resolveProductQtys(items, stockMap);
+  // 3. Full cylinders out — one row per product and kind, since a refill
+  //    (RENT_DELIVERY) and an outright sale (SALE_OUT) are different movements
+  const outgoing = new Map<string, { productId: number; txnType: TxnType; quantity: number }>();
+
+  for (const item of items) {
+    const productId = stockMap.get(item.stockId)!.productId;
+    const txnType =
+      item.saleType === CommercialSaleType.RENT
+        ? TxnType.RENT_DELIVERY
+        : TxnType.SALE_OUT;
+    const key = `${productId}:${txnType}`;
+    const row = outgoing.get(key) ?? { productId, txnType, quantity: 0 };
+    row.quantity += item.quantity;
+    outgoing.set(key, row);
+  }
 
   await tx.cylinderTransaction.createMany({
-    data: productQtys.map(({ productId, quantity }) => ({
+    data: [...outgoing.values()].map(({ productId, txnType, quantity }) => ({
       productId,
-      txnType: TxnType.SALE_OUT,
+      txnType,
       filledDelta: -quantity,
       emptyDelta: 0,
       refType: RefType.INVOICE,
@@ -191,6 +333,53 @@ async function writeSaleItems(
       notes: `DomSale #${domSaleId}`,
     })),
   });
+
+  // 4. Empties handed back — one row per product
+  const { collected } = resolveCustody(items, stockMap);
+
+  if (collected.length > 0)
+    await tx.cylinderTransaction.createMany({
+      data: collected.map(({ productId, quantity }) => ({
+        productId,
+        txnType: TxnType.CYLINDER_RETURN,
+        filledDelta: 0,
+        emptyDelta: quantity,
+        refType: RefType.INVOICE,
+        refId: domSaleId,
+        notes: `Empties collected — DomSale #${domSaleId}`,
+      })),
+    });
+}
+
+// Empties handed back arrive in the godown
+async function applyGodownEmpties(
+  tx: Prisma.TransactionClient,
+  collected: ProductQty[],
+) {
+  for (const { productId, quantity } of collected) {
+    await tx.godownInventory.update({
+      where: { productId },
+      data: { emptyQty: { increment: quantity } },
+    });
+  }
+}
+
+// The customer's domestic holding, per product
+async function applyDomesticCustody(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+  net: ProductQty[],
+  direction: 1 | -1,
+) {
+  for (const { productId, quantity } of net) {
+    const change = direction * quantity;
+    await tx.customerCylinderLedger.upsert({
+      where: { productId_customerId: { productId, customerId } },
+      update: { pendingCylinder: { increment: change } },
+      // The guards guarantee a missing row is only ever created by a gain
+      create: { customerId, productId, pendingCylinder: Math.max(change, 0) },
+    });
+  }
 }
 
 // Updates GodownInventory.filledQty by direction (+1 restore, -1 deduct)
@@ -328,6 +517,17 @@ async function reverseCylinderTransactions(
         notes: note,
       },
     });
+
+    // Undo exactly the godown movement this row caused — filled and empty.
+    // This used to be a separate filled-only restore, which would have left
+    // behind any empties a refill brought in.
+    await tx.godownInventory.update({
+      where: { productId: txn.productId },
+      data: {
+        filledQty: { increment: -txn.filledDelta },
+        emptyQty: { increment: -txn.emptyDelta },
+      },
+    });
   }
 }
 
@@ -346,6 +546,10 @@ export async function createDomSale(input: CreateDomSaleInput, userId: number) {
     // 1. Validate stock batches + build stockMap { stockId → { productId, batchNo, qty } }
     const stockMap = await assertAndFetchStocks(tx, items);
     const productQtys = resolveProductQtys(items, stockMap);
+    const custody = resolveCustody(items, stockMap);
+
+    // 1b. Empties handed back must be ones the customer already held
+    await assertCustomerHoldsEmpties(tx, customerId, custody.collected);
 
     // 2. Create sale header
     const sale = await tx.domSale.create({
@@ -369,8 +573,12 @@ export async function createDomSale(input: CreateDomSaleInput, userId: number) {
     // 4. DomSaleItems + Stock.quantity-- + CylinderTransactions
     await writeSaleItems(tx, sale.id, items, stockMap);
 
-    // 5. GodownInventory cache
+    // 5. GodownInventory cache — fulls out, empties in
     await applyGodownDelta(tx, productQtys, -1);
+    await applyGodownEmpties(tx, custody.collected);
+
+    // 5b. What the customer now holds
+    await applyDomesticCustody(tx, customerId, custody.net, 1);
 
     // 6. Customer money ledger + balance (skipped for walk-in / no customer)
     await applyCustomerLedger(
@@ -457,10 +665,15 @@ export async function updateDomSale(
 
   return prisma.$transaction(async (tx) => {
     const original = await assertDomSaleExists(tx, id);
+    const originalCustody = resolveOriginalCustody(original.items);
+
+    // Refuse before touching anything if its cylinders have since come back
+    if (original.customerId)
+      await assertReversalKeepsCustody(tx, original.customerId, originalCustody);
 
     // ── REVERSE PHASE ────────────────────────────────────────────────────────
 
-    // 1. Void original CylinderTransactions
+    // 1. Void original CylinderTransactions and undo their godown movement
     await reverseCylinderTransactions(
       tx,
       id,
@@ -470,9 +683,9 @@ export async function updateDomSale(
     // 2. Restore Stock.quantity from original items
     await restoreStockQuantities(tx, original.items);
 
-    // 3. Restore GodownInventory from original items
-    const originalProductQtys = resolveOriginalProductQtys(original.items);
-    await applyGodownDelta(tx, originalProductQtys, 1);
+    // 3. Give back what the original did to the customer's holding
+    if (original.customerId)
+      await applyDomesticCustody(tx, original.customerId, originalCustody, -1);
 
     // 4. Reverse customer ledger (if original had a customer)
     if (original.customerId) {
@@ -494,15 +707,25 @@ export async function updateDomSale(
     // 6. Validate new stock batches + build stockMap
     const stockMap = await assertAndFetchStocks(tx, items);
     const productQtys = resolveProductQtys(items, stockMap);
+    const custody = resolveCustody(items, stockMap);
+    const newCustomerId = customerId ?? original.customerId;
+
+    // 6b. Checked after the reversal, so the holding is the pre-invoice figure
+    if (newCustomerId)
+      await assertCustomerHoldsEmpties(tx, newCustomerId, custody.collected);
 
     // 7. Write corrected items + Stock.quantity-- + CylinderTransactions
     await writeSaleItems(tx, id, items, stockMap);
 
-    // 8. Apply new GodownInventory delta
+    // 8. Apply new GodownInventory delta — fulls out, empties in
     await applyGodownDelta(tx, productQtys, -1);
+    await applyGodownEmpties(tx, custody.collected);
+
+    // 8b. What the customer now holds
+    if (newCustomerId)
+      await applyDomesticCustody(tx, newCustomerId, custody.net, 1);
 
     // 9. Apply new customer ledger (falls back to original customer if not changed)
-    const newCustomerId = customerId ?? original.customerId;
     if (newCustomerId) {
       await applyCustomerLedger(
         tx,
@@ -538,8 +761,12 @@ export async function updateDomSale(
 export async function deleteDomSale(id: number, userId: number) {
   return prisma.$transaction(async (tx) => {
     const original = await assertDomSaleExists(tx, id);
+    const originalCustody = resolveOriginalCustody(original.items);
 
-    // 1. Void original CylinderTransactions
+    if (original.customerId)
+      await assertReversalKeepsCustody(tx, original.customerId, originalCustody);
+
+    // 1. Void original CylinderTransactions and undo their godown movement
     await reverseCylinderTransactions(
       tx,
       id,
@@ -549,9 +776,9 @@ export async function deleteDomSale(id: number, userId: number) {
     // 2. Restore Stock.quantity
     await restoreStockQuantities(tx, original.items);
 
-    // 3. Restore GodownInventory
-    const originalProductQtys = resolveOriginalProductQtys(original.items);
-    await applyGodownDelta(tx, originalProductQtys, 1);
+    // 3. Give back what it did to the customer's holding
+    if (original.customerId)
+      await applyDomesticCustody(tx, original.customerId, originalCustody, -1);
 
     // 4. Reverse customer ledger
     if (original.customerId) {

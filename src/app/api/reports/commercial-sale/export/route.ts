@@ -11,6 +11,7 @@ import {
   saleExportColumns,
   type SaleExportRow,
 } from "@/module/report/report.export";
+import { toSaleLines } from "@/module/report/report.lines";
 
 export async function GET(req: NextRequest) {
   return withAuth(async ({ userId, permissions, isOwner }) => {
@@ -34,8 +35,9 @@ export async function GET(req: NextRequest) {
         `Generated: ${new Date().toLocaleString("en-IN")}`,
         `Total Invoices: ${rows.length}`,
       ],
-      columns: saleExportColumns(true),
-      rows,
+      columns: saleExportColumns({ withType: true, withCustody: true }),
+      // One row per item sold, matching the report on screen
+      rows: toSaleLines(rows),
     });
   }, [PERMISSIONS.REPORT_EXPORT]);
 }

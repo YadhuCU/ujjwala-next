@@ -35,9 +35,16 @@ const staff = () => ({
   permissions: [PERMISSIONS.REPORT_READ_OWN],
 });
 
+// Every date here is relative to now. Sales are reported on `createdAt`, which
+// is always "now", so a fixed calendar window (this used to be August 2026)
+// silently expired once the date moved past it and every sale test found 0 rows.
+const DAY = 24 * 60 * 60 * 1000;
+const today = new Date();
+const daysAgo = (n: number) => new Date(today.getTime() - n * DAY);
+
 const range = {
-  from: new Date("2026-08-01"),
-  to: new Date("2026-08-31"),
+  from: daysAgo(30),
+  to: today,
   page: 1,
   limit: 10,
 };
@@ -65,7 +72,7 @@ async function domSale(
       paidAmount: 0,
       discount: undefined,
       notes: undefined,
-      items: [{ stockId: stock.id, quantity: 1, salePrice: amount }],
+      items: [{ stockId: stock.id, quantity: 1, salePrice: amount, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
     },
     createdBy,
   );
@@ -150,7 +157,7 @@ describe("sale report scoping", () => {
     await expect(
       ReportService.getSaleReport(
         "DOM",
-        { ...range, from: new Date("2026-08-31"), to: new Date("2026-08-01") },
+        { ...range, from: range.to, to: range.from },
         owner(),
       ),
     ).rejects.toThrow(/must not be after/);
@@ -183,7 +190,7 @@ describe("sale-by-product report", () => {
         paidAmount: 0,
         discount: undefined,
         notes: undefined,
-        items: [{ stockId: domStock.id, quantity: 2, salePrice: 100 }],
+        items: [{ stockId: domStock.id, quantity: 2, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
       },
       ownerId,
     );
@@ -203,7 +210,7 @@ describe("sale-by-product report", () => {
     await CommercialSaleService.createCommercialSale(
       {
         customerId,
-        invoiceDate: new Date("2026-08-14"),
+        invoiceDate: daysAgo(3),
         paymentType: PaymentType.CASH,
         paidAmount: 0,
         discount: undefined,
@@ -289,7 +296,7 @@ describe("purchase report", () => {
         {
           invoiceNo: undefined,
           vendorId,
-          purchaseDate: new Date("2026-08-14"),
+          purchaseDate: daysAgo(3),
           notes: undefined,
           items: [
             {
@@ -323,11 +330,11 @@ describe("purchase report", () => {
 describe("expense report", () => {
   it("scopes to the actor the same way the expense list does", async () => {
     await ExpenseService.createExpense(
-      { expense: "Owner fuel", date: new Date("2026-08-10"), amount: 300 },
+      { expense: "Owner fuel", date: daysAgo(5), amount: 300 },
       ownerId,
     );
     await ExpenseService.createExpense(
-      { expense: "Staff fuel", date: new Date("2026-08-11"), amount: 200 },
+      { expense: "Staff fuel", date: daysAgo(4), amount: 200 },
       staffId,
     );
 

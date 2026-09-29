@@ -1,6 +1,8 @@
 "use client";
 
 import { useForm, useFieldArray } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
+import { customerTxnOptions } from "@/lib/query-options";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -33,7 +35,7 @@ import {
   DomSaleFormSchema,
   DomSaleFormValues,
 } from "@/module/dom-sale/dom-sale.form.schema";
-import { PaymentType, ProductType } from "@/generated/enums";
+import { CommercialSaleType, PaymentType, ProductType } from "@/generated/enums";
 import { CustomerTxnInfo } from "../../_components/customer-txn-info";
 
 interface DomSaleFormProps {
@@ -70,6 +72,8 @@ export function DomSaleForm({
           quantity: "",
           salePrice: "",
           stockId: "",
+          saleType: CommercialSaleType.SALE,
+          emptiesCollected: 0,
         } as never,
       ],
       paidAmount: 0,
@@ -86,6 +90,28 @@ export function DomSaleForm({
   const watchedItems = form.watch("items");
 
   const selectedCustomerId = form.watch("customerId");
+
+  // What the customer holds now, so staff can see whether the empties they are
+  // about to record are ones the system knows about.
+  const { data: customerSummary } = useQuery({
+    ...customerTxnOptions(String(selectedCustomerId)),
+    enabled: !!selectedCustomerId,
+    select: (res) => res.data,
+  });
+  const heldByProduct = new Map(
+    (customerSummary?.allCylinderLedgers ?? []).map((l) => [
+      l.productId,
+      l.pendingCylinder,
+    ]),
+  );
+
+  /** On a refill the empties follow the quantity until someone changes them. */
+  const syncEmpties = (index: number, quantity: number) => {
+    if (form.getValues(`items.${index}.saleType`) === CommercialSaleType.RENT)
+      form.setValue(`items.${index}.emptiesCollected`, quantity, {
+        shouldValidate: true,
+      });
+  };
 
   /**
    * Computes grand total from all line items.
@@ -257,6 +283,8 @@ export function DomSaleForm({
                       stockId: "",
                       quantity: "",
                       salePrice: "",
+                      saleType: CommercialSaleType.SALE,
+                      emptiesCollected: 0,
                     } as never)
                   }
                 >
@@ -276,9 +304,19 @@ export function DomSaleForm({
 
                 const lineTotal = qty * cost;
 
+                const isRefill =
+                  watchedItems[index]?.saleType === CommercialSaleType.RENT;
+                const lineProductId = stocks.find(
+                  (s) => s.id === Number(watchedItems[index]?.stockId),
+                )?.product?.id;
+                const held =
+                  lineProductId !== undefined
+                    ? (heldByProduct.get(lineProductId) ?? 0)
+                    : undefined;
+
                 return (
                   <Card key={field.id} className="p-4">
-                    <div className="grid gap-3 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-start">
+                    <div className="grid gap-3 md:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] items-start">
                       {/* Stock Selection */}
                       <FormField
                         control={form.control}
@@ -327,6 +365,42 @@ export function DomSaleForm({
                         }}
                       />
 
+                      {/* Rent (refill) or Sale */}
+                      <FormField
+                        control={form.control}
+                        name={`items.${index}.saleType`}
+                        render={({ field: f }) => (
+                          <FormItem>
+                            <FormLabel>Type</FormLabel>
+                            <Select
+                              value={f.value}
+                              onValueChange={(value) => {
+                                f.onChange(value);
+                                // A refill brings the empty back; an outright sale does not
+                                form.setValue(
+                                  `items.${index}.emptiesCollected`,
+                                  value === CommercialSaleType.RENT
+                                    ? Number(form.getValues(`items.${index}.quantity`)) || 0
+                                    : 0,
+                                  { shouldValidate: true },
+                                );
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Rent or Sale" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value={CommercialSaleType.SALE}>SALE</SelectItem>
+                                <SelectItem value={CommercialSaleType.RENT}>RENT</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
                       {/* Quantity */}
                       <FormField
                         control={form.control}
@@ -338,9 +412,11 @@ export function DomSaleForm({
                               <Input
                                 type="number"
                                 {...f}
-                                onChange={(e) =>
-                                  f.onChange(e.target.valueAsNumber || 0)
-                                }
+                                onChange={(e) => {
+                                  const quantity = e.target.valueAsNumber || 0;
+                                  f.onChange(quantity);
+                                  syncEmpties(index, quantity);
+                                }}
                                 placeholder="Enter quantity"
                               />
                             </FormControl>
@@ -348,6 +424,43 @@ export function DomSaleForm({
                           </FormItem>
                         )}
                       />
+
+                      {/* Empties collected — refills only */}
+                      {isRefill ? (
+                        <FormField
+                          control={form.control}
+                          name={`items.${index}.emptiesCollected`}
+                          render={({ field: f }) => (
+                            <FormItem>
+                              <FormLabel className="whitespace-nowrap">
+                                Empties back
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  inputMode="numeric"
+                                  {...f}
+                                  value={f.value ?? 0}
+                                  onChange={(e) =>
+                                    f.onChange(e.target.valueAsNumber || 0)
+                                  }
+                                />
+                              </FormControl>
+                              {/* Below the input, so the row's inputs stay level */}
+                              {!isEditMode && held !== undefined && (
+                                <p className="text-muted-foreground text-xs tabular-nums">
+                                  Customer holds {held}
+                                </p>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      ) : (
+                        // Keeps the columns aligned with refill lines
+                        <div aria-hidden className="hidden md:block" />
+                      )}
 
                       {/* Sale Price */}
                       <FormField

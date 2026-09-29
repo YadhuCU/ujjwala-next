@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { endOfBusinessDay, startOfBusinessDay } from "@/lib/business-day";
 import { BadRequestError } from "@/lib/errors";
 import { SCOPES } from "@/lib/permissions";
 import { resolveScope, scopeFilter, type Actor } from "@/lib/access-scope";
@@ -43,13 +44,11 @@ type SaleHeader = {
 // PURE HELPERS
 // =============================================================================
 
-// The UI sends plain dates — the end date has to cover the whole day.
+// The UI sends plain dates — the end date has to cover the whole day, in India
+// time rather than the server's (business-day.ts explains why that matters).
 function assertAndNormalizeRange(from: Date, to: Date) {
-  const fromDate = new Date(from);
-  fromDate.setHours(0, 0, 0, 0);
-
-  const toDate = new Date(to);
-  toDate.setHours(23, 59, 59, 999);
+  const fromDate = startOfBusinessDay(new Date(from));
+  const toDate = endOfBusinessDay(new Date(to));
 
   if (fromDate > toDate)
     throw new BadRequestError("from date must not be after to date");

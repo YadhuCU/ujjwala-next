@@ -1,4 +1,6 @@
-import { ProductType } from "@/generated/client";
+// From enums, not client: this rule is shared with client components, and the
+// client entry would drag the Prisma runtime into the browser bundle.
+import { ProductType } from "@/generated/enums";
 
 // Only these product types are physical cylinders. ARB (bulk LPG) and OTHER are
 // tracked by Stock batches alone — they write no CylinderTransaction and no

@@ -90,6 +90,12 @@ type ReportResultsProps<T> = {
   onPageChange: (page: number) => void;
   /** Runs the module's export helper; the card owns the pending state. */
   onExport: (format: "excel" | "pdf") => Promise<void>;
+  /**
+   * What the total counts. Defaults to records; the sale reports show a row per
+   * item, so there the total is invoices and saying "records" would not match
+   * the rows on screen.
+   */
+  countNoun?: string;
 };
 
 export function ReportResults<T>({
@@ -101,6 +107,7 @@ export function ReportResults<T>({
   isFetching,
   onPageChange,
   onExport,
+  countNoun = "records",
 }: ReportResultsProps<T>) {
   const [exporting, setExporting] = useState(false);
 
@@ -126,7 +133,7 @@ export function ReportResults<T>({
             Results{" "}
             {pagination && (
               <span className="text-muted-foreground text-sm font-normal">
-                ({pagination.total} records)
+                ({pagination.total} {countNoun})
               </span>
             )}
           </CardTitle>

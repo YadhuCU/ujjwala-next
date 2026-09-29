@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { PaymentType, ProductType } from "@/generated/client";
+import {
+  CommercialSaleType,
+  PaymentType,
+  ProductType,
+} from "@/generated/client";
 import { PERMISSIONS } from "@/lib/permissions";
+import { prisma } from "@/lib/prisma";
 import {
   makeCustomer,
   makeProduct,
@@ -54,7 +59,7 @@ async function sell(createdBy: number, salePrice: number, quantity = 1) {
       paidAmount: 0,
       discount: undefined,
       notes: undefined,
-      items: [{ stockId: stock.id, quantity, salePrice }],
+      items: [{ stockId: stock.id, quantity, salePrice, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
     },
     createdBy,
   );
@@ -241,8 +246,7 @@ describe("commercial alerts", () => {
             stockId: (await makeStock((await makeProduct(ProductType.ARB)).id, 10))
               .id,
             quantity: 1,
-            salePrice: 5000,
-          },
+            salePrice: 5000, saleType: CommercialSaleType.SALE, emptiesCollected: 0 },
         ],
       },
       ownerId,
@@ -257,5 +261,66 @@ describe("commercial alerts", () => {
     expect(
       data.commercialAnalytics.highBalanceCustomers[0].pendingAmount,
     ).toBeGreaterThan(100);
+  });
+});
+
+// =============================================================================
+// DAY BOUNDARIES
+// The server runs in UTC on Vercel, five and a half hours behind India. Day
+// boundaries used to follow the server's clock, so a sale at 02:00 in Kochi
+// counted as the previous day.
+// =============================================================================
+
+describe("day boundaries follow India time, not the server's", () => {
+  const originalTz = process.env.TZ;
+
+  it("puts a 02:00 IST sale on the Indian day when the server is on UTC", async () => {
+    process.env.TZ = "UTC";
+    try {
+      const sale = await sell(ownerId, 450, 1);
+      // 29 Sep 02:00 in India — still 28 Sep in UTC
+      await prisma.domSale.update({
+        where: { id: sale.id },
+        data: { createdAt: new Date("2026-09-28T20:30:00.000Z") },
+      });
+
+      const the29th = await DashboardService.getDashboard(
+        { from: new Date("2026-09-29"), to: new Date("2026-09-29") },
+        owner(),
+      );
+      const the28th = await DashboardService.getDashboard(
+        { from: new Date("2026-09-28"), to: new Date("2026-09-28") },
+        owner(),
+      );
+
+      expect(the29th.kpis.totalRevenue).toBe(450);
+      expect(the28th.kpis.totalRevenue).toBe(0);
+
+      const bucket = the29th.dailyTrend.find((d) => d.date === "2026-09-29");
+      expect(bucket?.revenue).toBe(450);
+    } finally {
+      process.env.TZ = originalTz;
+    }
+  });
+
+  it("includes the whole of the last day in the range", async () => {
+    process.env.TZ = "UTC";
+    try {
+      const sale = await sell(ownerId, 200, 1);
+      // 29 Sep 23:30 in India
+      await prisma.domSale.update({
+        where: { id: sale.id },
+        data: { createdAt: new Date("2026-09-29T18:00:00.000Z") },
+      });
+
+      const data = await DashboardService.getDashboard(
+        { from: new Date("2026-09-29"), to: new Date("2026-09-29") },
+        owner(),
+      );
+
+      expect(data.kpis.totalRevenue).toBe(200);
+    } finally {
+      process.env.TZ = originalTz;
+    }
   });
 });

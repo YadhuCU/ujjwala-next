@@ -1,4 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import {
+  addBusinessDays,
+  businessDayKey,
+  endOfBusinessDay,
+  startOfBusinessDay,
+} from "@/lib/business-day";
 import { PERMISSIONS, SCOPES } from "@/lib/permissions";
 import { resolveScope, scopeFilter, type Actor } from "@/lib/access-scope";
 import { LedgerEntryType } from "@/generated/client";
@@ -49,8 +55,10 @@ type DailyBucket = {
 // PURE HELPERS
 // =============================================================================
 
+// Which business day a row belongs to — India time, not the server's (see
+// business-day.ts for why that matters on Vercel).
 function dayKey(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return businessDayKey(date);
 }
 
 function round2(value: number): number {
@@ -64,15 +72,13 @@ function daysSince(date: Date | null | undefined): number {
 }
 
 function resolveRange(query: DashboardQuery) {
-  const endDate = query.to ? new Date(query.to) : new Date();
-  endDate.setHours(23, 59, 59, 999);
+  const now = new Date();
 
-  const startDate = query.from ? new Date(query.from) : new Date(endDate);
-  if (!query.from) startDate.setDate(startDate.getDate() - 29);
-  startDate.setHours(0, 0, 0, 0);
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const endDate = endOfBusinessDay(query.to ? new Date(query.to) : now);
+  const startDate = startOfBusinessDay(
+    query.from ? new Date(query.from) : addBusinessDays(endDate, -29),
+  );
+  const todayStart = startOfBusinessDay(now);
 
   return { startDate, endDate, todayStart };
 }
@@ -82,9 +88,9 @@ function emptyTrend(startDate: Date, endDate: Date): Map<string, DailyBucket> {
   const buckets = new Map<string, DailyBucket>();
 
   for (
-    const cursor = new Date(startDate);
+    let cursor = new Date(startDate);
     cursor <= endDate;
-    cursor.setDate(cursor.getDate() + 1)
+    cursor = addBusinessDays(cursor, 1)
   ) {
     buckets.set(dayKey(cursor), {
       date: dayKey(cursor),

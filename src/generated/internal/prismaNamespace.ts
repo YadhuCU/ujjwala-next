@@ -2809,6 +2809,9 @@ export const DomSaleItemScalarFieldEnum = {
   quantity: 'quantity',
   salePrice: 'salePrice',
   netTotal: 'netTotal',
+  saleType: 'saleType',
+  cylindersDispatched: 'cylindersDispatched',
+  emptiesCollected: 'emptiesCollected',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

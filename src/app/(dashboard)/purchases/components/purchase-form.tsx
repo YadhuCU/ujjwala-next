@@ -30,6 +30,7 @@ import {
   PurchaseFormValues,
 } from "@/module/purchase/purchase.form.schema";
 import { PurchaseType } from "@/generated/enums";
+import { isCylinderTypeProduct } from "@/module/product/product.rules";
 import { DatePicker } from "@/components/ui/date-picker";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -205,6 +206,15 @@ export function PurchaseForm({
 
                 const lineTotal = qty * cost;
 
+                // FILL vs FULL only means something for cylinders: FILL is the
+                // vendor refilling our empties. ARB and OTHER have no empties,
+                // so the choice is hidden and the line is recorded as FULL —
+                // new stock in, which is what such a purchase is.
+                const chosen = products.find(
+                  (p) => p.id === Number(watchedItems[index]?.productId),
+                );
+                const showPurchaseType = !chosen || isCylinderTypeProduct(chosen.type);
+
                 return (
                   <Card key={field.id} className="p-4">
                     <div className="grid gap-3 md:grid-cols-6 items-start">
@@ -215,7 +225,17 @@ export function PurchaseForm({
                           <FormItem>
                             <FormLabel>Product</FormLabel>
                             <Select
-                              onValueChange={(e) => f.onChange(parseInt(e))}
+                              onValueChange={(e) => {
+                                const id = parseInt(e);
+                                f.onChange(id);
+                                const product = products.find((p) => p.id === id);
+                                if (product && !isCylinderTypeProduct(product.type))
+                                  form.setValue(
+                                    `items.${index}.purchaseType`,
+                                    PurchaseType.FULL,
+                                    { shouldValidate: true },
+                                  );
+                              }}
                               value={f.value ? String(f.value) : ""}
                             >
                               <FormControl>
@@ -235,6 +255,7 @@ export function PurchaseForm({
                           </FormItem>
                         )}
                       />
+                      {showPurchaseType ? (
                       <FormField
                         control={form.control}
                         name={`items.${index}.purchaseType`}
@@ -243,7 +264,7 @@ export function PurchaseForm({
                             <FormLabel>Type</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value || ""}
+                              value={field.value || ""}
                             >
                               <FormControl>
                                 <SelectTrigger className="w-full">
@@ -262,6 +283,10 @@ export function PurchaseForm({
                           </FormItem>
                         )}
                       />
+                      ) : (
+                        // Keeps the grid columns aligned with cylinder lines
+                        <div aria-hidden className="hidden md:block" />
+                      )}
                       <FormField
                         control={form.control}
                         name={`items.${index}.batchNo`}

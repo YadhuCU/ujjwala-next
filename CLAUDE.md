@@ -87,9 +87,16 @@ Type-checking the app alone (root `npx tsc --noEmit` also pulls in stale
 npx tsc --noEmit -p tsconfig.json 2>&1 | grep '^src/'
 ```
 
-Note: `src/app/(dashboard)/commercial-sales/**` and `src/app/api/reports/**` still
-have pre-existing type errors — they have not been refactored yet. Don't treat them
-as regressions.
+`src/` has no type errors; keep it that way. A clean checkout has no
+`next-env.d.ts` (it is generated and gitignored), so run `npx next typegen` before
+type-checking there — CI does.
+
+**Time.** The agency works in India time and the server does not (Vercel runs in
+UTC). Never use `setHours`, `getDate` or `toISOString().split("T")[0]` to find a
+day on the server — use `src/lib/business-day.ts`. On the client, send a picked
+date with date-fns `format(date, "yyyy-MM-dd")`, never `toISOString()`, which
+turns local midnight into the previous day. Tests must not pin a calendar window
+around rows stamped "now": they expire when the month changes.
 
 CI (`.github/workflows/ci.yml`) runs lint, type-check, both test suites and the
 build on every push and PR, against a Postgres service container. Its last step
@@ -255,10 +262,23 @@ Other module-specific rules:
   cylinders. Every line creates a `Stock` batch; `batchNo` comes from the vendor
   or is generated as `BATCH-{yyyymmdd}-P{purchaseId}-PR{productId}-{n}`. A purchase
   can only be updated or deleted while **none** of its batches appear in a sale.
-- **Dom / ARB sale** — outright sale, no cylinder is expected back. `trNo` is
-  `DOM-` / `ARB-{yyyymmdd}-{00001}` and is assigned after the header insert.
-  `paidAmount <= totalAmount`. Ledger: `SALE_CHARGE +total`, `PAYMENT -paid`,
-  `CustomerBalance += (total - paid)`.
+- **Dom / ARB sale** — `trNo` is `DOM-` / `ARB-{yyyymmdd}-{00001}` (India
+  date) and is assigned after the header insert. `paidAmount <= totalAmount`.
+  Ledger: `SALE_CHARGE +total`, `PAYMENT -paid`, `CustomerBalance += (total - paid)`.
+  ARB is an outright sale of a non-cylinder: no cylinder is expected back.
+- **Dom sale lines are `RENT` or `SALE`** (the `CommercialSaleType` enum, shared).
+  `RENT` is a refill — `RENT_DELIVERY` out, and `emptiesCollected` back as
+  `CYLINDER_RETURN`; the form fills that with the quantity. `SALE` is outright
+  (`SALE_OUT`). **Both count as held** in `CustomerCylinderLedger`, unlike
+  commercial: otherwise a customer who bought a cylinder could never hand its
+  empty back for a refill. Empties are checked against the holding *before* the
+  invoice, all lines of a product together. Each line records what it did
+  (`cylindersDispatched`, `emptiesCollected`) and reversals undo exactly that —
+  rows from before domestic custody existed are 0/0, so reversing one leaves the
+  holding alone. A reversal is refused if it would take the holding below zero
+  (the cylinders came back on a later invoice). Opening holdings at customer
+  onboarding cover domestic as well as commercial products; the server refuses
+  any non-cylinder product there.
 - **Commercial sale** — per-line `RENT` or `SALE`. Both draw a filled cylinder
   from a `Stock` batch and out of the godown (`RENT_DELIVERY` / `SALE_OUT`);
   `RENT` additionally tracks custody (`cylindersDispatched` /
@@ -278,20 +298,24 @@ Other module-specific rules:
   `POST :id/payments`, `DELETE :id/payments/:paymentId`. A payment reversal is an
   `ADJUSTMENT` row, never a delete, and it carries `voidedEntryId` back to the
   entry it undoes — `@unique`, so an entry can only ever be reversed once.
-- **Expense** — private to its author; only `OWNER` sees everyone's. The service
-  takes an `ExpenseActor { userId, roles }` and both filters lists and gates
-  single-record access on it.
+- **Expense** — private to its author unless the role holds `expense.read.all`
+  (see RBAC below). The service takes an `Actor { userId, permissions }` and both
+  filters lists and gates single-record access on it.
 - **Report / dashboard** — read-only modules over the same models. Both scope on
-  an actor (`{ userId, roles }`): non-`OWNER` users see only what they recorded,
-  and an owner may narrow to one staff member. Reports return
+  an `Actor { userId, permissions }` through `resolveScope`: own-scope users see
+  only what they recorded, and all-scope users may narrow to one staff member.
+  Every write refreshes the dashboard and godown queries (`use-api.ts`), since
+  they aggregate nearly everything. Sale reports show **one row per item**
+  (`report.lines.ts`, shared by the table and the export) with the invoice's
+  money on its first line only, so totals still sum correctly. Reports return
   `{ summary, data, pagination }` (not the `ApiResponse` envelope — the report
   pages consume that shape directly); every `/export` route renders through
   `report.export.ts`, where `excel` is CSV and `pdf` is tab-separated text.
   Sale-by-product rolls up the three `*SaleItem` tables, since line items — not
   the invoice headers — carry the product. The report pages share
   `reports/_components` (filter card, summary tiles, results table, filter
-  state); dom / arb / commercial are one `SaleReportView` differing only by a
-  custody column. The dashboard's client type is the service's own
+  state); dom / arb / commercial are one `SaleReportView`, differing by a
+  custody column (commercial) and a Type column (not ARB). The dashboard's client type is the service's own
   `DashboardResponse`, so the payload has one definition.
 
 ## RBAC
