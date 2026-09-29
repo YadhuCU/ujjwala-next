@@ -322,9 +322,14 @@ export function DomSaleForm({
                         control={form.control}
                         name={`items.${index}.stockId`}
                         render={({ field: formField }) => {
-                          const selectedStock = availableStocks.find((s) => {
-                            return s.id === Number(field.stockId);
-                          });
+                          // The live value from the form. `field` is the field-array entry, a
+                          // snapshot from when the row was added — it does not change when a
+                          // stock is picked, so looking it up there always found nothing.
+                          // Searched in the full list so a batch that is no longer on hand
+                          // still labels itself.
+                          const selectedStock = stocks.find(
+                            (s) => s.id === Number(formField.value),
+                          );
                           return (
                             <FormItem>
                               <FormLabel>Stock / Product</FormLabel>
@@ -347,7 +352,7 @@ export function DomSaleForm({
                                 <FormControl>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select Stock">
-                                      {selectedStock ? stockOptionLabel(selectedStock) : null}
+                                      {selectedStock ? stockOptionLabel(selectedStock) : undefined}
                                     </SelectValue>
                                   </SelectTrigger>
                                 </FormControl>

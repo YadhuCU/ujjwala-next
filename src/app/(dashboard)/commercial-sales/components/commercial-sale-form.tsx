@@ -362,7 +362,9 @@ export function CommercialSaleForm({
                         control={form.control}
                         name={`items.${index}.stockId`}
                         render={({ field: formField }) => {
-                          const selectedStock = availableStocks.find(
+                          // Searched in the full list so a batch that is no longer on hand
+                          // still labels itself.
+                          const selectedStock = stocks.find(
                             (s) => s.id === Number(formField.value),
                           );
                           return (
@@ -389,7 +391,7 @@ export function CommercialSaleForm({
                                 <FormControl>
                                   <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Select Stock">
-                                      {selectedStock ? stockOptionLabel(selectedStock) : null}
+                                      {selectedStock ? stockOptionLabel(selectedStock) : undefined}
                                     </SelectValue>
                                   </SelectTrigger>
                                 </FormControl>
