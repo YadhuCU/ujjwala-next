@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DateRangePicker } from "@/components/date-range-picker";
@@ -25,12 +26,15 @@ export default function DashboardPage() {
     },
   );
 
+  // The calendar date the user picked, in their own timezone. This used to be
+  // `toISOString().split("T")[0]`, which converts local midnight to UTC first —
+  // in India that is the previous day, so picking "today" asked the server for
+  // yesterday and today's sales never showed. The reports already did this
+  // correctly with `format`.
   const fromStr = dateRange?.from
-    ? dateRange.from.toISOString().split("T")[0]
+    ? format(dateRange.from, "yyyy-MM-dd")
     : undefined;
-  const toStr = dateRange?.to
-    ? dateRange.to.toISOString().split("T")[0]
-    : undefined;
+  const toStr = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
 
   const { data, isLoading: loading } = useQuery({
     ...dashboardOptions(fromStr, toStr),
