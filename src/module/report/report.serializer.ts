@@ -22,6 +22,8 @@ export type SaleReportRow = {
   paymentType: string;
   customer: { id: number; name: string } | null;
   createdBy: { id: number; name: string | null } | null;
+  /** Domestic sales only: who made the round. */
+  fieldStaff?: { id: number; name: string | null } | null;
   items: {
     id: number;
     quantity: number;
@@ -43,6 +45,7 @@ export function serializeSaleReportRow(row: SaleReportRow) {
     discount: money(row.discount),
     customer: row.customer ?? undefined,
     createdBy: row.createdBy ?? undefined,
+    fieldStaff: row.fieldStaff ?? undefined,
     items: row.items.map((item) => ({
       ...item,
       salePrice: money(item.salePrice),

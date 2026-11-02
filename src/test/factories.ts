@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ProductType } from "@/generated/client";
-import { PERMISSION_REGISTRY } from "@/lib/permissions";
+import { PERMISSION_REGISTRY, PERMISSIONS } from "@/lib/permissions";
 import { writeStockAdjustment } from "@/module/stock-adjustment/stock-adjustment.service";
 
 /**
@@ -50,6 +50,27 @@ export async function makeUserWithRoles(roleIds: number[], name = "Staff") {
   });
 
   return user;
+}
+
+/**
+ * A user who can make domestic sales — the only people a domestic sale can be
+ * recorded against. Through a role, as in the app: eligibility is read from
+ * the role's permissions, never from its name.
+ */
+export async function makeFieldStaff(name = "Field Staff") {
+  await syncPermissionCatalogue();
+  const permission = await prisma.permission.findUniqueOrThrow({
+    where: { code: PERMISSIONS.DOMESTIC_SALE_CREATE },
+  });
+  const role = await prisma.role.upsert({
+    where: { name: "TEST_FIELD_STAFF" },
+    update: {},
+    create: {
+      name: "TEST_FIELD_STAFF",
+      rolePermissions: { create: { permissionId: permission.id } },
+    },
+  });
+  return makeUserWithRoles([role.id], name);
 }
 
 export async function makeProduct(

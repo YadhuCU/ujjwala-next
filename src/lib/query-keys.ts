@@ -10,6 +10,7 @@ export const queryKeys = {
     all: ["dom-sales"] as const,
     lists: () => ["dom-sales"] as const,
     detail: (id: string) => ["dom-sales", id] as const,
+    fieldStaff: () => ["dom-sales", "field-staff"] as const,
   },
   arbSales: {
     all: ["arb-sales"] as const,

@@ -8,6 +8,7 @@ import {
   TxnType,
 } from "@/generated/client";
 import { prisma } from "@/lib/prisma";
+import { PERMISSIONS } from "@/lib/permissions";
 import {
   assertBalanceMatchesLedger,
   assertGodownMatchesLedger,
@@ -15,6 +16,7 @@ import {
   custodyOf,
   godownOf,
   makeCustomer,
+  makeFieldStaff,
   makeProduct,
   makeStock,
   makeUser,
@@ -22,32 +24,196 @@ import {
 } from "@/test/factories";
 import * as DomSaleService from "./dom-sale.service";
 import * as ArbSaleService from "@/module/arb-sale/arb-sale.service";
+import type { CreateDomSaleInput } from "./dom-sale.payload.schema";
 
-let userId: number;
-let customerId: number;
+// =============================================================================
+// A domestic sale is a field staff member's round: door to door, an empty
+// swapped for a full (RENT) or a cylinder sold outright (SALE), paid in full
+// at each house. There is no customer, so no money ledger and no custody.
+// =============================================================================
 
-beforeEach(async () => {
-  userId = (await makeUser()).id;
-  customerId = (await makeCustomer()).id;
+let officeId: number;
+let staffId: number;
+let otherStaffId: number;
+
+/** Records rounds for any field staff — the office. */
+const office = () => ({
+  userId: officeId,
+  permissions: [
+    PERMISSIONS.DOMESTIC_SALE_CREATE,
+    PERMISSIONS.DOMESTIC_SALE_READ,
+    PERMISSIONS.DOMESTIC_SALE_READ_ALL,
+    PERMISSIONS.DOMESTIC_SALE_UPDATE,
+    PERMISSIONS.DOMESTIC_SALE_DELETE,
+  ],
 });
 
-describe("createDomSale", () => {
-  it("draws down the batch, the godown and the customer's balance", async () => {
-    const product = await makeProduct(ProductType.DOMESTIC);
-    await seedGodown(product.id, { filledQty: 50 });
-    const stock = await makeStock(product.id, 50);
+/** A field staff member: their sales are their own. */
+const fieldStaff = (userId = staffId, extra: string[] = []) => ({
+  userId,
+  permissions: [
+    PERMISSIONS.DOMESTIC_SALE_CREATE,
+    PERMISSIONS.DOMESTIC_SALE_READ,
+    PERMISSIONS.DOMESTIC_SALE_READ_OWN,
+    ...extra,
+  ] as (typeof PERMISSIONS)[keyof typeof PERMISSIONS][],
+});
 
-    await DomSaleService.createDomSale(
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 400,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: stock.id, quantity: 2, salePrice: 500, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-      },
-      userId,
+beforeEach(async () => {
+  officeId = (await makeUser("Office")).id;
+  staffId = (await makeFieldStaff("Ravi")).id;
+  otherStaffId = (await makeFieldStaff("Anu")).id;
+});
+
+async function domesticStock(quantity = 50) {
+  const product = await makeProduct(ProductType.DOMESTIC);
+  await seedGodown(product.id, { filledQty: quantity });
+  const stock = await makeStock(product.id, quantity);
+  return { product, stock };
+}
+
+const line = (
+  stockId: number,
+  quantity: number,
+  overrides: Partial<CreateDomSaleInput["items"][number]> = {},
+) => ({
+  stockId,
+  quantity,
+  salePrice: 900,
+  saleType: CommercialSaleType.SALE,
+  emptiesCollected: 0,
+  ...overrides,
+});
+
+const refill = (stockId: number, quantity: number, empties = quantity) =>
+  line(stockId, quantity, {
+    saleType: CommercialSaleType.RENT,
+    emptiesCollected: empties,
+  });
+
+const round = (
+  items: CreateDomSaleInput["items"],
+  overrides: Partial<CreateDomSaleInput> = {},
+): CreateDomSaleInput => ({
+  paymentType: PaymentType.CASH,
+  discount: undefined,
+  notes: undefined,
+  fieldStaffId: undefined,
+  items,
+  ...overrides,
+});
+
+// =============================================================================
+// WHOSE ROUND IT IS
+// =============================================================================
+
+describe("field staff", () => {
+  it("lets the office record a round for a field staff member", async () => {
+    const { stock } = await domesticStock();
+
+    const sale = await DomSaleService.createDomSale(
+      round([line(stock.id, 2)], { fieldStaffId: staffId }),
+      office(),
     );
+
+    expect(sale.fieldStaffId).toBe(staffId);
+    // Who typed it in is still recorded, separately
+    expect(sale.createdById).toBe(officeId);
+    expect(sale.customerId).toBeNull();
+  });
+
+  it("records a field staff member's own sale as theirs", async () => {
+    const { stock } = await domesticStock();
+
+    const sale = await DomSaleService.createDomSale(
+      round([line(stock.id, 1)]),
+      fieldStaff(),
+    );
+
+    expect(sale.fieldStaffId).toBe(staffId);
+    expect(sale.createdById).toBe(staffId);
+  });
+
+  it("refuses a field staff member booking a round under a colleague", async () => {
+    const { stock } = await domesticStock();
+
+    await expect(
+      DomSaleService.createDomSale(
+        round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+        fieldStaff(),
+      ),
+    ).rejects.toThrow(/only record domestic sales you made yourself/i);
+
+    expect(await prisma.domSale.count()).toBe(0);
+  });
+
+  it("makes the office say whose round it is", async () => {
+    const { stock } = await domesticStock();
+
+    await expect(
+      DomSaleService.createDomSale(round([line(stock.id, 1)]), office()),
+    ).rejects.toThrow(/select the field staff/i);
+  });
+
+  it("refuses someone who cannot make domestic sales", async () => {
+    const { stock } = await domesticStock();
+    const accountant = await makeUser("Accountant");
+
+    await expect(
+      DomSaleService.createDomSale(
+        round([line(stock.id, 1)], { fieldStaffId: accountant.id }),
+        office(),
+      ),
+    ).rejects.toThrow(/cannot make domestic sales/i);
+  });
+
+  it("refuses a deactivated field staff member", async () => {
+    const { stock } = await domesticStock();
+    await prisma.user.update({
+      where: { id: otherStaffId },
+      data: { isActive: false },
+    });
+
+    await expect(
+      DomSaleService.createDomSale(
+        round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+        office(),
+      ),
+    ).rejects.toThrow(/cannot make domestic sales/i);
+  });
+
+  it("offers exactly the people the server would accept", async () => {
+    const accountant = await makeUser("Accountant");
+    await prisma.user.update({
+      where: { id: otherStaffId },
+      data: { isActive: false },
+    });
+
+    const ids = (await DomSaleService.getFieldStaff()).map((u) => u.id);
+
+    expect(ids).toContain(staffId);
+    expect(ids).not.toContain(otherStaffId);
+    expect(ids).not.toContain(accountant.id);
+    expect(ids).not.toContain(officeId);
+  });
+});
+
+// =============================================================================
+// CREATE
+// =============================================================================
+
+describe("createDomSale", () => {
+  it("is paid in full and puts nothing on the money ledger", async () => {
+    const { product, stock } = await domesticStock();
+
+    const sale = await DomSaleService.createDomSale(
+      round([line(stock.id, 2, { salePrice: 500 })], { discount: 100 }),
+      fieldStaff(),
+    );
+
+    expect(Number(sale.totalAmount)).toBe(900);
+    expect(Number(sale.paidAmount)).toBe(900);
+    expect(await prisma.customerPaymentLedger.count()).toBe(0);
 
     expect(
       (await prisma.stock.findUniqueOrThrow({ where: { id: stock.id } }))
@@ -55,46 +221,22 @@ describe("createDomSale", () => {
     ).toBe(48);
     expect((await godownOf(product.id)).filledQty).toBe(48);
 
-    // 1000 charged, 400 paid → 600 outstanding
-    expect(await balanceOf(customerId)).toBe(600);
-
-    const ledger = await prisma.customerPaymentLedger.findMany({
-      where: { customerId },
-      orderBy: { id: "asc" },
-    });
-    expect(ledger.map((e) => e.entryType)).toEqual([
-      LedgerEntryType.SALE_CHARGE,
-      LedgerEntryType.PAYMENT,
-    ]);
-    expect(Number(ledger[1].amount)).toBe(-400);
-
     const txn = await prisma.cylinderTransaction.findFirstOrThrow({
       where: { productId: product.id, refType: RefType.INVOICE },
     });
     expect(txn.txnType).toBe(TxnType.SALE_OUT);
     expect(txn.filledDelta).toBe(-2);
+    await assertGodownMatchesLedger(product.id);
   });
 
   it("derives the product from the batch, not from the client", async () => {
-    const sold = await makeProduct(ProductType.DOMESTIC);
+    const { product, stock } = await domesticStock(10);
     const other = await makeProduct(ProductType.DOMESTIC);
-    await seedGodown(sold.id, { filledQty: 10 });
-    const stock = await makeStock(sold.id, 10);
 
-    await DomSaleService.createDomSale(
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: stock.id, quantity: 1, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-      },
-      userId,
-    );
+    await DomSaleService.createDomSale(round([line(stock.id, 1)]), fieldStaff());
 
     const item = await prisma.domSaleItem.findFirstOrThrow({});
-    expect(item.productId).toBe(sold.id);
+    expect(item.productId).toBe(product.id);
     expect(item.productId).not.toBe(other.id);
   });
 
@@ -104,175 +246,431 @@ describe("createDomSale", () => {
     const stock = await makeStock(product.id, 3);
 
     await expect(
-      DomSaleService.createDomSale(
-        {
-          customerId,
-          paymentType: PaymentType.CASH,
-          paidAmount: 0,
-          discount: undefined,
-          notes: undefined,
-          items: [{ stockId: stock.id, quantity: 5, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-        },
-        userId,
-      ),
+      DomSaleService.createDomSale(round([line(stock.id, 5)]), fieldStaff()),
     ).rejects.toThrow(/Insufficient quantity/);
 
     expect(await prisma.domSale.count()).toBe(0);
   });
 
-  it("refuses a paid amount above the total", async () => {
-    const product = await makeProduct(ProductType.DOMESTIC);
-    const stock = await makeStock(product.id, 10);
+  it("refuses a discount larger than the sale", async () => {
+    const { stock } = await domesticStock();
 
     await expect(
       DomSaleService.createDomSale(
-        {
-          customerId,
-          paymentType: PaymentType.CASH,
-          paidAmount: 5000,
-          discount: undefined,
-          notes: undefined,
-          items: [{ stockId: stock.id, quantity: 1, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-        },
-        userId,
+        round([line(stock.id, 1, { salePrice: 100 })], { discount: 500 }),
+        fieldStaff(),
       ),
-    ).rejects.toThrow(/cannot exceed total/i);
+    ).rejects.toThrow(/discount cannot be more/i);
   });
 });
 
+// =============================================================================
+// REFILLS
+// =============================================================================
+
+describe("refills", () => {
+  it("swaps fulls for empties in the godown", async () => {
+    const { product, stock } = await domesticStock(50);
+
+    await DomSaleService.createDomSale(
+      round([refill(stock.id, 4)]),
+      fieldStaff(),
+    );
+
+    const godown = await godownOf(product.id);
+    expect(godown.filledQty).toBe(46);
+    expect(godown.emptyQty).toBe(4);
+
+    const types = (
+      await prisma.cylinderTransaction.findMany({
+        where: { productId: product.id, refType: RefType.INVOICE },
+      })
+    ).map((t) => t.txnType);
+    expect(types.sort()).toEqual(
+      [TxnType.CYLINDER_RETURN, TxnType.RENT_DELIVERY].sort(),
+    );
+    await assertGodownMatchesLedger(product.id);
+  });
+
+  it("accepts fewer empties when a house had none to give", async () => {
+    const { product, stock } = await domesticStock(50);
+
+    await DomSaleService.createDomSale(
+      round([refill(stock.id, 4, 3)]),
+      fieldStaff(),
+    );
+
+    expect((await godownOf(product.id)).emptyQty).toBe(3);
+    await assertGodownMatchesLedger(product.id);
+  });
+
+  it("tracks no customer custody at all", async () => {
+    const { stock } = await domesticStock(50);
+
+    await DomSaleService.createDomSale(
+      round([refill(stock.id, 4), line(stock.id, 2)]),
+      fieldStaff(),
+    );
+
+    expect(await prisma.customerCylinderLedger.count()).toBe(0);
+  });
+});
+
+// =============================================================================
+// UPDATE
+// =============================================================================
+
 describe("updateDomSale", () => {
-  it("returns both caches to a state that still matches their ledgers", async () => {
-    const product = await makeProduct(ProductType.DOMESTIC);
-    await seedGodown(product.id, { filledQty: 50 });
-    const stock = await makeStock(product.id, 50);
+  it("reposts the round and leaves the godown matching its ledger", async () => {
+    const { product, stock } = await domesticStock(50);
 
     const sale = await DomSaleService.createDomSale(
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: stock.id, quantity: 10, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-      },
-      userId,
+      round([refill(stock.id, 4)], { fieldStaffId: staffId }),
+      office(),
     );
 
-    await DomSaleService.updateDomSale(
+    const updated = await DomSaleService.updateDomSale(
       sale.id,
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: stock.id, quantity: 3, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-      },
-      userId,
+      round([refill(stock.id, 2), line(stock.id, 1, { salePrice: 1000 })], {
+        fieldStaffId: staffId,
+      }),
+      office(),
     );
 
+    expect(updated.id).toBe(sale.id);
+    expect(updated.trNo).toBe(sale.trNo);
+    expect(Number(updated.paidAmount)).toBe(Number(updated.totalAmount));
+    expect(Number(updated.totalAmount)).toBe(2800);
+
+    const godown = await godownOf(product.id);
+    expect(godown.filledQty).toBe(47);
+    expect(godown.emptyQty).toBe(2);
     expect(
       (await prisma.stock.findUniqueOrThrow({ where: { id: stock.id } }))
         .quantity,
     ).toBe(47);
-    expect((await godownOf(product.id)).filledQty).toBe(47);
-    expect(await balanceOf(customerId)).toBe(300);
-
-    const { filled } = await assertGodownMatchesLedger(product.id);
-    expect(filled[0]).toBe(filled[1]);
-
-    const [cached, summed] = await assertBalanceMatchesLedger(customerId);
-    expect(cached).toBe(summed);
+    await assertGodownMatchesLedger(product.id);
   });
 
-  it("keeps the original id and trNo", async () => {
-    const product = await makeProduct(ProductType.DOMESTIC);
-    await seedGodown(product.id, { filledQty: 10 });
-    const stock = await makeStock(product.id, 10);
-
+  it("lets the office move a round to another field staff member", async () => {
+    const { stock } = await domesticStock();
     const sale = await DomSaleService.createDomSale(
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: stock.id, quantity: 1, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-      },
-      userId,
+      round([line(stock.id, 1)], { fieldStaffId: staffId }),
+      office(),
     );
-
-    const before = await prisma.domSale.findUniqueOrThrow({
-      where: { id: sale.id },
-    });
 
     const updated = await DomSaleService.updateDomSale(
       sale.id,
-      {
-        customerId,
-        paymentType: PaymentType.CHEQUE,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: stock.id, quantity: 2, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-      },
-      userId,
+      round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+      office(),
     );
 
-    expect(updated.id).toBe(sale.id);
-    expect(updated.trNo).toBe(before.trNo);
+    expect(updated.fieldStaffId).toBe(otherStaffId);
+  });
+
+  it("keeps the field staff when an edit does not name one", async () => {
+    const { stock } = await domesticStock();
+    const sale = await DomSaleService.createDomSale(
+      round([line(stock.id, 1)], { fieldStaffId: staffId }),
+      office(),
+    );
+
+    const updated = await DomSaleService.updateDomSale(
+      sale.id,
+      round([line(stock.id, 2)]),
+      office(),
+    );
+
+    expect(updated.fieldStaffId).toBe(staffId);
+  });
+
+  it("does not let a field staff member edit a colleague's round", async () => {
+    const { stock } = await domesticStock();
+    const sale = await DomSaleService.createDomSale(
+      round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+      office(),
+    );
+
+    await expect(
+      DomSaleService.updateDomSale(
+        sale.id,
+        round([line(stock.id, 2)]),
+        fieldStaff(staffId, [PERMISSIONS.DOMESTIC_SALE_UPDATE]),
+      ),
+    ).rejects.toThrow(/only manage your own/i);
   });
 });
 
-describe("deleteDomSale", () => {
-  it("puts the stock and the godown back and clears the balance", async () => {
-    const product = await makeProduct(ProductType.DOMESTIC);
-    await seedGodown(product.id, { filledQty: 20 });
-    const stock = await makeStock(product.id, 20);
+// =============================================================================
+// DELETE
+// =============================================================================
 
+describe("deleteDomSale", () => {
+  it("puts the stock and the godown back, empties included", async () => {
+    const { product, stock } = await domesticStock(50);
     const sale = await DomSaleService.createDomSale(
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: stock.id, quantity: 5, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
-      },
-      userId,
+      round([refill(stock.id, 4), line(stock.id, 1)]),
+      fieldStaff(),
     );
 
-    await DomSaleService.deleteDomSale(sale.id, userId);
+    await DomSaleService.deleteDomSale(sale.id, office());
 
+    const godown = await godownOf(product.id);
+    expect(godown.filledQty).toBe(50);
+    expect(godown.emptyQty).toBe(0);
     expect(
       (await prisma.stock.findUniqueOrThrow({ where: { id: stock.id } }))
         .quantity,
-    ).toBe(20);
-    expect((await godownOf(product.id)).filledQty).toBe(20);
-    expect(await balanceOf(customerId)).toBe(0);
-
-    const [cached, summed] = await assertBalanceMatchesLedger(customerId);
-    expect(cached).toBe(summed);
+    ).toBe(50);
+    expect(
+      (await prisma.domSale.findUniqueOrThrow({ where: { id: sale.id } }))
+        .isDeleted,
+    ).toBe(true);
+    await assertGodownMatchesLedger(product.id);
   });
 });
 
-// The rule that separates the two sale modules: ARB is bulk, so it moves stock
-// and money but never the cylinder ledger or the godown.
+// =============================================================================
+// WHO SEES WHAT
+// =============================================================================
+
+describe("scope", () => {
+  it("shows a field staff member only their rounds — including ones the office entered", async () => {
+    const { stock } = await domesticStock();
+    await DomSaleService.createDomSale(round([line(stock.id, 1)]), fieldStaff());
+    await DomSaleService.createDomSale(
+      round([line(stock.id, 1)], { fieldStaffId: staffId }),
+      office(),
+    );
+    await DomSaleService.createDomSale(
+      round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+      office(),
+    );
+
+    const query = { page: 1, limit: 20 };
+    const mine = await DomSaleService.getDomSales(query, fieldStaff());
+    const all = await DomSaleService.getDomSales(query, office());
+
+    expect(mine.meta.total).toBe(2);
+    expect(mine.data.every((s) => s.fieldStaffId === staffId)).toBe(true);
+    expect(all.meta.total).toBe(3);
+  });
+
+  it("ignores a staff filter sent by a field staff member", async () => {
+    const { stock } = await domesticStock();
+    await DomSaleService.createDomSale(
+      round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+      office(),
+    );
+
+    const result = await DomSaleService.getDomSales(
+      { page: 1, limit: 20, fieldStaffId: otherStaffId },
+      fieldStaff(),
+    );
+
+    expect(result.meta.total).toBe(0);
+  });
+
+  it("lets the office narrow the list to one field staff member", async () => {
+    const { stock } = await domesticStock();
+    await DomSaleService.createDomSale(round([line(stock.id, 1)]), fieldStaff());
+    await DomSaleService.createDomSale(
+      round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+      office(),
+    );
+
+    const result = await DomSaleService.getDomSales(
+      { page: 1, limit: 20, fieldStaffId: otherStaffId },
+      office(),
+    );
+
+    expect(result.meta.total).toBe(1);
+    expect(result.data[0].fieldStaffId).toBe(otherStaffId);
+  });
+
+  it("does not open a colleague's round", async () => {
+    const { stock } = await domesticStock();
+    const sale = await DomSaleService.createDomSale(
+      round([line(stock.id, 1)], { fieldStaffId: otherStaffId }),
+      office(),
+    );
+
+    await expect(
+      DomSaleService.getDomSaleById(sale.id, fieldStaff()),
+    ).rejects.toThrow(/only manage your own/i);
+  });
+});
+
+// =============================================================================
+// SALES FROM BEFORE DOMESTIC MOVED TO FIELD STAFF
+// They were charged to a customer and moved that customer's holding. Written
+// here the way the old code wrote them, so the reversal is tested against the
+// real shape rather than one this file invented.
+// =============================================================================
+
+async function legacyCustomerSale(quantity: number, empties: number) {
+  const customer = await makeCustomer();
+  const { product, stock } = await domesticStock(50);
+  const total = quantity * 900;
+  const paid = 300;
+
+  const sale = await prisma.domSale.create({
+    data: {
+      trNo: `DOM-LEGACY-${stock.id}`,
+      customerId: customer.id,
+      fieldStaffId: staffId,
+      createdById: staffId,
+      totalAmount: total,
+      paidAmount: paid,
+      items: {
+        create: {
+          stockId: stock.id,
+          productId: product.id,
+          quantity,
+          salePrice: 900,
+          netTotal: total,
+          saleType: CommercialSaleType.RENT,
+          cylindersDispatched: quantity,
+          emptiesCollected: empties,
+        },
+      },
+    },
+  });
+
+  await prisma.stock.update({
+    where: { id: stock.id },
+    data: { quantity: { decrement: quantity } },
+  });
+  await prisma.cylinderTransaction.createMany({
+    data: [
+      {
+        productId: product.id,
+        txnType: TxnType.RENT_DELIVERY,
+        filledDelta: -quantity,
+        emptyDelta: 0,
+        refType: RefType.INVOICE,
+        refId: sale.id,
+      },
+      {
+        productId: product.id,
+        txnType: TxnType.CYLINDER_RETURN,
+        filledDelta: 0,
+        emptyDelta: empties,
+        refType: RefType.INVOICE,
+        refId: sale.id,
+      },
+    ],
+  });
+  await prisma.godownInventory.update({
+    where: { productId: product.id },
+    data: {
+      filledQty: { decrement: quantity },
+      emptyQty: { increment: empties },
+    },
+  });
+  await prisma.customerPaymentLedger.createMany({
+    data: [
+      {
+        customerId: customer.id,
+        entryType: LedgerEntryType.SALE_CHARGE,
+        amount: total,
+        refType: RefType.INVOICE,
+        refId: sale.id,
+      },
+      {
+        customerId: customer.id,
+        entryType: LedgerEntryType.PAYMENT,
+        amount: -paid,
+        refType: RefType.INVOICE,
+        refId: sale.id,
+      },
+    ],
+  });
+  await prisma.customerBalance.update({
+    where: { customerId: customer.id },
+    data: { pendingAmount: { increment: total - paid } },
+  });
+  await prisma.customerCylinderLedger.create({
+    data: {
+      customerId: customer.id,
+      productId: product.id,
+      pendingCylinder: quantity - empties,
+    },
+  });
+
+  return { sale, customer, product, stock };
+}
+
+describe("sales charged to a customer, from before", () => {
+  it("refuses to edit one, since reposting would wipe what the customer owes", async () => {
+    const { sale, customer, stock } = await legacyCustomerSale(3, 2);
+
+    await expect(
+      DomSaleService.updateDomSale(
+        sale.id,
+        round([line(stock.id, 1)], { fieldStaffId: staffId }),
+        office(),
+      ),
+    ).rejects.toThrow(/delete it and enter it again/i);
+
+    expect(await balanceOf(customer.id)).toBe(2400);
+  });
+
+  it("takes its charge and its cylinders back off the customer when deleted", async () => {
+    const { sale, customer, product, stock } = await legacyCustomerSale(3, 2);
+
+    await DomSaleService.deleteDomSale(sale.id, office());
+
+    expect(await balanceOf(customer.id)).toBe(0);
+    await assertBalanceMatchesLedger(customer.id);
+    expect(await custodyOf(customer.id, product.id)).toBe(0);
+
+    const godown = await godownOf(product.id);
+    expect(godown.filledQty).toBe(50);
+    expect(godown.emptyQty).toBe(0);
+    expect(
+      (await prisma.stock.findUniqueOrThrow({ where: { id: stock.id } }))
+        .quantity,
+    ).toBe(50);
+    await assertGodownMatchesLedger(product.id);
+  });
+
+  it("refuses to delete one whose cylinders the customer has since handed back", async () => {
+    const { sale, customer, product } = await legacyCustomerSale(3, 0);
+    // The three came back some other way since
+    await prisma.customerCylinderLedger.update({
+      where: {
+        productId_customerId: { productId: product.id, customerId: customer.id },
+      },
+      data: { pendingCylinder: 1 },
+    });
+
+    await expect(
+      DomSaleService.deleteDomSale(sale.id, office()),
+    ).rejects.toThrow(/handed back on a later invoice/i);
+  });
+});
+
+// =============================================================================
+// ARB
+// =============================================================================
+
 describe("ARB versus domestic", () => {
   it("writes no cylinder transaction and no godown movement for ARB", async () => {
+    const customer = await makeCustomer();
     const product = await makeProduct(ProductType.ARB);
     const stock = await makeStock(product.id, 20);
 
     await ArbSaleService.createArbSale(
       {
-        customerId,
+        customerId: customer.id,
         paymentType: PaymentType.CASH,
         paidAmount: 0,
         discount: undefined,
         notes: undefined,
         items: [{ stockId: stock.id, quantity: 5, salePrice: 100 }],
       },
-      userId,
+      officeId,
     );
 
     expect(
@@ -287,194 +685,6 @@ describe("ARB versus domestic", () => {
       (await prisma.stock.findUniqueOrThrow({ where: { id: stock.id } }))
         .quantity,
     ).toBe(15);
-    expect(await balanceOf(customerId)).toBe(500);
-  });
-});
-
-// =============================================================================
-// REFILLS (RENT) AND THE CUSTOMER'S DOMESTIC HOLDING
-//
-// Full tracking, as for commercial: every domestic cylinder out adds to what
-// the customer holds — an outright SALE included, so a customer who bought one
-// can later hand its empty back — and empties collected on a refill come off.
-// =============================================================================
-
-describe("domestic refills and custody", () => {
-  let productId: number;
-  let stockId: number;
-
-  beforeEach(async () => {
-    productId = (await makeProduct(ProductType.DOMESTIC)).id;
-    await seedGodown(productId, { filledQty: 100 });
-    stockId = (await makeStock(productId, 100)).id;
-  });
-
-  const line = (
-    saleType: CommercialSaleType,
-    quantity: number,
-    emptiesCollected = 0,
-  ) => ({ stockId, quantity, salePrice: 900, saleType, emptiesCollected });
-
-  const sale = (items: ReturnType<typeof line>[]) => ({
-    customerId,
-    paymentType: PaymentType.CASH,
-    paidAmount: 0,
-    discount: undefined,
-    notes: undefined,
-    items,
-  });
-
-  /** An opening holding, as onboarding records it — no invoice behind it. */
-  async function holds(qty: number) {
-    await prisma.customerCylinderLedger.upsert({
-      where: { productId_customerId: { productId, customerId } },
-      update: { pendingCylinder: qty },
-      create: { customerId, productId, pendingCylinder: qty },
-    });
-  }
-
-  it("counts an outright SALE as held", async () => {
-    await DomSaleService.createDomSale(sale([line(CommercialSaleType.SALE, 2)]), userId);
-
-    expect(await custodyOf(customerId, productId)).toBe(2);
-    await assertGodownMatchesLedger(productId);
-  });
-
-  it("swaps fulls for empties on a refill, leaving the holding unchanged", async () => {
-    await holds(3);
-    const emptiesBefore = (await godownOf(productId)).emptyQty;
-
-    const created = await DomSaleService.createDomSale(
-      sale([line(CommercialSaleType.RENT, 3, 3)]),
-      userId,
-    );
-
-    expect(await custodyOf(customerId, productId)).toBe(3);
-    expect((await godownOf(productId)).filledQty).toBe(97);
-    expect((await godownOf(productId)).emptyQty).toBe(emptiesBefore + 3);
-
-    const kinds = await prisma.cylinderTransaction.findMany({
-      where: { refType: RefType.INVOICE, refId: created.id },
-      select: { txnType: true, filledDelta: true, emptyDelta: true },
-      orderBy: { id: "asc" },
-    });
-    expect(kinds).toEqual([
-      { txnType: TxnType.RENT_DELIVERY, filledDelta: -3, emptyDelta: 0 },
-      { txnType: TxnType.CYLINDER_RETURN, filledDelta: 0, emptyDelta: 3 },
-    ]);
-    await assertGodownMatchesLedger(productId);
-  });
-
-  it("adds the difference when fewer empties come back than fulls go out", async () => {
-    await holds(3);
-
-    await DomSaleService.createDomSale(sale([line(CommercialSaleType.RENT, 3, 1)]), userId);
-
-    expect(await custodyOf(customerId, productId)).toBe(5);
-  });
-
-  // The case chosen explicitly: buy one, refill it a month later.
-  it("lets a customer who bought a cylinder hand its empty back later", async () => {
-    await DomSaleService.createDomSale(sale([line(CommercialSaleType.SALE, 1)]), userId);
-
-    await DomSaleService.createDomSale(sale([line(CommercialSaleType.RENT, 1, 1)]), userId);
-
-    expect(await custodyOf(customerId, productId)).toBe(1);
-    await assertGodownMatchesLedger(productId);
-  });
-
-  it("refuses to collect more empties than the customer holds", async () => {
-    await holds(2);
-
-    await expect(
-      DomSaleService.createDomSale(sale([line(CommercialSaleType.RENT, 3, 3)]), userId),
-    ).rejects.toThrow(/the customer holds 2/i);
-
-    // nothing moved
-    expect(await custodyOf(customerId, productId)).toBe(2);
-    expect((await godownOf(productId)).filledQty).toBe(100);
-  });
-
-  // Cylinders delivered full on this visit cannot be the empties handed back on it.
-  it("does not let this invoice's own delivery cover the empties", async () => {
-    await expect(
-      DomSaleService.createDomSale(sale([line(CommercialSaleType.RENT, 2, 2)]), userId),
-    ).rejects.toThrow(/the customer holds 0/i);
-  });
-
-  it("checks empties across every line of the same product together", async () => {
-    await holds(3);
-
-    await expect(
-      DomSaleService.createDomSale(
-        sale([line(CommercialSaleType.RENT, 2, 2), line(CommercialSaleType.RENT, 2, 2)]),
-        userId,
-      ),
-    ).rejects.toThrow(/Cannot collect 4/i);
-  });
-
-  it("reverses and reposts a refill on update", async () => {
-    await holds(4);
-    const created = await DomSaleService.createDomSale(
-      sale([line(CommercialSaleType.RENT, 4, 4)]),
-      userId,
-    );
-
-    await DomSaleService.updateDomSale(created.id, sale([line(CommercialSaleType.RENT, 2, 1)]), userId);
-
-    // 4 held, corrected to 2 out and 1 back
-    expect(await custodyOf(customerId, productId)).toBe(5);
-    await assertGodownMatchesLedger(productId);
-  });
-
-  it("gives everything back on delete, empties included", async () => {
-    await holds(4);
-    const emptiesBefore = (await godownOf(productId)).emptyQty;
-    const created = await DomSaleService.createDomSale(
-      sale([line(CommercialSaleType.RENT, 4, 3)]),
-      userId,
-    );
-
-    await DomSaleService.deleteDomSale(created.id, userId);
-
-    expect(await custodyOf(customerId, productId)).toBe(4);
-    expect((await godownOf(productId)).filledQty).toBe(100);
-    expect((await godownOf(productId)).emptyQty).toBe(emptiesBefore);
-    await assertGodownMatchesLedger(productId);
-  });
-
-  // Sales written before domestic custody was tracked added nothing to the
-  // holding, so reversing one must take nothing away.
-  it("leaves the holding alone when reversing a sale from before custody", async () => {
-    await holds(2);
-    const created = await DomSaleService.createDomSale(
-      sale([line(CommercialSaleType.SALE, 3)]),
-      userId,
-    );
-    // what a pre-migration row looks like
-    await prisma.domSaleItem.updateMany({
-      where: { domSaleId: created.id },
-      data: { cylindersDispatched: 0, emptiesCollected: 0 },
-    });
-    await holds(2);
-
-    await DomSaleService.deleteDomSale(created.id, userId);
-
-    expect(await custodyOf(customerId, productId)).toBe(2);
-  });
-
-  it("refuses to delete a sale whose cylinders have since come back", async () => {
-    const bought = await DomSaleService.createDomSale(
-      sale([line(CommercialSaleType.SALE, 2)]),
-      userId,
-    );
-    // both come back on a later refill that delivers only one
-    await DomSaleService.createDomSale(sale([line(CommercialSaleType.RENT, 1, 2)]), userId);
-    expect(await custodyOf(customerId, productId)).toBe(1);
-
-    await expect(DomSaleService.deleteDomSale(bought.id, userId)).rejects.toThrow(
-      /handed back on a later invoice/i,
-    );
-    expect(await custodyOf(customerId, productId)).toBe(1);
+    expect(await balanceOf(customer.id)).toBe(500);
   });
 });

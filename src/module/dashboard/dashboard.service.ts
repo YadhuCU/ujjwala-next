@@ -126,6 +126,12 @@ export async function getDashboard(
     actor.isOwner === true ||
     actor.permissions.includes(PERMISSIONS.DASHBOARD_FINANCIALS);
   const saleWhere = { isDeleted: false, createdAt: range, ...scope };
+  // A domestic sale is the field staff member's round, whoever entered it
+  const domSaleWhere = {
+    isDeleted: false,
+    createdAt: range,
+    ...scopeFilter(actor, accessScope, "fieldStaffId"),
+  };
 
   const saleInclude = {
     customer: { select: { name: true } },
@@ -135,6 +141,11 @@ export async function getDashboard(
         stock: { select: { productCost: true } },
       },
     },
+  } as const;
+
+  const domSaleInclude = {
+    ...saleInclude,
+    fieldStaff: { select: { name: true, username: true } },
   } as const;
 
   const [
@@ -148,7 +159,7 @@ export async function getDashboard(
     cylinderLedgers,
     balances,
   ] = await Promise.all([
-    prisma.domSale.findMany({ where: saleWhere, include: saleInclude }),
+    prisma.domSale.findMany({ where: domSaleWhere, include: domSaleInclude }),
     prisma.arbSale.findMany({ where: saleWhere, include: saleInclude }),
     prisma.commercialSale.findMany({ where: saleWhere, include: saleInclude }),
     prisma.expense.findMany({
@@ -268,6 +279,17 @@ export async function getDashboard(
     if (bucket) bucket.collections += amount;
   }
 
+  // A domestic round is paid in full at the door and has no customer, so its
+  // cash never reaches the money ledger above. Older domestic sales were
+  // charged to a customer and their payments are already counted there.
+  for (const sale of domSales) {
+    if (sale.customerId) continue;
+    const amount = Number(sale.paidAmount ?? 0);
+    totalCollections += amount;
+    const bucket = trend.get(dayKey(sale.createdAt));
+    if (bucket) bucket.collections += amount;
+  }
+
   const dailyTrend = [...trend.values()].map((bucket) => ({
     ...bucket,
     revenue: round2(bucket.revenue),
@@ -293,19 +315,28 @@ export async function getDashboard(
 
   // ─── Recent transactions ───────────────────────────────────────────────────
 
+  // A domestic round has no customer; the field staff who made it stands in
   const recentTxns = [
-    ...domSales.map((s) => ({ sale: s, type: "Domestic" })),
-    ...arbSales.map((s) => ({ sale: s, type: "ARB" })),
-    ...comSales.map((s) => ({ sale: s, type: "Commercial" })),
+    ...domSales.map((s) => ({
+      sale: s,
+      type: "Domestic",
+      who: s.fieldStaff?.name ?? s.fieldStaff?.username ?? s.customer?.name,
+    })),
+    ...arbSales.map((s) => ({ sale: s, type: "ARB", who: s.customer?.name })),
+    ...comSales.map((s) => ({
+      sale: s,
+      type: "Commercial",
+      who: s.customer?.name,
+    })),
   ]
     .sort(
       (a, b) => b.sale.createdAt.getTime() - a.sale.createdAt.getTime(),
     )
     .slice(0, RECENT_TXN_COUNT)
-    .map(({ sale, type }) => ({
+    .map(({ sale, type, who }) => ({
       id: sale.id,
       trNo: sale.trNo,
-      customer: sale.customer?.name ?? "—",
+      customer: who ?? "—",
       product: sale.items
         .map((i) => i.product?.name)
         .filter(Boolean)

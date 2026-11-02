@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         `Generated: ${new Date().toLocaleString("en-IN")}`,
         `Total Invoices: ${rows.length}`,
       ],
-      columns: saleExportColumns({ withType: true }),
+      columns: saleExportColumns({ withType: true, withFieldStaff: true }),
       // One row per item sold, matching the report on screen
       rows: toSaleLines(rows),
     });

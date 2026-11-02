@@ -72,6 +72,8 @@ export const PERMISSIONS = {
   DOMESTIC_SALE_READ: "domestic_sale.read",
   DOMESTIC_SALE_UPDATE: "domestic_sale.update",
   DOMESTIC_SALE_DELETE: "domestic_sale.delete",
+  DOMESTIC_SALE_READ_ALL: "domestic_sale.read.all",
+  DOMESTIC_SALE_READ_OWN: "domestic_sale.read.own",
 
   ARB_SALE_CREATE: "arb_sale.create",
   ARB_SALE_READ: "arb_sale.read",
@@ -118,6 +120,12 @@ export const SCOPES = {
   DASHBOARD: {
     all: PERMISSIONS.DASHBOARD_READ_ALL,
     own: PERMISSIONS.DASHBOARD_READ_OWN,
+  },
+  // Keyed on the field staff a sale belongs to, not on who typed it in. "all"
+  // is also what lets the office record a sale on a field staff member's behalf.
+  DOMESTIC_SALE: {
+    all: PERMISSIONS.DOMESTIC_SALE_READ_ALL,
+    own: PERMISSIONS.DOMESTIC_SALE_READ_OWN,
   },
 } as const;
 
@@ -220,6 +228,20 @@ export const PERMISSION_REGISTRY: PermissionMeta[] = [
     update: PERMISSIONS.DOMESTIC_SALE_UPDATE,
     delete: PERMISSIONS.DOMESTIC_SALE_DELETE,
   }),
+  {
+    code: PERMISSIONS.DOMESTIC_SALE_READ_OWN,
+    module: "Domestic sales",
+    label: "Own sales only",
+    description:
+      "For field staff: sees the sales they made, and every sale they add is recorded as theirs.",
+  },
+  {
+    code: PERMISSIONS.DOMESTIC_SALE_READ_ALL,
+    module: "Domestic sales",
+    label: "Every field staff's sales",
+    description:
+      "For the office: sees all domestic sales, and picks which field staff made each new one.",
+  },
 
   ...crud("ARB sales", "ARB sales", {
     create: PERMISSIONS.ARB_SALE_CREATE,

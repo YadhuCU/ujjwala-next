@@ -73,7 +73,7 @@ export function SaleReportView({ kind }: { kind: SaleReportKind }) {
   const params: SaleReportParams = {
     from: filters.fromDate,
     to: filters.toDate,
-    customerId: customerId !== ALL ? customerId : undefined,
+    customerId: customerId !== ALL && kind !== "dom" ? customerId : undefined,
     staffId: staffId !== ALL ? staffId : undefined,
     page: filters.page,
     limit: REPORT_PAGE_LIMIT,
@@ -89,6 +89,8 @@ export function SaleReportView({ kind }: { kind: SaleReportKind }) {
   // export goes through the same expansion, so the file matches the screen.
   const rows = toSaleLines(report?.data ?? []);
   const showCustody = kind === "commercial";
+  // A domestic sale is a field staff member's round, with no customer
+  const isDomestic = kind === "dom";
   // Dom and commercial lines are RENT or SALE; an ARB line is neither.
   const showType = kind !== "arb";
 
@@ -105,8 +107,14 @@ export function SaleReportView({ kind }: { kind: SaleReportKind }) {
       header: "Date",
       cell: (l) => new Date(l.sale.createdAt).toLocaleDateString("en-IN"),
     },
-    { header: "Customer", cell: (l) => l.sale.customer?.name ?? "—" },
-    { header: "Staff", cell: (l) => l.sale.createdBy?.name ?? "—" },
+    isDomestic
+      ? { header: "Field staff", cell: (l) => l.sale.fieldStaff?.name ?? "—" }
+      : { header: "Customer", cell: (l) => l.sale.customer?.name ?? "—" },
+    // On a domestic sale this is whoever typed it in — often the office
+    {
+      header: isDomestic ? "Entered by" : "Staff",
+      cell: (l) => l.sale.createdBy?.name ?? "—",
+    },
     {
       header: "Item",
       cell: (l) =>
@@ -180,15 +188,17 @@ export function SaleReportView({ kind }: { kind: SaleReportKind }) {
   return (
     <div className="space-y-6">
       <ReportFilterCard filters={filters}>
-        <ReportSelectFilter
-          label="Customer"
-          value={customerId}
-          onChange={setCustomerId}
-          options={customers}
-        />
+        {!isDomestic && (
+          <ReportSelectFilter
+            label="Customer"
+            value={customerId}
+            onChange={setCustomerId}
+            options={customers}
+          />
+        )}
         {canFilterByStaff && (
           <ReportSelectFilter
-            label="Staff"
+            label={isDomestic ? "Field staff" : "Staff"}
             value={staffId}
             onChange={setStaffId}
             options={staffUsers}

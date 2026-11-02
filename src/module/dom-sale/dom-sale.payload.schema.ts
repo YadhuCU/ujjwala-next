@@ -11,8 +11,9 @@ export const DomSaleItemPayloadSchema = z
     // RENT is a refill (full out, empty back); SALE is sold outright. Defaults
     // to SALE, which is what every domestic line was before RENT existed.
     saleType: z.enum(CommercialSaleType).default(CommercialSaleType.SALE),
-    // Empties handed back on this line. The form fills it with the quantity on
-    // a refill; it can be edited when the customer hands back more or fewer.
+    // Empties brought back on this line. The form fills it with the quantity
+    // on a refill — one empty for each full — and it can be lowered when a
+    // house had none to give.
     emptiesCollected: z.number().int().min(0).default(0),
   })
   .refine(
@@ -22,12 +23,22 @@ export const DomSaleItemPayloadSchema = z
       message: "Empties are only collected on a refill (RENT)",
       path: ["emptiesCollected"],
     },
-  );
+  )
+  // A refill swaps an empty for a full, so a round cannot bring back more
+  // empties than it handed out fulls.
+  .refine((item) => item.emptiesCollected <= item.quantity, {
+    message: "Cannot collect more empties than cylinders handed out",
+    path: ["emptiesCollected"],
+  });
 
+// No customer and no paid amount: a domestic sale is a field staff member's
+// round, paid in full at each door. The service records it as fully paid.
 const DomSalePayloadSchema = z.object({
-  customerId: z.preprocess(emptyToUndefined, z.number().int()),
+  // Who made the round. Only someone who can see every field staff's sales
+  // may name another person; for everyone else the service records the sale
+  // as their own, and refuses a different id.
+  fieldStaffId: z.preprocess(emptyToUndefined, z.number().int().optional()),
   paymentType: z.enum(PaymentType),
-  paidAmount: z.number().min(0),
   /// Flat rupee discount applied to this invoice (not a percentage).
   /// Pre-fill from Customer.discount % × subtotal on the client form.
   discount: z.preprocess(emptyToUndefined, z.number().min(0).optional()),
@@ -37,7 +48,6 @@ const DomSalePayloadSchema = z.object({
 
 const roundItems = (data: z.infer<typeof DomSalePayloadSchema>) => ({
   ...data,
-  paidAmount: Math.round(data.paidAmount * 100) / 100,
   discount:
     data.discount !== undefined
       ? Math.round(data.discount * 100) / 100
@@ -53,7 +63,7 @@ export const CreateDomSaleSchema = DomSalePayloadSchema.transform(roundItems);
 export const UpdateDomSaleSchema = DomSalePayloadSchema.transform(roundItems);
 
 export const DomSaleQuerySchema = z.object({
-  customerId: z.coerce.number().int().optional(),
+  fieldStaffId: z.coerce.number().int().optional(),
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
   page: z.coerce.number().int().min(1).default(1),

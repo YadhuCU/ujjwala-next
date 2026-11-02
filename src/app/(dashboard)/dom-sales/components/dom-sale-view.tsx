@@ -49,8 +49,11 @@ export function DomSalesViewComponent() {
       header: "Tr No",
     },
     {
-      accessorKey: "customer.name",
-      header: "Customer",
+      id: "fieldStaff",
+      // Sales from before domestic moved to field staff show their customer
+      accessorFn: (sale) =>
+        sale.fieldStaff?.name ?? sale.fieldStaff?.username ?? "",
+      header: "Field staff",
     },
     {
       accessorKey: "items",
@@ -71,9 +74,10 @@ export function DomSalesViewComponent() {
       },
     },
     {
-      accessorKey: "paidAmount",
-      header: "Paid amount",
-      cell: ({ row }) => `₹${Number(row.original.paidAmount).toFixed(2)}`,
+      id: "date",
+      accessorFn: (sale) =>
+        new Date(sale.createdAt).toLocaleDateString("en-IN"),
+      header: "Date",
     },
     {
       accessorKey: "totalAmount",
@@ -183,9 +187,15 @@ export function DomesticSaleDetailsDialog({
 
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <InfoField
-                label="Customer"
-                value={sale.customer.name}
+                label="Field staff"
+                value={
+                  sale.fieldStaff?.name ?? sale.fieldStaff?.username ?? "—"
+                }
               />
+
+              {sale.customer && (
+                <InfoField label="Customer" value={sale.customer.name} />
+              )}
 
               <InfoField
                 label="Sale Date"
@@ -216,17 +226,19 @@ export function DomesticSaleDetailsDialog({
 
               <InfoField
                 label="Discount"
-                value={`₹${Number(sale.discount).toFixed(2)}`}
+                value={`₹${Number(sale.discount ?? 0).toFixed(2)}`}
               />
 
-              <InfoField
-                label="Balance"
-                value={`₹${(
-                  Number(sale.totalAmount) -
-                  Number(sale.paidAmount) -
-                  Number(sale.discount)
-                ).toFixed(2)}`}
-              />
+              {/* Only an old, customer-linked sale could be left part-paid;
+                  totalAmount is already net of the discount. */}
+              {sale.customer && (
+                <InfoField
+                  label="Balance"
+                  value={`₹${(
+                    Number(sale.totalAmount) - Number(sale.paidAmount)
+                  ).toFixed(2)}`}
+                />
+              )}
             </div>
 
             {sale.notes && (

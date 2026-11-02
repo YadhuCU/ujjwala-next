@@ -23,7 +23,8 @@ before 2026-08-16 and leaked agency-wide figures).
 
 **Sale reports — one row per item** (since 2026-09-30). `toSaleLines` in
 `report.lines.ts` expands invoices to lines; the table **and** the export both use
-it, so they match row for row. Columns: Tr No, Date, Customer, Staff, Item, Batch,
+it, so they match row for row. Columns: Tr No, Date, Customer (domestic: **Field
+staff**), Staff (domestic: "Entered by"), Item, Batch,
 **Type** (dom and commercial only — ARB has none), **Qty**, With Customer
 (commercial only, per line), Discount, Paid, Total. **Money columns only on an
 invoice's first line**, so column totals are right. A collection-only commercial
@@ -32,7 +33,13 @@ invoice is one row, "Collection only". The results header says "N invoices"
 
 **Export (`report.export.ts`).** `excel` is CSV Excel opens natively; `pdf` is a
 tab-separated text listing (no PDF renderer bundled). `saleExportColumns({ withType,
-withCustody })`: dom `{ withType }`, commercial `{ withType, withCustody }`, ARB `{}`.
+withCustody, withFieldStaff })`: dom `{ withType, withFieldStaff }`, commercial
+`{ withType, withCustody }`, ARB `{}`.
+
+**Domestic scopes on the field staff.** `ownerColumn("DOM") = "fieldStaffId"`:
+own scope, the staff filter and sale-by-product's domestic lines all key on
+whose round it was rather than who entered it. The customer filter does not
+apply to domestic (the UI hides it).
 Sale-by-product rolls up the three `*SaleItem` tables (lines carry the product).
 
 **Routes.** `GET /api/reports/{dom-sale,arb-sale,commercial-sale,sale-by-product,expense,purchase}`

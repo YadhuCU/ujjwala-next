@@ -26,6 +26,21 @@ const saleInclude = {
   },
 } as const;
 
+// A domestic sale belongs to the field staff member who made the round
+const domSaleInclude = {
+  ...saleInclude,
+  fieldStaff: { select: { id: true, name: true } },
+} as const;
+
+/**
+ * Whose a sale is, for scoping and the staff filter. A domestic sale is the
+ * field staff member's — the office often enters it for them — so it scopes on
+ * that rather than on its author.
+ */
+function ownerColumn(kind: SaleReportKind) {
+  return kind === "DOM" ? "fieldStaffId" : "createdById";
+}
+
 // =============================================================================
 // INTERNAL TYPES
 // =============================================================================
@@ -56,14 +71,18 @@ function assertAndNormalizeRange(from: Date, to: Date) {
   return { fromDate, toDate };
 }
 
-function authorFilter(actor: ReportActor, staffId?: number) {
+function authorFilter(
+  actor: ReportActor,
+  staffId?: number,
+  column: "createdById" | "fieldStaffId" = "createdById",
+) {
   const scope = resolveScope(actor, SCOPES.REPORT);
 
   // Own-scope users are pinned to their own rows; a staffId they send by hand
   // is ignored rather than honoured. "none" must not fall through to {}, which
   // would read as agency-wide.
-  if (scope !== "all") return scopeFilter(actor, scope);
-  if (staffId) return { createdById: staffId };
+  if (scope !== "all") return scopeFilter(actor, scope, column);
+  if (staffId) return { [column]: staffId };
   return {};
 }
 
@@ -101,15 +120,25 @@ function saleDelegate(kind: SaleReportKind) {
   return prisma.commercialSale;
 }
 
-function buildSaleWhere(query: SaleReportQuery, actor: ReportActor) {
+function buildSaleWhere(
+  kind: SaleReportKind,
+  query: SaleReportQuery,
+  actor: ReportActor,
+) {
   const { fromDate, toDate } = assertAndNormalizeRange(query.from, query.to);
 
   return {
     isDeleted: false,
     createdAt: { gte: fromDate, lte: toDate },
-    ...authorFilter(actor, query.staffId),
-    ...(query.customerId && { customerId: query.customerId }),
+    ...authorFilter(actor, query.staffId, ownerColumn(kind)),
+    // A domestic sale has no customer to filter on
+    ...(kind !== "DOM" &&
+      query.customerId && { customerId: query.customerId }),
   };
+}
+
+function saleIncludeFor(kind: SaleReportKind) {
+  return kind === "DOM" ? domSaleInclude : saleInclude;
 }
 
 export async function getSaleReport(
@@ -117,7 +146,7 @@ export async function getSaleReport(
   query: SaleReportQuery,
   actor: ReportActor,
 ) {
-  const where = buildSaleWhere(query, actor);
+  const where = buildSaleWhere(kind, query, actor);
   const { page, limit } = query;
 
   const delegate = saleDelegate(kind);
@@ -126,7 +155,7 @@ export async function getSaleReport(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (delegate as any).findMany({
       where,
-      include: saleInclude,
+      include: saleIncludeFor(kind),
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * limit,
       take: limit,
@@ -154,12 +183,12 @@ export async function getSaleReportRows(
   query: SaleReportQuery,
   actor: ReportActor,
 ) {
-  const where = buildSaleWhere(query, actor);
+  const where = buildSaleWhere(kind, query, actor);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (saleDelegate(kind) as any).findMany({
     where,
-    include: saleInclude,
+    include: saleIncludeFor(kind),
     orderBy: { createdAt: "desc" },
   });
 }
@@ -307,7 +336,13 @@ export async function getSaleByProductReport(
 
   const [domItems, arbItems, comItems] = await Promise.all([
     prisma.domSaleItem.findMany({
-      where: { domSale: { isDeleted: false, createdAt: range, ...author } },
+      where: {
+        domSale: {
+          isDeleted: false,
+          createdAt: range,
+          ...authorFilter(actor, undefined, "fieldStaffId"),
+        },
+      },
       select: {
         quantity: true,
         netTotal: true,

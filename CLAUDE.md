@@ -268,22 +268,27 @@ Other module-specific rules:
   or is generated as `BATCH-{yyyymmdd}-P{purchaseId}-PR{productId}-{n}`. A purchase
   can only be updated or deleted while **none** of its batches appear in a sale.
 - **Dom / ARB sale** — `trNo` is `DOM-` / `ARB-{yyyymmdd}-{00001}` (India
-  date) and is assigned after the header insert. `paidAmount <= totalAmount`.
-  Ledger: `SALE_CHARGE +total`, `PAYMENT -paid`, `CustomerBalance += (total - paid)`.
-  ARB is an outright sale of a non-cylinder: no cylinder is expected back.
-- **Dom sale lines are `RENT` or `SALE`** (the `CommercialSaleType` enum, shared).
-  `RENT` is a refill — `RENT_DELIVERY` out, and `emptiesCollected` back as
-  `CYLINDER_RETURN`; the form fills that with the quantity. `SALE` is outright
-  (`SALE_OUT`). **Both count as held** in `CustomerCylinderLedger`, unlike
-  commercial: otherwise a customer who bought a cylinder could never hand its
-  empty back for a refill. Empties are checked against the holding *before* the
-  invoice, all lines of a product together. Each line records what it did
-  (`cylindersDispatched`, `emptiesCollected`) and reversals undo exactly that —
-  rows from before domestic custody existed are 0/0, so reversing one leaves the
-  holding alone. A reversal is refused if it would take the holding below zero
-  (the cylinders came back on a later invoice). Opening holdings at customer
-  onboarding cover domestic as well as commercial products; the server refuses
-  any non-cylinder product there.
+  date) and is assigned after the header insert.
+- **ARB** — `paidAmount <= totalAmount`. Ledger: `SALE_CHARGE +total`,
+  `PAYMENT -paid`, `CustomerBalance += (total - paid)`. An outright sale of a
+  non-cylinder: no cylinder is expected back.
+- **Domestic sale is a field staff member's round — no customer.** A field
+  staff member goes door to door; each line is `RENT` (a refill:
+  `RENT_DELIVERY` out, `emptiesCollected` back as `CYLINDER_RETURN`, the form
+  fills it with the quantity, never more) or `SALE` (outright, `SALE_OUT`).
+  **Paid in full**: `paidAmount = totalAmount`, nothing on the money ledger, no
+  `CustomerCylinderLedger` custody. `fieldStaffId` is whose round it was,
+  `createdById` who typed it in. Scope pair `SCOPES.DOMESTIC_SALE`, keyed on
+  **`fieldStaffId`**: `.read.all` (the office) sees every round and must name
+  the field staff — an active user holding `domestic_sale.create`; `.read.own`
+  (field staff) sees their own and is always recorded as themselves — naming
+  someone else is refused. Reports and the dashboard scope domestic on
+  `fieldStaffId` too, and the dashboard adds domestic `paidAmount` to
+  collections since it never reaches the ledger. **Sales from before
+  2026-11-02 carry a `customerId`**: they cannot be edited (reposting would wipe
+  what the customer owes) but delete reverses them fully — the customer charge
+  and the holding each line recorded (`cylindersDispatched`, `emptiesCollected`),
+  refused if those cylinders have since come back.
 - **Commercial sale** — per-line `RENT` or `SALE`. Both draw a filled cylinder
   from a `Stock` batch and out of the godown (`RENT_DELIVERY` / `SALE_OUT`);
   `RENT` additionally tracks custody (`cylindersDispatched` /
@@ -345,7 +350,8 @@ structurally special because it is the way back in after a misconfiguration.
   `src/lib/access-scope.ts`: `resolveScope(actor, SCOPES.EXPENSE)` returns
   `"all" | "own" | "none"`, and `scopeFilter` turns that into a `where` fragment.
   `"none"` throws rather than returning a filter that matches nothing — an empty
-  list would look like an answer. Applies to expense, report and dashboard.
+  list would look like an answer. Applies to expense, report, dashboard and
+  domestic sale (which keys on `fieldStaffId` — `scopeFilter`'s `column`).
 - **`withAuth` re-reads permissions from the database**, through the per-instance
   promise cache in `src/lib/rbac.ts` (~30s TTL, single-flight). It does *not*
   trust the cookie: `auth()` with no arguments takes Auth.js's RSC branch, which
@@ -373,8 +379,9 @@ structurally special because it is the way back in after a misconfiguration.
 
 `session.user` carries `roles: string[]`, `permissions: Permission[]` and
 `isOwner: boolean`. There is no `session.user.role`.
-- **Customer** — creation seeds `CustomerInitialCylinderBalance` +
-  `CustomerCylinderLedger` per product, an `OPENING` ledger row if
+- **Customer** — opening holdings are **commercial cylinders only** (domestic
+  sales have no customer to hold one). Creation seeds
+  `CustomerInitialCylinderBalance` + `CustomerCylinderLedger` per product, an `OPENING` ledger row if
   `initialPendingAmount > 0`, and always a `CustomerBalance` row (even at 0) —
   every later write increments that row rather than creating it. Initial balances
   are migration data: the update payload does not even carry them. A customer

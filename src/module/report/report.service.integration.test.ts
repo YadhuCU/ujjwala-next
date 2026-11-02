@@ -8,6 +8,7 @@ import {
 import { PERMISSIONS } from "@/lib/permissions";
 import {
   makeCustomer,
+  makeFieldStaff,
   makeProduct,
   makeStock,
   makeUser,
@@ -56,23 +57,45 @@ beforeEach(async () => {
   otherCustomerId = (await makeCustomer({ name: "Customer B" })).id;
 });
 
-async function domSale(
-  createdBy: number,
-  forCustomer: number,
-  amount = 1000,
-) {
+/**
+ * A domestic round. `by` enters it; with `forStaff` it is entered by the
+ * office on that field staff member's behalf, as the office does.
+ */
+async function domSale(by: number, amount = 1000, forStaff?: number) {
   const product = await makeProduct(ProductType.DOMESTIC);
   await seedGodown(product.id, { filledQty: 20 });
   const stock = await makeStock(product.id, 20);
 
   return DomSaleService.createDomSale(
     {
+      fieldStaffId: forStaff,
+      paymentType: PaymentType.CASH,
+      discount: undefined,
+      notes: undefined,
+      items: [{ stockId: stock.id, quantity: 1, salePrice: amount, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
+    },
+    {
+      userId: by,
+      permissions: [
+        PERMISSIONS.DOMESTIC_SALE_CREATE,
+        ...(forStaff ? [PERMISSIONS.DOMESTIC_SALE_READ_ALL] : []),
+      ],
+    },
+  );
+}
+
+async function arbSale(createdBy: number, forCustomer: number) {
+  const product = await makeProduct(ProductType.ARB);
+  const stock = await makeStock(product.id, 20);
+
+  return ArbSaleService.createArbSale(
+    {
       customerId: forCustomer,
       paymentType: PaymentType.CASH,
       paidAmount: 0,
       discount: undefined,
       notes: undefined,
-      items: [{ stockId: stock.id, quantity: 1, salePrice: amount, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
+      items: [{ stockId: stock.id, quantity: 1, salePrice: 100 }],
     },
     createdBy,
   );
@@ -82,8 +105,8 @@ describe("sale report scoping", () => {
   // The old routes compared against a role name that never matched, so owners
   // were silently scoped down to their own paperwork.
   it("shows an owner every staff member's sales", async () => {
-    await domSale(ownerId, customerId);
-    await domSale(staffId, customerId);
+    await domSale(ownerId);
+    await domSale(staffId);
 
     const report = await ReportService.getSaleReport("DOM", range, owner());
 
@@ -92,8 +115,8 @@ describe("sale report scoping", () => {
   });
 
   it("shows staff only their own sales", async () => {
-    await domSale(ownerId, customerId);
-    await domSale(staffId, customerId);
+    await domSale(ownerId);
+    await domSale(staffId);
 
     const report = await ReportService.getSaleReport("DOM", range, staff());
 
@@ -101,8 +124,8 @@ describe("sale report scoping", () => {
   });
 
   it("lets an owner narrow to one staff member", async () => {
-    await domSale(ownerId, customerId);
-    await domSale(staffId, customerId);
+    await domSale(ownerId);
+    await domSale(staffId);
 
     const report = await ReportService.getSaleReport(
       "DOM",
@@ -114,11 +137,11 @@ describe("sale report scoping", () => {
   });
 
   it("filters by customer", async () => {
-    await domSale(ownerId, customerId);
-    await domSale(ownerId, otherCustomerId);
+    await arbSale(ownerId, customerId);
+    await arbSale(ownerId, otherCustomerId);
 
     const report = await ReportService.getSaleReport(
-      "DOM",
+      "ARB",
       { ...range, customerId },
       owner(),
     );
@@ -126,8 +149,33 @@ describe("sale report scoping", () => {
     expect(report.summary.invoiceCount).toBe(1);
   });
 
+  // The office enters most rounds; the sale is still the field staff's
+  it("reports a domestic round under its field staff, not whoever entered it", async () => {
+    const office = (await makeUser("Office")).id;
+    const fieldStaff = (await makeFieldStaff("Ravi")).id;
+    await domSale(office, 700, fieldStaff);
+
+    const forStaff = await ReportService.getSaleReport("DOM", range, {
+      userId: fieldStaff,
+      permissions: [PERMISSIONS.REPORT_READ_OWN],
+    });
+    const forOffice = await ReportService.getSaleReport("DOM", range, {
+      userId: office,
+      permissions: [PERMISSIONS.REPORT_READ_OWN],
+    });
+    const narrowed = await ReportService.getSaleReport(
+      "DOM",
+      { ...range, staffId: fieldStaff },
+      owner(),
+    );
+
+    expect(forStaff.summary.invoiceCount).toBe(1);
+    expect(forOffice.summary.invoiceCount).toBe(0);
+    expect(narrowed.summary.invoiceCount).toBe(1);
+  });
+
   it("excludes sales outside the date range", async () => {
-    await domSale(ownerId, customerId);
+    await domSale(ownerId);
 
     const report = await ReportService.getSaleReport(
       "DOM",
@@ -140,7 +188,7 @@ describe("sale report scoping", () => {
 
   // The page shows ten rows at a time; the totals must still cover everything.
   it("summarises the whole range, not just the current page", async () => {
-    for (let i = 0; i < 3; i++) await domSale(ownerId, customerId, 500);
+    for (let i = 0; i < 3; i++) await domSale(ownerId, 500);
 
     const report = await ReportService.getSaleReport(
       "DOM",
@@ -185,14 +233,13 @@ describe("sale-by-product report", () => {
 
     await DomSaleService.createDomSale(
       {
-        customerId,
+        fieldStaffId: undefined,
         paymentType: PaymentType.CASH,
-        paidAmount: 0,
         discount: undefined,
         notes: undefined,
         items: [{ stockId: domStock.id, quantity: 2, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
       },
-      ownerId,
+      { userId: ownerId, permissions: [PERMISSIONS.DOMESTIC_SALE_CREATE] },
     );
 
     await ArbSaleService.createArbSale(

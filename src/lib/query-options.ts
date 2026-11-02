@@ -10,6 +10,13 @@ export const domSalesOptions = queryOptions({
   queryFn: api.getDomSales,
 });
 
+// Only fetched by someone who records rounds for other field staff
+export const domSaleFieldStaffOptions = queryOptions({
+  queryKey: queryKeys.domSales.fieldStaff(),
+  queryFn: api.getDomSaleFieldStaff,
+  select: (res) => res.data,
+});
+
 export const arbSalesOptions = queryOptions({
   queryKey: queryKeys.arbSales.lists(),
   queryFn: api.getArbSales,

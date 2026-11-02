@@ -37,7 +37,7 @@ Vercel. Users are in India; the server is not (Vercel runs in UTC).
 | stock | Batches. Mostly created by purchases. | [stock](stock.md) |
 | stock-adjustment | Manual godown corrections, append-only. | [stock-adjustment](stock-adjustment.md) |
 | godown | Read-only view of cylinder position + ledger. | [godown](godown.md) |
-| dom-sale | Domestic cylinder sales: RENT (refill) or SALE. | [dom-sale](dom-sale.md) |
+| dom-sale | A field staff member's round: RENT (refill) or SALE, no customer, paid in full. | [dom-sale](dom-sale.md) |
 | arb-sale | Bulk gas / accessories. No cylinders. **Reference module.** | [arb-sale](arb-sale.md) |
 | commercial-sale | Commercial RENT/SALE, custody, collections on the invoice. | [commercial-sale](commercial-sale.md) |
 | expense | Author-private spending. | [expense](expense.md) |
@@ -97,7 +97,8 @@ Cylinder deltas are from the **godown's** point of view (positive = arrived):
    cylinders were since collected on a *later* invoice (invoice-level
    collections do not decrement the original line's counters), editing the
    original leaves the customer holding a negative count. Domestic has the guard
-   (`assertReversalKeepsCustody`); commercial needs the same. Delete is safe:
+   for its old customer-linked sales (`assertReversalKeepsCustody`); commercial
+   needs the same. Delete is safe:
    `assertNoOutstandingCylinders` refuses it.
 2. **Some generated numbers still date by UTC.** ARB and commercial
    `generateTrNo`, and purchase `generateBatchNo`, use `new Date().toISOString()`,
@@ -105,11 +106,11 @@ Cylinder deltas are from the **godown's** point of view (positive = arrived):
    date. Domestic `trNo` uses `businessDayKey`. Cosmetic — numbers stay unique —
    but inconsistent; the fix is `businessDayKey(new Date())`.
 3. **Customer opening holdings cannot be changed after creation.** The update
-   payload does not carry them. A customer onboarded without their domestic
-   cylinders will have refills refused until someone collects fewer empties.
-4. **Sale lists are not author-scoped.** Anyone with `domestic_sale.read` sees
-   every domestic invoice. Only expense, report and dashboard distinguish
-   "own". A deliberate choice, not a bug — see `role.md`.
+   payload does not carry them; a mistake at onboarding stays.
+4. **ARB, commercial and purchase lists are not author-scoped.** Anyone with
+   the module's read permission sees every invoice. Domestic sales are scoped
+   on the field staff (since 2026-11-02); expense, report and dashboard on the
+   author. A deliberate choice, not a bug — see `role.md`.
 5. **No UAT product has a sale price.** The sale forms auto-fill price from
    `Product.salePrice`; on UAT staff type it every time. `TODO.md` wants
    `Product.salePrice` dropped in favour of batch pricing.

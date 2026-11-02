@@ -33,10 +33,12 @@ balances — they are migration data. There is no way to correct a holding later
 **Delete.** Soft, refused by `assertCustomerSettled` while
 `pendingAmount !== 0` or any `pendingCylinder > 0`.
 
-**Onboarding UI.** `customer-form.tsx` offers **every cylinder product** (domestic
-and commercial) for opening holdings — it filters `productsOptions()` with
-`isCylinderTypeProduct`. Before 2026-09-30 it offered commercial only, which made
-domestic refills impossible for existing customers.
+**Onboarding UI.** `customer-form.tsx` offers **commercial products only** for
+opening holdings, and `assertProductsExist` refuses anything else. From
+2026-09-30 to 2026-11-02 domestic was offered too, for customer-linked domestic
+refills; a domestic sale is now a field staff member's round with no customer
+(`dom-sale.md`), so nothing would ever collect a domestic holding back. Holdings
+entered in that window stay in the data, read by nothing new.
 
 **Routes.** `GET/POST /api/customers`, `GET/PUT/DELETE /api/customers/[id]` —
 `customer.read / create / update / delete`.

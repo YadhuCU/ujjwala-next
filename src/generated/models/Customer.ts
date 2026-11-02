@@ -681,10 +681,12 @@ export type CustomerCreateNestedOneWithoutDomSalesInput = {
   connect?: Prisma.CustomerWhereUniqueInput
 }
 
-export type CustomerUpdateOneRequiredWithoutDomSalesNestedInput = {
+export type CustomerUpdateOneWithoutDomSalesNestedInput = {
   create?: Prisma.XOR<Prisma.CustomerCreateWithoutDomSalesInput, Prisma.CustomerUncheckedCreateWithoutDomSalesInput>
   connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutDomSalesInput
   upsert?: Prisma.CustomerUpsertWithoutDomSalesInput
+  disconnect?: Prisma.CustomerWhereInput | boolean
+  delete?: Prisma.CustomerWhereInput | boolean
   connect?: Prisma.CustomerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutDomSalesInput, Prisma.CustomerUpdateWithoutDomSalesInput>, Prisma.CustomerUncheckedUpdateWithoutDomSalesInput>
 }

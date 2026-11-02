@@ -11,28 +11,29 @@ export const DomSaleItemFormSchema = z.object({
 
   salePrice: z.coerce.number().min(0, "Sale price cannot be negative"),
 
-  // RENT is a refill: a full out, the customer's empty back. SALE is outright.
+  // RENT is a refill: a full out, the house's empty back. SALE is outright.
   saleType: z
     .enum(CommercialSaleType, "Select rent or sale")
     .default(CommercialSaleType.SALE),
 
-  // Filled in with the quantity on a refill; edit it if more or fewer came back.
+  // Filled in with the quantity on a refill; lower it if a house had no empty.
   emptiesCollected: z.coerce
     .number()
     .int()
     .min(0, "Cannot be negative")
     .default(0),
+}).refine((item) => item.emptiesCollected <= item.quantity, {
+  message: "More than were handed out",
+  path: ["emptiesCollected"],
 });
 
+// A field staff member's round: no customer, and paid in full at each door.
 export const DomSaleFormSchema = z.object({
-  customerId: z.number("Customer is required").int("Customer is required"),
+  // Only shown to the office. A field staff member's own sales are recorded as
+  // theirs by the server, so they never send it.
+  fieldStaffId: z.number("Select the field staff").int().optional(),
 
   paymentType: z.enum(PaymentType, "Payment type is required"),
-
-  paidAmount: z.coerce
-    .number()
-    .min(0, "Paid amount cannot be negative")
-    .default(0),
 
   discount: z.coerce.number().min(0, "Discount cannot be negative").optional(),
 
