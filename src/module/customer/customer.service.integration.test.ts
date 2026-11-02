@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
+import { ProductType } from "@/generated/client";
 import { makeProduct, makeUser } from "@/test/factories";
 import * as CustomerService from "./customer.service";
 import * as LocationService from "@/module/location/location.service";
@@ -54,7 +55,7 @@ describe("updateCustomer", () => {
   // Opening balances are migration data — the update payload does not carry
   // them, so a later edit must not disturb what was captured at registration.
   it("leaves the opening balances untouched", async () => {
-    const product = await makeProduct();
+    const product = await makeProduct(ProductType.COMMERCIAL);
 
     const created = await CustomerService.createCustomer(
       customerInput({
@@ -170,7 +171,7 @@ describe("getCustomers", () => {
 
 describe("getCustomerById", () => {
   it("returns the opening cylinder balances with the record", async () => {
-    const product = await makeProduct();
+    const product = await makeProduct(ProductType.COMMERCIAL);
 
     const created = await CustomerService.createCustomer(
       customerInput({
@@ -195,4 +196,38 @@ describe("getCustomerById", () => {
       CustomerService.getCustomerById(created.id),
     ).rejects.toThrow(/not found/);
   });
+});
+
+// A domestic sale is a field staff member's round with no customer, so nothing
+// would ever collect a domestic holding back.
+describe("opening cylinder holdings", () => {
+  const holding = (productId: number) =>
+    customerInput({ initialCylinderBalances: [{ productId, qty: 4 }] });
+
+  it("accepts commercial cylinders", async () => {
+    const product = await makeProduct(ProductType.COMMERCIAL);
+
+    const customer = await CustomerService.createCustomer(
+      holding(product.id),
+      userId,
+    );
+
+    expect(
+      await prisma.customerCylinderLedger.findFirstOrThrow({
+        where: { customerId: customer.id, productId: product.id },
+      }),
+    ).toMatchObject({ pendingCylinder: 4 });
+  });
+
+  it.each([ProductType.DOMESTIC, ProductType.ARB, ProductType.OTHER])(
+    "refuses %s products",
+    async (type) => {
+      const product = await makeProduct(type);
+
+      await expect(
+        CustomerService.createCustomer(holding(product.id), userId),
+      ).rejects.toThrow(/only commercial cylinders/i);
+      expect(await prisma.customer.count()).toBe(0);
+    },
+  );
 });

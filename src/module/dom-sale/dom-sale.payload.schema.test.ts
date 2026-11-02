@@ -3,9 +3,7 @@ import { CommercialSaleType, PaymentType } from "@/generated/enums";
 import { CreateDomSaleSchema } from "./dom-sale.payload.schema";
 
 const base = {
-  customerId: 1,
   paymentType: PaymentType.CASH,
-  paidAmount: 0,
 };
 
 describe("CreateDomSaleSchema", () => {
@@ -71,5 +69,37 @@ describe("CreateDomSaleSchema", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("refuses more empties than cylinders handed out", () => {
+    const result = CreateDomSaleSchema.safeParse({
+      ...base,
+      items: [
+        {
+          stockId: 1,
+          quantity: 2,
+          salePrice: 900,
+          saleType: CommercialSaleType.RENT,
+          emptiesCollected: 3,
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+    expect(JSON.stringify(result.error?.issues)).toMatch(/more empties than/i);
+  });
+
+  // A domestic sale has no customer to owe a balance, so neither field is part
+  // of the contract any more; a stale client sending them must not be trusted.
+  it("drops a customer and a paid amount sent by an old client", () => {
+    const parsed = CreateDomSaleSchema.parse({
+      ...base,
+      customerId: 7,
+      paidAmount: 1,
+      items: [{ stockId: 1, quantity: 1, salePrice: 900 }],
+    });
+
+    expect(parsed).not.toHaveProperty("customerId");
+    expect(parsed).not.toHaveProperty("paidAmount");
   });
 });

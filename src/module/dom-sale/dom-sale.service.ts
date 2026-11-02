@@ -7,7 +7,19 @@ import {
   RefType,
   TxnType,
 } from "@/generated/client";
-import { NotFoundError, BadRequestError, ConflictError } from "@/lib/errors";
+import {
+  NotFoundError,
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+} from "@/lib/errors";
+import { PERMISSIONS, SCOPES } from "@/lib/permissions";
+import {
+  assertCanAccessRecord,
+  resolveScope,
+  scopeFilter,
+  type Actor,
+} from "@/lib/access-scope";
 import type {
   CreateDomSaleInput,
   UpdateDomSaleInput,
@@ -20,6 +32,7 @@ import type {
 
 const domSaleInclude = {
   customer: true,
+  fieldStaff: { select: { id: true, name: true, username: true } },
   items: {
     include: {
       product: true,
@@ -28,9 +41,40 @@ const domSaleInclude = {
   },
 } as const;
 
+/**
+ * Who can be named as the field staff on a domestic sale: an active user who is
+ * allowed to make one. Shared by the guard and the dropdown, so the form never
+ * offers someone the server would refuse. A system role holds every permission
+ * without a row for it, so it is matched on the flag.
+ */
+const fieldStaffWhere = {
+  isActive: true,
+  isDeleted: false,
+  userRoles: {
+    some: {
+      role: {
+        OR: [
+          { isSystem: true },
+          {
+            rolePermissions: {
+              some: { permission: { code: PERMISSIONS.DOMESTIC_SALE_CREATE } },
+            },
+          },
+        ],
+      },
+    },
+  },
+} satisfies Prisma.UserWhereInput;
+
 // =============================================================================
 // INTERNAL TYPES
 // =============================================================================
+
+/**
+ * Whose sales these are is decided by the field staff a sale belongs to — not
+ * by who typed it in, since the office records rounds for field staff.
+ */
+export type DomSaleActor = Actor;
 
 type StockInfo = { productId: number; batchNo: string; quantity: number };
 type ProductQty = { productId: number; quantity: number };
@@ -44,13 +88,6 @@ type OriginalSaleItem = {
   emptiesCollected: number;
 };
 
-/** What an invoice does to the customer's domestic holding, per product. */
-type CustodyEffect = {
-  /** Empties handed back — checked against what the customer already held. */
-  collected: ProductQty[];
-  /** Net change to the holding: cylinders out minus empties back. */
-  net: ProductQty[];
-};
 
 // =============================================================================
 // PURE HELPERS
@@ -95,35 +132,30 @@ function toProductQtys(acc: Map<number, number>): ProductQty[] {
     .map(([productId, quantity]) => ({ productId, quantity }));
 }
 
-/**
- * Every domestic cylinder that goes out adds to what the customer holds —
- * outright SALE included, so that a customer who bought one can later hand
- * its empty back for a refill. Empties collected on a RENT line come off.
- */
-function resolveCustody(
+/** Empties brought back to the godown on refill lines, per product. */
+function resolveEmpties(
   items: CreateDomSaleInput["items"],
   stockMap: Map<number, StockInfo>,
-): CustodyEffect {
+): ProductQty[] {
   const collected = new Map<number, number>();
-  const net = new Map<number, number>();
 
   for (const item of items) {
     const productId = stockMap.get(item.stockId)!.productId;
-    collected.set(productId, (collected.get(productId) ?? 0) + item.emptiesCollected);
-    net.set(
+    collected.set(
       productId,
-      (net.get(productId) ?? 0) + item.quantity - item.emptiesCollected,
+      (collected.get(productId) ?? 0) + item.emptiesCollected,
     );
   }
 
-  return { collected: toProductQtys(collected), net: toProductQtys(net) };
+  return toProductQtys(collected);
 }
 
 /**
- * What a saved invoice did to the holding, read from what each line recorded.
- * Sales from before domestic custody was tracked recorded 0 for both, so
- * reversing one leaves the holding alone — as it should, since it never
- * touched it.
+ * What an old, customer-linked sale did to that customer's holding, read from
+ * what each line recorded. Only those sales moved custody — a domestic sale is
+ * now a field staff member's round and has no customer to hold anything.
+ * Sales from before custody was tracked at all recorded 0 for both, so
+ * reversing one leaves the holding alone.
  */
 function resolveOriginalCustody(items: OriginalSaleItem[]): ProductQty[] {
   const net = new Map<number, number>();
@@ -218,27 +250,71 @@ async function productName(tx: Prisma.TransactionClient, productId: number) {
 }
 
 /**
- * Empties handed back must be ones the customer already held before this
- * invoice. Cylinders delivered full on the same visit cannot be the empties
- * handed back on it.
+ * The field staff a sale is recorded against. Someone who sees every field
+ * staff's sales picks one; everyone else is recorded as themselves, and asking
+ * for somebody else is refused rather than quietly overridden — a field staff
+ * member must not be able to book a round under a colleague's name.
  */
-async function assertCustomerHoldsEmpties(
+async function resolveFieldStaff(
   tx: Prisma.TransactionClient,
-  customerId: number,
-  collected: ProductQty[],
-) {
-  if (collected.length === 0) return;
-
-  const held = await customerHoldings(tx, customerId);
-
-  for (const { productId, quantity } of collected) {
-    const holding = held.get(productId) ?? 0;
-    if (quantity > holding)
-      throw new ConflictError(
-        `Cannot collect ${quantity} empty ${await productName(tx, productId)} — the customer holds ${holding}. Record their existing cylinders on the customer, or collect fewer.`,
-        { productId, holding, quantity },
+  actor: DomSaleActor,
+  requested: number | undefined,
+): Promise<number> {
+  if (resolveScope(actor, SCOPES.DOMESTIC_SALE) !== "all") {
+    if (requested !== undefined && requested !== actor.userId)
+      throw new ForbiddenError(
+        "You can only record domestic sales you made yourself",
       );
+    return actor.userId;
   }
+
+  if (requested === undefined)
+    throw new BadRequestError("Select the field staff who made this sale");
+
+  await assertIsFieldStaff(tx, requested);
+  return requested;
+}
+
+async function assertIsFieldStaff(
+  tx: Prisma.TransactionClient,
+  userId: number,
+) {
+  const user = await tx.user.findFirst({
+    where: { id: userId, ...fieldStaffWhere },
+    select: { id: true },
+  });
+  if (!user)
+    throw new BadRequestError(
+      "That user cannot make domestic sales — pick an active field staff member",
+    );
+  return user;
+}
+
+/** Own-scope users may only open or change their own rounds. */
+function assertCanAccessSale(
+  actor: DomSaleActor,
+  sale: { fieldStaffId: number | null },
+) {
+  assertCanAccessRecord(
+    actor,
+    resolveScope(actor, SCOPES.DOMESTIC_SALE),
+    sale,
+    "You can only manage your own domestic sales",
+    "fieldStaffId",
+  );
+}
+
+/**
+ * A sale entered before domestic moved to field staff is charged to a
+ * customer. Reposting it in the new shape would drop that charge and wipe what
+ * the customer still owes on it, so it can only be deleted — which reverses it
+ * properly — and entered again.
+ */
+function assertNotCustomerSale(sale: { customerId: number | null }) {
+  if (sale.customerId)
+    throw new BadRequestError(
+      "This sale was recorded against a customer, before domestic sales moved to field staff. Delete it and enter it again instead of editing it.",
+    );
 }
 
 /**
@@ -277,8 +353,7 @@ async function writeSaleItems(
   stockMap: Map<number, StockInfo>,
 ) {
   // 1. DomSaleItem rows — productId derived from stock, not trusted from client.
-  //    Each records what it did to the customer's holding, so a later reversal
-  //    undoes exactly that.
+  //    Each records what went out and what came back.
   await tx.domSaleItem.createMany({
     data: items.map((item) => ({
       domSaleId,
@@ -334,8 +409,8 @@ async function writeSaleItems(
     })),
   });
 
-  // 4. Empties handed back — one row per product
-  const { collected } = resolveCustody(items, stockMap);
+  // 4. Empties brought back — one row per product
+  const collected = resolveEmpties(items, stockMap);
 
   if (collected.length > 0)
     await tx.cylinderTransaction.createMany({
@@ -351,7 +426,7 @@ async function writeSaleItems(
     });
 }
 
-// Empties handed back arrive in the godown
+// Empties brought back arrive in the godown
 async function applyGodownEmpties(
   tx: Prisma.TransactionClient,
   collected: ProductQty[],
@@ -364,7 +439,7 @@ async function applyGodownEmpties(
   }
 }
 
-// The customer's domestic holding, per product
+// The holding of a customer on an old, customer-linked sale — reversals only
 async function applyDomesticCustody(
   tx: Prisma.TransactionClient,
   customerId: number,
@@ -415,52 +490,8 @@ async function restoreStockQuantities(
   }
 }
 
-// Appends SALE_CHARGE + optional PAYMENT to CustomerPaymentLedger, updates CustomerBalance
-async function applyCustomerLedger(
-  tx: Prisma.TransactionClient,
-  customerId: number,
-  domSaleId: number,
-  totalAmount: number,
-  paidAmount: number,
-  userId: number,
-) {
-  if (!customerId) {
-    throw new NotFoundError(`Customer not found`);
-  }
-
-  await tx.customerPaymentLedger.create({
-    data: {
-      customerId,
-      entryType: LedgerEntryType.SALE_CHARGE,
-      amount: totalAmount,
-      refType: RefType.INVOICE,
-      refId: domSaleId,
-      createdById: userId,
-    },
-  });
-
-  if (paidAmount > 0) {
-    await tx.customerPaymentLedger.create({
-      data: {
-        customerId,
-        entryType: LedgerEntryType.PAYMENT,
-        amount: -paidAmount,
-        refType: RefType.INVOICE,
-        refId: domSaleId,
-        createdById: userId,
-      },
-    });
-  }
-
-  const netCharge = Math.round((totalAmount - paidAmount) * 100) / 100;
-  await tx.customerBalance.upsert({
-    where: { customerId },
-    update: { pendingAmount: { increment: netCharge } },
-    create: { customerId, pendingAmount: netCharge },
-  });
-}
-
-// Appends a single ADJUSTMENT reversal row, decrements CustomerBalance
+// Reverses the charge an old, customer-linked sale put on the customer: a
+// single ADJUSTMENT row, and CustomerBalance comes down by what was unpaid
 async function reverseCustomerLedger(
   tx: Prisma.TransactionClient,
   customerId: number,
@@ -535,60 +566,51 @@ async function reverseCylinderTransactions(
 // CREATE
 // =============================================================================
 
-export async function createDomSale(input: CreateDomSaleInput, userId: number) {
-  const { items, customerId, paidAmount, discount, ...header } = input;
+export async function createDomSale(
+  input: CreateDomSaleInput,
+  actor: DomSaleActor,
+) {
+  const { items, fieldStaffId: requestedStaff, discount, ...header } = input;
   const { totalAmount } = computeTotals(items, discount ?? 0);
 
-  if (paidAmount > totalAmount)
-    throw new BadRequestError("Paid amount cannot exceed total amount");
+  if (totalAmount < 0)
+    throw new BadRequestError("Discount cannot be more than the sale total");
 
   return prisma.$transaction(async (tx) => {
-    // 1. Validate stock batches + build stockMap { stockId → { productId, batchNo, qty } }
+    // 1. Whose round this is
+    const fieldStaffId = await resolveFieldStaff(tx, actor, requestedStaff);
+
+    // 2. Validate stock batches + build stockMap { stockId → { productId, batchNo, qty } }
     const stockMap = await assertAndFetchStocks(tx, items);
     const productQtys = resolveProductQtys(items, stockMap);
-    const custody = resolveCustody(items, stockMap);
+    const collected = resolveEmpties(items, stockMap);
 
-    // 1b. Empties handed back must be ones the customer already held
-    await assertCustomerHoldsEmpties(tx, customerId, custody.collected);
-
-    // 2. Create sale header
+    // 3. Create sale header. Paid in full at the door: there is no customer
+    //    to carry a balance, so nothing goes on the money ledger.
     const sale = await tx.domSale.create({
       data: {
         ...header,
-        customerId: customerId ?? null,
+        fieldStaffId,
         totalAmount,
-        paidAmount,
+        paidAmount: totalAmount,
         discount: discount ?? null,
-        createdById: userId,
-        updatedById: userId,
+        createdById: actor.userId,
+        updatedById: actor.userId,
       },
     });
 
-    // 3. Set trNo now that we have the sale id
+    // 4. Set trNo now that we have the sale id
     await tx.domSale.update({
       where: { id: sale.id },
       data: { trNo: generateTrNo(sale.id) },
     });
 
-    // 4. DomSaleItems + Stock.quantity-- + CylinderTransactions
+    // 5. DomSaleItems + Stock.quantity-- + CylinderTransactions
     await writeSaleItems(tx, sale.id, items, stockMap);
 
-    // 5. GodownInventory cache — fulls out, empties in
+    // 6. GodownInventory cache — fulls out, empties in
     await applyGodownDelta(tx, productQtys, -1);
-    await applyGodownEmpties(tx, custody.collected);
-
-    // 5b. What the customer now holds
-    await applyDomesticCustody(tx, customerId, custody.net, 1);
-
-    // 6. Customer money ledger + balance (skipped for walk-in / no customer)
-    await applyCustomerLedger(
-      tx,
-      customerId,
-      sale.id,
-      totalAmount,
-      paidAmount,
-      userId,
-    );
+    await applyGodownEmpties(tx, collected);
 
     return tx.domSale.findUniqueOrThrow({
       where: { id: sale.id },
@@ -597,17 +619,30 @@ export async function createDomSale(input: CreateDomSaleInput, userId: number) {
   });
 }
 
+/** The people the office can record a round for — the form's dropdown. */
+export async function getFieldStaff() {
+  return prisma.user.findMany({
+    where: fieldStaffWhere,
+    select: { id: true, name: true, username: true },
+    orderBy: [{ name: "asc" }, { username: "asc" }],
+  });
+}
+
 // =============================================================================
 // LIST
 // =============================================================================
 
-export async function getDomSales(query: DomSaleQuery) {
-  const { customerId, from, to, page, limit } = query;
+export async function getDomSales(query: DomSaleQuery, actor: DomSaleActor) {
+  const { fieldStaffId, from, to, page, limit } = query;
   const skip = (page - 1) * limit;
+  const scope = resolveScope(actor, SCOPES.DOMESTIC_SALE);
 
   const where = {
     isDeleted: false,
-    ...(customerId && { customerId }),
+    // Own scope pins the list to this user's rounds; only "all" may narrow to
+    // somebody else, and a fieldStaffId sent by an own-scope user is ignored.
+    ...scopeFilter(actor, scope, "fieldStaffId"),
+    ...(scope === "all" && fieldStaffId && { fieldStaffId }),
     ...((from || to) && {
       createdAt: {
         ...(from && { gte: from }),
@@ -637,12 +672,13 @@ export async function getDomSales(query: DomSaleQuery) {
 // SINGLE
 // =============================================================================
 
-export async function getDomSaleById(id: number) {
+export async function getDomSaleById(id: number, actor: DomSaleActor) {
   const sale = await prisma.domSale.findFirst({
     where: { id, isDeleted: false },
     include: domSaleInclude,
   });
   if (!sale) throw new NotFoundError(`Domestic sale #${id} not found`);
+  assertCanAccessSale(actor, sale);
   return sale;
 }
 
@@ -655,21 +691,25 @@ export async function getDomSaleById(id: number) {
 export async function updateDomSale(
   id: number,
   input: UpdateDomSaleInput,
-  userId: number,
+  actor: DomSaleActor,
 ) {
-  const { items, customerId, paidAmount, discount, ...header } = input;
+  const { items, fieldStaffId: requestedStaff, discount, ...header } = input;
   const { totalAmount } = computeTotals(items, discount ?? 0);
 
-  if (paidAmount > totalAmount)
-    throw new BadRequestError("Paid amount cannot exceed total amount");
+  if (totalAmount < 0)
+    throw new BadRequestError("Discount cannot be more than the sale total");
 
   return prisma.$transaction(async (tx) => {
     const original = await assertDomSaleExists(tx, id);
-    const originalCustody = resolveOriginalCustody(original.items);
+    assertCanAccessSale(actor, original);
+    assertNotCustomerSale(original);
 
-    // Refuse before touching anything if its cylinders have since come back
-    if (original.customerId)
-      await assertReversalKeepsCustody(tx, original.customerId, originalCustody);
+    // Keeps its field staff unless the office reassigns it
+    const fieldStaffId = await resolveFieldStaff(
+      tx,
+      actor,
+      requestedStaff ?? original.fieldStaffId ?? undefined,
+    );
 
     // ── REVERSE PHASE ────────────────────────────────────────────────────────
 
@@ -683,70 +723,33 @@ export async function updateDomSale(
     // 2. Restore Stock.quantity from original items
     await restoreStockQuantities(tx, original.items);
 
-    // 3. Give back what the original did to the customer's holding
-    if (original.customerId)
-      await applyDomesticCustody(tx, original.customerId, originalCustody, -1);
-
-    // 4. Reverse customer ledger (if original had a customer)
-    if (original.customerId) {
-      await reverseCustomerLedger(
-        tx,
-        original.customerId,
-        id,
-        Number(original.totalAmount),
-        Number(original.paidAmount),
-        userId,
-      );
-    }
-
-    // 5. Delete original sale items (child rows, no independent ledger value)
+    // 3. Delete original sale items (child rows, no independent ledger value)
     await tx.domSaleItem.deleteMany({ where: { domSaleId: id } });
 
     // ── REPOST PHASE ─────────────────────────────────────────────────────────
 
-    // 6. Validate new stock batches + build stockMap
+    // 4. Validate new stock batches + build stockMap
     const stockMap = await assertAndFetchStocks(tx, items);
     const productQtys = resolveProductQtys(items, stockMap);
-    const custody = resolveCustody(items, stockMap);
-    const newCustomerId = customerId ?? original.customerId;
+    const collected = resolveEmpties(items, stockMap);
 
-    // 6b. Checked after the reversal, so the holding is the pre-invoice figure
-    if (newCustomerId)
-      await assertCustomerHoldsEmpties(tx, newCustomerId, custody.collected);
-
-    // 7. Write corrected items + Stock.quantity-- + CylinderTransactions
+    // 5. Write corrected items + Stock.quantity-- + CylinderTransactions
     await writeSaleItems(tx, id, items, stockMap);
 
-    // 8. Apply new GodownInventory delta — fulls out, empties in
+    // 6. Apply new GodownInventory delta — fulls out, empties in
     await applyGodownDelta(tx, productQtys, -1);
-    await applyGodownEmpties(tx, custody.collected);
+    await applyGodownEmpties(tx, collected);
 
-    // 8b. What the customer now holds
-    if (newCustomerId)
-      await applyDomesticCustody(tx, newCustomerId, custody.net, 1);
-
-    // 9. Apply new customer ledger (falls back to original customer if not changed)
-    if (newCustomerId) {
-      await applyCustomerLedger(
-        tx,
-        newCustomerId,
-        id,
-        totalAmount,
-        paidAmount,
-        userId,
-      );
-    }
-
-    // 10. Update sale header in place (keeps original id and trNo)
+    // 7. Update sale header in place (keeps original id and trNo)
     return tx.domSale.update({
       where: { id },
       data: {
         ...header,
-        customerId: newCustomerId ?? null,
+        fieldStaffId,
         totalAmount,
-        paidAmount,
+        paidAmount: totalAmount,
         discount: discount ?? null,
-        updatedById: userId,
+        updatedById: actor.userId,
       },
       include: domSaleInclude,
     });
@@ -758,9 +761,12 @@ export async function updateDomSale(
 // Strategy: same reverse phase as update, then soft-delete the header.
 // =============================================================================
 
-export async function deleteDomSale(id: number, userId: number) {
+export async function deleteDomSale(id: number, actor: DomSaleActor) {
+  const userId = actor.userId;
+
   return prisma.$transaction(async (tx) => {
     const original = await assertDomSaleExists(tx, id);
+    assertCanAccessSale(actor, original);
     const originalCustody = resolveOriginalCustody(original.items);
 
     if (original.customerId)
@@ -776,11 +782,11 @@ export async function deleteDomSale(id: number, userId: number) {
     // 2. Restore Stock.quantity
     await restoreStockQuantities(tx, original.items);
 
-    // 3. Give back what it did to the customer's holding
+    // 3. Old, customer-linked sales only: give back what it did to the holding
     if (original.customerId)
       await applyDomesticCustody(tx, original.customerId, originalCustody, -1);
 
-    // 4. Reverse customer ledger
+    // 4. …and take its unpaid amount back off the customer's balance
     if (original.customerId) {
       await reverseCustomerLedger(
         tx,

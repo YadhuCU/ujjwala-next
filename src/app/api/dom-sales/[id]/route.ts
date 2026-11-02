@@ -10,22 +10,26 @@ type Props = {
 };
 
 export async function GET(_request: Request, { params }: Props) {
-  return withAuth(async () => {
+  return withAuth(async ({ userId, permissions, isOwner }) => {
     const { id } = await params;
-    const sale = await DomSaleService.getDomSaleById(Number(id));
+    const sale = await DomSaleService.getDomSaleById(Number(id), {
+      userId,
+      permissions,
+      isOwner,
+    });
     return formatResponse({ data: sale });
   }, [PERMISSIONS.DOMESTIC_SALE_READ]);
 }
 
 export async function PUT(req: NextRequest, { params }: Props) {
   return withAuth(
-    async ({ id: userId }) => {
+    async ({ userId, permissions, isOwner }) => {
       const { id: domSaleId } = await params;
       const data = UpdateDomSaleSchema.parse(await req.json());
       const sale = await DomSaleService.updateDomSale(
         parseInt(domSaleId),
         data,
-        parseInt(userId),
+        { userId, permissions, isOwner },
       );
       return formatResponse({
         data: sale,
@@ -38,9 +42,13 @@ export async function PUT(req: NextRequest, { params }: Props) {
 
 export async function DELETE(_req: NextRequest, { params }: Props) {
   return withAuth(
-    async ({ id: userId }) => {
+    async ({ userId, permissions, isOwner }) => {
       const { id: domSaleId } = await params;
-      await DomSaleService.deleteDomSale(parseInt(domSaleId), parseInt(userId));
+      await DomSaleService.deleteDomSale(parseInt(domSaleId), {
+        userId,
+        permissions,
+        isOwner,
+      });
       return formatResponse({
         data: null,
         message: "Sale deleted successfully",

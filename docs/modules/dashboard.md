@@ -13,6 +13,14 @@ alerts.
   `todayStart = startOfBusinessDay(now)`; trend buckets keyed by `businessDayKey`.
 - Scope `SCOPES.DASHBOARD` applied to sales, expenses and payment-ledger
   collections; **not** to customer count, low stock, custody or balances.
+  Domestic sales scope on `fieldStaffId` (whose round), the rest on
+  `createdById`.
+- **Collections** = PAYMENT rows on the money ledger **plus** `paidAmount` of
+  every domestic sale with no customer — a field staff round is paid in full
+  but writes nothing to the ledger. Older customer-linked domestic sales are
+  skipped there, since their payments are already ledger rows.
+- Recent transactions show a domestic sale's field staff where others show
+  the customer.
 - Returns `scope` and `canSeeFinancials` (`dashboard.financials` or a system
   role) **instead of a role name** — the client used to compare `role !== "OWNER"`.
 - `kpis`: totalRevenue, totalProfit (revenue − cost − expenses), totalExpenses,

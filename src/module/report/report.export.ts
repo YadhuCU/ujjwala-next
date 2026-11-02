@@ -58,6 +58,7 @@ export type SaleExportRow = {
   paymentType: string;
   customer: { name: string | null } | null;
   createdBy: { name: string | null } | null;
+  fieldStaff?: { name: string | null } | null;
   items: {
     quantity: number;
     salePrice: Money;
@@ -80,10 +81,13 @@ const money = (value: Money) => Number(value ?? 0).toFixed(2);
 export function saleExportColumns({
   withType = false,
   withCustody = false,
+  withFieldStaff = false,
 }: {
   /** Dom and commercial lines are RENT or SALE; ARB lines have no type. */
   withType?: boolean;
   withCustody?: boolean;
+  /** Domestic: who made the round, in place of a customer. */
+  withFieldStaff?: boolean;
 } = {}): ExportColumn<SaleLine<SaleExportRow>>[] {
   const invoiceMoney = (line: SaleLine<SaleExportRow>, value: string) =>
     line.first ? value : "";
@@ -94,7 +98,9 @@ export function saleExportColumns({
       header: "Date",
       value: (l) => new Date(l.sale.createdAt).toLocaleDateString("en-IN"),
     },
-    { header: "Customer", value: (l) => l.sale.customer?.name ?? "" },
+    withFieldStaff
+      ? { header: "Field Staff", value: (l) => l.sale.fieldStaff?.name ?? "" }
+      : { header: "Customer", value: (l) => l.sale.customer?.name ?? "" },
     { header: "Item", value: (l) => l.item?.product?.name ?? "" },
     { header: "Batch", value: (l) => l.item?.stock?.batchNo ?? "" },
     ...(withType

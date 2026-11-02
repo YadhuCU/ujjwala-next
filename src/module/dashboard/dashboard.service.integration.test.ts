@@ -8,6 +8,7 @@ import { PERMISSIONS } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import {
   makeCustomer,
+  makeFieldStaff,
   makeProduct,
   makeStock,
   makeUser,
@@ -15,6 +16,7 @@ import {
 } from "@/test/factories";
 import * as DashboardService from "./dashboard.service";
 import * as DomSaleService from "@/module/dom-sale/dom-sale.service";
+import * as ArbSaleService from "@/module/arb-sale/arb-sale.service";
 import * as ExpenseService from "@/module/expense/expense.service";
 import * as CustomerTxnService from "@/module/customer-txn/customer-txn.service";
 
@@ -47,21 +49,35 @@ beforeEach(async () => {
   customerId = (await makeCustomer()).id;
 });
 
-async function sell(createdBy: number, salePrice: number, quantity = 1) {
+/**
+ * A domestic round — paid in full at the door. With `forStaff` the office
+ * enters it on that field staff member's behalf.
+ */
+async function sell(
+  createdBy: number,
+  salePrice: number,
+  quantity = 1,
+  forStaff?: number,
+) {
   const product = await makeProduct(ProductType.DOMESTIC);
   await seedGodown(product.id, { filledQty: 100 });
   const stock = await makeStock(product.id, 100);
 
   return DomSaleService.createDomSale(
     {
-      customerId,
+      fieldStaffId: forStaff,
       paymentType: PaymentType.CASH,
-      paidAmount: 0,
       discount: undefined,
       notes: undefined,
       items: [{ stockId: stock.id, quantity, salePrice, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
     },
-    createdBy,
+    {
+      userId: createdBy,
+      permissions: [
+        PERMISSIONS.DOMESTIC_SALE_CREATE,
+        ...(forStaff ? [PERMISSIONS.DOMESTIC_SALE_READ_ALL] : []),
+      ],
+    },
   );
 }
 
@@ -94,7 +110,7 @@ describe("KPIs", () => {
     expect(data.kpis.totalProfit).toBe(150);
   });
 
-  it("counts collections from the payment ledger", async () => {
+  it("counts collections from the payment ledger and from domestic rounds", async () => {
     await sell(ownerId, 1000, 1);
     await CustomerTxnService.recordPayment(
       customerId,
@@ -104,8 +120,9 @@ describe("KPIs", () => {
 
     const data = await DashboardService.getDashboard(range, owner());
 
-    // Standalone payments count; the sale itself was unpaid
-    expect(data.kpis.totalCollections).toBe(400);
+    // A domestic round is paid in full at the door but never touches the
+    // money ledger, so its 1000 is added to the standalone payment
+    expect(data.kpis.totalCollections).toBe(1400);
   });
 
   it("counts customers", async () => {
@@ -145,7 +162,8 @@ describe("staff scoping", () => {
     const forOwner = await DashboardService.getDashboard(range, owner());
     const forStaff = await DashboardService.getDashboard(range, staff());
 
-    expect(forOwner.kpis.totalCollections).toBe(700);
+    // The owner's 1000 domestic round is cash they collected too
+    expect(forOwner.kpis.totalCollections).toBe(1700);
     expect(forStaff.kpis.totalCollections).toBe(200);
   });
 
@@ -160,6 +178,22 @@ describe("staff scoping", () => {
 
     expect(forStaff.scope).toBe("own");
     expect(forStaff.canSeeFinancials).toBe(false);
+  });
+
+  // The office enters most rounds; the figures are the field staff's
+  it("counts a domestic round under its field staff, not whoever entered it", async () => {
+    const fieldStaffId = (await makeFieldStaff("Ravi")).id;
+    await sell(ownerId, 600, 1, fieldStaffId);
+
+    const forFieldStaff = await DashboardService.getDashboard(range, {
+      userId: fieldStaffId,
+      permissions: [PERMISSIONS.DASHBOARD_READ_OWN],
+    });
+    const forOffice = await DashboardService.getDashboard(range, staff());
+
+    expect(forFieldStaff.kpis.totalRevenue).toBe(600);
+    expect(forFieldStaff.kpis.domSaleCount).toBe(1);
+    expect(forOffice.kpis.domSaleCount).toBe(0);
   });
 
   it("shows money totals to any role granted them, agency-wide or not", async () => {
@@ -234,7 +268,7 @@ describe("commercial alerts", () => {
       ownerId,
     );
     // Put a real debt on the second customer
-    await DomSaleService.createDomSale(
+    await ArbSaleService.createArbSale(
       {
         customerId: other.id,
         paymentType: PaymentType.CASH,
@@ -246,7 +280,8 @@ describe("commercial alerts", () => {
             stockId: (await makeStock((await makeProduct(ProductType.ARB)).id, 10))
               .id,
             quantity: 1,
-            salePrice: 5000, saleType: CommercialSaleType.SALE, emptiesCollected: 0 },
+            salePrice: 5000,
+          },
         ],
       },
       ownerId,

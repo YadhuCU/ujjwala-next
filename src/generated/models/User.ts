@@ -267,6 +267,7 @@ export type UserWhereInput = {
   userRoles?: Prisma.UserRoleListRelationFilter
   domSalesCreated?: Prisma.DomSaleListRelationFilter
   domSalesUpdated?: Prisma.DomSaleListRelationFilter
+  domSalesAsFieldStaff?: Prisma.DomSaleListRelationFilter
   arbSalesCreated?: Prisma.ArbSaleListRelationFilter
   arbSalesUpdated?: Prisma.ArbSaleListRelationFilter
   commercialSalesCreated?: Prisma.CommercialSaleListRelationFilter
@@ -294,6 +295,7 @@ export type UserOrderByWithRelationInput = {
   userRoles?: Prisma.UserRoleOrderByRelationAggregateInput
   domSalesCreated?: Prisma.DomSaleOrderByRelationAggregateInput
   domSalesUpdated?: Prisma.DomSaleOrderByRelationAggregateInput
+  domSalesAsFieldStaff?: Prisma.DomSaleOrderByRelationAggregateInput
   arbSalesCreated?: Prisma.ArbSaleOrderByRelationAggregateInput
   arbSalesUpdated?: Prisma.ArbSaleOrderByRelationAggregateInput
   commercialSalesCreated?: Prisma.CommercialSaleOrderByRelationAggregateInput
@@ -324,6 +326,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   userRoles?: Prisma.UserRoleListRelationFilter
   domSalesCreated?: Prisma.DomSaleListRelationFilter
   domSalesUpdated?: Prisma.DomSaleListRelationFilter
+  domSalesAsFieldStaff?: Prisma.DomSaleListRelationFilter
   arbSalesCreated?: Prisma.ArbSaleListRelationFilter
   arbSalesUpdated?: Prisma.ArbSaleListRelationFilter
   commercialSalesCreated?: Prisma.CommercialSaleListRelationFilter
@@ -386,6 +389,7 @@ export type UserCreateInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -413,6 +417,7 @@ export type UserUncheckedCreateInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -439,6 +444,7 @@ export type UserUpdateInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -466,6 +472,7 @@ export type UserUncheckedUpdateInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -681,6 +688,12 @@ export type UserUpdateOneWithoutAdjustmentsCreatedNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAdjustmentsCreatedInput, Prisma.UserUpdateWithoutAdjustmentsCreatedInput>, Prisma.UserUncheckedUpdateWithoutAdjustmentsCreatedInput>
 }
 
+export type UserCreateNestedOneWithoutDomSalesAsFieldStaffInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDomSalesAsFieldStaffInput, Prisma.UserUncheckedCreateWithoutDomSalesAsFieldStaffInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDomSalesAsFieldStaffInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserCreateNestedOneWithoutDomSalesCreatedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutDomSalesCreatedInput, Prisma.UserUncheckedCreateWithoutDomSalesCreatedInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutDomSalesCreatedInput
@@ -691,6 +704,16 @@ export type UserCreateNestedOneWithoutDomSalesUpdatedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutDomSalesUpdatedInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutDomSalesUpdatedInput
   connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutDomSalesAsFieldStaffNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDomSalesAsFieldStaffInput, Prisma.UserUncheckedCreateWithoutDomSalesAsFieldStaffInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDomSalesAsFieldStaffInput
+  upsert?: Prisma.UserUpsertWithoutDomSalesAsFieldStaffInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDomSalesAsFieldStaffInput, Prisma.UserUpdateWithoutDomSalesAsFieldStaffInput>, Prisma.UserUncheckedUpdateWithoutDomSalesAsFieldStaffInput>
 }
 
 export type UserUpdateOneWithoutDomSalesCreatedNestedInput = {
@@ -822,6 +845,7 @@ export type UserCreateWithoutUserRolesInput = {
   updatedAt?: Date | string
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -848,6 +872,7 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   updatedAt?: Date | string
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -889,6 +914,7 @@ export type UserUpdateWithoutUserRolesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -915,6 +941,7 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -941,6 +968,7 @@ export type UserCreateWithoutRbacAuditEntriesInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -967,6 +995,7 @@ export type UserUncheckedCreateWithoutRbacAuditEntriesInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1008,6 +1037,7 @@ export type UserUpdateWithoutRbacAuditEntriesInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -1034,6 +1064,7 @@ export type UserUncheckedUpdateWithoutRbacAuditEntriesInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1059,6 +1090,7 @@ export type UserCreateWithoutPurchasesCreatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -1085,6 +1117,7 @@ export type UserUncheckedCreateWithoutPurchasesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1115,6 +1148,7 @@ export type UserCreateWithoutPurchasesUpdatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -1141,6 +1175,7 @@ export type UserUncheckedCreateWithoutPurchasesUpdatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1182,6 +1217,7 @@ export type UserUpdateWithoutPurchasesCreatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -1208,6 +1244,7 @@ export type UserUncheckedUpdateWithoutPurchasesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1244,6 +1281,7 @@ export type UserUpdateWithoutPurchasesUpdatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -1270,6 +1308,7 @@ export type UserUncheckedUpdateWithoutPurchasesUpdatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1295,6 +1334,7 @@ export type UserCreateWithoutAdjustmentsCreatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -1321,6 +1361,7 @@ export type UserUncheckedCreateWithoutAdjustmentsCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1362,6 +1403,7 @@ export type UserUpdateWithoutAdjustmentsCreatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -1388,6 +1430,7 @@ export type UserUncheckedUpdateWithoutAdjustmentsCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1397,6 +1440,64 @@ export type UserUncheckedUpdateWithoutAdjustmentsCreatedInput = {
   expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
   paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
   rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
+}
+
+export type UserCreateWithoutDomSalesAsFieldStaffInput = {
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogCreateNestedManyWithoutActorInput
+}
+
+export type UserUncheckedCreateWithoutDomSalesAsFieldStaffInput = {
+  id?: number
+  uuid?: string
+  username: string
+  name?: string | null
+  password: string
+  isActive?: boolean
+  email?: string | null
+  mobile?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  purchasesCreated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutCreatedByInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedCreateNestedManyWithoutUpdatedByInput
+  expensesCreated?: Prisma.ExpenseUncheckedCreateNestedManyWithoutCreatedByInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedCreateNestedManyWithoutCreatedByInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedCreateNestedManyWithoutCreatedByInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedCreateNestedManyWithoutActorInput
+}
+
+export type UserCreateOrConnectWithoutDomSalesAsFieldStaffInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDomSalesAsFieldStaffInput, Prisma.UserUncheckedCreateWithoutDomSalesAsFieldStaffInput>
 }
 
 export type UserCreateWithoutDomSalesCreatedInput = {
@@ -1412,6 +1513,7 @@ export type UserCreateWithoutDomSalesCreatedInput = {
   updatedAt?: Date | string
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -1438,6 +1540,7 @@ export type UserUncheckedCreateWithoutDomSalesCreatedInput = {
   updatedAt?: Date | string
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1468,6 +1571,7 @@ export type UserCreateWithoutDomSalesUpdatedInput = {
   updatedAt?: Date | string
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -1494,6 +1598,7 @@ export type UserUncheckedCreateWithoutDomSalesUpdatedInput = {
   updatedAt?: Date | string
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -1509,6 +1614,70 @@ export type UserUncheckedCreateWithoutDomSalesUpdatedInput = {
 export type UserCreateOrConnectWithoutDomSalesUpdatedInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutDomSalesUpdatedInput, Prisma.UserUncheckedCreateWithoutDomSalesUpdatedInput>
+}
+
+export type UserUpsertWithoutDomSalesAsFieldStaffInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDomSalesAsFieldStaffInput, Prisma.UserUncheckedUpdateWithoutDomSalesAsFieldStaffInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDomSalesAsFieldStaffInput, Prisma.UserUncheckedCreateWithoutDomSalesAsFieldStaffInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDomSalesAsFieldStaffInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDomSalesAsFieldStaffInput, Prisma.UserUncheckedUpdateWithoutDomSalesAsFieldStaffInput>
+}
+
+export type UserUpdateWithoutDomSalesAsFieldStaffInput = {
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUpdateManyWithoutActorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDomSalesAsFieldStaffInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  uuid?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  purchasesCreated?: Prisma.PurchaseUncheckedUpdateManyWithoutCreatedByNestedInput
+  purchasesUpdated?: Prisma.PurchaseUncheckedUpdateManyWithoutUpdatedByNestedInput
+  expensesCreated?: Prisma.ExpenseUncheckedUpdateManyWithoutCreatedByNestedInput
+  adjustmentsCreated?: Prisma.StockAdjustmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  paymentsCreated?: Prisma.CustomerPaymentLedgerUncheckedUpdateManyWithoutCreatedByNestedInput
+  rbacAuditEntries?: Prisma.RbacAuditLogUncheckedUpdateManyWithoutActorNestedInput
 }
 
 export type UserUpsertWithoutDomSalesCreatedInput = {
@@ -1535,6 +1704,7 @@ export type UserUpdateWithoutDomSalesCreatedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -1561,6 +1731,7 @@ export type UserUncheckedUpdateWithoutDomSalesCreatedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1597,6 +1768,7 @@ export type UserUpdateWithoutDomSalesUpdatedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -1623,6 +1795,7 @@ export type UserUncheckedUpdateWithoutDomSalesUpdatedInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -1649,6 +1822,7 @@ export type UserCreateWithoutArbSalesCreatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
   commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
@@ -1675,6 +1849,7 @@ export type UserUncheckedCreateWithoutArbSalesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
   commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
@@ -1705,6 +1880,7 @@ export type UserCreateWithoutArbSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
   commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
@@ -1731,6 +1907,7 @@ export type UserUncheckedCreateWithoutArbSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
   commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
@@ -1772,6 +1949,7 @@ export type UserUpdateWithoutArbSalesCreatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
   commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
@@ -1798,6 +1976,7 @@ export type UserUncheckedUpdateWithoutArbSalesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
@@ -1834,6 +2013,7 @@ export type UserUpdateWithoutArbSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
   commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
@@ -1860,6 +2040,7 @@ export type UserUncheckedUpdateWithoutArbSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
@@ -1885,6 +2066,7 @@ export type UserCreateWithoutCommercialSalesCreatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesUpdated?: Prisma.CommercialSaleCreateNestedManyWithoutUpdatedByInput
@@ -1911,6 +2093,7 @@ export type UserUncheckedCreateWithoutCommercialSalesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesUpdated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutUpdatedByInput
@@ -1941,6 +2124,7 @@ export type UserCreateWithoutCommercialSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -1967,6 +2151,7 @@ export type UserUncheckedCreateWithoutCommercialSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2008,6 +2193,7 @@ export type UserUpdateWithoutCommercialSalesCreatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesUpdated?: Prisma.CommercialSaleUpdateManyWithoutUpdatedByNestedInput
@@ -2034,6 +2220,7 @@ export type UserUncheckedUpdateWithoutCommercialSalesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesUpdated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
@@ -2070,6 +2257,7 @@ export type UserUpdateWithoutCommercialSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -2096,6 +2284,7 @@ export type UserUncheckedUpdateWithoutCommercialSalesUpdatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2121,6 +2310,7 @@ export type UserCreateWithoutExpensesCreatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -2147,6 +2337,7 @@ export type UserUncheckedCreateWithoutExpensesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2188,6 +2379,7 @@ export type UserUpdateWithoutExpensesCreatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -2214,6 +2406,7 @@ export type UserUncheckedUpdateWithoutExpensesCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2239,6 +2432,7 @@ export type UserCreateWithoutPaymentsCreatedInput = {
   userRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleCreateNestedManyWithoutCreatedByInput
@@ -2265,6 +2459,7 @@ export type UserUncheckedCreateWithoutPaymentsCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
   domSalesCreated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutCreatedByInput
   domSalesUpdated?: Prisma.DomSaleUncheckedCreateNestedManyWithoutUpdatedByInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedCreateNestedManyWithoutFieldStaffInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutCreatedByInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedCreateNestedManyWithoutUpdatedByInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2306,6 +2501,7 @@ export type UserUpdateWithoutPaymentsCreatedInput = {
   userRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUpdateManyWithoutCreatedByNestedInput
@@ -2332,6 +2528,7 @@ export type UserUncheckedUpdateWithoutPaymentsCreatedInput = {
   userRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
   domSalesCreated?: Prisma.DomSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   domSalesUpdated?: Prisma.DomSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  domSalesAsFieldStaff?: Prisma.DomSaleUncheckedUpdateManyWithoutFieldStaffNestedInput
   arbSalesCreated?: Prisma.ArbSaleUncheckedUpdateManyWithoutCreatedByNestedInput
   arbSalesUpdated?: Prisma.ArbSaleUncheckedUpdateManyWithoutUpdatedByNestedInput
   commercialSalesCreated?: Prisma.CommercialSaleUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2352,6 +2549,7 @@ export type UserCountOutputType = {
   userRoles: number
   domSalesCreated: number
   domSalesUpdated: number
+  domSalesAsFieldStaff: number
   arbSalesCreated: number
   arbSalesUpdated: number
   commercialSalesCreated: number
@@ -2368,6 +2566,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   userRoles?: boolean | UserCountOutputTypeCountUserRolesArgs
   domSalesCreated?: boolean | UserCountOutputTypeCountDomSalesCreatedArgs
   domSalesUpdated?: boolean | UserCountOutputTypeCountDomSalesUpdatedArgs
+  domSalesAsFieldStaff?: boolean | UserCountOutputTypeCountDomSalesAsFieldStaffArgs
   arbSalesCreated?: boolean | UserCountOutputTypeCountArbSalesCreatedArgs
   arbSalesUpdated?: boolean | UserCountOutputTypeCountArbSalesUpdatedArgs
   commercialSalesCreated?: boolean | UserCountOutputTypeCountCommercialSalesCreatedArgs
@@ -2408,6 +2607,13 @@ export type UserCountOutputTypeCountDomSalesCreatedArgs<ExtArgs extends runtime.
  * UserCountOutputType without action
  */
 export type UserCountOutputTypeCountDomSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DomSaleWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDomSalesAsFieldStaffArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DomSaleWhereInput
 }
 
@@ -2497,6 +2703,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   userRoles?: boolean | Prisma.User$userRolesArgs<ExtArgs>
   domSalesCreated?: boolean | Prisma.User$domSalesCreatedArgs<ExtArgs>
   domSalesUpdated?: boolean | Prisma.User$domSalesUpdatedArgs<ExtArgs>
+  domSalesAsFieldStaff?: boolean | Prisma.User$domSalesAsFieldStaffArgs<ExtArgs>
   arbSalesCreated?: boolean | Prisma.User$arbSalesCreatedArgs<ExtArgs>
   arbSalesUpdated?: boolean | Prisma.User$arbSalesUpdatedArgs<ExtArgs>
   commercialSalesCreated?: boolean | Prisma.User$commercialSalesCreatedArgs<ExtArgs>
@@ -2557,6 +2764,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   userRoles?: boolean | Prisma.User$userRolesArgs<ExtArgs>
   domSalesCreated?: boolean | Prisma.User$domSalesCreatedArgs<ExtArgs>
   domSalesUpdated?: boolean | Prisma.User$domSalesUpdatedArgs<ExtArgs>
+  domSalesAsFieldStaff?: boolean | Prisma.User$domSalesAsFieldStaffArgs<ExtArgs>
   arbSalesCreated?: boolean | Prisma.User$arbSalesCreatedArgs<ExtArgs>
   arbSalesUpdated?: boolean | Prisma.User$arbSalesUpdatedArgs<ExtArgs>
   commercialSalesCreated?: boolean | Prisma.User$commercialSalesCreatedArgs<ExtArgs>
@@ -2578,6 +2786,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     userRoles: Prisma.$UserRolePayload<ExtArgs>[]
     domSalesCreated: Prisma.$DomSalePayload<ExtArgs>[]
     domSalesUpdated: Prisma.$DomSalePayload<ExtArgs>[]
+    domSalesAsFieldStaff: Prisma.$DomSalePayload<ExtArgs>[]
     arbSalesCreated: Prisma.$ArbSalePayload<ExtArgs>[]
     arbSalesUpdated: Prisma.$ArbSalePayload<ExtArgs>[]
     commercialSalesCreated: Prisma.$CommercialSalePayload<ExtArgs>[]
@@ -2998,6 +3207,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   userRoles<T extends Prisma.User$userRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$userRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domSalesCreated<T extends Prisma.User$domSalesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$domSalesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domSalesUpdated<T extends Prisma.User$domSalesUpdatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$domSalesUpdatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  domSalesAsFieldStaff<T extends Prisma.User$domSalesAsFieldStaffArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$domSalesAsFieldStaffArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   arbSalesCreated<T extends Prisma.User$arbSalesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$arbSalesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   arbSalesUpdated<T extends Prisma.User$arbSalesUpdatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$arbSalesUpdatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArbSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commercialSalesCreated<T extends Prisma.User$commercialSalesCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$commercialSalesCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommercialSalePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3492,6 +3702,30 @@ export type User$domSalesCreatedArgs<ExtArgs extends runtime.Types.Extensions.In
  * User.domSalesUpdated
  */
 export type User$domSalesUpdatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DomSale
+   */
+  select?: Prisma.DomSaleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DomSale
+   */
+  omit?: Prisma.DomSaleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DomSaleInclude<ExtArgs> | null
+  where?: Prisma.DomSaleWhereInput
+  orderBy?: Prisma.DomSaleOrderByWithRelationInput | Prisma.DomSaleOrderByWithRelationInput[]
+  cursor?: Prisma.DomSaleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DomSaleScalarFieldEnum | Prisma.DomSaleScalarFieldEnum[]
+}
+
+/**
+ * User.domSalesAsFieldStaff
+ */
+export type User$domSalesAsFieldStaffArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the DomSale
    */

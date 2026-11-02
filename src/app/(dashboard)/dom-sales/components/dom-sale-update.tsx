@@ -34,12 +34,15 @@ export default function DomSaleUpdateComponent() {
   const formDefaults = {
     ...domSale,
     notes: domSale.notes ?? "",
+    // A sale with no discount comes back as null, which an input rejects
+    discount: domSale.discount ?? "",
   } as DomSaleFormValues;
 
   return (
     <DomSaleForm
       defaultValues={formDefaults}
       isEditMode
+      legacyCustomerName={domSale.customer?.name}
       onSubmit={(values) => updateMutation.mutate(values)}
       isPending={updateMutation.isPending}
     />

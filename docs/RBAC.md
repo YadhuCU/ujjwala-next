@@ -55,7 +55,7 @@ Legend: **View / Add / Edit / Delete** are the four codes for that module.
 | **Stock** | `/stock` | `stock.*` | No | `stock.update` also gates posting a stock adjustment. |
 | **Stock adjustments** | `/stock-adjustments` | View: `stock.read`, Post: `stock.update` | No | Append-only; nothing can edit or delete one. |
 | **Purchases** | `/purchases` | `purchase.*` | No | Everyone who can view purchases sees all of them. |
-| **Domestic sale** | `/dom-sales` | `domestic_sale.*` | No | See the note below the table. |
+| **Domestic sale** | `/dom-sales` | `domestic_sale.read` + a scope, `domestic_sale.create/update/delete` | **Yes** | Scoped on the **field staff** a sale belongs to, not its author. "Every field staff's sales" (`domestic_sale.read.all`) is also what shows the Field staff dropdown — give it to the office; field staff get "Own sales only". |
 | **ARB sale** | `/arb-sales` | `arb_sale.*` | No | |
 | **Commercial sale** | `/commercial-sales` | `commercial_sale.*` | No | Recording a cylinder return needs `commercial_sale.update`. |
 | **Customers** | `/customers` | `customer.*` | No | |
@@ -68,9 +68,9 @@ Legend: **View / Add / Edit / Delete** are the four codes for that module.
 | **Users** | `/users` | `user.*` | No | Extra guards in §5. |
 | **Roles & permissions** | `/roles` | `role.*` | No | Changes are recorded — see §6. |
 
-> **Sale and purchase lists are not author-scoped.** Anyone who can view a sale
-> type sees every invoice of it, including colleagues'. Only expenses, reports
-> and the dashboard distinguish own records. This was a deliberate choice; if
+> **ARB, commercial and purchase lists are not author-scoped.** Anyone who can
+> view them sees every invoice, including colleagues'. Expenses, reports, the
+> dashboard and domestic sales distinguish own records. This was a deliberate choice; if
 > the agency wants field staff to see only their own invoices, it is a small
 > addition rather than a redesign.
 

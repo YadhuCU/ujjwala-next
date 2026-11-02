@@ -7,6 +7,13 @@ import { CustomerResponse } from "@/module/customer/customer.serializer";
 import { LocationResponse } from "@/module/location/location.serializer";
 import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
 import { DomSaleResponse } from "@/module/dom-sale/dom-sale.serializer";
+
+/** Someone the office can record a domestic round for. */
+export type DomSaleFieldStaff = {
+  id: number;
+  name: string | null;
+  username: string;
+};
 import {
   CustomerSummaryResponse,
   LedgerEntryResponse,
@@ -94,6 +101,10 @@ export const api = {
   getDomSales: () =>
     apiClient
       .get<ApiResponse<DomSaleResponse[]>>("/api/dom-sales")
+      .then((r) => r.data),
+  getDomSaleFieldStaff: () =>
+    apiClient
+      .get<ApiResponse<DomSaleFieldStaff[]>>("/api/dom-sales/field-staff")
       .then((r) => r.data),
   getArbSales: () =>
     apiClient

@@ -341,6 +341,7 @@ export const DomSaleScalarFieldEnum = {
   id: 'id',
   trNo: 'trNo',
   customerId: 'customerId',
+  fieldStaffId: 'fieldStaffId',
   totalAmount: 'totalAmount',
   paidAmount: 'paidAmount',
   discount: 'discount',

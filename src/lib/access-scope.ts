@@ -29,19 +29,26 @@ export function resolveScope(actor: Actor, pair: ScopePair): AccessScope {
   return "none";
 }
 
+/** The column that says whose a row is. Almost always its author. */
+type OwnerColumn = "createdById" | "fieldStaffId";
+
 /**
  * The `where` fragment for an author-scoped query.
  *
  * Throws on "none" rather than returning a filter that matches nothing: a user
  * with no scope at all should be told they lack access, not shown a convincing
  * empty list.
+ *
+ * `column` is for the one module whose rows belong to someone other than their
+ * author: a domestic sale is the field staff member's, whoever entered it.
  */
-export function scopeFilter(
+export function scopeFilter<C extends OwnerColumn = "createdById">(
   actor: Actor,
   scope: AccessScope,
-): { createdById?: number } {
+  column: C = "createdById" as C,
+): Partial<Record<C, number>> {
   if (scope === "all") return {};
-  if (scope === "own") return { createdById: actor.userId };
+  if (scope === "own") return { [column]: actor.userId } as Record<C, number>;
 
   throw new ForbiddenError("You do not have access to this data");
 }
@@ -58,11 +65,12 @@ export function scopedWhere(actor: Actor, pair: ScopePair) {
 export function assertCanAccessRecord(
   actor: Actor,
   scope: AccessScope,
-  record: { createdById?: number | null },
+  record: { createdById?: number | null; fieldStaffId?: number | null },
   message = "You can only manage records you created",
+  column: OwnerColumn = "createdById",
 ) {
   if (scope === "all") return;
-  if (scope === "own" && record.createdById === actor.userId) return;
+  if (scope === "own" && record[column] === actor.userId) return;
 
   throw new ForbiddenError(message);
 }

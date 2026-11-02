@@ -128,6 +128,7 @@ model User {
   userRoles              UserRole[]
   domSalesCreated        DomSale[]               @relation("DomSalesCreatedBy")
   domSalesUpdated        DomSale[]               @relation("DomSalesUpdatedBy")
+  domSalesAsFieldStaff   DomSale[]               @relation("DomSalesFieldStaff")
   arbSalesCreated        ArbSale[]               @relation("ArbSalesCreatedBy")
   arbSalesUpdated        ArbSale[]               @relation("ArbSalesUpdatedBy")
   commercialSalesCreated CommercialSale[]        @relation("CommercialSalesCreatedBy")
@@ -524,28 +525,36 @@ model StockAdjustment {
 // =============================================================================
 
 model DomSale {
-  id          Int         @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   /// Human-readable transaction reference. Must be unique across all dom sales.
-  trNo        String?     @unique @map("tr_no") @db.VarChar(30)
-  customerId  Int         @map("customer_id")
+  trNo         String?     @unique @map("tr_no") @db.VarChar(30)
+  /// Only sales from before domestic moved to field staff carry a customer.
+  /// A new domestic sale belongs to the field staff member who made the round.
+  customerId   Int?        @map("customer_id")
   /// Restrict: do not allow customer deletion if sales exist.
-  customer    Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  totalAmount Decimal     @map("total_amount") @db.Decimal(10, 2)
-  paidAmount  Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
-  discount    Decimal?    @db.Decimal(10, 2)
-  paymentType PaymentType @default(CASH) @map("payment_type")
-  notes       String?
-  isDeleted   Boolean     @default(false) @map("is_deleted")
-  createdById Int?        @map("created_by_id")
-  createdBy   User?       @relation("DomSalesCreatedBy", fields: [createdById], references: [id])
-  updatedById Int?        @map("updated_by_id")
-  updatedBy   User?       @relation("DomSalesUpdatedBy", fields: [updatedById], references: [id])
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  customer     Customer?   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  /// Who went door to door and collected the money. Not always the author: the
+  /// office can record a sale for a field staff member. Older rows were
+  /// backfilled with their author.
+  fieldStaffId Int?        @map("field_staff_id")
+  fieldStaff   User?       @relation("DomSalesFieldStaff", fields: [fieldStaffId], references: [id])
+  totalAmount  Decimal     @map("total_amount") @db.Decimal(10, 2)
+  paidAmount   Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  discount     Decimal?    @db.Decimal(10, 2)
+  paymentType  PaymentType @default(CASH) @map("payment_type")
+  notes        String?
+  isDeleted    Boolean     @default(false) @map("is_deleted")
+  createdById  Int?        @map("created_by_id")
+  createdBy    User?       @relation("DomSalesCreatedBy", fields: [createdById], references: [id])
+  updatedById  Int?        @map("updated_by_id")
+  updatedBy    User?       @relation("DomSalesUpdatedBy", fields: [updatedById], references: [id])
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
 
   items DomSaleItem[]
 
   @@index([customerId])
+  @@index([fieldStaffId])
   @@map("dom_sales")
 }
 

@@ -25,12 +25,12 @@ import { useLocations } from "@/hooks/use-api";
 import { Plus, Trash2 } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { productsOptions } from "@/lib/query-options";
-import { isCylinderTypeProduct } from "@/module/product/product.rules";
 import {
   CustomerFormSchema,
   CustomerFormValues,
 } from "@/module/customer/customer.form.schema";
 import { twMerge } from "tailwind-merge";
+import { ProductType } from "@/generated/enums";
 
 interface CustomerFormProps {
   defaultValues?: CustomerFormValues;
@@ -49,12 +49,11 @@ export function CustomerForm({
   const { data: rawProducts = [] } = useSuspenseQuery({
     ...productsOptions(),
   });
-  // Every cylinder product — domestic as well as commercial, since domestic
-  // refills now collect the customer's empties and need to know how many they
-  // already hold. Bulk gas and accessories cannot be held, and the server
-  // refuses them too.
-  const cylinderProducts = rawProducts.filter((p) =>
-    isCylinderTypeProduct(p.type),
+  // Commercial cylinders only — a domestic sale is a field staff member's round
+  // with no customer, so nothing ever collects a domestic holding back. The
+  // server refuses anything else too.
+  const cylinderProducts = rawProducts.filter(
+    (p) => p.type === ProductType.COMMERCIAL,
   );
 
   const form = useForm<CustomerFormValues>({

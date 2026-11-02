@@ -2,7 +2,10 @@
 
 import { useForm, useFieldArray } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
-import { customerTxnOptions } from "@/lib/query-options";
+import { useSession } from "next-auth/react";
+import { domSaleFieldStaffOptions } from "@/lib/query-options";
+import { usePermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -29,18 +32,24 @@ import {
   sortStockOldestFirst,
   stockOptionLabel,
 } from "@/module/stock/stock.display";
-import { useStocks, useCustomers } from "@/hooks/use-api";
-import { Plus, Trash2 } from "lucide-react";
+import { useStocks } from "@/hooks/use-api";
+import { Info, Plus, Trash2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   DomSaleFormSchema,
   DomSaleFormValues,
 } from "@/module/dom-sale/dom-sale.form.schema";
 import { CommercialSaleType, PaymentType, ProductType } from "@/generated/enums";
-import { CustomerTxnInfo } from "../../_components/customer-txn-info";
 
 interface DomSaleFormProps {
   defaultValues?: DomSaleFormValues;
   isEditMode?: boolean;
+  /**
+   * Set when editing a sale entered against a customer, before domestic sales
+   * moved to field staff. The server refuses to edit those, so the form says
+   * so up front instead of letting someone fill it in for nothing.
+   */
+  legacyCustomerName?: string;
   onSubmit: (values: DomSaleFormValues) => void;
   isPending: boolean;
 }
@@ -50,6 +59,7 @@ interface DomSaleFormProps {
 export function DomSaleForm({
   defaultValues,
   isEditMode = false,
+  legacyCustomerName,
   onSubmit,
   isPending,
 }: DomSaleFormProps) {
@@ -61,7 +71,15 @@ export function DomSaleForm({
     stocks.filter((s) => s.quantity > 0),
   );
 
-  const { data: customers } = useCustomers();
+  // The office picks whose round this is; a field staff member's sale is
+  // simply theirs, so they get no dropdown. The server enforces the same rule.
+  const { hasPermission } = usePermission();
+  const canPickStaff = hasPermission(PERMISSIONS.DOMESTIC_SALE_READ_ALL);
+  const { data: session } = useSession();
+  const { data: fieldStaff = [] } = useQuery({
+    ...domSaleFieldStaffOptions,
+    enabled: canPickStaff,
+  });
 
   const form = useForm<DomSaleFormValues>({
     resolver: zodResolver(DomSaleFormSchema) as Resolver<DomSaleFormValues>,
@@ -76,7 +94,6 @@ export function DomSaleForm({
           emptiesCollected: 0,
         } as never,
       ],
-      paidAmount: 0,
       paymentType: PaymentType.CASH,
     },
   });
@@ -89,21 +106,7 @@ export function DomSaleForm({
   // eslint-disable-next-line react-hooks/incompatible-library -- react-hook-form's watch() cannot be memoized; these values are display-only
   const watchedItems = form.watch("items");
 
-  const selectedCustomerId = form.watch("customerId");
-
-  // What the customer holds now, so staff can see whether the empties they are
-  // about to record are ones the system knows about.
-  const { data: customerSummary } = useQuery({
-    ...customerTxnOptions(String(selectedCustomerId)),
-    enabled: !!selectedCustomerId,
-    select: (res) => res.data,
-  });
-  const heldByProduct = new Map(
-    (customerSummary?.allCylinderLedgers ?? []).map((l) => [
-      l.productId,
-      l.pendingCylinder,
-    ]),
-  );
+  const watchedDiscount = Number(form.watch("discount")) || 0;
 
   /** On a refill the empties follow the quantity until someone changes them. */
   const syncEmpties = (index: number, quantity: number) => {
@@ -113,20 +116,27 @@ export function DomSaleForm({
       });
   };
 
-  /**
-   * Computes grand total from all line items.
-   */
-  const grandTotal = watchedItems?.reduce((sum, item) => {
+  const subtotal = watchedItems?.reduce((sum, item) => {
     const qty = Number(item.quantity) || 0;
     const cost = Number(item.salePrice) || 0;
     return sum + qty * cost;
   }, 0);
+  // What the field staff collects — the whole amount, less any discount. The
+  // server recomputes it; this is for display.
+  const grandTotal = Math.max(subtotal - watchedDiscount, 0);
 
   const handleSubmit = (values: DomSaleFormValues) => {
-    const enrichedItems = values.items.map((item) => ({
-      ...item,
-    }));
-    onSubmit({ ...values, items: enrichedItems });
+    if (canPickStaff && !values.fieldStaffId) {
+      form.setError("fieldStaffId", {
+        message: "Select the field staff who made this sale",
+      });
+      return;
+    }
+    // Someone recording their own round never names a field staff
+    onSubmit({
+      ...values,
+      fieldStaffId: canPickStaff ? values.fieldStaffId : undefined,
+    });
   };
 
   if (
@@ -149,39 +159,54 @@ export function DomSaleForm({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            {/* Customer Transaction Info */}
-            {selectedCustomerId && (
-              <CustomerTxnInfo customerId={selectedCustomerId} />
+            {legacyCustomerName && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  This sale was recorded against {legacyCustomerName}, before
+                  domestic sales moved to field staff, so it cannot be edited.
+                  Delete it from the list and enter it again instead.
+                </AlertDescription>
+              </Alert>
             )}
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 place-content-stretch">
-              <FormField
-                control={form.control}
-                name="customerId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Customer</FormLabel>
-                    <Select
-                      onValueChange={(v) => field.onChange(Number(v))}
-                      value={field.value ? String(field.value) : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Customer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {customers.map((c) => (
-                          <SelectItem key={c.id} value={String(c.id)}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {canPickStaff ? (
+                <FormField
+                  control={form.control}
+                  name="fieldStaffId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Field staff</FormLabel>
+                      <Select
+                        onValueChange={(v) => field.onChange(Number(v))}
+                        value={field.value ? String(field.value) : ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Who made this round?" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {fieldStaff.map((staff) => (
+                            <SelectItem key={staff.id} value={String(staff.id)}>
+                              {staff.name || staff.username}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Field staff</p>
+                  <p className="bg-muted/50 flex h-10 items-center rounded-md border px-3 text-sm md:h-9">
+                    {session?.user?.name ?? "You"}
+                  </p>
+                </div>
+              )}
 
               <FormField
                 control={form.control}
@@ -205,27 +230,6 @@ export function DomSaleForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="paidAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Paid Amount (₹)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e.target.valueAsNumber || 0);
-                        }}
-                        placeholder="Enter amount paid."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="notes"
@@ -306,13 +310,6 @@ export function DomSaleForm({
 
                 const isRefill =
                   watchedItems[index]?.saleType === CommercialSaleType.RENT;
-                const lineProductId = stocks.find(
-                  (s) => s.id === Number(watchedItems[index]?.stockId),
-                )?.product?.id;
-                const held =
-                  lineProductId !== undefined
-                    ? (heldByProduct.get(lineProductId) ?? 0)
-                    : undefined;
 
                 return (
                   <Card key={field.id} className="p-3 sm:p-4">
@@ -444,6 +441,7 @@ export function DomSaleForm({
                                 <Input
                                   type="number"
                                   min={0}
+                                  max={qty || undefined}
                                   inputMode="numeric"
                                   {...f}
                                   value={f.value ?? 0}
@@ -452,12 +450,6 @@ export function DomSaleForm({
                                   }
                                 />
                               </FormControl>
-                              {/* Below the input, so the row's inputs stay level */}
-                              {!isEditMode && held !== undefined && (
-                                <p className="text-muted-foreground text-xs tabular-nums">
-                                  Customer holds {held}
-                                </p>
-                              )}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -519,24 +511,31 @@ export function DomSaleForm({
             </div>
 
             {/* ─── Grand Total ──────────────────── */}
-            <div className="flex flex-col items-end pt-4 border-t space-y-2">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold sm:text-xl">Grand Total: </span>
-                  <p className="text-lg font-bold text-right tabular-nums sm:text-xl">
-                    ₹{grandTotal.toFixed(2)}
-                  </p>
-                </div>
+            <div className="flex flex-col items-end gap-1 border-t pt-4">
+              {watchedDiscount > 0 && (
+                <p className="text-muted-foreground text-sm tabular-nums">
+                  Subtotal ₹{subtotal.toFixed(2)} · Discount ₹
+                  {watchedDiscount.toFixed(2)}
+                </p>
+              )}
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold sm:text-xl">Grand Total: </span>
+                <p className="text-lg font-bold text-right tabular-nums sm:text-xl">
+                  ₹{grandTotal.toFixed(2)}
+                </p>
               </div>
+              <p className="text-muted-foreground text-xs">
+                Collected in full by the field staff
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:flex">
               <Button
                 type="submit"
-                disabled={!form.formState.isDirty}
+                disabled={!form.formState.isDirty || !!legacyCustomerName}
                 isLoading={isPending}
               >
-                {isEditMode ? "Update Notes" : "Create Sale"}
+                {isEditMode ? "Update Sale" : "Create Sale"}
               </Button>
               <Button
                 type="button"
