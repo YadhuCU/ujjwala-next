@@ -32,8 +32,73 @@ export function CustomerViewComponent() {
 
   const columns: ColumnDef<CustomerResponse>[] = [
     { accessorKey: "name", header: "Name" },
-    { accessorKey: "address", header: "Address" },
+    { accessorKey: "phone", header: "Phone" },
+    // What they owe and hold, so nobody has to open each ledger to find out
+    {
+      accessorKey: "pendingAmount",
+      header: "Pending Amount",
+      // Right-aligned in the table only; on a phone the card aligns values
+      meta: { className: "md:text-right" },
+      cell: ({ row }) => {
+        const amount = row.original.pendingAmount ?? 0;
+        const rupees = `₹${Math.abs(amount).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+        })}`;
+        // Paid more than they owed: money the agency holds for them
+        if (amount < 0)
+          return (
+            <div className="text-right text-emerald-700 tabular-nums dark:text-emerald-400">
+              {rupees} credit
+            </div>
+          );
+        return (
+          <div
+            className={`text-right tabular-nums ${
+              amount > 0
+                ? "text-destructive font-semibold"
+                : "text-muted-foreground"
+            }`}
+          >
+            {rupees}
+          </div>
+        );
+      },
+    },
+    {
+      id: "pendingCylinders",
+      header: "Pending Cylinders",
+      meta: { className: "md:min-w-32 md:whitespace-normal" },
+      // Searchable as text, e.g. "19 kg"
+      accessorFn: (customer) =>
+        (customer.pendingCylinders ?? [])
+          .map((c) => `${c.productName} ${c.quantity}`)
+          .join(" "),
+      cell: ({ row }) => {
+        const held = row.original.pendingCylinders ?? [];
+        if (held.length === 0)
+          return <span className="text-muted-foreground">—</span>;
+        return (
+          <div className="flex flex-col gap-0.5">
+            {held.map((c) => (
+              <span key={c.productId}>
+                {c.productName}{" "}
+                {/* The count stays with its "×" when the name wraps */}
+                <span className="font-semibold whitespace-nowrap tabular-nums">
+                  × {c.quantity}
+                </span>
+              </span>
+            ))}
+          </div>
+        );
+      },
+    },
     { accessorKey: "location.name", header: "Location" },
+    {
+      accessorKey: "address",
+      header: "Address",
+      // Wraps, so one long address cannot push the actions off the table
+      meta: { className: "md:min-w-36 md:max-w-48 md:whitespace-normal" },
+    },
     {
       accessorKey: "discount",
       header: "Discount",
@@ -42,52 +107,45 @@ export function CustomerViewComponent() {
         return d ? `${d}%` : "";
       },
     },
-    { accessorKey: "phone", header: "Phone" },
   ];
 
-  // The ledger view is read-only, so it is gated on read permission
+  // Every row action in one column. The ledger is read-only, so it shows to
+  // anyone who can see the list; edit and delete follow their permissions.
   columns.push({
-    id: "transactions",
-    header: "Ledger",
-    cell: ({ row }) => (
-      <Button variant="ghost" size="icon" asChild title="Transactions">
-        <Link href={`/customer-txn/${row.original.id}`}>
-          <ReceiptText className="w-4 h-4" />
-        </Link>
-      </Button>
-    ),
+    id: "actions",
+    header: () => <div className="text-right">Actions</div>,
+    cell: ({ row }) => {
+      const c = row.original;
+      return (
+        <div className="text-right space-x-2 whitespace-nowrap">
+          <Button variant="ghost" size="icon" asChild title="Ledger">
+            <Link href={`/customer-txn/${c.id}`} aria-label="Ledger">
+              <ReceiptText className="w-4 h-4" />
+            </Link>
+          </Button>
+          {customerUpdatePermission && (
+            <Button variant="ghost" size="icon" asChild title="Edit">
+              <Link href={`/customers/${c.id}/edit`} aria-label="Edit">
+                <Pencil className="w-4 h-4" />
+              </Link>
+            </Button>
+          )}
+          {customerDeletePermission && (
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Delete"
+              aria-label="Delete"
+              onClick={() => setDeleteId(c.id)}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          )}
+        </div>
+      );
+    },
   });
-
-  if (customerDeletePermission || customerUpdatePermission) {
-    columns.push({
-      id: "actions",
-      header: () => <div className="text-right">Actions</div>,
-      cell: ({ row }) => {
-        const c = row.original;
-        return (
-          <div className="text-right space-x-2">
-            {customerUpdatePermission && (
-              <Button variant="ghost" size="icon" asChild>
-                <Link href={`/customers/${c.id}/edit`}>
-                  <Pencil className="w-4 h-4" />
-                </Link>
-              </Button>
-            )}
-            {customerDeletePermission && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setDeleteId(c.id)}
-                disabled={deleteMutation.isPending}
-              >
-                <Trash2 className="w-4 h-4 text-destructive" />
-              </Button>
-            )}
-          </div>
-        );
-      },
-    });
-  }
 
   return (
     <>

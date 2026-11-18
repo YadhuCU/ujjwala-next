@@ -83,6 +83,8 @@ export const PERMISSIONS = {
   REPORT_READ: "report.read",
   REPORT_READ_ALL: "report.read.all",
   REPORT_READ_OWN: "report.read.own",
+  REPORT_PRODUCT_WISE: "report.product_wise",
+  REPORT_CUSTOMER_WISE: "report.customer_wise",
   REPORT_EXPORT: "report.export",
 
   DASHBOARD_READ: "dashboard.read",
@@ -301,6 +303,20 @@ export const PERMISSION_REGISTRY: PermissionMeta[] = [
     description: "Also unlocks filtering by staff member.",
   },
   { code: PERMISSIONS.REPORT_EXPORT, module: "Reports", label: "Export to Excel / PDF" },
+  {
+    code: PERMISSIONS.REPORT_PRODUCT_WISE,
+    module: "Reports",
+    label: "Product wise report",
+    description:
+      "Opening and closing stock, purchases, sales and adjustments per product, agency-wide.",
+  },
+  {
+    code: PERMISSIONS.REPORT_CUSTOMER_WISE,
+    module: "Reports",
+    label: "Customer wise report",
+    description:
+      "Every customer's cylinders and money over a period, agency-wide.",
+  },
 
   {
     code: PERMISSIONS.DASHBOARD_READ,

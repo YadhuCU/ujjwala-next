@@ -40,5 +40,11 @@ refills; a domestic sale is now a field staff member's round with no customer
 (`dom-sale.md`), so nothing would ever collect a domestic holding back. Holdings
 entered in that window stay in the data, read by nothing new.
 
+**List.** `getCustomers` includes each customer's `CustomerBalance.pendingAmount`
+and their `CustomerCylinderLedger` rows with cylinders out (> 0, with product
+name); the serializer flattens them to `pendingAmount` and `pendingCylinders`,
+shown as columns so staff need not open every ledger. A negative balance reads
+as "credit". The ledger link sits with edit and delete in the Actions column.
+
 **Routes.** `GET/POST /api/customers`, `GET/PUT/DELETE /api/customers/[id]` —
 `customer.read / create / update / delete`.

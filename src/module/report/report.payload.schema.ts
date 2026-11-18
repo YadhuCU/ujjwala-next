@@ -32,10 +32,17 @@ export const ExpenseReportQuerySchema = DateRangeSchema.extend({
   staffId: z.preprocess(allToUndefined, z.coerce.number().int().optional()),
 });
 
-export const SaleByProductQuerySchema = DateRangeSchema;
+// Agency-wide stock per product — no staff or customer filter
+export const ProductWiseQuerySchema = DateRangeSchema;
+
+export const CustomerWiseQuerySchema = DateRangeSchema.extend({
+  ...PaginationSchema.shape,
+  customerId: z.preprocess(allToUndefined, z.coerce.number().int().optional()),
+});
 
 export type SaleReportQuery = z.infer<typeof SaleReportQuerySchema>;
 export type PurchaseReportQuery = z.infer<typeof PurchaseReportQuerySchema>;
 export type ExpenseReportQuery = z.infer<typeof ExpenseReportQuerySchema>;
-export type SaleByProductQuery = z.infer<typeof SaleByProductQuerySchema>;
+export type ProductWiseQuery = z.infer<typeof ProductWiseQuerySchema>;
+export type CustomerWiseQuery = z.infer<typeof CustomerWiseQuerySchema>;
 export type ExportFormat = z.infer<typeof ExportFormatSchema>;

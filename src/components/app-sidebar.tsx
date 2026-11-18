@@ -166,10 +166,16 @@ const sidebarMenu: NavItem[] = [
         href: "/reports/arb-sale",
         requiredPermissions: [PERMISSIONS.REPORT_READ],
       },
+      // Agency-wide, so each has a permission of its own
       {
-        title: "Sale by Product Report",
-        href: "/reports/sale-by-product",
-        requiredPermissions: [PERMISSIONS.REPORT_READ],
+        title: "Product Wise Report",
+        href: "/reports/product-wise",
+        requiredPermissions: [PERMISSIONS.REPORT_PRODUCT_WISE],
+      },
+      {
+        title: "Customer Wise Report",
+        href: "/reports/customer-wise",
+        requiredPermissions: [PERMISSIONS.REPORT_CUSTOMER_WISE],
       },
       {
         title: "Expense Report",

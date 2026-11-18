@@ -43,7 +43,8 @@ export type PermissionGroup = { module: string; permissions: PermissionMeta[] };
 import {
   ExpenseReportResponse,
   PurchaseReportResponse,
-  SaleByProductResponse,
+  CustomerWiseResponse,
+  ProductWiseResponse,
   SaleReportResponse,
 } from "@/module/report/report.serializer";
 
@@ -93,6 +94,28 @@ export const apiClient = axios.create({
   baseURL: "/",
   headers: { "Content-Type": "application/json" },
 });
+
+/** Fetches a report export and hands it to the browser as a download. */
+async function downloadReport(
+  path: string,
+  params: URLSearchParams,
+  fallbackBase: string,
+  format: "excel" | "pdf",
+) {
+  const response = await apiClient.get(`${path}?${params.toString()}`, {
+    responseType: "blob",
+  });
+  const disposition = response.headers["content-disposition"] || "";
+  const match = disposition.match(/filename="?(.+?)"?$/);
+  const filename =
+    match?.[1] || `${fallbackBase}.${format === "excel" ? "csv" : "txt"}`;
+  const url = URL.createObjectURL(response.data);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 // ─── API Functions ──────────────────────────────────────────────────────────
 
@@ -470,47 +493,59 @@ export const api = {
     URL.revokeObjectURL(url);
   },
 
-  getSaleByProductReport: (params: {
-    from: string;
-    to: string;
-    page?: number;
-    limit?: number;
-  }) => {
-    const sp = new URLSearchParams();
-    sp.set("from", params.from);
-    sp.set("to", params.to);
-    if (params.page) sp.set("page", String(params.page));
-    if (params.limit) sp.set("limit", String(params.limit));
+  getProductWiseReport: (params: { from: string; to: string }) => {
+    const sp = new URLSearchParams({ from: params.from, to: params.to });
     return apiClient
-      .get<SaleByProductResponse>(`/api/reports/sale-by-product?${sp.toString()}`)
+      .get<ProductWiseResponse>(`/api/reports/product-wise?${sp.toString()}`)
       .then((r) => r.data);
   },
 
-  exportSaleByProductReport: async (params: {
+  exportProductWiseReport: (params: {
     from: string;
     to: string;
     format: "excel" | "pdf";
+  }) =>
+    downloadReport(
+      "/api/reports/product-wise/export",
+      new URLSearchParams(params),
+      "product_wise_report",
+      params.format,
+    ),
+
+  getCustomerWiseReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    page?: number;
+    limit?: number;
   }) => {
-    const sp = new URLSearchParams();
-    sp.set("from", params.from);
-    sp.set("to", params.to);
-    sp.set("format", params.format);
-    const response = await apiClient.get(
-      `/api/reports/sale-by-product/export?${sp.toString()}`,
-      { responseType: "blob" },
+    const sp = new URLSearchParams({ from: params.from, to: params.to });
+    if (params.customerId) sp.set("customerId", params.customerId);
+    if (params.page) sp.set("page", String(params.page));
+    if (params.limit) sp.set("limit", String(params.limit));
+    return apiClient
+      .get<CustomerWiseResponse>(`/api/reports/customer-wise?${sp.toString()}`)
+      .then((r) => r.data);
+  },
+
+  exportCustomerWiseReport: (params: {
+    from: string;
+    to: string;
+    customerId?: string;
+    format: "excel" | "pdf";
+  }) => {
+    const sp = new URLSearchParams({
+      from: params.from,
+      to: params.to,
+      format: params.format,
+    });
+    if (params.customerId) sp.set("customerId", params.customerId);
+    return downloadReport(
+      "/api/reports/customer-wise/export",
+      sp,
+      "customer_wise_report",
+      params.format,
     );
-    const disposition = response.headers["content-disposition"] || "";
-    const match = disposition.match(/filename="?(.+?)"?$/);
-    const fallbackExt = params.format === "excel" ? "csv" : "txt";
-    const filename =
-      match?.[1] ||
-      `sale_by_product_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
-    const url = URL.createObjectURL(response.data);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
   },
 
   // ─── Mutations ──────────────────────────────────────────

@@ -160,6 +160,8 @@ export async function recordPayment(
         amount: -input.amount,
         refType: RefType.MANUAL,
         refId: customerId, // self-reference for standalone payments
+        // Validated but thrown away until 2026-11-18
+        paymentMethod: input.paymentMethod,
         notes: input.notes ?? null,
         createdById: userId,
       },

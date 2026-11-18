@@ -16,7 +16,19 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import type { Cell, ColumnDef, Table as TanstackTable } from "@tanstack/react-table";
+import type { Cell, Column, ColumnDef, Table as TanstackTable } from "@tanstack/react-table";
+import { ColumnPicker } from "@/components/column-picker";
+import { useColumnVisibility } from "@/hooks/use-column-visibility";
+import { cn } from "@/lib/utils";
+
+/** Row actions are how a row is worked on — never something to hide. */
+const canHide = <TData,>(column: Column<TData, unknown>) =>
+  column.id !== "actions";
+
+const columnLabel = <TData,>(column: Column<TData, unknown>) => {
+  const { header, meta } = column.columnDef;
+  return meta?.label ?? (typeof header === "string" ? header : column.id);
+};
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -34,6 +46,8 @@ export function DataTable<TData, TValue>({
   pageSize = 10
 }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = React.useState("");
+  // Some columns are empty for most rows; each user picks what they need
+  const [columnVisibility, setColumnVisibility] = useColumnVisibility();
 
   // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table returns an unmemoizable instance by design
   const table = useReactTable({
@@ -43,11 +57,15 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
+    onColumnVisibilityChange: setColumnVisibility,
     globalFilterFn: "includesString",
     state: {
-      globalFilter
+      globalFilter,
+      columnVisibility
     }
   });
+
+  const hideable = table.getAllLeafColumns().filter(canHide);
   React.useEffect(() => {
     if (table) {
       table.setPageSize(pageSize);
@@ -63,7 +81,22 @@ export function DataTable<TData, TValue>({
           onChange={event => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
-        {actionButton}
+        <div className="flex items-center gap-2">
+          {hideable.length > 1 && (
+            <ColumnPicker
+              columns={hideable.map(column => ({
+                id: column.id,
+                label: columnLabel(column),
+                visible: column.getIsVisible()
+              }))}
+              onToggle={(id, visible) =>
+                table.getColumn(id)?.toggleVisibility(visible)
+              }
+              onShowAll={() => setColumnVisibility({})}
+            />
+          )}
+          {actionButton}
+        </div>
       </div>
       <MobileRows table={table} />
       <div className="hidden overflow-hidden rounded border md:block">
@@ -75,7 +108,11 @@ export function DataTable<TData, TValue>({
                   return (
                     <TableHead
                       key={header.id}
-                      className={header.column.columnDef.meta?.className}
+                      // Lines between columns, so a row reads straight across
+                      className={cn(
+                        "border-r last:border-r-0",
+                        header.column.columnDef.meta?.className
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
@@ -99,7 +136,10 @@ export function DataTable<TData, TValue>({
                   {row.getVisibleCells().map(cell => (
                     <TableCell
                       key={cell.id}
-                      className={cell.column.columnDef.meta?.className}
+                      className={cn(
+                        "border-r last:border-r-0",
+                        cell.column.columnDef.meta?.className
+                      )}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
@@ -112,7 +152,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getVisibleLeafColumns().length}
                   className="h-24 text-center"
                 >
                   No results.

@@ -1,5 +1,6 @@
 import type { ExportFormat } from "./report.payload.schema";
 import type { SaleLine } from "./report.lines";
+import { receiptTypeLabel, type CustomerWiseLine } from "./report.rollup";
 
 // =============================================================================
 // EXPORT RENDERERS
@@ -134,6 +135,66 @@ export function saleExportColumns({
   ];
 
   return columns;
+}
+
+// ─── Product wise ────────────────────────────────────────────────────────────
+
+export type ProductWiseExportRow = {
+  productName: string;
+  openingStock: number;
+  purchaseQty: number;
+  salesQty: number;
+  totalAmount: number;
+  adjustments: number;
+  closingStock: number;
+};
+
+export function productWiseExportColumns(): ExportColumn<ProductWiseExportRow>[] {
+  return [
+    { header: "Product", value: (r) => r.productName },
+    { header: "Opening Stock", value: (r) => r.openingStock },
+    { header: "Purchase Qty", value: (r) => r.purchaseQty },
+    { header: "Sales Qty", value: (r) => r.salesQty },
+    { header: "Total Amount", value: (r) => r.totalAmount.toFixed(2) },
+    { header: "Adjustments", value: (r) => r.adjustments },
+    { header: "Closing Stock", value: (r) => r.closingStock },
+  ];
+}
+
+// ─── Customer wise ───────────────────────────────────────────────────────────
+
+/**
+ * One line per customer, then an indented line per cylinder size when there is
+ * more than one. Money belongs to the customer, so it is written on the
+ * customer line only and the columns still sum.
+ */
+export function customerWiseExportColumns(): ExportColumn<CustomerWiseLine>[] {
+  const cylinders = (l: CustomerWiseLine) =>
+    l.kind === "product" ? l.product : l.row;
+  const money = (l: CustomerWiseLine, value: number | string) =>
+    l.kind === "customer" ? value : "";
+
+  return [
+    {
+      header: "Customer",
+      value: (l) =>
+        l.kind === "product"
+          ? `   ${l.product.productName}`
+          : l.row.products.length === 1
+            ? `${l.row.customerName} (${l.row.products[0].productName})`
+            : l.row.customerName,
+    },
+    { header: "Opening Empty Cylinders", value: (l) => cylinders(l).openingEmpty },
+    { header: "Rented Qty", value: (l) => cylinders(l).rentedQty },
+    { header: "Sold Outright", value: (l) => cylinders(l).soldQty },
+    { header: "Empty Taken Back", value: (l) => cylinders(l).emptyBack },
+    { header: "Balance Empty Cylinders", value: (l) => cylinders(l).balanceEmpty },
+    { header: "Opening Balance", value: (l) => money(l, l.row.openingBalance.toFixed(2)) },
+    { header: "Total Sales Amount", value: (l) => money(l, l.row.salesAmount.toFixed(2)) },
+    { header: "Receipt", value: (l) => money(l, l.row.receipts.toFixed(2)) },
+    { header: "Receipt Type", value: (l) => money(l, receiptTypeLabel(l.row.receiptTypes)) },
+    { header: "Outstanding Balance", value: (l) => money(l, l.row.outstanding.toFixed(2)) },
+  ];
 }
 
 export function buildExportResponse<T>({

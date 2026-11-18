@@ -760,6 +760,9 @@ model CustomerPaymentLedger {
   voidedEntryId Int?                    @unique @map("voided_entry_id")
   voidedEntry   CustomerPaymentLedger?  @relation("LedgerVoidChain", fields: [voidedEntryId], references: [id])
   voidedBy      CustomerPaymentLedger[] @relation("LedgerVoidChain")
+  /// How a PAYMENT was received. Only payments carry one; older standalone
+  /// payments recorded before 2026-11-18 lost it and stay null.
+  paymentMethod PaymentType?            @map("payment_method")
   notes         String?
   createdById   Int?                    @map("created_by_id")
   createdBy     User?                   @relation("PaymentsCreatedBy", fields: [createdById], references: [id])

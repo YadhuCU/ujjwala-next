@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { ColumnPicker } from "@/components/column-picker";
+import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import type { ReportPagination } from "@/module/report/report.serializer";
 
 // ─── Summary cards ───────────────────────────────────────────────────────────
@@ -74,16 +76,24 @@ export function ReportSummary({
 
 // ─── Results table ───────────────────────────────────────────────────────────
 
-export type ReportColumn<T> = {
+export type ReportColumn<T, S = never> = {
   header: string;
   align?: "right";
   cell: (row: T) => React.ReactNode;
+  /** What this column shows on a sub row; blank where it has nothing to say. */
+  sub?: (sub: S, row: T) => React.ReactNode;
 };
 
-type ReportResultsProps<T> = {
-  columns: ReportColumn<T>[];
+type ReportResultsProps<T, S = never> = {
+  columns: ReportColumn<T, S>[];
   rows: T[];
   rowKey: (row: T) => string | number;
+  /**
+   * Breakdown lines under a row — e.g. one per cylinder size under a customer.
+   * They sit inside their row on screen; totals and pagination count rows only.
+   */
+  subRows?: (row: T) => S[];
+  subRowKey?: (sub: S) => string | number;
   pagination?: ReportPagination;
   isLoading: boolean;
   isFetching: boolean;
@@ -98,18 +108,25 @@ type ReportResultsProps<T> = {
   countNoun?: string;
 };
 
-export function ReportResults<T>({
+export function ReportResults<T, S = never>({
   columns,
   rows,
   rowKey,
+  subRows,
+  subRowKey = (sub) => String(sub),
   pagination,
   isLoading,
   isFetching,
   onPageChange,
   onExport,
   countNoun = "records",
-}: ReportResultsProps<T>) {
+}: ReportResultsProps<T, S>) {
   const [exporting, setExporting] = useState(false);
+  // Screen only: the export always carries every column
+  const [visibility, setVisibility] = useColumnVisibility("report");
+  const shownColumns = columns.filter(
+    (column) => visibility[column.header] !== false,
+  );
 
   async function handleExport(format: "excel" | "pdf") {
     setExporting(true);
@@ -138,6 +155,18 @@ export function ReportResults<T>({
             )}
           </CardTitle>
 
+          <div className="flex items-center gap-2">
+          <ColumnPicker
+            columns={columns.map((column) => ({
+              id: column.header,
+              label: column.header,
+              visible: visibility[column.header] !== false,
+            }))}
+            onToggle={(id, visible) =>
+              setVisibility((current) => ({ ...current, [id]: visible }))
+            }
+            onShowAll={() => setVisibility({})}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -160,24 +189,32 @@ export function ReportResults<T>({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent>
         <MobileResults
-          columns={columns}
+          columns={shownColumns}
           rows={rows}
           rowKey={rowKey}
+          subRows={subRows}
+          subRowKey={subRowKey}
           isLoading={isLoading}
         />
         <div className="hidden overflow-x-auto md:block">
           <Table>
             <TableHeader>
               <TableRow>
-                {columns.map((column) => (
+                {shownColumns.map((column) => (
                   <TableHead
                     key={column.header}
-                    className={column.align === "right" ? "text-right" : ""}
+                    // Long headers wrap rather than widening the column, so a
+                    // report with many columns still fits beside the sidebar
+                    className={cn(
+                      "border-r align-bottom whitespace-normal last:border-r-0",
+                      column.align === "right" && "text-right",
+                    )}
                   >
                     {column.header}
                   </TableHead>
@@ -189,8 +226,8 @@ export function ReportResults<T>({
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, rowIndex) => (
                   <TableRow key={rowIndex}>
-                    {columns.map((column) => (
-                      <TableCell key={column.header}>
+                    {shownColumns.map((column) => (
+                      <TableCell key={column.header} className="border-r last:border-r-0">
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
                     ))}
@@ -199,7 +236,7 @@ export function ReportResults<T>({
               ) : rows.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={shownColumns.length}
                     className="text-muted-foreground py-8 text-center"
                   >
                     No results found for the selected filters.
@@ -207,16 +244,41 @@ export function ReportResults<T>({
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={rowKey(row)}>
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.header}
-                        className={column.align === "right" ? "text-right" : ""}
+                  <Fragment key={rowKey(row)}>
+                    <TableRow>
+                      {shownColumns.map((column) => (
+                        <TableCell
+                          key={column.header}
+                          className={cn(
+                            "border-r last:border-r-0",
+                            column.align === "right" && "text-right",
+                          )}
+                        >
+                          {column.cell(row)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                    {subRows?.(row).map((sub) => (
+                      // Lined like any row, so each size reads on its own
+                      <TableRow
+                        key={subRowKey(sub)}
+                        className="text-muted-foreground bg-muted/30 hover:bg-muted/40 text-xs"
                       >
-                        {column.cell(row)}
-                      </TableCell>
+                        {shownColumns.map((column, columnIndex) => (
+                          <TableCell
+                            key={column.header}
+                            className={cn(
+                              "border-r py-1.5 last:border-r-0",
+                              column.align === "right" && "text-right",
+                              columnIndex === 0 && "pl-6",
+                            )}
+                          >
+                            {column.sub?.(sub, row)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
                     ))}
-                  </TableRow>
+                  </Fragment>
                 ))
               )}
             </TableBody>
@@ -260,12 +322,17 @@ export function ReportResults<T>({
 // money, in every report — sits opposite it, and the rest read as label /
 // value. Cells with nothing to say ("—", or money held back for the invoice's
 // first line) are left out rather than listed empty.
-function MobileResults<T>({
+function MobileResults<T, S>({
   columns,
   rows,
   rowKey,
+  subRows,
+  subRowKey,
   isLoading,
-}: Pick<ReportResultsProps<T>, "columns" | "rows" | "rowKey" | "isLoading">) {
+}: Pick<
+  ReportResultsProps<T, S>,
+  "columns" | "rows" | "rowKey" | "subRows" | "subRowKey" | "isLoading"
+>) {
   if (isLoading) {
     return (
       <div className="space-y-3 md:hidden">
@@ -318,6 +385,34 @@ function MobileResults<T>({
                 );
               })}
             </dl>
+            {/* Breakdown lines, as a compact list under the card's figures */}
+            {subRows && subRows(row).length > 0 && (
+              <ul className="mt-2 space-y-2 border-t pt-2">
+                {subRows(row).map((sub) => (
+                  <li
+                    key={subRowKey!(sub)}
+                    className="bg-muted/40 rounded px-2 py-1.5 text-xs"
+                  >
+                    <p className="font-medium">{first?.sub?.(sub, row)}</p>
+                    <div className="text-muted-foreground mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                      {rest
+                        .filter((column) => {
+                          const value = column.sub?.(sub, row);
+                          return !isEmpty(value);
+                        })
+                        .map((column) => (
+                          <span key={column.header}>
+                            {column.header}{" "}
+                            <span className="text-foreground tabular-nums">
+                              {column.sub?.(sub, row)}
+                            </span>
+                          </span>
+                        ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         );
       })}
