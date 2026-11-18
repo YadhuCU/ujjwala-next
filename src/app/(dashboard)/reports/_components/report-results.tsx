@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { ColumnPicker } from "@/components/column-picker";
+import { useColumnVisibility } from "@/hooks/use-column-visibility";
 import type { ReportPagination } from "@/module/report/report.serializer";
 
 // ─── Summary cards ───────────────────────────────────────────────────────────
@@ -120,6 +122,11 @@ export function ReportResults<T, S = never>({
   countNoun = "records",
 }: ReportResultsProps<T, S>) {
   const [exporting, setExporting] = useState(false);
+  // Screen only: the export always carries every column
+  const [visibility, setVisibility] = useColumnVisibility("report");
+  const shownColumns = columns.filter(
+    (column) => visibility[column.header] !== false,
+  );
 
   async function handleExport(format: "excel" | "pdf") {
     setExporting(true);
@@ -148,6 +155,18 @@ export function ReportResults<T, S = never>({
             )}
           </CardTitle>
 
+          <div className="flex items-center gap-2">
+          <ColumnPicker
+            columns={columns.map((column) => ({
+              id: column.header,
+              label: column.header,
+              visible: visibility[column.header] !== false,
+            }))}
+            onToggle={(id, visible) =>
+              setVisibility((current) => ({ ...current, [id]: visible }))
+            }
+            onShowAll={() => setVisibility({})}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -170,12 +189,13 @@ export function ReportResults<T, S = never>({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent>
         <MobileResults
-          columns={columns}
+          columns={shownColumns}
           rows={rows}
           rowKey={rowKey}
           subRows={subRows}
@@ -186,13 +206,13 @@ export function ReportResults<T, S = never>({
           <Table>
             <TableHeader>
               <TableRow>
-                {columns.map((column) => (
+                {shownColumns.map((column) => (
                   <TableHead
                     key={column.header}
                     // Long headers wrap rather than widening the column, so a
                     // report with many columns still fits beside the sidebar
                     className={cn(
-                      "align-bottom whitespace-normal",
+                      "border-r align-bottom whitespace-normal last:border-r-0",
                       column.align === "right" && "text-right",
                     )}
                   >
@@ -206,8 +226,8 @@ export function ReportResults<T, S = never>({
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, rowIndex) => (
                   <TableRow key={rowIndex}>
-                    {columns.map((column) => (
-                      <TableCell key={column.header}>
+                    {shownColumns.map((column) => (
+                      <TableCell key={column.header} className="border-r last:border-r-0">
                         <Skeleton className="h-4 w-full" />
                       </TableCell>
                     ))}
@@ -216,7 +236,7 @@ export function ReportResults<T, S = never>({
               ) : rows.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={shownColumns.length}
                     className="text-muted-foreground py-8 text-center"
                   >
                     No results found for the selected filters.
@@ -225,31 +245,30 @@ export function ReportResults<T, S = never>({
               ) : (
                 rows.map((row) => (
                   <Fragment key={rowKey(row)}>
-                    <TableRow
-                      className={cn(subRows?.(row).length && "border-b-0")}
-                    >
-                      {columns.map((column) => (
+                    <TableRow>
+                      {shownColumns.map((column) => (
                         <TableCell
                           key={column.header}
-                          className={column.align === "right" ? "text-right" : ""}
+                          className={cn(
+                            "border-r last:border-r-0",
+                            column.align === "right" && "text-right",
+                          )}
                         >
                           {column.cell(row)}
                         </TableCell>
                       ))}
                     </TableRow>
-                    {subRows?.(row).map((sub, index, all) => (
+                    {subRows?.(row).map((sub) => (
+                      // Lined like any row, so each size reads on its own
                       <TableRow
                         key={subRowKey(sub)}
-                        className={cn(
-                          "text-muted-foreground bg-muted/30 hover:bg-muted/40 text-xs",
-                          index < all.length - 1 && "border-b-0",
-                        )}
+                        className="text-muted-foreground bg-muted/30 hover:bg-muted/40 text-xs"
                       >
-                        {columns.map((column, columnIndex) => (
+                        {shownColumns.map((column, columnIndex) => (
                           <TableCell
                             key={column.header}
                             className={cn(
-                              "py-1.5",
+                              "border-r py-1.5 last:border-r-0",
                               column.align === "right" && "text-right",
                               columnIndex === 0 && "pl-6",
                             )}
