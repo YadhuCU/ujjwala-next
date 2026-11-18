@@ -178,7 +178,21 @@ export async function getCustomers(query: CustomerQuery) {
         ],
       }),
     },
-    include: { location: true },
+    include: {
+      location: true,
+      // What each customer owes and holds, so the list answers it at a glance
+      // instead of sending staff into every ledger
+      customerBalance: { select: { pendingAmount: true } },
+      customerCylinderLedgers: {
+        where: { pendingCylinder: { gt: 0 } },
+        select: {
+          productId: true,
+          pendingCylinder: true,
+          product: { select: { name: true } },
+        },
+        orderBy: { product: { name: "asc" } },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 }

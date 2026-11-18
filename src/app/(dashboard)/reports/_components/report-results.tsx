@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -74,16 +74,24 @@ export function ReportSummary({
 
 // ─── Results table ───────────────────────────────────────────────────────────
 
-export type ReportColumn<T> = {
+export type ReportColumn<T, S = never> = {
   header: string;
   align?: "right";
   cell: (row: T) => React.ReactNode;
+  /** What this column shows on a sub row; blank where it has nothing to say. */
+  sub?: (sub: S, row: T) => React.ReactNode;
 };
 
-type ReportResultsProps<T> = {
-  columns: ReportColumn<T>[];
+type ReportResultsProps<T, S = never> = {
+  columns: ReportColumn<T, S>[];
   rows: T[];
   rowKey: (row: T) => string | number;
+  /**
+   * Breakdown lines under a row — e.g. one per cylinder size under a customer.
+   * They sit inside their row on screen; totals and pagination count rows only.
+   */
+  subRows?: (row: T) => S[];
+  subRowKey?: (sub: S) => string | number;
   pagination?: ReportPagination;
   isLoading: boolean;
   isFetching: boolean;
@@ -98,17 +106,19 @@ type ReportResultsProps<T> = {
   countNoun?: string;
 };
 
-export function ReportResults<T>({
+export function ReportResults<T, S = never>({
   columns,
   rows,
   rowKey,
+  subRows,
+  subRowKey = (sub) => String(sub),
   pagination,
   isLoading,
   isFetching,
   onPageChange,
   onExport,
   countNoun = "records",
-}: ReportResultsProps<T>) {
+}: ReportResultsProps<T, S>) {
   const [exporting, setExporting] = useState(false);
 
   async function handleExport(format: "excel" | "pdf") {
@@ -168,6 +178,8 @@ export function ReportResults<T>({
           columns={columns}
           rows={rows}
           rowKey={rowKey}
+          subRows={subRows}
+          subRowKey={subRowKey}
           isLoading={isLoading}
         />
         <div className="hidden overflow-x-auto md:block">
@@ -177,7 +189,12 @@ export function ReportResults<T>({
                 {columns.map((column) => (
                   <TableHead
                     key={column.header}
-                    className={column.align === "right" ? "text-right" : ""}
+                    // Long headers wrap rather than widening the column, so a
+                    // report with many columns still fits beside the sidebar
+                    className={cn(
+                      "align-bottom whitespace-normal",
+                      column.align === "right" && "text-right",
+                    )}
                   >
                     {column.header}
                   </TableHead>
@@ -207,16 +224,42 @@ export function ReportResults<T>({
                 </TableRow>
               ) : (
                 rows.map((row) => (
-                  <TableRow key={rowKey(row)}>
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.header}
-                        className={column.align === "right" ? "text-right" : ""}
+                  <Fragment key={rowKey(row)}>
+                    <TableRow
+                      className={cn(subRows?.(row).length && "border-b-0")}
+                    >
+                      {columns.map((column) => (
+                        <TableCell
+                          key={column.header}
+                          className={column.align === "right" ? "text-right" : ""}
+                        >
+                          {column.cell(row)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                    {subRows?.(row).map((sub, index, all) => (
+                      <TableRow
+                        key={subRowKey(sub)}
+                        className={cn(
+                          "text-muted-foreground bg-muted/30 hover:bg-muted/40 text-xs",
+                          index < all.length - 1 && "border-b-0",
+                        )}
                       >
-                        {column.cell(row)}
-                      </TableCell>
+                        {columns.map((column, columnIndex) => (
+                          <TableCell
+                            key={column.header}
+                            className={cn(
+                              "py-1.5",
+                              column.align === "right" && "text-right",
+                              columnIndex === 0 && "pl-6",
+                            )}
+                          >
+                            {column.sub?.(sub, row)}
+                          </TableCell>
+                        ))}
+                      </TableRow>
                     ))}
-                  </TableRow>
+                  </Fragment>
                 ))
               )}
             </TableBody>
@@ -260,12 +303,17 @@ export function ReportResults<T>({
 // money, in every report — sits opposite it, and the rest read as label /
 // value. Cells with nothing to say ("—", or money held back for the invoice's
 // first line) are left out rather than listed empty.
-function MobileResults<T>({
+function MobileResults<T, S>({
   columns,
   rows,
   rowKey,
+  subRows,
+  subRowKey,
   isLoading,
-}: Pick<ReportResultsProps<T>, "columns" | "rows" | "rowKey" | "isLoading">) {
+}: Pick<
+  ReportResultsProps<T, S>,
+  "columns" | "rows" | "rowKey" | "subRows" | "subRowKey" | "isLoading"
+>) {
   if (isLoading) {
     return (
       <div className="space-y-3 md:hidden">
@@ -318,6 +366,34 @@ function MobileResults<T>({
                 );
               })}
             </dl>
+            {/* Breakdown lines, as a compact list under the card's figures */}
+            {subRows && subRows(row).length > 0 && (
+              <ul className="mt-2 space-y-2 border-t pt-2">
+                {subRows(row).map((sub) => (
+                  <li
+                    key={subRowKey!(sub)}
+                    className="bg-muted/40 rounded px-2 py-1.5 text-xs"
+                  >
+                    <p className="font-medium">{first?.sub?.(sub, row)}</p>
+                    <div className="text-muted-foreground mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
+                      {rest
+                        .filter((column) => {
+                          const value = column.sub?.(sub, row);
+                          return !isEmpty(value);
+                        })
+                        .map((column) => (
+                          <span key={column.header}>
+                            {column.header}{" "}
+                            <span className="text-foreground tabular-nums">
+                              {column.sub?.(sub, row)}
+                            </span>
+                          </span>
+                        ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         );
       })}

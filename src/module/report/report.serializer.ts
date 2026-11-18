@@ -1,3 +1,7 @@
+import type {
+  getCustomerWiseReport,
+  getProductWiseReport,
+} from "./report.service";
 import { Prisma } from "@/generated/client";
 
 /**
@@ -144,17 +148,11 @@ export type ExpenseReportResponse = {
   pagination: ReportPagination;
 };
 
-export type SaleByProductResponse = {
-  summary: {
-    totalQuantity: number;
-    totalAmount: number;
-    rentedQuantity: number;
-  };
-  data: {
-    productId: number;
-    productName: string;
-    totalQuantity: number;
-    totalAmount: number;
-  }[];
-  pagination: ReportPagination;
-};
+// The service builds these rows itself (they carry no Prisma types), so the
+// client takes its shape straight from the service, as the dashboard does.
+export type ProductWiseResponse = Awaited<
+  ReturnType<typeof getProductWiseReport>
+>;
+export type CustomerWiseResponse = Awaited<
+  ReturnType<typeof getCustomerWiseReport>
+>;

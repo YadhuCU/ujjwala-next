@@ -10,10 +10,17 @@ import {
 } from "@/components/ui/card";
 import { PageWrapper } from "@/components/page-wrapper";
 import { ProtectedPage } from "@/components/protected-page";
-import { PERMISSIONS } from "@/lib/permissions";
+import { usePermission } from "@/hooks/use-permissions";
+import { PERMISSIONS, type Permission } from "@/lib/permissions";
 
-// The sidebar has always linked /reports, but no page lived here.
-const REPORTS = [
+// The sidebar has always linked /reports, but no page lived here. A report with
+// a permission of its own only shows to those who hold it.
+const REPORTS: {
+  title: string;
+  href: string;
+  description: string;
+  permission?: Permission;
+}[] = [
   {
     title: "Commercial Sale Report",
     href: "/reports/commercial-sale",
@@ -22,7 +29,7 @@ const REPORTS = [
   {
     title: "Domestic Sale Report",
     href: "/reports/dom-sale",
-    description: "Cylinder sales to domestic customers.",
+    description: "Field staff rounds: refills and outright sales.",
   },
   {
     title: "ARB Sale Report",
@@ -30,9 +37,18 @@ const REPORTS = [
     description: "Bulk gas and accessories.",
   },
   {
-    title: "Sale by Product Report",
-    href: "/reports/sale-by-product",
-    description: "All three sale types rolled up by product.",
+    title: "Product Wise Report",
+    href: "/reports/product-wise",
+    description:
+      "Opening stock, purchases, sales, adjustments and closing stock per product.",
+    permission: PERMISSIONS.REPORT_PRODUCT_WISE,
+  },
+  {
+    title: "Customer Wise Report",
+    href: "/reports/customer-wise",
+    description:
+      "Each customer's cylinders held and taken back, sales, receipts and balance.",
+    permission: PERMISSIONS.REPORT_CUSTOMER_WISE,
   },
   {
     title: "Expense Report",
@@ -47,6 +63,11 @@ const REPORTS = [
 ];
 
 export default function ReportsPage() {
+  const { hasPermission } = usePermission();
+  const visible = REPORTS.filter(
+    (report) => !report.permission || hasPermission(report.permission),
+  );
+
   return (
     <ProtectedPage requiredPermission={PERMISSIONS.REPORT_READ}>
       <PageWrapper
@@ -54,7 +75,7 @@ export default function ReportsPage() {
         description="Each report covers a date range and can be exported to Excel or PDF."
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {REPORTS.map((report) => (
+          {visible.map((report) => (
             <Link key={report.href} href={report.href} className="group">
               <Card className="hover:border-primary/50 h-full transition-colors">
                 <CardHeader>

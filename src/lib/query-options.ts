@@ -187,13 +187,20 @@ export const expenseReportOptions = (params: {
     queryFn: () => api.getExpenseReport(params),
   });
 
-export const saleByProductReportOptions = (params: {
+export const productWiseReportOptions = (params: { from: string; to: string }) =>
+  queryOptions({
+    queryKey: queryKeys.productWiseReport.list(params),
+    queryFn: () => api.getProductWiseReport(params),
+  });
+
+export const customerWiseReportOptions = (params: {
   from: string;
   to: string;
+  customerId?: string;
   page?: number;
   limit?: number;
 }) =>
   queryOptions({
-    queryKey: queryKeys.saleByProductReport.list(params),
-    queryFn: () => api.getSaleByProductReport(params),
+    queryKey: queryKeys.customerWiseReport.list(params),
+    queryFn: () => api.getCustomerWiseReport(params),
   });

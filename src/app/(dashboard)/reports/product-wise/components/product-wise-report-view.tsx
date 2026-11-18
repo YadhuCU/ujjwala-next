@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
-import { saleByProductReportOptions } from "@/lib/query-options";
-import type { SaleByProductResponse } from "@/module/report/report.serializer";
+import { productWiseReportOptions } from "@/lib/query-options";
+import type { ProductWiseResponse } from "@/module/report/report.serializer";
 import { ReportFilterCard } from "../../_components/report-filter-card";
 import {
   ReportResults,
@@ -15,35 +15,38 @@ import {
   useReportFilters,
 } from "../../_components/use-report-filters";
 
-type ProductRow = SaleByProductResponse["data"][number];
+type ProductRow = ProductWiseResponse["data"][number];
 
-export function SaleByProductReportView() {
+/** +3 / −2, so a correction reads as a direction, not just a number */
+const signed = (value: number) =>
+  value === 0 ? "—" : value > 0 ? `+${value}` : `−${Math.abs(value)}`;
+
+export function ProductWiseReportView() {
   const filters = useReportFilters();
 
   const { data: report, isLoading, isFetching } = useQuery({
-    ...saleByProductReportOptions({
+    ...productWiseReportOptions({
       from: filters.fromDate,
       to: filters.toDate,
     }),
     enabled: filters.searchTriggered,
   });
 
-  const totalAmount = report?.summary.totalAmount ?? 0;
-
+  // Opening + Purchase − Sales ± Adjustments = Closing, on every row
   const columns: ReportColumn<ProductRow>[] = [
     { header: "Product", cell: (row) => row.productName },
+    { header: "Opening Stock", align: "right", cell: (row) => row.openingStock },
+    { header: "Purchase Qty", align: "right", cell: (row) => row.purchaseQty },
+    { header: "Sales Qty", align: "right", cell: (row) => row.salesQty },
     {
-      header: "Quantity Sold",
+      header: "Adjustments",
       align: "right",
-      cell: (row) => row.totalQuantity,
+      cell: (row) => signed(row.adjustments),
     },
     {
-      header: "Share",
+      header: "Closing Stock",
       align: "right",
-      cell: (row) =>
-        totalAmount > 0
-          ? `${((row.totalAmount / totalAmount) * 100).toFixed(1)}%`
-          : "—",
+      cell: (row) => <span className="font-semibold">{row.closingStock}</span>,
     },
     {
       header: "Total Amount",
@@ -56,7 +59,7 @@ export function SaleByProductReportView() {
 
   return (
     <div className="space-y-6">
-      {/* This report rolls every product up, so it takes no extra filters */}
+      {/* Stock is the agency's, so this report takes no staff filter */}
       <ReportFilterCard filters={filters} />
 
       {filters.searchTriggered && (
@@ -64,14 +67,9 @@ export function SaleByProductReportView() {
           <ReportSummary
             isLoading={isLoading}
             tiles={[
-              {
-                title: "Total Quantity",
-                value: report?.summary.totalQuantity,
-              },
-              {
-                title: "Rented Cylinders",
-                value: report?.summary.rentedQuantity,
-              },
+              { title: "Purchased", value: report?.summary.purchaseQty },
+              { title: "Sold", value: report?.summary.salesQty },
+              { title: "Adjustments", value: report?.summary.adjustments },
               {
                 title: "Total Amount",
                 value: report?.summary.totalAmount,
@@ -85,17 +83,24 @@ export function SaleByProductReportView() {
             columns={columns}
             rows={report?.data ?? []}
             rowKey={(row) => row.productId}
+            countNoun="products"
             isLoading={isLoading}
             isFetching={isFetching}
             onPageChange={filters.setPage}
             onExport={(format) =>
-              api.exportSaleByProductReport({
+              api.exportProductWiseReport({
                 from: filters.fromDate,
                 to: filters.toDate,
                 format,
               })
             }
           />
+
+          <p className="text-muted-foreground text-xs">
+            Cylinder stock is filled cylinders in the godown. Opening + Purchase
+            − Sales ± Adjustments = Closing on every row. Adjustments are manual
+            corrections: a stock adjustment, or a batch added by hand.
+          </p>
         </>
       )}
     </div>

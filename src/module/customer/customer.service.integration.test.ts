@@ -169,6 +169,34 @@ describe("getCustomers", () => {
   });
 });
 
+describe("getCustomers — what each customer owes and holds", () => {
+  // Staff used to open every ledger to find these out
+  it("returns the pending amount and the cylinders still out, per size", async () => {
+    const held = await makeProduct(ProductType.COMMERCIAL);
+    const returned = await makeProduct(ProductType.COMMERCIAL);
+
+    const created = await CustomerService.createCustomer(
+      customerInput({
+        initialPendingAmount: 1250.5,
+        initialCylinderBalances: [
+          { productId: held.id, qty: 4 },
+          { productId: returned.id, qty: 0 },
+        ],
+      }),
+      userId,
+    );
+
+    const [row] = await CustomerService.getCustomers({});
+
+    expect(row.id).toBe(created.id);
+    expect(Number(row.customerBalance?.pendingAmount)).toBe(1250.5);
+    // A size with nothing out is not listed
+    expect(
+      row.customerCylinderLedgers.map((l) => [l.productId, l.pendingCylinder]),
+    ).toEqual([[held.id, 4]]);
+  });
+});
+
 describe("getCustomerById", () => {
   it("returns the opening cylinder balances with the record", async () => {
     const product = await makeProduct(ProductType.COMMERCIAL);

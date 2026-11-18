@@ -2,6 +2,13 @@ import { Prisma, Customer, Location } from "@/generated/client";
 
 type SerializeCustomerPayload = Customer & {
   location?: Location | null;
+  /** Only on the list, which shows what each customer owes and holds. */
+  customerBalance?: { pendingAmount: Prisma.Decimal } | null;
+  customerCylinderLedgers?: {
+    productId: number;
+    pendingCylinder: number;
+    product: { name: string };
+  }[];
 };
 
 type SerializeCustomerWithDetailsPayload = Prisma.CustomerGetPayload<{
@@ -12,8 +19,20 @@ type SerializeCustomerWithDetailsPayload = Prisma.CustomerGetPayload<{
 }>;
 
 export function serializeCustomer(customer: SerializeCustomerPayload) {
+  const { customerBalance, customerCylinderLedgers, ...rest } = customer;
+
   return {
-    ...customer,
+    ...rest,
+
+    pendingAmount: customerBalance
+      ? customerBalance.pendingAmount.toNumber()
+      : undefined,
+
+    pendingCylinders: customerCylinderLedgers?.map((ledger) => ({
+      productId: ledger.productId,
+      productName: ledger.product.name,
+      quantity: ledger.pendingCylinder,
+    })),
 
     phone: customer.phone ?? undefined,
     address: customer.address ?? undefined,

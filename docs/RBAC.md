@@ -64,7 +64,7 @@ Legend: **View / Add / Edit / Delete** are the four codes for that module.
 | **Products** | `/products` | `product.*` | No | |
 | **Vendors** | `/vendors` | `vendor.*` | No | |
 | **Locations** | `/locations` | `location.*` | No | |
-| **Reports** | `/reports/*` | `report.read` + a scope, `report.export` | **Yes** | Agency-wide scope also unlocks the "Staff" filter. |
+| **Reports** | `/reports/*` | `report.read` + a scope, `report.export` | **Yes** | Agency-wide scope also unlocks the "Staff" filter. **Product wise** and **Customer wise** need `report.product_wise` / `report.customer_wise` instead of a scope — they show agency-wide stock and balances. No starter role holds them, so they are owner-only until granted. |
 | **Users** | `/users` | `user.*` | No | Extra guards in §5. |
 | **Roles & permissions** | `/roles` | `role.*` | No | Changes are recorded — see §6. |
 

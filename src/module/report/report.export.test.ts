@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   buildExportResponse,
+  customerWiseExportColumns,
   saleExportColumns,
   type SaleExportRow,
 } from "./report.export";
 import { toSaleLines } from "./report.lines";
+import { toCustomerWiseLines } from "./report.rollup";
 
 function buildRow(overrides: Partial<SaleExportRow> = {}): SaleExportRow {
   return {
@@ -140,5 +142,51 @@ describe("buildExportResponse", () => {
     expect(response.headers.get("Content-Disposition")).toContain(".txt");
     expect(body).toContain("SALE REPORT");
     expect(body).toContain("Total Invoices: 1");
+  });
+});
+
+describe("customerWiseExportColumns", () => {
+  const customer = {
+    customerId: 1,
+    customerName: "Beach Hotel",
+    openingEmpty: 3,
+    rentedQty: 5,
+    soldQty: 0,
+    emptyBack: 2,
+    balanceEmpty: 6,
+    openingBalance: 100,
+    salesAmount: 50,
+    receipts: 20,
+    receiptTypes: ["CASH" as const],
+    outstanding: 130,
+    products: [
+      { productId: 10, productName: "19 kg", openingEmpty: 3, rentedQty: 4, soldQty: 0, emptyBack: 2, balanceEmpty: 5 },
+      { productId: 20, productName: "47.5 kg", openingEmpty: 0, rentedQty: 1, soldQty: 0, emptyBack: 0, balanceEmpty: 1 },
+    ],
+  };
+
+  it("writes money on the customer line only, so the columns still sum", () => {
+    const columns = customerWiseExportColumns();
+    const lines = toCustomerWiseLines([customer]);
+    const cell = (line: number, header: string) =>
+      columns.find((c) => c.header === header)!.value(lines[line]);
+
+    expect(lines).toHaveLength(3);
+    expect(cell(0, "Outstanding Balance")).toBe("130.00");
+    expect(cell(0, "Receipt Type")).toBe("Cash");
+    expect(cell(1, "Outstanding Balance")).toBe("");
+    expect(cell(1, "Customer")).toBe("   19 kg");
+    expect(cell(1, "Balance Empty Cylinders")).toBe(5);
+    expect(cell(0, "Balance Empty Cylinders")).toBe(6);
+  });
+
+  it("names the size on the customer line when there is only one", () => {
+    const single = { ...customer, products: [customer.products[0]] };
+    const lines = toCustomerWiseLines([single]);
+
+    expect(lines).toHaveLength(1);
+    expect(customerWiseExportColumns()[0].value(lines[0])).toBe(
+      "Beach Hotel (19 kg)",
+    );
   });
 });

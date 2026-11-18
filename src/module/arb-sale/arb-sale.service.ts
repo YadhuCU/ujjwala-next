@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { LedgerEntryType, Prisma, RefType } from "@/generated/client";
+import {
+  LedgerEntryType,
+  PaymentType,
+  Prisma,
+  RefType,
+} from "@/generated/client";
 import { NotFoundError, BadRequestError, ConflictError } from "@/lib/errors";
 import { ArbSaleQuery, CreateArbSaleInput, UpdateArbSaleInput } from "./arb-sale.payload.schema";
 
@@ -172,6 +177,7 @@ async function applyCustomerLedger(
   totalAmount: number,
   paidAmount: number,
   userId: number,
+  paymentMethod: PaymentType,
 ) {
   if (!customerId) {
     throw new NotFoundError(`Customer not found`);
@@ -196,6 +202,8 @@ async function applyCustomerLedger(
         amount: -paidAmount,
         refType: RefType.INVOICE,
         refId: arbSaleId,
+        // Cash or cheque, so the customer report can say how it came in
+        paymentMethod,
         createdById: userId,
       },
     });
@@ -287,6 +295,7 @@ export async function createArbSale(input: CreateArbSaleInput, userId: number) {
       totalAmount,
       paidAmount,
       userId,
+      header.paymentType,
     );
 
     return tx.arbSale.findUniqueOrThrow({
@@ -403,6 +412,7 @@ export async function updateArbSale(
       totalAmount,
       paidAmount,
       userId,
+      header.paymentType,
     );
 
     // 8. Update sale header in place (keeps original id and trNo)

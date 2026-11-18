@@ -321,8 +321,13 @@ Other module-specific rules:
   `{ summary, data, pagination }` (not the `ApiResponse` envelope — the report
   pages consume that shape directly); every `/export` route renders through
   `report.export.ts`, where `excel` is CSV and `pdf` is tab-separated text.
-  Sale-by-product rolls up the three `*SaleItem` tables, since line items — not
-  the invoice headers — carry the product. The report pages share
+  **Product wise** and **customer wise** are agency-wide, so each has its own
+  permission (`report.product_wise`, `report.customer_wise`) instead of a scope.
+  Both reconcile on every row — Opening + Purchase − Sales ± Adjustments =
+  Closing (stock: the cylinder ledger, or batches walked back for ARB/other);
+  Opening + Rented − Taken back = Balance per cylinder size, and Opening +
+  Sales − Receipts = Outstanding (money: the ledger; custody: rebuilt from dated
+  sale and return records, `report.rollup.ts`). The report pages share
   `reports/_components` (filter card, summary tiles, results table, filter
   state); dom / arb / commercial are one `SaleReportView`, differing by a
   custody column (commercial) and a Type column (not ARB). The dashboard's client type is the service's own

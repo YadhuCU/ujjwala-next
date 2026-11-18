@@ -6,7 +6,11 @@ import {
   PurchaseType,
 } from "@/generated/client";
 import { PERMISSIONS } from "@/lib/permissions";
+import { prisma } from "@/lib/prisma";
 import {
+  balanceOf,
+  custodyOf,
+  godownOf,
   makeCustomer,
   makeFieldStaff,
   makeProduct,
@@ -21,6 +25,9 @@ import * as ArbSaleService from "@/module/arb-sale/arb-sale.service";
 import * as CommercialSaleService from "@/module/commercial-sale/commercial-sale.service";
 import * as PurchaseService from "@/module/purchase/purchase.service";
 import * as ExpenseService from "@/module/expense/expense.service";
+import * as CustomerService from "@/module/customer/customer.service";
+import * as CustomerTxnService from "@/module/customer-txn/customer-txn.service";
+import * as StockAdjustmentService from "@/module/stock-adjustment/stock-adjustment.service";
 
 let ownerId: number;
 let staffId: number;
@@ -212,94 +219,333 @@ describe("sale report scoping", () => {
   });
 });
 
-describe("sale-by-product report", () => {
-  // Line items carry the product, not the invoice header, and all three sale
-  // models have to roll up together.
-  it("rolls up domestic, ARB and commercial lines per product", async () => {
-    const domestic = await makeProduct(ProductType.DOMESTIC, {
-      name: "Domestic 14.2",
-    });
-    const arb = await makeProduct(ProductType.ARB, { name: "Bulk ARB" });
-    const commercial = await makeProduct(ProductType.COMMERCIAL, {
-      name: "Commercial 19",
-    });
+// =============================================================================
+// PRODUCT WISE
+// Opening + Purchase − Sales ± Adjustments = Closing, and for a cylinder the
+// closing figure is what the godown holds. History before the range is made by
+// backdating rows, since services always stamp "now".
+// =============================================================================
 
-    await seedGodown(domestic.id, { filledQty: 50 });
-    await seedGodown(commercial.id, { filledQty: 50 });
+const LONG_AGO = () => daysAgo(60);
 
-    const domStock = await makeStock(domestic.id, 50);
-    const arbStock = await makeStock(arb.id, 50);
-    const comStock = await makeStock(commercial.id, 50);
+/** Move every cylinder movement so far to before the range. */
+async function backdateCylinderLedger() {
+  await prisma.cylinderTransaction.updateMany({ data: { createdAt: LONG_AGO() } });
+  await prisma.stockAdjustment.updateMany({ data: { createdAt: LONG_AGO() } });
+}
 
+const buyFull = (productId: number, quantity: number, vendorId: number) =>
+  PurchaseService.createPurchase(
+    {
+      invoiceNo: undefined,
+      vendorId,
+      purchaseDate: daysAgo(3),
+      notes: undefined,
+      items: [
+        {
+          productId,
+          batchNo: undefined,
+          quantity,
+          unitCost: 100,
+          totalCost: quantity * 100,
+          purchaseType: PurchaseType.FULL,
+        },
+      ],
+    },
+    ownerId,
+  );
+
+const sellArb = (stockId: number, quantity: number, salePrice = 100) =>
+  ArbSaleService.createArbSale(
+    {
+      customerId,
+      paymentType: PaymentType.CASH,
+      paidAmount: 0,
+      discount: undefined,
+      notes: undefined,
+      items: [{ stockId, quantity, salePrice }],
+    },
+    ownerId,
+  );
+
+const reconciles = (row: {
+  openingStock: number;
+  purchaseQty: number;
+  salesQty: number;
+  adjustments: number;
+  closingStock: number;
+}) =>
+  row.openingStock + row.purchaseQty - row.salesQty + row.adjustments ===
+  row.closingStock;
+
+describe("product wise report", () => {
+  it("reads a cylinder product from the godown ledger", async () => {
+    const product = await makeProduct(ProductType.DOMESTIC, { name: "14.2 kg" });
+    const vendor = await makeVendor();
+    await seedGodown(product.id, { filledQty: 50 });
+    await backdateCylinderLedger();
+
+    await buyFull(product.id, 20, vendor.id);
+    const stock = await makeStock(product.id, 100);
     await DomSaleService.createDomSale(
       {
         fieldStaffId: undefined,
         paymentType: PaymentType.CASH,
         discount: undefined,
         notes: undefined,
-        items: [{ stockId: domStock.id, quantity: 2, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
+        items: [{ stockId: stock.id, quantity: 5, salePrice: 900, saleType: CommercialSaleType.RENT, emptiesCollected: 5 }],
       },
       { userId: ownerId, permissions: [PERMISSIONS.DOMESTIC_SALE_CREATE] },
     );
-
-    await ArbSaleService.createArbSale(
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: arbStock.id, quantity: 3, salePrice: 100 }],
-      },
+    await StockAdjustmentService.createStockAdjustment(
+      { productId: product.id, filledDelta: -2, emptyDelta: 0, reason: "Count" },
       ownerId,
     );
 
-    await CommercialSaleService.createCommercialSale(
+    const report = await ReportService.getProductWiseReport(range);
+    const row = report.data.find((r) => r.productId === product.id)!;
+
+    expect(row).toMatchObject({
+      openingStock: 50,
+      purchaseQty: 20,
+      salesQty: 5,
+      adjustments: -2,
+      closingStock: 63,
+      totalAmount: 4500,
+    });
+    // The report's closing is the godown, not a separate count
+    expect(row.closingStock).toBe((await godownOf(product.id)).filledQty);
+  });
+
+  it("walks ARB stock back from today's batches", async () => {
+    const product = await makeProduct(ProductType.ARB, { name: "Bulk ARB" });
+    const vendor = await makeVendor();
+
+    // Bought before the range
+    const earlier = await buyFull(product.id, 30, vendor.id);
+    await prisma.purchase.update({
+      where: { id: earlier.id },
+      data: { createdAt: LONG_AGO() },
+    });
+
+    // In the range: bought 20, sold 4, and a batch added by hand
+    const purchase = await buyFull(product.id, 20, vendor.id);
+    const batch = await prisma.stock.findFirstOrThrow({
+      where: { purchaseId: purchase.id },
+    });
+    await sellArb(batch.id, 4, 250);
+    await makeStock(product.id, 10);
+
+    const report = await ReportService.getProductWiseReport(range);
+    const row = report.data.find((r) => r.productId === product.id)!;
+
+    expect(row).toMatchObject({
+      openingStock: 30,
+      purchaseQty: 20,
+      salesQty: 4,
+      adjustments: 10,
+      closingStock: 56,
+      totalAmount: 1000,
+    });
+    const onHand = await prisma.stock.aggregate({
+      where: { productId: product.id, isDeleted: false },
+      _sum: { quantity: true },
+    });
+    expect(row.closingStock).toBe(onHand._sum.quantity);
+  });
+
+  it("nets out a sale entered and deleted inside the range", async () => {
+    const product = await makeProduct(ProductType.DOMESTIC);
+    await seedGodown(product.id, { filledQty: 10 });
+    await backdateCylinderLedger();
+    const stock = await makeStock(product.id, 10);
+
+    const sale = await DomSaleService.createDomSale(
       {
-        customerId,
-        invoiceDate: daysAgo(3),
+        fieldStaffId: undefined,
+        paymentType: PaymentType.CASH,
+        discount: undefined,
+        notes: undefined,
+        items: [{ stockId: stock.id, quantity: 3, salePrice: 100, saleType: CommercialSaleType.SALE, emptiesCollected: 0 }],
+      },
+      { userId: ownerId, permissions: [PERMISSIONS.DOMESTIC_SALE_CREATE] },
+    );
+    await DomSaleService.deleteDomSale(sale.id, {
+      userId: ownerId,
+      permissions: [PERMISSIONS.DOMESTIC_SALE_READ_ALL],
+    });
+
+    const report = await ReportService.getProductWiseReport(range);
+    const row = report.data.find((r) => r.productId === product.id)!;
+
+    expect(row.salesQty).toBe(0);
+    expect(row.totalAmount).toBe(0);
+    expect(row.closingStock).toBe(10);
+  });
+
+  it("adds up on every row, and the summary sums the rows", async () => {
+    const domestic = await makeProduct(ProductType.DOMESTIC);
+    const arb = await makeProduct(ProductType.ARB);
+    const vendor = await makeVendor();
+    await seedGodown(domestic.id, { filledQty: 8 });
+    await buyFull(domestic.id, 4, vendor.id);
+    await buyFull(arb.id, 6, vendor.id);
+
+    const report = await ReportService.getProductWiseReport(range);
+
+    expect(report.data.every(reconciles)).toBe(true);
+    expect(report.summary.purchaseQty).toBe(10);
+  });
+
+  it("starts the range at India midnight", async () => {
+    await expect(
+      ReportService.getProductWiseReport({ from: range.to, to: range.from }),
+    ).rejects.toThrow(/must not be after/);
+  });
+});
+
+// =============================================================================
+// CUSTOMER WISE
+// Opening + Rented − Taken back = Balance per cylinder size, and
+// Opening + Sales − Receipts = Outstanding — checked against the customer's
+// own caches, which the rest of the app keeps.
+// =============================================================================
+
+describe("customer wise report", () => {
+  async function setUpHotel() {
+    const kg19 = await makeProduct(ProductType.COMMERCIAL, { name: "19 kg" });
+    const kg47 = await makeProduct(ProductType.COMMERCIAL, { name: "47.5 kg" });
+    await seedGodown(kg19.id, { filledQty: 100 });
+    await seedGodown(kg47.id, { filledQty: 100 });
+    const stock19 = await makeStock(kg19.id, 100);
+    const stock47 = await makeStock(kg47.id, 100);
+
+    // Onboarded owing 1000 and holding three 19 kg cylinders
+    const hotel = await CustomerService.createCustomer(
+      {
+        name: "Beach Hotel",
+        initialPendingAmount: 1000,
+        initialCylinderBalances: [{ productId: kg19.id, qty: 3 }],
+      } as never,
+      ownerId,
+    );
+
+    // Before the range: 5 rented at 1000, unpaid
+    const earlier = await CommercialSaleService.createCommercialSale(
+      {
+        customerId: hotel.id,
+        invoiceDate: LONG_AGO(),
         paymentType: PaymentType.CASH,
         paidAmount: 0,
         discount: undefined,
         notes: undefined,
-        items: [
-          {
-            stockId: comStock.id,
-            saleType: CommercialSaleType.RENT,
-            quantity: 4,
-            salePrice: 100,
-          },
-        ],
+        items: [{ stockId: stock19.id, saleType: CommercialSaleType.RENT, quantity: 5, salePrice: 1000 }],
         returns: [],
       },
       ownerId,
     );
+    await prisma.commercialSale.update({
+      where: { id: earlier.id },
+      data: { createdAt: LONG_AGO() },
+    });
+    await prisma.customerPaymentLedger.updateMany({
+      where: { entryType: { not: "OPENING" } },
+      data: { createdAt: LONG_AGO() },
+    });
 
-    const report = await ReportService.getSaleByProductReport(
-      { from: range.from, to: range.to },
-      owner(),
+    // In the range: 4 rented and 1 sold outright, 2 empties collected on the
+    // invoice, 2000 paid by cheque; one 47.5 kg rented
+    await CommercialSaleService.createCommercialSale(
+      {
+        customerId: hotel.id,
+        invoiceDate: daysAgo(2),
+        paymentType: PaymentType.CHEQUE,
+        paidAmount: 2000,
+        discount: undefined,
+        notes: undefined,
+        items: [
+          { stockId: stock19.id, saleType: CommercialSaleType.RENT, quantity: 4, salePrice: 1000 },
+          { stockId: stock19.id, saleType: CommercialSaleType.SALE, quantity: 1, salePrice: 1000 },
+          { stockId: stock47.id, saleType: CommercialSaleType.RENT, quantity: 1, salePrice: 3000 },
+        ],
+        returns: [{ productId: kg19.id, quantity: 2 }],
+      },
+      ownerId,
     );
 
-    const byName = Object.fromEntries(
-      report.data.map((row) => [row.productName, row]),
+    // A return recorded against the earlier invoice's line
+    const earlierLine = await prisma.commercialSaleItem.findFirstOrThrow({
+      where: { commercialSaleId: earlier.id },
+    });
+    await CommercialSaleService.returnCylinders(
+      earlier.id,
+      { items: [{ itemId: earlierLine.id, returnQty: 1 }] },
+      ownerId,
     );
 
-    expect(byName["Domestic 14.2"].totalQuantity).toBe(2);
-    expect(byName["Bulk ARB"].totalQuantity).toBe(3);
-    expect(byName["Commercial 19"].totalQuantity).toBe(4);
+    // And 500 in cash at the counter
+    await CustomerTxnService.recordPayment(
+      hotel.id,
+      { amount: 500, paymentMethod: PaymentType.CASH, notes: undefined },
+      ownerId,
+    );
 
-    expect(report.summary.totalQuantity).toBe(9);
-    expect(report.summary.totalAmount).toBe(900);
-    // Rented cylinders are billed revenue, but they are expected back
-    expect(report.summary.rentedQuantity).toBe(4);
+    return { hotel, kg19, kg47 };
+  }
+
+  it("rebuilds each cylinder size and agrees with what the customer holds today", async () => {
+    const { hotel, kg19, kg47 } = await setUpHotel();
+
+    const report = await ReportService.getCustomerWiseReport(range);
+    const row = report.data.find((r) => r.customerId === hotel.id)!;
+    const size = (id: number) => row.products.find((p) => p.productId === id)!;
+
+    expect(size(kg19.id)).toMatchObject({
+      openingEmpty: 8, // 3 at onboarding + 5 rented before the range
+      rentedQty: 4,
+      soldQty: 1,
+      emptyBack: 3, // 2 on the invoice + 1 against the old line
+      balanceEmpty: 9,
+    });
+    expect(size(kg47.id)).toMatchObject({ openingEmpty: 0, rentedQty: 1, balanceEmpty: 1 });
+    expect(row.balanceEmpty).toBe(10);
+
+    expect(size(kg19.id).balanceEmpty).toBe(await custodyOf(hotel.id, kg19.id));
+    expect(size(kg47.id).balanceEmpty).toBe(await custodyOf(hotel.id, kg47.id));
   });
 
-  it("sorts by revenue, biggest first", async () => {
-    const small = await makeProduct(ProductType.ARB, { name: "Small" });
-    const big = await makeProduct(ProductType.ARB, { name: "Big" });
-    const smallStock = await makeStock(small.id, 50);
-    const bigStock = await makeStock(big.id, 50);
+  it("reports money from the ledger and agrees with the customer's balance", async () => {
+    const { hotel } = await setUpHotel();
 
+    const report = await ReportService.getCustomerWiseReport(range);
+    const row = report.data.find((r) => r.customerId === hotel.id)!;
+
+    expect(row).toMatchObject({
+      openingBalance: 6000, // 1000 at onboarding + 5000 unpaid before the range
+      salesAmount: 8000, // 4 + 1 at 1000, and 3000
+      receipts: 2500,
+      outstanding: 11500,
+    });
+    expect(row.receiptTypes).toEqual(["CASH", "CHEQUE"]);
+    expect(row.outstanding).toBe(await balanceOf(hotel.id));
+  });
+
+  it("records how every payment was received", async () => {
+    const { hotel } = await setUpHotel();
+
+    const payments = await prisma.customerPaymentLedger.findMany({
+      where: { customerId: hotel.id, entryType: "PAYMENT" },
+      orderBy: { id: "asc" },
+    });
+
+    expect(payments.map((p) => p.paymentMethod)).toEqual([
+      PaymentType.CHEQUE,
+      PaymentType.CASH,
+    ]);
+  });
+
+  it("filters to one customer and pages the rest", async () => {
+    const { hotel } = await setUpHotel();
     await ArbSaleService.createArbSale(
       {
         customerId,
@@ -307,28 +553,21 @@ describe("sale-by-product report", () => {
         paidAmount: 0,
         discount: undefined,
         notes: undefined,
-        items: [{ stockId: smallStock.id, quantity: 1, salePrice: 100 }],
-      },
-      ownerId,
-    );
-    await ArbSaleService.createArbSale(
-      {
-        customerId,
-        paymentType: PaymentType.CASH,
-        paidAmount: 0,
-        discount: undefined,
-        notes: undefined,
-        items: [{ stockId: bigStock.id, quantity: 1, salePrice: 900 }],
+        items: [{ stockId: (await makeStock((await makeProduct(ProductType.ARB)).id, 5)).id, quantity: 1, salePrice: 100 }],
       },
       ownerId,
     );
 
-    const report = await ReportService.getSaleByProductReport(
-      { from: range.from, to: range.to },
-      owner(),
-    );
+    const one = await ReportService.getCustomerWiseReport({
+      ...range,
+      customerId: hotel.id,
+    });
+    expect(one.data.map((r) => r.customerId)).toEqual([hotel.id]);
 
-    expect(report.data.map((r) => r.productName)).toEqual(["Big", "Small"]);
+    const firstPage = await ReportService.getCustomerWiseReport({ ...range, limit: 1 });
+    expect(firstPage.data).toHaveLength(1);
+    expect(firstPage.pagination.total).toBe(2);
+    expect(firstPage.summary.customerCount).toBe(2);
   });
 });
 

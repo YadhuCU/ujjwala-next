@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import {
   CommercialSaleType,
   LedgerEntryType,
+  PaymentType,
   Prisma,
   RefType,
   TxnType,
@@ -439,6 +440,7 @@ async function applyCustomerLedger(
   totalAmount: number,
   paidAmount: number,
   userId: number,
+  paymentMethod: PaymentType,
 ) {
   await tx.customerPaymentLedger.create({
     data: {
@@ -459,6 +461,8 @@ async function applyCustomerLedger(
         amount: -paidAmount,
         refType: RefType.INVOICE,
         refId: commercialSaleId,
+        // Cash or cheque, so the customer report can say how it came in
+        paymentMethod,
         createdById: userId,
       },
     });
@@ -622,6 +626,7 @@ export async function createCommercialSale(
       totalAmount,
       paidAmount,
       userId,
+      header.paymentType,
     );
 
     return tx.commercialSale.findUniqueOrThrow({
@@ -762,6 +767,7 @@ export async function updateCommercialSale(
       totalAmount,
       paidAmount,
       userId,
+      header.paymentType,
     );
 
     // 10. Update sale header in place (keeps original id and trNo)

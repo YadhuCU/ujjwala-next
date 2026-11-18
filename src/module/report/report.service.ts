@@ -3,11 +3,25 @@ import { endOfBusinessDay, startOfBusinessDay } from "@/lib/business-day";
 import { BadRequestError } from "@/lib/errors";
 import { SCOPES } from "@/lib/permissions";
 import { resolveScope, scopeFilter, type Actor } from "@/lib/access-scope";
-import { CommercialSaleType } from "@/generated/client";
+import {
+  CommercialSaleType,
+  LedgerEntryType,
+  RefType,
+  TxnType,
+  type ProductType,
+} from "@/generated/client";
+import { isCylinderTypeProduct } from "@/module/product/product.rules";
+import {
+  buildCustomerWiseRows,
+  summarizeCustomerWiseRows,
+  type CylinderEvent,
+  type MoneyEvent,
+} from "./report.rollup";
 import type {
   ExpenseReportQuery,
   PurchaseReportQuery,
-  SaleByProductQuery,
+  CustomerWiseQuery,
+  ProductWiseQuery,
   SaleReportQuery,
 } from "./report.payload.schema";
 
@@ -103,6 +117,8 @@ function summarizeSales(sales: SaleHeader[]) {
     totalNetTotal: Math.round(totalSubtotal * 100) / 100,
   };
 }
+
+const round2 = (value: number) => Math.round(value * 100) / 100;
 
 function paginate(page: number, limit: number, total: number) {
   return { page, limit, total, totalPages: Math.ceil(total / limit) };
@@ -312,117 +328,511 @@ export async function getExpenseReportRows(
 }
 
 // =============================================================================
-// SALE BY PRODUCT
-// Rolls the three sale models up per product. Line items carry the product, so
-// this reads the *Item tables and filters on their parent invoice.
+// PRODUCT WISE
+// Per product: Opening + Purchases − Sales ± Adjustments = Closing, for the
+// range. Agency-wide by design — stock is the agency's, not one person's.
+//
+// Cylinders (domestic, commercial) read the cylinder ledger, which can say how
+// many filled cylinders the godown held at any moment: every movement is a
+// dated, append-only row, reversals included. ARB and other products have no
+// ledger, so their stock is walked back from today's batch quantities through
+// the purchases, sales and manual batches recorded since.
 // =============================================================================
 
-type ProductRow = {
+type ProductStockRow = {
   productId: number;
   productName: string;
-  totalQuantity: number;
+  productType: ProductType;
+  openingStock: number;
+  purchaseQty: number;
+  salesQty: number;
   totalAmount: number;
+  /** Manual corrections: stock adjustments, or a manually added batch. */
+  adjustments: number;
+  closingStock: number;
 };
 
-export async function getSaleByProductReport(
-  query: SaleByProductQuery,
-  actor: ReportActor,
-) {
+type QtyByProduct = Map<number, number>;
+
+const addTo = (map: QtyByProduct, productId: number | null, qty: number) => {
+  if (productId === null) return;
+  map.set(productId, (map.get(productId) ?? 0) + qty);
+};
+
+/** Sale lines by product over a window, across all three sale models. */
+async function saleLineTotals(window: { gte?: Date; gt?: Date; lte?: Date }) {
+  const parent = { isDeleted: false, createdAt: window };
+  const select = { productId: true, quantity: true, netTotal: true } as const;
+
+  const lines = (
+    await Promise.all([
+      prisma.domSaleItem.findMany({ where: { domSale: parent }, select }),
+      prisma.arbSaleItem.findMany({ where: { arbSale: parent }, select }),
+      prisma.commercialSaleItem.findMany({
+        where: { commercialSale: parent },
+        select,
+      }),
+    ])
+  ).flat();
+
+  const qty: QtyByProduct = new Map();
+  const amount: QtyByProduct = new Map();
+  for (const line of lines) {
+    addTo(qty, line.productId, line.quantity);
+    addTo(amount, line.productId, Number(line.netTotal ?? 0));
+  }
+  return { qty, amount };
+}
+
+/** Purchased quantities by product, dated by when the purchase was entered. */
+async function purchaseTotals(window: { gte?: Date; gt?: Date; lte?: Date }) {
+  const rows = await prisma.purchaseItem.groupBy({
+    by: ["productId"],
+    where: { purchase: { isDeleted: false, createdAt: window } },
+    _sum: { quantity: true },
+  });
+  return new Map(rows.map((r) => [r.productId, r._sum.quantity ?? 0]));
+}
+
+/**
+ * Manually added batches (opening stock — no purchase behind them) by product,
+ * at the quantity they started with: what is left plus what has been sold from
+ * them. Only ARB and other products need this; a cylinder batch posts a stock
+ * adjustment to the ledger instead.
+ */
+async function manualBatchTotals(window: { gte?: Date; gt?: Date; lte?: Date }) {
+  const batches = await prisma.stock.findMany({
+    where: { purchaseId: null, isDeleted: false, createdAt: window },
+    select: {
+      productId: true,
+      quantity: true,
+      domSaleItems: {
+        where: { domSale: { isDeleted: false } },
+        select: { quantity: true },
+      },
+      arbSaleItems: {
+        where: { arbSale: { isDeleted: false } },
+        select: { quantity: true },
+      },
+      commercialSaleItems: {
+        where: { commercialSale: { isDeleted: false } },
+        select: { quantity: true },
+      },
+    },
+  });
+
+  const totals: QtyByProduct = new Map();
+  for (const batch of batches) {
+    const sold = [
+      ...batch.domSaleItems,
+      ...batch.arbSaleItems,
+      ...batch.commercialSaleItems,
+    ].reduce((sum, line) => sum + line.quantity, 0);
+    addTo(totals, batch.productId, batch.quantity + sold);
+  }
+  return totals;
+}
+
+export async function getProductWiseReport(query: ProductWiseQuery) {
   const { fromDate, toDate } = assertAndNormalizeRange(query.from, query.to);
-  const range = { gte: fromDate, lte: toDate };
+  const inRange = { gte: fromDate, lte: toDate };
+  const afterRange = { gt: toDate };
 
-  // The scope applies to the parent invoice — line items carry no author.
-  const author = authorFilter(actor);
-
-  const [domItems, arbItems, comItems] = await Promise.all([
-    prisma.domSaleItem.findMany({
-      where: {
-        domSale: {
-          isDeleted: false,
-          createdAt: range,
-          ...authorFilter(actor, undefined, "fieldStaffId"),
-        },
-      },
-      select: {
-        quantity: true,
-        netTotal: true,
-        product: { select: { id: true, name: true } },
-      },
+  const [
+    products,
+    ledgerBefore,
+    ledgerInRange,
+    batchesNow,
+    salesInRange,
+    salesAfter,
+    purchasesInRange,
+    purchasesAfter,
+    manualInRange,
+    manualAfter,
+  ] = await Promise.all([
+    prisma.product.findMany({
+      select: { id: true, name: true, type: true, isDeleted: true },
     }),
-    prisma.arbSaleItem.findMany({
-      where: { arbSale: { isDeleted: false, createdAt: range, ...author } },
-      select: {
-        quantity: true,
-        netTotal: true,
-        product: { select: { id: true, name: true } },
-      },
+    prisma.cylinderTransaction.groupBy({
+      by: ["productId"],
+      where: { createdAt: { lt: fromDate } },
+      _sum: { filledDelta: true },
     }),
-    prisma.commercialSaleItem.findMany({
-      // Rentals are billed too, so both line types count as sales revenue
-      where: {
-        commercialSale: { isDeleted: false, createdAt: range, ...author },
-      },
-      select: {
-        quantity: true,
-        netTotal: true,
-        saleType: true,
-        product: { select: { id: true, name: true } },
-      },
+    prisma.cylinderTransaction.groupBy({
+      by: ["productId", "txnType"],
+      where: { createdAt: inRange },
+      _sum: { filledDelta: true },
     }),
+    prisma.stock.groupBy({
+      by: ["productId"],
+      where: { isDeleted: false },
+      _sum: { quantity: true },
+    }),
+    saleLineTotals(inRange),
+    saleLineTotals(afterRange),
+    purchaseTotals(inRange),
+    purchaseTotals(afterRange),
+    manualBatchTotals(inRange),
+    manualBatchTotals(afterRange),
   ]);
 
-  const byProduct = new Map<number, ProductRow>();
-
-  const accumulate = (rows: {
-    quantity: number;
-    netTotal: { toNumber(): number } | null;
-    product: { id: number; name: string } | null;
-  }[]) => {
-    for (const row of rows) {
-      if (!row.product) continue;
-
-      const existing = byProduct.get(row.product.id) ?? {
-        productId: row.product.id,
-        productName: row.product.name,
-        totalQuantity: 0,
-        totalAmount: 0,
-      };
-
-      existing.totalQuantity += row.quantity;
-      existing.totalAmount += Number(row.netTotal ?? 0);
-      byProduct.set(row.product.id, existing);
-    }
-  };
-
-  accumulate(domItems);
-  accumulate(arbItems);
-  accumulate(comItems);
-
-  const data = [...byProduct.values()]
-    .map((row) => ({
-      ...row,
-      totalAmount: Math.round(row.totalAmount * 100) / 100,
-    }))
-    .sort((a, b) => b.totalAmount - a.totalAmount);
-
-  const summary = data.reduce(
-    (acc, row) => ({
-      totalQuantity: acc.totalQuantity + row.totalQuantity,
-      totalAmount:
-        Math.round((acc.totalAmount + row.totalAmount) * 100) / 100,
-    }),
-    { totalQuantity: 0, totalAmount: 0 },
+  const openingFilled = new Map(
+    ledgerBefore.map((r) => [r.productId, r._sum.filledDelta ?? 0]),
+  );
+  const ledgerMoves = (productId: number, types: TxnType[]) =>
+    ledgerInRange
+      .filter((r) => r.productId === productId && types.includes(r.txnType))
+      .reduce((sum, r) => sum + (r._sum.filledDelta ?? 0), 0);
+  const batchQty = new Map(
+    batchesNow.map((r) => [r.productId, r._sum.quantity ?? 0]),
   );
 
-  // Rented cylinders are worth calling out separately — they are billed revenue
-  // but the cylinders are expected back.
-  const rentedQuantity = comItems
-    .filter((item) => item.saleType === CommercialSaleType.RENT)
-    .reduce((sum, item) => sum + item.quantity, 0);
+  const data: ProductStockRow[] = products
+    .map((product) => {
+      const id = product.id;
+      const totalAmount = round2(salesInRange.amount.get(id) ?? 0);
+
+      if (isCylinderTypeProduct(product.type)) {
+        // Reversal rows carry their original type with the sign flipped, so a
+        // sale voided inside the range nets to nothing here.
+        const openingStock = openingFilled.get(id) ?? 0;
+        const purchaseQty = ledgerMoves(id, [
+          TxnType.PURCHASE_FULL,
+          TxnType.PURCHASE_FILL,
+        ]);
+        // `0 -`, not unary minus: −0 would print as "-0" in the export
+        const salesQty =
+          0 - ledgerMoves(id, [TxnType.SALE_OUT, TxnType.RENT_DELIVERY]);
+        const adjustments = ledgerMoves(id, [TxnType.ADJUSTMENT]);
+        return {
+          productId: id,
+          productName: product.name,
+          productType: product.type,
+          openingStock,
+          purchaseQty,
+          salesQty,
+          totalAmount,
+          adjustments,
+          closingStock: openingStock + purchaseQty - salesQty + adjustments,
+        };
+      }
+
+      // Walk today's batches back to the end of the range, then to its start
+      const closingStock =
+        (batchQty.get(id) ?? 0) -
+        (purchasesAfter.get(id) ?? 0) +
+        (salesAfter.qty.get(id) ?? 0) -
+        (manualAfter.get(id) ?? 0);
+      const purchaseQty = purchasesInRange.get(id) ?? 0;
+      const salesQty = salesInRange.qty.get(id) ?? 0;
+      const adjustments = manualInRange.get(id) ?? 0;
+      return {
+        productId: id,
+        productName: product.name,
+        productType: product.type,
+        openingStock: closingStock - purchaseQty + salesQty - adjustments,
+        purchaseQty,
+        salesQty,
+        totalAmount,
+        adjustments,
+        closingStock,
+      };
+    })
+    // A deleted product only appears while it still has something to report
+    .filter((row) => {
+      const product = products.find((p) => p.id === row.productId)!;
+      const active =
+        row.openingStock !== 0 ||
+        row.purchaseQty !== 0 ||
+        row.salesQty !== 0 ||
+        row.adjustments !== 0 ||
+        row.closingStock !== 0 ||
+        row.totalAmount !== 0;
+      return !product.isDeleted || active;
+    })
+    .sort(
+      (a, b) =>
+        a.productType.localeCompare(b.productType) ||
+        a.productName.localeCompare(b.productName),
+    );
+
+  const sum = (pick: (row: ProductStockRow) => number) =>
+    data.reduce((total, row) => total + pick(row), 0);
 
   return {
-    summary: { ...summary, rentedQuantity },
+    summary: {
+      purchaseQty: sum((r) => r.purchaseQty),
+      salesQty: sum((r) => r.salesQty),
+      totalAmount: round2(sum((r) => r.totalAmount)),
+      adjustments: sum((r) => r.adjustments),
+    },
     data,
     pagination: paginate(1, data.length || 1, data.length),
   };
+}
+
+// =============================================================================
+// CUSTOMER WISE
+// Per customer, over the range: the cylinders they hold (Opening + Rented −
+// Taken back = Balance, per cylinder size) and their money (Opening + Sales −
+// Receipts = Outstanding). Agency-wide by design — a customer's balance is
+// theirs, not any one staff member's.
+//
+// Money comes straight from the append-only money ledger. Cylinder custody has
+// no ledger of its own, so it is rebuilt from the dated records behind every
+// change to it — see customerCylinderEvents.
+// =============================================================================
+
+/** Money ledger rows as report events. */
+async function customerMoneyEvents(toDate: Date): Promise<MoneyEvent[]> {
+  const rows = await prisma.customerPaymentLedger.findMany({
+    where: { createdAt: { lte: toDate } },
+    select: {
+      customerId: true,
+      entryType: true,
+      amount: true,
+      voidedEntryId: true,
+      paymentMethod: true,
+      createdAt: true,
+    },
+  });
+
+  return rows.map((row) => {
+    const amount = Number(row.amount);
+    const base = { customerId: row.customerId, at: row.createdAt };
+
+    switch (row.entryType) {
+      case LedgerEntryType.OPENING:
+        return { ...base, kind: "opening" as const, amount };
+      case LedgerEntryType.PAYMENT:
+        // Negative on the ledger; a receipt is its size
+        return {
+          ...base,
+          kind: "receipt" as const,
+          amount: -amount,
+          method: row.paymentMethod,
+        };
+      case LedgerEntryType.ADJUSTMENT:
+        // A reversed payment gives back a receipt; anything else — a voided or
+        // corrected invoice — changes what was sold
+        return row.voidedEntryId
+          ? { ...base, kind: "receipt" as const, amount: -amount }
+          : { ...base, kind: "sale" as const, amount };
+      default:
+        return { ...base, kind: "sale" as const, amount };
+    }
+  });
+}
+
+/**
+ * Every dated change to what customers hold, plus outright sales:
+ * - the opening holding captured at onboarding;
+ * - commercial RENT lines (out) and SALE lines (sold, never held);
+ * - cylinders collected on an invoice (`CommercialSaleReturn`);
+ * - returns recorded against one line (`PATCH …/return`). The line only keeps
+ *   a running count, so their dates come from the cylinder ledger rows that
+ *   path writes; any part the ledger cannot account for is dated by the line's
+ *   last change;
+ * - domestic sales from before 2026-11-02, which were charged to a customer
+ *   and moved their holding.
+ * Deleted invoices contribute nothing: their effect has been reversed.
+ */
+async function customerCylinderEvents(
+  toDate: Date,
+): Promise<CylinderEvent[]> {
+  const live = { isDeleted: false, createdAt: { lte: toDate } };
+
+  const [openings, commercialLines, collections, lineReturnTxns, domLines] =
+    await Promise.all([
+      prisma.customerInitialCylinderBalance.findMany({
+        select: {
+          customerId: true,
+          productId: true,
+          qty: true,
+          customer: { select: { createdAt: true } },
+        },
+      }),
+      prisma.commercialSaleItem.findMany({
+        where: { commercialSale: { ...live, customerId: { not: null } } },
+        select: {
+          id: true,
+          productId: true,
+          saleType: true,
+          quantity: true,
+          cylindersDispatched: true,
+          cylindersReturned: true,
+          updatedAt: true,
+          commercialSale: {
+            select: { id: true, customerId: true, createdAt: true },
+          },
+        },
+      }),
+      prisma.commercialSaleReturn.findMany({
+        where: {
+          createdAt: { lte: toDate },
+          commercialSale: { isDeleted: false, customerId: { not: null } },
+        },
+        select: {
+          productId: true,
+          quantity: true,
+          createdAt: true,
+          commercialSale: { select: { customerId: true } },
+        },
+      }),
+      prisma.cylinderTransaction.findMany({
+        where: {
+          txnType: TxnType.CYLINDER_RETURN,
+          refType: RefType.INVOICE,
+          voidedTxnId: null,
+          voidedBy: { none: {} },
+          notes: { startsWith: "Cylinder return — COM #" },
+        },
+        select: { emptyDelta: true, notes: true, createdAt: true },
+      }),
+      prisma.domSaleItem.findMany({
+        where: { domSale: { ...live, customerId: { not: null } } },
+        select: {
+          productId: true,
+          cylindersDispatched: true,
+          emptiesCollected: true,
+          domSale: { select: { customerId: true, createdAt: true } },
+        },
+      }),
+    ]);
+
+  const events: CylinderEvent[] = [];
+
+  for (const opening of openings)
+    events.push({
+      customerId: opening.customerId,
+      productId: opening.productId,
+      at: opening.customer.createdAt,
+      kind: "opening",
+      quantity: opening.qty,
+    });
+
+  // `notes` is written by recordReturn as "Cylinder return — COM #<sale> item #<line>"
+  const returnsByLine = new Map<number, { at: Date; quantity: number }[]>();
+  for (const txn of lineReturnTxns) {
+    const match = /item #(\d+)$/.exec(txn.notes ?? "");
+    if (!match) continue;
+    const lineId = Number(match[1]);
+    const list = returnsByLine.get(lineId) ?? [];
+    list.push({ at: txn.createdAt, quantity: txn.emptyDelta });
+    returnsByLine.set(lineId, list);
+  }
+
+  for (const line of commercialLines) {
+    const customerId = line.commercialSale.customerId!;
+    if (!line.productId) continue;
+    const productId = line.productId;
+    const at = line.commercialSale.createdAt;
+
+    if (line.saleType === CommercialSaleType.SALE) {
+      events.push({ customerId, productId, at, kind: "sold", quantity: line.quantity });
+      continue;
+    }
+
+    events.push({
+      customerId,
+      productId,
+      at,
+      kind: "rent",
+      quantity: line.cylindersDispatched,
+    });
+
+    let accounted = 0;
+    for (const ret of returnsByLine.get(line.id) ?? []) {
+      if (accounted + ret.quantity > line.cylindersReturned) break;
+      accounted += ret.quantity;
+      if (ret.at <= toDate)
+        events.push({ customerId, productId, at: ret.at, kind: "back", quantity: ret.quantity });
+    }
+    const unaccounted = line.cylindersReturned - accounted;
+    if (unaccounted > 0 && line.updatedAt <= toDate)
+      events.push({
+        customerId,
+        productId,
+        at: line.updatedAt,
+        kind: "back",
+        quantity: unaccounted,
+      });
+  }
+
+  for (const collection of collections)
+    events.push({
+      customerId: collection.commercialSale.customerId!,
+      productId: collection.productId,
+      at: collection.createdAt,
+      kind: "back",
+      quantity: collection.quantity,
+    });
+
+  for (const line of domLines) {
+    const customerId = line.domSale.customerId!;
+    const at = line.domSale.createdAt;
+    if (line.cylindersDispatched > 0)
+      events.push({
+        customerId,
+        productId: line.productId,
+        at,
+        kind: "rent",
+        quantity: line.cylindersDispatched,
+      });
+    if (line.emptiesCollected > 0)
+      events.push({
+        customerId,
+        productId: line.productId,
+        at,
+        kind: "back",
+        quantity: line.emptiesCollected,
+      });
+  }
+
+  return events;
+}
+
+async function buildCustomerWiseReport(query: CustomerWiseQuery) {
+  const { fromDate, toDate } = assertAndNormalizeRange(query.from, query.to);
+
+  const [customers, products, money, cylinders] = await Promise.all([
+    prisma.customer.findMany({
+      where: {
+        isDeleted: false,
+        // A customer registered after the range had nothing in it
+        createdAt: { lte: toDate },
+        ...(query.customerId && { id: query.customerId }),
+      },
+      select: { id: true, name: true, phone: true },
+    }),
+    prisma.product.findMany({ select: { id: true, name: true } }),
+    customerMoneyEvents(toDate),
+    customerCylinderEvents(toDate),
+  ]);
+
+  return buildCustomerWiseRows({
+    customers,
+    productNames: new Map(products.map((p) => [p.id, p.name])),
+    money,
+    cylinders,
+    from: fromDate,
+    to: toDate,
+  });
+}
+
+export async function getCustomerWiseReport(query: CustomerWiseQuery) {
+  const rows = await buildCustomerWiseReport(query);
+  const { page, limit } = query;
+
+  return {
+    // The whole filtered range, not just this page
+    summary: summarizeCustomerWiseRows(rows),
+    data: rows.slice((page - 1) * limit, page * limit),
+    pagination: paginate(page, limit, rows.length),
+  };
+}
+
+/** Every row, unpaginated — for the export. */
+export async function getCustomerWiseReportRows(query: CustomerWiseQuery) {
+  return buildCustomerWiseReport(query);
 }

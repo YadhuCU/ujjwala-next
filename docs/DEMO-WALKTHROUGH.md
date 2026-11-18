@@ -219,7 +219,7 @@ fewer options — no reports, no purchases, no edit or delete.
 | Customers | `/customers` | Master data plus opening balances captured once at registration |
 | Customer transactions | `/customer-txn/[id]` | Balance, cylinders held, full ledger, record and reverse payments |
 | Expenses | `/expenses` | Private to whoever recorded them; owners see everyone's |
-| Reports | `/reports/*` | Commercial, domestic, ARB, sale-by-product, expense, purchase — all with Excel/PDF export |
+| Reports | `/reports/*` | Commercial, domestic, ARB, product wise, customer wise, expense, purchase — all with Excel/PDF export |
 | Users | `/users` | Accounts and roles (a user may hold several), activate/deactivate |
 | Roles & permissions | `/roles` | Create roles and tick what they may do; `/roles/audit` records every change. See `docs/RBAC.md` |
 
@@ -320,5 +320,5 @@ while the page still renders.
 /roles                  roles + permission matrix
 /roles/audit            who changed access, and when
 /reports/commercial-sale  /reports/dom-sale  /reports/arb-sale
-/reports/sale-by-product  /reports/expense   /reports/purchase
+/reports/product-wise  /reports/customer-wise  /reports/expense   /reports/purchase
 ```
