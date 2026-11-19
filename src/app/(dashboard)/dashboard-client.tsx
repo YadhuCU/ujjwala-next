@@ -15,8 +15,11 @@ import { InventoryAndTransactions } from "./_components/inventory-txns";
 import { CommercialAlerts } from "./_components/commercial-alerts";
 import { QuickActions } from "./_components/quick-actions";
 import { GodownPreview } from "./_components/godown-preview";
+import { DashboardHero } from "./_components/dashboard-hero";
+import { useSession } from "next-auth/react";
 
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
     () => {
       const to = new Date();
@@ -68,7 +71,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-[22px] leading-tight font-bold tracking-[-0.02em] sm:text-[26px]">Dashboard</h1>
           <p className="text-muted-foreground text-sm">
             {isStaff
               ? "Your personal sales & collections overview"
@@ -80,6 +83,8 @@ export default function DashboardPage() {
           onDateRangeChange={setDateRange}
         />
       </div>
+
+      <DashboardHero name={session?.user?.name} />
 
       {/* Cylinder position first — it is the question the agency asks most */}
       <GodownPreview />

@@ -5,6 +5,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { FormSummary } from "@/components/form-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -563,17 +564,7 @@ export function CommercialSaleForm({
               </div>
             ) : null}
 
-            {/* ─── Grand Total ──────────────────── */}
-            <div className="flex flex-col items-end pt-4 border-t space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold sm:text-xl">Grand Total: </span>
-                <p className="text-lg font-bold text-right tabular-nums sm:text-xl">
-                  ₹{grandTotal.toFixed(2)}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 sm:flex">
+            <FormSummary label="Invoice total" amount={grandTotal}>
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty}
@@ -588,7 +579,7 @@ export function CommercialSaleForm({
               >
                 Cancel
               </Button>
-            </div>
+            </FormSummary>
           </form>
         </Form>
       </CardContent>

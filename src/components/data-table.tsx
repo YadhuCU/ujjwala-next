@@ -99,7 +99,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
       <MobileRows table={table} />
-      <div className="hidden overflow-hidden rounded border md:block">
+      <div className="bg-card hidden overflow-hidden rounded-xl border md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map(headerGroup => (
@@ -163,7 +163,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center py-4 text-sm font-medium whitespace-nowrap">
+        <div className="text-muted-foreground flex items-center py-4 text-sm whitespace-nowrap">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
           {table.getPageCount()}
         </div>
@@ -203,7 +203,7 @@ function MobileRows<TData>({ table }: { table: TanstackTable<TData> }) {
 
   if (!rows.length) {
     return (
-      <p className="text-muted-foreground rounded border py-10 text-center text-sm md:hidden">
+      <p className="text-muted-foreground bg-card rounded-xl border py-10 text-center text-sm md:hidden">
         No results.
       </p>
     );
@@ -233,7 +233,7 @@ function MobileRows<TData>({ table }: { table: TanstackTable<TData> }) {
         );
 
         return (
-          <li key={row.id} className="bg-card rounded-lg border p-3 text-sm">
+          <li key={row.id} className="bg-card rounded-xl border p-3 text-sm">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 pt-2 font-semibold break-words">
                 {title &&

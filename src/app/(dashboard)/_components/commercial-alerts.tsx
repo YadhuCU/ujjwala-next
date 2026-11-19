@@ -18,7 +18,7 @@ export function CommercialAlerts({ data }: { data: DashboardData }) {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-orange-500" />
+              <AlertTriangle className="w-4 h-4 text-warning" />
               Pending Empty Cylinders ({">"} 30 days)
             </CardTitle>
           </CardHeader>
@@ -58,7 +58,7 @@ export function CommercialAlerts({ data }: { data: DashboardData }) {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-500" />
+              <AlertTriangle className="w-4 h-4 text-destructive" />
               Pending Payments ({">"} 30 days)
             </CardTitle>
           </CardHeader>

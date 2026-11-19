@@ -9,6 +9,7 @@ import { PERMISSIONS } from "@/lib/permissions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { FormSummary } from "@/components/form-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -510,26 +511,21 @@ export function DomSaleForm({
               })}
             </div>
 
-            {/* ─── Grand Total ──────────────────── */}
-            <div className="flex flex-col items-end gap-1 border-t pt-4">
-              {watchedDiscount > 0 && (
-                <p className="text-muted-foreground text-sm tabular-nums">
-                  Subtotal ₹{subtotal.toFixed(2)} · Discount ₹
-                  {watchedDiscount.toFixed(2)}
-                </p>
-              )}
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold sm:text-xl">Grand Total: </span>
-                <p className="text-lg font-bold text-right tabular-nums sm:text-xl">
-                  ₹{grandTotal.toFixed(2)}
-                </p>
-              </div>
-              <p className="text-muted-foreground text-xs">
-                Collected in full by the field staff
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 sm:flex">
+            <FormSummary
+              label="Sale total"
+              amount={grandTotal}
+              detail={
+                <>
+                  {watchedDiscount > 0 && (
+                    <span className="tabular-nums">
+                      Subtotal ₹{subtotal.toFixed(2)} · Discount ₹
+                      {watchedDiscount.toFixed(2)} ·{" "}
+                    </span>
+                  )}
+                  Collected in full by the field staff
+                </>
+              }
+            >
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty || !!legacyCustomerName}
@@ -544,7 +540,7 @@ export function DomSaleForm({
               >
                 Cancel
               </Button>
-            </div>
+            </FormSummary>
           </form>
         </Form>
       </CardContent>

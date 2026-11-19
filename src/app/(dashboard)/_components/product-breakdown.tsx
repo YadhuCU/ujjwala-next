@@ -8,14 +8,14 @@ import { Package } from "lucide-react";
 import { DashboardData } from "./types";
 
 const COLORS = [
-  "hsl(221, 83%, 53%)",
-  "hsl(160, 60%, 45%)",
-  "hsl(280, 65%, 60%)",
-  "hsl(38, 92%, 50%)",
-  "hsl(350, 80%, 55%)",
-  "hsl(190, 70%, 50%)",
-  "hsl(45, 85%, 55%)",
-  "hsl(320, 70%, 55%)",
+  "var(--chart-1)",
+  "var(--chart-3)",
+  "var(--chart-2)",
+  "var(--chart-5)",
+  "var(--chart-4)",
+  "#7c93b1",
+  "#9f1e1a",
+  "#0b3a6b",
 ];
 
 export function ProductBreakdown({ data }: { data: DashboardData }) {
@@ -36,7 +36,7 @@ export function ProductBreakdown({ data }: { data: DashboardData }) {
     <Card className="lg:col-span-2">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Package className="w-5 h-5 text-purple-500" />
+          <Package className="w-5 h-5 text-primary" />
           Revenue by Product
         </CardTitle>
         <CardDescription>Product-wise revenue distribution</CardDescription>

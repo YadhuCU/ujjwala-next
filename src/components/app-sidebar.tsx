@@ -35,7 +35,6 @@ import {
   Wallet,
   FileText,
   ChevronDown,
-  Flame,
   Truck,
   ShoppingBag,
   SlidersHorizontal,
@@ -45,6 +44,7 @@ import {
   FileBarChart,
 } from "lucide-react";
 import { Permission, PERMISSIONS } from "@/lib/permissions";
+import { BrandMark } from "@/components/brand-mark";
 
 type NavItem = {
   title: string;
@@ -54,138 +54,173 @@ type NavItem = {
   sub?: NavItem[];
 };
 
-const sidebarMenu: NavItem[] = [
+type NavSection = { label: string; items: NavItem[] };
+
+// Grouped the way the agency works: selling, the cylinders behind it, who it
+// deals with, the money, and the people who run the app. Every route and
+// permission is unchanged — this is only where each link sits.
+export const navSections: NavSection[] = [
   {
-    title: "Dashboard",
-    href: "/",
-    icon: LayoutDashboard,
-    requiredPermissions: [PERMISSIONS.DASHBOARD_READ],
-  },
-  {
-    title: "Users",
-    href: "/users",
-    icon: Users,
-    requiredPermissions: [PERMISSIONS.USER_READ],
-  },
-  {
-    title: "Roles & Permissions",
-    href: "/roles",
-    icon: ShieldCheck,
-    requiredPermissions: [PERMISSIONS.ROLE_READ],
-  },
-  {
-    title: "Locations",
-    href: "/locations",
-    icon: MapPin,
-    requiredPermissions: [PERMISSIONS.LOCATION_READ],
-  },
-  {
-    title: "Customers",
-    href: "/customers",
-    icon: BookOpen,
-    requiredPermissions: [PERMISSIONS.CUSTOMER_READ],
-  },
-  {
-    title: "Products",
-    href: "/products",
-    icon: Package,
-    requiredPermissions: [PERMISSIONS.PRODUCT_READ],
-  },
-  {
-    title: "Stock",
-    href: "/stock",
-    icon: BarChart3,
-    requiredPermissions: [PERMISSIONS.STOCK_READ],
-  },
-  {
-    title: "Godown",
-    href: "/godown",
-    icon: Warehouse,
-    requiredPermissions: [PERMISSIONS.STOCK_READ],
-  },
-  {
-    title: "Stock Adjustment",
-    href: "/stock-adjustments",
-    icon: SlidersHorizontal,
-    requiredPermissions: [PERMISSIONS.STOCK_READ],
-  },
-  {
-    title: "Vendors",
-    href: "/vendors",
-    icon: Truck,
-    requiredPermissions: [PERMISSIONS.VENDOR_READ],
-  },
-  {
-    title: "Purchase",
-    href: "/purchases",
-    icon: ShoppingBag,
-    requiredPermissions: [PERMISSIONS.PURCHASE_READ],
-  },
-  {
-    title: "Commercial Sale",
-    href: "/commercial-sales",
-    icon: ShoppingCart,
-    requiredPermissions: [PERMISSIONS.COMMERCIAL_SALE_READ],
-  },
-  {
-    title: "Domestic Sale",
-    href: "/dom-sales",
-    icon: Home,
-    requiredPermissions: [PERMISSIONS.DOMESTIC_SALE_READ],
-  },
-  {
-    title: "ARB Sale",
-    href: "/arb-sales",
-    icon: ShoppingCart,
-    requiredPermissions: [PERMISSIONS.ARB_SALE_READ],
-  },
-  {
-    title: "Expense",
-    href: "/expenses",
-    icon: Wallet,
-    requiredPermissions: [PERMISSIONS.EXPENSE_READ],
-  },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: FileBarChart,
-    requiredPermissions: [PERMISSIONS.REPORT_READ],
-    sub: [
+    label: "Workspace",
+    items: [
       {
-        title: "Commercial Sale Report",
-        href: "/reports/commercial-sale",
+        title: "Dashboard",
+        href: "/",
+        icon: LayoutDashboard,
+        requiredPermissions: [PERMISSIONS.DASHBOARD_READ],
+      },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      {
+        title: "Domestic Sale",
+        href: "/dom-sales",
+        icon: Home,
+        requiredPermissions: [PERMISSIONS.DOMESTIC_SALE_READ],
+      },
+      {
+        title: "Commercial Sale",
+        href: "/commercial-sales",
+        icon: ShoppingCart,
+        requiredPermissions: [PERMISSIONS.COMMERCIAL_SALE_READ],
+      },
+      {
+        title: "ARB Sale",
+        href: "/arb-sales",
+        icon: ShoppingCart,
+        requiredPermissions: [PERMISSIONS.ARB_SALE_READ],
+      },
+    ],
+  },
+  {
+    label: "Inventory",
+    items: [
+      {
+        title: "Stock",
+        href: "/stock",
+        icon: BarChart3,
+        requiredPermissions: [PERMISSIONS.STOCK_READ],
+      },
+      {
+        title: "Godown",
+        href: "/godown",
+        icon: Warehouse,
+        requiredPermissions: [PERMISSIONS.STOCK_READ],
+      },
+      {
+        title: "Stock Adjustment",
+        href: "/stock-adjustments",
+        icon: SlidersHorizontal,
+        requiredPermissions: [PERMISSIONS.STOCK_READ],
+      },
+      {
+        title: "Purchase",
+        href: "/purchases",
+        icon: ShoppingBag,
+        requiredPermissions: [PERMISSIONS.PURCHASE_READ],
+      },
+      {
+        title: "Products",
+        href: "/products",
+        icon: Package,
+        requiredPermissions: [PERMISSIONS.PRODUCT_READ],
+      },
+    ],
+  },
+  {
+    label: "Directory",
+    items: [
+      {
+        title: "Customers",
+        href: "/customers",
+        icon: BookOpen,
+        requiredPermissions: [PERMISSIONS.CUSTOMER_READ],
+      },
+      {
+        title: "Vendors",
+        href: "/vendors",
+        icon: Truck,
+        requiredPermissions: [PERMISSIONS.VENDOR_READ],
+      },
+      {
+        title: "Locations",
+        href: "/locations",
+        icon: MapPin,
+        requiredPermissions: [PERMISSIONS.LOCATION_READ],
+      },
+    ],
+  },
+  {
+    label: "Finance",
+    items: [
+      {
+        title: "Expense",
+        href: "/expenses",
+        icon: Wallet,
+        requiredPermissions: [PERMISSIONS.EXPENSE_READ],
+      },
+      {
+        title: "Reports",
+        href: "/reports",
+        icon: FileBarChart,
         requiredPermissions: [PERMISSIONS.REPORT_READ],
+        sub: [
+          {
+            title: "Commercial Sale Report",
+            href: "/reports/commercial-sale",
+            requiredPermissions: [PERMISSIONS.REPORT_READ],
+          },
+          {
+            title: "Domestic Sale Report",
+            href: "/reports/dom-sale",
+            requiredPermissions: [PERMISSIONS.REPORT_READ],
+          },
+          {
+            title: "Arb Sale Report",
+            href: "/reports/arb-sale",
+            requiredPermissions: [PERMISSIONS.REPORT_READ],
+          },
+          // Agency-wide, so each has a permission of its own
+          {
+            title: "Product Wise Report",
+            href: "/reports/product-wise",
+            requiredPermissions: [PERMISSIONS.REPORT_PRODUCT_WISE],
+          },
+          {
+            title: "Customer Wise Report",
+            href: "/reports/customer-wise",
+            requiredPermissions: [PERMISSIONS.REPORT_CUSTOMER_WISE],
+          },
+          {
+            title: "Expense Report",
+            href: "/reports/expense",
+            requiredPermissions: [PERMISSIONS.REPORT_READ],
+          },
+          {
+            title: "Purchase Report",
+            href: "/reports/purchase",
+            requiredPermissions: [PERMISSIONS.REPORT_READ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Administration",
+    items: [
+      {
+        title: "Users",
+        href: "/users",
+        icon: Users,
+        requiredPermissions: [PERMISSIONS.USER_READ],
       },
       {
-        title: "Domestic Sale Report",
-        href: "/reports/dom-sale",
-        requiredPermissions: [PERMISSIONS.REPORT_READ],
-      },
-      {
-        title: "Arb Sale Report",
-        href: "/reports/arb-sale",
-        requiredPermissions: [PERMISSIONS.REPORT_READ],
-      },
-      // Agency-wide, so each has a permission of its own
-      {
-        title: "Product Wise Report",
-        href: "/reports/product-wise",
-        requiredPermissions: [PERMISSIONS.REPORT_PRODUCT_WISE],
-      },
-      {
-        title: "Customer Wise Report",
-        href: "/reports/customer-wise",
-        requiredPermissions: [PERMISSIONS.REPORT_CUSTOMER_WISE],
-      },
-      {
-        title: "Expense Report",
-        href: "/reports/expense",
-        requiredPermissions: [PERMISSIONS.REPORT_READ],
-      },
-      {
-        title: "Purchase Report",
-        href: "/reports/purchase",
-        requiredPermissions: [PERMISSIONS.REPORT_READ],
+        title: "Roles & Permissions",
+        href: "/roles",
+        icon: ShieldCheck,
+        requiredPermissions: [PERMISSIONS.ROLE_READ],
       },
     ],
   },
@@ -203,37 +238,79 @@ function useCloseOnNavigate() {
 
 export function AppSidebar() {
   const closeOnNavigate = useCloseOnNavigate();
+  const { hasAnyPermission } = usePermission();
+
+  // A section whose every link is hidden would leave a bare label behind
+  const canSee = (item: NavItem): boolean =>
+    (!item.requiredPermissions?.length ||
+      hasAnyPermission(item.requiredPermissions)) &&
+    (!item.sub?.length || item.sub.some(canSee));
 
   return (
     <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border px-6 py-4">
-        <Link href="/" className="flex items-center gap-3" onClick={closeOnNavigate}>
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-md">
-            <Flame className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-sidebar-foreground">
-            Ujjwala
+      <SidebarHeader className="px-5 pt-6 pb-4">
+        <Link
+          href="/"
+          className="flex items-center gap-3 rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          onClick={closeOnNavigate}
+        >
+          <BrandMark />
+          <span className="flex flex-col leading-tight">
+            <span className="text-xl font-bold tracking-tight text-white">
+              Ujjwala
+            </span>
+            <span className="text-sidebar-label text-[10px] font-medium tracking-[0.14em] uppercase">
+              Agency ERP
+            </span>
           </span>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {sidebarMenu.map((item) => {
-                if (item.sub && item.sub.length > 0) {
-                  return <SubNavbarItemComponent {...item} key={item.href} />;
-                }
-                return <NavbarItemComponent {...item} key={item.href} />;
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="gap-0 px-1">
+        {navSections.map((section) => {
+          const items = section.items.filter(canSee);
+          if (items.length === 0) return null;
+          return (
+            <SidebarGroup key={section.label} className="py-1">
+              <SidebarGroupLabel className="text-sidebar-label h-7 text-[10px] font-semibold tracking-[0.14em] uppercase">
+                {section.label}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {items.map((item) =>
+                    item.sub && item.sub.length > 0 ? (
+                      <SubNavbarItemComponent {...item} key={item.href} />
+                    ) : (
+                      <NavbarItemComponent {...item} key={item.href} />
+                    ),
+                  )}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
     </Sidebar>
   );
 }
+
+/**
+ * Where the user is, as the header's breadcrumb: the section, then the link,
+ * then the report under it. Child pages (/stock/add) resolve to their section.
+ */
+export function navTrail(pathname: string): string[] {
+  for (const section of navSections) {
+    for (const item of section.items) {
+      const sub = item.sub?.find((child) => isRouteActive(pathname, child.href));
+      if (sub) return [section.label, item.title, sub.title];
+      if (isRouteActive(pathname, item.href)) return [section.label, item.title];
+    }
+  }
+  return [];
+}
+
+// Active: HP blue with a red marker down its left edge, as in the reference
+const ACTIVE_ITEM =
+  "max-md:h-10 h-9 px-3 text-[13px] data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-[inset_3px_0_0_var(--sidebar-active-border)]";
 
 /**
  * Is this link the section the user is currently in?
@@ -274,7 +351,7 @@ function NavbarItemComponent({
       <SidebarMenuButton
         asChild
         isActive={isRouteActive(pathname, href)}
-        className="max-md:h-10 data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
+        className={ACTIVE_ITEM}
       >
         <Link href={href} onClick={closeOnNavigate}>
           {Icon && <Icon className="w-4 h-4" />}
@@ -333,7 +410,7 @@ function SubNavbarItemComponent({
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
             isActive={onIndex}
-            className="max-md:h-10 data-[active=true]:border-l-[3px] data-[active=true]:border-(--sidebar-active-border) data-[active=true]:rounded-none"
+            className={ACTIVE_ITEM}
           >
             <Icon className="w-4 h-4" />
             <span>{title}</span>
@@ -347,7 +424,7 @@ function SubNavbarItemComponent({
                 <SidebarMenuSubButton
                   asChild
                   isActive={isRouteActive(pathname, item.href)}
-                  className="max-md:h-9"
+                  className="text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-white data-[active=true]:font-medium max-md:h-9 h-8 text-[13px]"
                 >
                   <Link href={item.href} onClick={closeOnNavigate}>
                     {item.title}

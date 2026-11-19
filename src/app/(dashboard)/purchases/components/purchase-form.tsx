@@ -3,6 +3,7 @@
 import { useForm, useFieldArray, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { FormSummary } from "@/components/form-summary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -367,17 +368,9 @@ export function PurchaseForm({
                   </Card>
                 );
               })}
-
-              {/* Grand Total */}
-              <div className="flex justify-end">
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">Grand Total</p>
-                  <p className="text-lg font-bold">₹{grandTotal.toFixed(2)}</p>
-                </div>
-              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-2 sm:flex">
+            <FormSummary label="Purchase total" amount={grandTotal}>
               <Button
                 type="submit"
                 isLoading={isPending}
@@ -392,7 +385,7 @@ export function PurchaseForm({
               >
                 Cancel
               </Button>
-            </div>
+            </FormSummary>
           </form>
         </Form>
       </CardContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SessionProvider } from "next-auth/react";
 import {
   QueryClient,
@@ -8,7 +8,6 @@ import {
   QueryErrorResetBoundary,
 } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { initTheme } from "@/lib/theme-store";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { ErrorListToast } from "./ui/sonner";
@@ -117,10 +116,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       }),
   );
-
-  useEffect(() => {
-    initTheme();
-  }, []);
 
   return (
     <ThemeProvider
