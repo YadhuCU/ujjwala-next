@@ -8,15 +8,15 @@ import { TrendingUp, BarChart3 } from "lucide-react";
 import { DashboardData } from "./types";
 
 const trendConfig = {
-  revenue: { label: "Revenue", color: "hsl(221, 83%, 53%)" },
-  profit: { label: "Profit", color: "hsl(160, 60%, 45%)" },
-  expense: { label: "Expenses", color: "hsl(350, 80%, 55%)" },
+  revenue: { label: "Revenue", color: "var(--chart-1)" },
+  profit: { label: "Profit", color: "var(--chart-4)" },
+  expense: { label: "Expenses", color: "var(--chart-2)" },
 } satisfies ChartConfig;
 
 const salesTypeConfig = {
-  newComSales: { label: "Commercial", color: "hsl(221, 83%, 53%)" },
-  domSales:    { label: "Domestic",   color: "hsl(160, 60%, 45%)" },
-  arbSales:    { label: "ARB",        color: "hsl(35, 90%, 55%)"  },
+  newComSales: { label: "Commercial", color: "var(--chart-1)" },
+  domSales:    { label: "Domestic",   color: "var(--chart-3)" },
+  arbSales:    { label: "ARB",        color: "var(--chart-5)" },
 } satisfies ChartConfig;
 
 // ₹1.9L rather than ₹187298 — the full figure crowds a phone-width axis
@@ -35,7 +35,7 @@ export function TrendCharts({ data }: { data: DashboardData }) {
       <Card className={hideMoney ? "" : "lg:col-span-4"}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-500" />
+            <TrendingUp className="w-5 h-5 text-success" />
             {ownOnly ? "Your Sales Trend" : "Revenue & Profit Trend"}
           </CardTitle>
           <CardDescription>
@@ -144,7 +144,7 @@ export function TrendCharts({ data }: { data: DashboardData }) {
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-500" />
+              <BarChart3 className="w-5 h-5 text-primary" />
               Sales by Type
             </CardTitle>
             <CardDescription>

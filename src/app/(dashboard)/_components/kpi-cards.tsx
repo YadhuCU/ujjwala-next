@@ -1,7 +1,8 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, DollarSign, Wallet, IndianRupee } from "lucide-react";
+import { TrendingUp, TrendingDown, HandCoins, Wallet, IndianRupee } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { DashboardData } from "./types";
 
 export function KpiCards({ data }: { data: DashboardData }) {
@@ -17,8 +18,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
       value: `₹${kpis.totalRevenue.toLocaleString("en-IN")}`,
       subtitle: `Today: ₹${kpis.todayRevenue.toLocaleString("en-IN")}`,
       icon: IndianRupee,
-      gradient: "from-blue-600 to-indigo-700",
-      shadow: "shadow-blue-500/20",
+      negative: false,
       financial: true,
     },
     {
@@ -26,12 +26,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
       value: `₹${kpis.totalProfit.toLocaleString("en-IN")}`,
       subtitle: `Margin: ${profitMargin}%`,
       icon: kpis.totalProfit >= 0 ? TrendingUp : TrendingDown,
-      gradient:
-        kpis.totalProfit >= 0
-          ? "from-emerald-500 to-teal-600"
-          : "from-red-500 to-rose-600",
-      shadow:
-        kpis.totalProfit >= 0 ? "shadow-emerald-500/20" : "shadow-red-500/20",
+      negative: kpis.totalProfit < 0,
       financial: true,
     },
     {
@@ -39,17 +34,15 @@ export function KpiCards({ data }: { data: DashboardData }) {
       value: `₹${kpis.totalExpenses.toLocaleString("en-IN")}`,
       subtitle: `${kpis.domSaleCount + kpis.arbSaleCount + kpis.newComSaleCount} total sales`,
       icon: Wallet,
-      gradient: "from-rose-500 to-pink-600",
-      shadow: "shadow-rose-500/20",
+      negative: false,
       financial: true,
     },
     {
       title: "Collections",
       value: `₹${kpis.totalCollections.toLocaleString("en-IN")}`,
       subtitle: `${kpis.totalQtySold} cylinders sold`,
-      icon: DollarSign,
-      gradient: "from-violet-500 to-purple-600",
-      shadow: "shadow-violet-500/20",
+      icon: HandCoins,
+      negative: false,
       financial: false,
     },
   ];
@@ -63,24 +56,29 @@ export function KpiCards({ data }: { data: DashboardData }) {
     <div
       className={`grid grid-cols-2 gap-3 sm:gap-4 ${canSeeFinancials ? "lg:grid-cols-4" : "lg:grid-cols-2"}`}
     >
+      {/* White stat cards: label and icon, the figure, then what it covers */}
       {visibleKpiCards.map((card) => (
-        <Card
-          key={card.title}
-          className={`relative overflow-hidden border-0 bg-linear-to-br ${card.gradient} text-white shadow-lg ${card.shadow}`}
-        >
-          <CardContent className="p-3 sm:p-5">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0 space-y-1">
-                <p className="text-xs font-medium text-white/80 sm:text-sm">
-                  {card.title}
-                </p>
-                <p className="text-lg font-bold tracking-tight tabular-nums break-all sm:text-2xl">
-                  {card.value}
-                </p>
-                <p className="text-xs text-white/60">{card.subtitle}</p>
-              </div>
-              <card.icon className="hidden h-9 w-9 shrink-0 text-white/20 sm:block" />
+        <Card key={card.title} className="gap-0 py-0 max-sm:py-0">
+          <CardContent className="p-4 max-sm:p-3 sm:p-5">
+            <div className="text-muted-foreground flex items-center justify-between gap-2 text-xs sm:text-[13px]">
+              <span className="min-w-0 truncate">{card.title}</span>
+              <card.icon
+                aria-hidden
+                className={cn(
+                  "h-4 w-4 shrink-0",
+                  card.negative ? "text-destructive" : "text-primary",
+                )}
+              />
             </div>
+            <p
+              className={cn(
+                "mt-2 text-lg font-bold tracking-tight tabular-nums break-all sm:text-2xl",
+                card.negative && "text-destructive",
+              )}
+            >
+              {card.value}
+            </p>
+            <p className="text-muted-foreground mt-1 text-xs">{card.subtitle}</p>
           </CardContent>
         </Card>
       ))}

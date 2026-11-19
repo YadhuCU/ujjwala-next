@@ -6,14 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Flame } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
+import { CylinderImage } from "@/components/cylinder-image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,65 +39,83 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-sidebar p-4">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%239C92AC%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
-      <Card className="w-full max-w-md border-sidebar-border bg-sidebar-accent backdrop-blur-xl shadow-2xl relative z-10">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg">
-            <Flame className="w-9 h-9 text-primary-foreground" />
+    <main className="bg-background flex min-h-svh justify-center p-0 sm:items-center sm:p-6">
+      <div className="bg-card grid w-full max-w-5xl grid-rows-[auto_1fr] overflow-hidden max-sm:min-h-svh sm:rounded-2xl md:grid-rows-1 sm:border sm:shadow-[0_24px_60px_-30px_rgb(7_30_60/0.35)] md:grid-cols-2">
+        {/* Brand panel: navy into HP blue, the cylinder standing in the corner */}
+        <section className="relative flex min-h-[300px] flex-col overflow-hidden bg-linear-to-br from-[#071e3c] to-[#004e8f] p-6 text-white sm:min-h-[340px] sm:p-8 md:min-h-[560px] md:p-10">
+          <div className="flex items-center gap-3">
+            <BrandMark />
+            <div className="leading-tight">
+              <p className="text-xl font-bold tracking-tight">Ujjwala</p>
+              <p className="text-[10px] font-medium tracking-[0.14em] text-[#a9bfd7] uppercase">
+                Agency ERP
+              </p>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-2xl font-bold text-sidebar-accent-foreground">
-              Ujjwala
-            </CardTitle>
-            <CardDescription className="text-sidebar-foreground">
-              Gas Agency Management System
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <h2 className="mt-8 max-w-[13ch] text-[27px] leading-[1.15] font-bold tracking-tight text-balance md:mt-10 md:text-[34px]">
+            Good energy. Better business.
+          </h2>
+          <p className="mt-3 max-w-[30ch] text-[13px] text-[#c8ddf0] max-md:max-w-[22ch]">
+            One connected workspace for your agency&apos;s everyday operations.
+          </p>
+
+          <CylinderImage
+            priority
+            sizes="(min-width: 768px) 170px, 110px"
+            alt="A domestic LPG cylinder"
+            className="absolute right-5 bottom-5 w-[96px] drop-shadow-[0_14px_16px_rgb(0_19_38/0.45)] sm:w-[118px] md:right-12 md:bottom-10 md:w-[170px]"
+          />
+        </section>
+
+        <section className="flex flex-col p-6 sm:justify-center sm:p-10">
+          <p className="text-primary text-[11px] font-bold tracking-[0.16em] uppercase">
+            Your agency workspace
+          </p>
+          <h1 className="mt-2 text-[27px] font-bold tracking-tight">Welcome back</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Sign in to start your day.
+          </p>
+
+          <form onSubmit={handleSubmit} className="mt-7 grid gap-5">
             {error && (
-              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg text-sm text-center">
+              <div
+                role="alert"
+                className="bg-destructive/10 border-destructive/25 text-destructive rounded-md border px-4 py-3 text-sm"
+              >
                 {error}
               </div>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-sidebar-foreground">
-                Username
-              </Label>
+            <div className="grid gap-2">
+              <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
                 name="username"
                 type="text"
-                placeholder="Enter your username"
+                autoComplete="username"
+                placeholder="Your username"
                 required
-                className="bg-sidebar border-sidebar-border text-sidebar-accent-foreground placeholder:text-sidebar-foreground"
+                className="h-11 md:h-11"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sidebar-foreground">
-                Password
-              </Label>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Enter your password"
+                autoComplete="current-password"
+                placeholder="Your password"
                 required
-                className="bg-sidebar border-sidebar-border text-sidebar-accent-foreground placeholder:text-sidebar-foreground"
+                className="h-11 md:h-11"
               />
             </div>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full font-semibold shadow-lg transition-all duration-200"
-            >
-              {loading ? "Signing in..." : "Sign In"}
+            <Button type="submit" disabled={loading} className="h-11 w-full md:h-11">
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
-        </CardContent>
-      </Card>
-    </div>
+        </section>
+      </div>
+    </main>
   );
 }

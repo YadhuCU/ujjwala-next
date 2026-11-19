@@ -50,15 +50,18 @@ export function ReportSummary({
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
       {tiles.map((tile) => (
-        <Card key={tile.title} className={tile.highlight ? "border-primary" : ""}>
-          <CardContent className="pt-6 max-sm:pt-0">
-            <p className="text-muted-foreground text-xs sm:text-sm">{tile.title}</p>
+        <Card
+          key={tile.title}
+          className={cn("gap-0 py-0 max-sm:py-0", tile.highlight && "border-primary")}
+        >
+          <CardContent className="p-4 max-sm:p-3 sm:p-5">
+            <p className="text-muted-foreground text-xs sm:text-[13px]">{tile.title}</p>
             {isLoading ? (
               <Skeleton className="mt-1 h-7 w-24" />
             ) : (
               <p
                 className={cn(
-                  "text-lg font-bold break-words tabular-nums sm:text-2xl",
+                  "mt-1 text-lg font-bold tracking-tight break-words tabular-nums sm:text-2xl",
                   tile.highlight && "text-primary",
                 )}
               >
@@ -362,7 +365,7 @@ function MobileResults<T, S>({
       {rows.map((row) => {
         const trailing = last?.cell(row);
         return (
-          <li key={rowKey(row)} className="rounded-lg border p-3 text-sm">
+          <li key={rowKey(row)} className="bg-card rounded-xl border p-3 text-sm">
             <div className="flex items-start justify-between gap-3">
               <span className="min-w-0 font-semibold break-words">
                 {first?.cell(row)}

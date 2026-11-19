@@ -39,11 +39,11 @@ export function PageWrapper({
           </Button>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl font-bold tracking-tight text-balance sm:text-2xl">
+          <h1 className="text-[22px] leading-tight font-bold tracking-[-0.02em] text-balance sm:text-[26px]">
             {title}
           </h1>
           {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <p className="text-muted-foreground mt-0.5 text-sm">{description}</p>
           )}
         </div>
         {/* On a phone the page's main action takes its own full-width row,

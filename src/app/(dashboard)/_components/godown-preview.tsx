@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, ArrowUpRight, Warehouse } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, Users, Warehouse } from "lucide-react";
+import { CylinderImage } from "@/components/cylinder-image";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,8 +62,8 @@ export function GodownPreview() {
       <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
         <div>
           <CardTitle className="flex items-center gap-2">
-            <Warehouse className="h-5 w-5 text-blue-500" />
-            Godown
+            <Warehouse className="text-primary h-5 w-5" />
+            Cylinder position
           </CardTitle>
           <CardDescription>
             {owned} cylinder{owned === 1 ? "" : "s"} owned, across{" "}
@@ -76,6 +78,37 @@ export function GodownPreview() {
       </CardHeader>
 
       <CardContent className="space-y-5">
+        {/* The three places a cylinder can be, at a glance */}
+        <div className="grid gap-3 sm:grid-cols-3">
+          <StockTile
+            label="Filled cylinders"
+            value={totals.filledQty}
+            unit="in godown"
+            note={
+              totals.filledQty > 0 ? (
+                <Badge variant="success">Ready for delivery</Badge>
+              ) : (
+                <Badge variant="warning">None on hand</Badge>
+              )
+            }
+            image
+          />
+          <StockTile
+            label="Empty cylinders"
+            value={totals.emptyQty}
+            unit="in godown"
+            note={<span className="text-muted-foreground text-xs">Awaiting refill</span>}
+            image
+            muted
+          />
+          <StockTile
+            label="With customers"
+            value={totals.withCustomers}
+            unit="out on rent"
+            note={<span className="text-muted-foreground text-xs">Commercial custody</span>}
+          />
+        </div>
+
         {totals.outOfSync > 0 && (
           <Link
             href="/godown"
@@ -131,3 +164,48 @@ export function GodownPreview() {
   );
 }
 
+function StockTile({
+  label,
+  value,
+  unit,
+  note,
+  image = false,
+  muted = false,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  note: React.ReactNode;
+  /** The cylinder photo; without it, a plain icon tile (nothing to picture) */
+  image?: boolean;
+  /** An empty reads quieter than a filled one */
+  muted?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-4 rounded-xl border p-3 sm:p-4">
+      {image ? (
+        <CylinderImage
+          sizes="48px"
+          className={cn(
+            "h-[72px] w-11 shrink-0",
+            muted && "opacity-75 grayscale",
+          )}
+        />
+      ) : (
+        <span className="bg-secondary text-secondary-foreground grid h-11 w-11 shrink-0 place-items-center rounded-lg">
+          <Users aria-hidden className="h-5 w-5" />
+        </span>
+      )}
+      <div className="min-w-0 space-y-1">
+        <p className="text-[13px] font-semibold">{label}</p>
+        <p className="text-2xl leading-none font-bold tracking-tight tabular-nums">
+          {value}{" "}
+          <span className="text-muted-foreground text-xs font-normal tracking-normal">
+            {unit}
+          </span>
+        </p>
+        {note}
+      </div>
+    </div>
+  );
+}

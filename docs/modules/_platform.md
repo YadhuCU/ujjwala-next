@@ -147,6 +147,42 @@ To check a change, drive the page at 390×844 and 360×800 and look at the
 screenshot — `scrollWidth` alone is not enough, because `main` scrolls and
 clipped content never widens the document.
 
+## Theme and graphics
+
+One theme, **Ujjwala**, in light and dark (`next-themes`, the header's sun/moon
+menu). There is no colour-theme picker any more: the old HP Enterprise and
+Enterprise Blue themes, `theme-config.ts`, `theme-store.ts` and the
+`data-theme` attribute are gone. The palette lives on `:root` and `.dark` in
+`src/app/globals.css`:
+
+| Token | Light | Use |
+|---|---|---|
+| `--sidebar` | `#071e3c` navy | sidebar, sign-in brand panel |
+| `--primary` | `#004e8f` HPCL-inspired blue | buttons, links, active nav item |
+| `--signal` / `--destructive` | `#df1a14` red | header top rule, active nav marker, brand mark, alerts, delete |
+| `--background` / `--card` | `#f3f6fa` / white | page / surfaces |
+
+Red is a signal, not decoration — keep it to those places. Components style
+through the tokens (`bg-primary`, `text-muted-foreground`, `bg-signal`,
+`text-sidebar-label`); a hex in a component is a bug, except the sign-in brand
+panel and dashboard hero, which are deliberately the same navy in both modes.
+The HPCL logo and wordmark are not used (trademark); the mark is a red tile
+with a flame (`src/components/brand-mark.tsx`).
+
+Shared pieces: badges have soft `success` / `warning` / `info` / `muted`
+variants; tables have a tinted header row; entry forms end in `FormSummary`
+(`src/components/form-summary.tsx`), the document's total beside its save and
+cancel buttons. The sidebar groups links into sections (`navSections` in
+`app-sidebar.tsx`); the header's breadcrumb is `navTrail(pathname)` over the
+same list, so add a page there once and both pick it up.
+
+The cylinder photo is `src/assets/images/lpg-cylinder.webp` (476×720,
+transparent, ~36 KB), drawn through `CylinderImage`
+(`src/components/cylinder-image.tsx`). It is a static import, so it is served
+from `/_next/static` and resized by `/_next/image` — both outside the auth
+proxy, which is why it loads on the sign-in page. Used on sign-in, the
+dashboard hero, the dashboard's cylinder position tiles and the loading screen.
+
 ## Testing
 
 - `npm test` — `*.test.ts`, no DB (schemas, serializers, pure rules).
