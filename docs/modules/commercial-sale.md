@@ -1,6 +1,7 @@
 # commercial-sale
 
-**Purpose.** Commercial cylinders, per line RENT or SALE, with custody and — since
+**Purpose.** Commercial cylinders, per line RENT, SALE or REFILL, with custody
+for RENT and — since
 2026-08-23 — cylinders **collected on the invoice being written**.
 
 **Files.** `src/module/commercial-sale/*` · UI `src/app/(dashboard)/commercial-sales/`
@@ -9,7 +10,7 @@
 
 **Models.**
 - `CommercialSale { …header…, invoiceDate (date), returns[] }`
-- `CommercialSaleItem { saleType RENT|SALE, quantity, cylindersDispatched,
+- `CommercialSaleItem { saleType RENT|SALE|REFILL, quantity, cylindersDispatched,
   cylindersReturned, … }` — `cylindersOutstanding` = dispatched − returned in the
   serializer.
 - `CommercialSaleReturn { commercialSaleId, productId, quantity }` — collections
@@ -25,6 +26,13 @@ checks the godown) → header → `trNo` → items + ledger (`RENT_DELIVERY` / `
 → godown → custody for RENT lines → `writeRecordedReturns` (return row +
 `CYLINDER_RETURN` + godown empties via upsert + custody down) → money.
 - Unlike domestic, **SALE lines do not add to custody** — outright, nothing expected back.
+- **REFILL** (2026-11-20): the customer's empty is swapped for a filled one on
+  the spot. One `REFILL` ledger row per product (filled `−q`, empty `+q`), the
+  godown moves both ways (`applyGodownRefillEmpties`), no custody,
+  `cylindersDispatched = 0`. The reversal unwinds it from the row like any other.
+- **Discount**: picking a customer pre-fills the invoice discount with
+  `Customer.discount` (flat ₹ per invoice); it stays editable, and the summary
+  shows subtotal less discount.
 - An invoice may have **zero items** if it has returns (a collection-only visit;
   appears at ₹0 in reports). Both empty is refused. A product may appear once in
   `returns`.
@@ -43,7 +51,7 @@ no `>= 0` guard.
 **Delete.** Refused while any RENT line has cylinders outstanding
 (`assertNoOutstandingCylinders`); then the same reversal and a soft delete.
 
-**Form.** Item rows: Stock | Type (RENT default) | Qty | Rate | Total. Section
+**Form.** Item rows: Stock | Type (RENT default; RENT / SALE / REFILL) | Qty | Rate | Total. Section
 "Cylinders collected": a row per product the customer holds (from
 `getCustomerSummary`), each with "N held"; on edit, products already collected by
 this invoice are merged in so they are not wiped. Zero rows are stripped on submit.

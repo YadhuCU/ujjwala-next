@@ -81,6 +81,8 @@ export function CommercialSaleForm({
       invoiceDate: new Date(),
       paidAmount: 0,
       paymentType: PaymentType.CASH,
+      // Controlled from the start: picking a customer fills it in
+      discount: "" as never,
     },
   });
 
@@ -160,11 +162,13 @@ export function CommercialSaleForm({
    * Computes grand total from all line items — display only.
    * The server recomputes the authoritative total.
    */
-  const grandTotal = watchedItems?.reduce((sum, item) => {
+  const subtotal = watchedItems?.reduce((sum, item) => {
     const qty = Number(item.quantity) || 0;
     const price = Number(item.salePrice) || 0;
     return sum + qty * price;
   }, 0);
+  const watchedDiscount = Number(form.watch("discount")) || 0;
+  const grandTotal = subtotal - watchedDiscount;
 
   if (
     process.env.NODE_ENV !== "production" &&
@@ -199,7 +203,18 @@ export function CommercialSaleForm({
                   <FormItem>
                     <FormLabel>Customer</FormLabel>
                     <Select
-                      onValueChange={(v) => field.onChange(Number(v))}
+                      onValueChange={(v) => {
+                        field.onChange(Number(v));
+                        // The customer's agreed discount, in rupees, as a
+                        // starting point — it stays editable on the invoice
+                        const discount = customers.find(
+                          (c) => c.id === Number(v),
+                        )?.discount;
+                        form.setValue("discount", discount ?? ("" as never), {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        });
+                      }}
                       value={field.value ? String(field.value) : ""}
                     >
                       <FormControl>
@@ -423,7 +438,7 @@ export function CommercialSaleForm({
                             >
                               <FormControl>
                                 <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Rent or Sale" />
+                                  <SelectValue placeholder="Sale type" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -564,7 +579,15 @@ export function CommercialSaleForm({
               </div>
             ) : null}
 
-            <FormSummary label="Invoice total" amount={grandTotal}>
+            <FormSummary
+              label="Invoice total"
+              amount={grandTotal}
+              detail={
+                watchedDiscount > 0
+                  ? `₹${subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })} less ₹${watchedDiscount.toLocaleString("en-IN", { minimumFractionDigits: 2 })} discount`
+                  : undefined
+              }
+            >
               <Button
                 type="submit"
                 disabled={!form.formState.isDirty}

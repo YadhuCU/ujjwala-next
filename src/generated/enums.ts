@@ -33,7 +33,8 @@ export const TxnType = {
   SALE_OUT: 'SALE_OUT',
   RENT_DELIVERY: 'RENT_DELIVERY',
   CYLINDER_RETURN: 'CYLINDER_RETURN',
-  ADJUSTMENT: 'ADJUSTMENT'
+  ADJUSTMENT: 'ADJUSTMENT',
+  REFILL: 'REFILL'
 } as const
 
 export type TxnType = (typeof TxnType)[keyof typeof TxnType]
@@ -58,7 +59,8 @@ export type PurchaseType = (typeof PurchaseType)[keyof typeof PurchaseType]
 
 export const CommercialSaleType = {
   RENT: 'RENT',
-  SALE: 'SALE'
+  SALE: 'SALE',
+  REFILL: 'REFILL'
 } as const
 
 export type CommercialSaleType = (typeof CommercialSaleType)[keyof typeof CommercialSaleType]

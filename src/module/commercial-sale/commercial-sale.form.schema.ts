@@ -7,7 +7,9 @@ const emptyToUndefined = (value: string) =>
 export const CommercialSaleItemFormSchema = z.object({
   stockId: z.number("Select a stock").int(),
 
-  saleType: z.enum(CommercialSaleType, "Select rent or sale"),
+  // RENT: the customer holds it. SALE: outright. REFILL: swapped for their
+  // empty on the spot — no custody to track.
+  saleType: z.enum(CommercialSaleType, "Select sale, rent or refill"),
 
   quantity: z.coerce.number().int().min(1, "Quantity must be greater than 0"),
 

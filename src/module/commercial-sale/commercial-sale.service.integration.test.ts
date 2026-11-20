@@ -76,6 +76,58 @@ describe("createCommercialSale — RENT", () => {
   });
 });
 
+describe("createCommercialSale — REFILL", () => {
+  it("swaps a filled cylinder for the customer's empty and tracks no custody", async () => {
+    await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.REFILL, 6),
+      userId,
+    );
+
+    const godown = await godownOf(productId);
+    expect(godown.filledQty).toBe(94);
+    expect(godown.emptyQty).toBe(6);
+    expect(await custodyOf(customerId, productId)).toBe(0);
+    expect(await balanceOf(customerId)).toBe(600);
+
+    // One row carries both halves of the swap
+    const txns = await prisma.cylinderTransaction.findMany({
+      where: { productId, refType: RefType.INVOICE },
+    });
+    expect(txns).toHaveLength(1);
+    expect(txns[0].txnType).toBe(TxnType.REFILL);
+    expect(txns[0].filledDelta).toBe(-6);
+    expect(txns[0].emptyDelta).toBe(6);
+
+    const item = await prisma.commercialSaleItem.findFirstOrThrow({});
+    expect(item.cylindersDispatched).toBe(0);
+    await assertGodownMatchesLedger(productId);
+  });
+
+  it("unwinds both halves of the swap on update and delete", async () => {
+    const sale = await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.REFILL, 6),
+      userId,
+    );
+
+    await CommercialSaleService.updateCommercialSale(
+      sale.id,
+      saleInput(CommercialSaleType.REFILL, 2),
+      userId,
+    );
+    let godown = await godownOf(productId);
+    expect(godown.filledQty).toBe(98);
+    expect(godown.emptyQty).toBe(2);
+    await assertGodownMatchesLedger(productId);
+
+    await CommercialSaleService.deleteCommercialSale(sale.id, userId);
+    godown = await godownOf(productId);
+    expect(godown.filledQty).toBe(100);
+    expect(godown.emptyQty).toBe(0);
+    expect(await balanceOf(customerId)).toBe(0);
+    await assertGodownMatchesLedger(productId);
+  });
+});
+
 describe("createCommercialSale — SALE", () => {
   it("sells outright and tracks no custody", async () => {
     await CommercialSaleService.createCommercialSale(

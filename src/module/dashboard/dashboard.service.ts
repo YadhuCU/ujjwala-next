@@ -1,14 +1,18 @@
 import { prisma } from "@/lib/prisma";
-import {
-  addBusinessDays,
-  businessDayKey,
-  endOfBusinessDay,
-  startOfBusinessDay,
-} from "@/lib/business-day";
-import { PERMISSIONS, SCOPES } from "@/lib/permissions";
+import { businessDayKey } from "@/lib/business-day";
+import { PERMISSIONS, SCOPES, type Permission } from "@/lib/permissions";
 import { resolveScope, scopeFilter, type Actor } from "@/lib/access-scope";
-import { LedgerEntryType } from "@/generated/client";
-import type { DashboardQuery } from "./dashboard.payload.schema";
+import { LedgerEntryType, ProductType } from "@/generated/client";
+import { getGodownStatus } from "@/module/godown/godown.service";
+import type {
+  DashboardAlertsQuery,
+  DashboardQuery,
+} from "./dashboard.payload.schema";
+import {
+  bucketKeyOf,
+  resolvePeriod,
+  type DashboardView,
+} from "./dashboard.period";
 
 // =============================================================================
 // CONSTANTS
@@ -18,10 +22,9 @@ import type { DashboardQuery } from "./dashboard.payload.schema";
 const LOW_STOCK_THRESHOLD = 10;
 
 // Customers holding cylinders / owing money for longer than this are "long
-// pending" — the two alert lists on the dashboard.
-const LONG_PENDING_DAYS = 30;
-
-const RECENT_TXN_COUNT = 10;
+// pending" — the two alert lists. The viewer can change either; this is where
+// they start.
+const DEFAULT_PENDING_DAYS = 30;
 
 const CHART_COLORS = [
   "var(--chart-1)",
@@ -39,7 +42,8 @@ const CHART_COLORS = [
 // is a granted permission, as is whether money totals are shown at all.
 export type DashboardActor = Actor;
 
-type DailyBucket = {
+type TrendBucket = {
+  /** `yyyy-mm-dd`, `yyyy-mm` or `yyyy`, depending on the view. */
   date: string;
   revenue: number;
   cost: number;
@@ -51,14 +55,29 @@ type DailyBucket = {
   newComSales: number;
 };
 
+type SaleForTotals = {
+  createdAt: Date;
+  totalAmount: { toNumber(): number } | null;
+  items: {
+    quantity: number;
+    product: { id: number; name: string } | null;
+    stock: { productCost: { toNumber(): number } | null } | null;
+  }[];
+};
+
 // =============================================================================
 // PURE HELPERS
 // =============================================================================
 
-// Which business day a row belongs to — India time, not the server's (see
-// business-day.ts for why that matters on Vercel).
-function dayKey(date: Date): string {
-  return businessDayKey(date);
+// Which bucket a row belongs to — its India day (not the server's: see
+// business-day.ts for why that matters on Vercel), cut down to the view.
+function bucketOf(view: DashboardView, date: Date): string {
+  return bucketKeyOf(view, businessDayKey(date));
+}
+
+/** Whether the actor may see a dashboard card. A system role sees them all. */
+function canSee(actor: DashboardActor, permission: Permission): boolean {
+  return actor.isOwner === true || actor.permissions.includes(permission);
 }
 
 function round2(value: number): number {
@@ -71,29 +90,13 @@ function daysSince(date: Date | null | undefined): number {
   return Math.floor(ms / (1000 * 60 * 60 * 24));
 }
 
-function resolveRange(query: DashboardQuery) {
-  const now = new Date();
+// One bucket per day, month or year in the period, so the chart has no gaps.
+function emptyTrend(keys: string[]): Map<string, TrendBucket> {
+  const buckets = new Map<string, TrendBucket>();
 
-  const endDate = endOfBusinessDay(query.to ? new Date(query.to) : now);
-  const startDate = startOfBusinessDay(
-    query.from ? new Date(query.from) : addBusinessDays(endDate, -29),
-  );
-  const todayStart = startOfBusinessDay(now);
-
-  return { startDate, endDate, todayStart };
-}
-
-// One bucket per day in the range, so the chart has no gaps.
-function emptyTrend(startDate: Date, endDate: Date): Map<string, DailyBucket> {
-  const buckets = new Map<string, DailyBucket>();
-
-  for (
-    let cursor = new Date(startDate);
-    cursor <= endDate;
-    cursor = addBusinessDays(cursor, 1)
-  ) {
-    buckets.set(dayKey(cursor), {
-      date: dayKey(cursor),
+  for (const key of keys) {
+    buckets.set(key, {
+      date: key,
       revenue: 0,
       cost: 0,
       expense: 0,
@@ -110,21 +113,40 @@ function emptyTrend(startDate: Date, endDate: Date): Map<string, DailyBucket> {
 
 // =============================================================================
 // SUMMARY
+// Everything that follows the picked period: headline figures, the two trend
+// charts, revenue by product — plus low stock, which does not.
 // =============================================================================
 
 export async function getDashboard(
   query: DashboardQuery,
   actor: DashboardActor,
 ) {
-  const { startDate, endDate, todayStart } = resolveRange(query);
+  const period = resolvePeriod(query.view ?? "month", query.from, query.to);
+  const { view, startDate, endDate, currentKey } = period;
   const range = { gte: startDate, lte: endDate };
+
+  // Each card is its own grant, and its data is only gathered for a holder.
+  const canSeeFinancials = canSee(actor, PERMISSIONS.DASHBOARD_FINANCIALS);
+  const cards = {
+    cylinderPosition: canSee(actor, PERMISSIONS.DASHBOARD_CYLINDER_POSITION),
+    kpis: canSee(actor, PERMISSIONS.DASHBOARD_KPIS),
+    revenueTrend: canSee(actor, PERMISSIONS.DASHBOARD_REVENUE_TREND),
+    salesByType: canSee(actor, PERMISSIONS.DASHBOARD_SALES_BY_TYPE),
+    // Nothing but money, so it needs the money grant as well
+    productBreakdown:
+      canSee(actor, PERMISSIONS.DASHBOARD_PRODUCT_BREAKDOWN) && canSeeFinancials,
+    lowStock: canSee(actor, PERMISSIONS.DASHBOARD_LOW_STOCK),
+    commercialAlerts: canSee(actor, PERMISSIONS.DASHBOARD_COMMERCIAL_ALERTS),
+  };
+  const needsSales =
+    cards.kpis ||
+    cards.revenueTrend ||
+    cards.salesByType ||
+    cards.productBreakdown;
 
   // "all" adds nothing; "own" narrows to this user; "none" throws.
   const accessScope = resolveScope(actor, SCOPES.DASHBOARD);
   const scope = scopeFilter(actor, accessScope);
-  const canSeeFinancials =
-    actor.isOwner === true ||
-    actor.permissions.includes(PERMISSIONS.DASHBOARD_FINANCIALS);
   const saleWhere = { isDeleted: false, createdAt: range, ...scope };
   // A domestic sale is the field staff member's round, whoever entered it
   const domSaleWhere = {
@@ -143,11 +165,7 @@ export async function getDashboard(
     },
   } as const;
 
-  const domSaleInclude = {
-    ...saleInclude,
-    fieldStaff: { select: { name: true, username: true } },
-  } as const;
-
+  // A card the actor cannot see costs no query
   const [
     domSales,
     arbSales,
@@ -156,44 +174,52 @@ export async function getDashboard(
     payments,
     customerCount,
     lowStock,
-    cylinderLedgers,
-    balances,
   ] = await Promise.all([
-    prisma.domSale.findMany({ where: domSaleWhere, include: domSaleInclude }),
-    prisma.arbSale.findMany({ where: saleWhere, include: saleInclude }),
-    prisma.commercialSale.findMany({ where: saleWhere, include: saleInclude }),
-    prisma.expense.findMany({
-      where: { isDeleted: false, date: range, ...scope },
-      select: { amount: true, date: true },
-    }),
+    needsSales
+      ? prisma.domSale.findMany({ where: domSaleWhere, include: saleInclude })
+      : [],
+    needsSales
+      ? prisma.arbSale.findMany({ where: saleWhere, include: saleInclude })
+      : [],
+    needsSales
+      ? prisma.commercialSale.findMany({
+          where: saleWhere,
+          include: saleInclude,
+        })
+      : [],
+    needsSales
+      ? prisma.expense.findMany({
+          where: { isDeleted: false, date: range, ...scope },
+          select: { amount: true, date: true },
+        })
+      : [],
     // Collections = every credit on the money ledger, invoice-linked or not.
     // Scoped like the sales above: staff see what they collected, not the
     // agency's whole intake.
-    prisma.customerPaymentLedger.findMany({
-      where: { entryType: LedgerEntryType.PAYMENT, createdAt: range, ...scope },
-      select: { amount: true, createdAt: true },
-    }),
+    needsSales
+      ? prisma.customerPaymentLedger.findMany({
+          where: {
+            entryType: LedgerEntryType.PAYMENT,
+            createdAt: range,
+            ...scope,
+          },
+          select: { amount: true, createdAt: true },
+        })
+      : [],
     prisma.customer.count({ where: { isDeleted: false } }),
-    prisma.stock.findMany({
-      where: { isDeleted: false, quantity: { lte: LOW_STOCK_THRESHOLD } },
-      include: { product: { select: { name: true } } },
-      orderBy: { quantity: "asc" },
-      take: 10,
-    }),
-    prisma.customerCylinderLedger.findMany({
-      where: { pendingCylinder: { gt: 0 } },
-      include: { customer: { select: { id: true, name: true, phone: true } } },
-    }),
-    prisma.customerBalance.findMany({
-      where: { pendingAmount: { gt: 0 } },
-      include: { customer: { select: { id: true, name: true, phone: true } } },
-      orderBy: { pendingAmount: "desc" },
-    }),
+    cards.lowStock
+      ? prisma.stock.findMany({
+          where: { isDeleted: false, quantity: { lte: LOW_STOCK_THRESHOLD } },
+          include: { product: { select: { name: true } } },
+          orderBy: { quantity: "asc" },
+          take: 10,
+        })
+      : [],
   ]);
 
   // ─── Trend + KPIs ──────────────────────────────────────────────────────────
 
-  const trend = emptyTrend(startDate, endDate);
+  const trend = emptyTrend(period.buckets);
   const productTotals = new Map<
     number,
     { name: string; revenue: number; qty: number }
@@ -202,26 +228,20 @@ export async function getDashboard(
   let totalRevenue = 0;
   let totalCost = 0;
   let totalQtySold = 0;
-  let todayRevenue = 0;
+  // Revenue in the bucket holding today: today, this month or this year
+  let currentRevenue = 0;
 
   const accumulateSales = (
-    sales: {
-      createdAt: Date;
-      totalAmount: { toNumber(): number } | null;
-      items: {
-        quantity: number;
-        product: { id: number; name: string } | null;
-        stock: { productCost: { toNumber(): number } | null } | null;
-      }[];
-    }[],
+    sales: SaleForTotals[],
     counterKey: "domSales" | "arbSales" | "newComSales",
   ) => {
     for (const sale of sales) {
       const revenue = Number(sale.totalAmount ?? 0);
-      const bucket = trend.get(dayKey(sale.createdAt));
+      const key = bucketOf(view, sale.createdAt);
+      const bucket = trend.get(key);
 
       totalRevenue += revenue;
-      if (sale.createdAt >= todayStart) todayRevenue += revenue;
+      if (key === currentKey) currentRevenue += revenue;
 
       if (bucket) {
         bucket.revenue += revenue;
@@ -266,7 +286,9 @@ export async function getDashboard(
   for (const expense of expenses) {
     const amount = Number(expense.amount ?? 0);
     totalExpenses += amount;
-    const bucket = expense.date ? trend.get(dayKey(expense.date)) : undefined;
+    const bucket = expense.date
+      ? trend.get(bucketOf(view, expense.date))
+      : undefined;
     if (bucket) bucket.expense += amount;
   }
 
@@ -275,7 +297,7 @@ export async function getDashboard(
     // PAYMENT rows are negative on the ledger — collections are their magnitude
     const amount = Math.abs(Number(payment.amount));
     totalCollections += amount;
-    const bucket = trend.get(dayKey(payment.createdAt));
+    const bucket = trend.get(bucketOf(view, payment.createdAt));
     if (bucket) bucket.collections += amount;
   }
 
@@ -286,11 +308,11 @@ export async function getDashboard(
     if (sale.customerId) continue;
     const amount = Number(sale.paidAmount ?? 0);
     totalCollections += amount;
-    const bucket = trend.get(dayKey(sale.createdAt));
+    const bucket = trend.get(bucketOf(view, sale.createdAt));
     if (bucket) bucket.collections += amount;
   }
 
-  const dailyTrend = [...trend.values()].map((bucket) => ({
+  const trendRows = [...trend.values()].map((bucket) => ({
     ...bucket,
     revenue: round2(bucket.revenue),
     cost: round2(bucket.cost),
@@ -313,40 +335,104 @@ export async function getDashboard(
       fill: CHART_COLORS[index % CHART_COLORS.length],
     }));
 
-  // ─── Recent transactions ───────────────────────────────────────────────────
-
-  // A domestic round has no customer; the field staff who made it stands in
-  const recentTxns = [
-    ...domSales.map((s) => ({
-      sale: s,
-      type: "Domestic",
-      who: s.fieldStaff?.name ?? s.fieldStaff?.username ?? s.customer?.name,
+  return {
+    period: {
+      view,
+      from: period.from,
+      to: period.to,
+      currentLabel: period.currentLabel,
+    },
+    cards,
+    // The client used to receive a role name and compare it to "OWNER".
+    // These two flags say what it actually needs to know.
+    scope: accessScope,
+    canSeeFinancials,
+    kpis: {
+      totalRevenue: round2(totalRevenue),
+      totalProfit: round2(totalRevenue - totalCost - totalExpenses),
+      totalExpenses: round2(totalExpenses),
+      totalCollections: round2(totalCollections),
+      totalQtySold,
+      customerCount,
+      currentRevenue: round2(currentRevenue),
+      domSaleCount: domSales.length,
+      arbSaleCount: arbSales.length,
+      newComSaleCount: comSales.length,
+    },
+    trend: cards.revenueTrend || cards.salesByType ? trendRows : [],
+    productBreakdown: cards.productBreakdown ? productBreakdown : [],
+    lowStock: lowStock.map((stock) => ({
+      id: stock.id,
+      batchNo: stock.batchNo,
+      productName: stock.product?.name ?? "—",
+      quantity: stock.quantity,
     })),
-    ...arbSales.map((s) => ({ sale: s, type: "ARB", who: s.customer?.name })),
-    ...comSales.map((s) => ({
-      sale: s,
-      type: "Commercial",
-      who: s.customer?.name,
-    })),
-  ]
-    .sort(
-      (a, b) => b.sale.createdAt.getTime() - a.sale.createdAt.getTime(),
-    )
-    .slice(0, RECENT_TXN_COUNT)
-    .map(({ sale, type, who }) => ({
-      id: sale.id,
-      trNo: sale.trNo,
-      customer: who ?? "—",
-      product: sale.items
-        .map((i) => i.product?.name)
-        .filter(Boolean)
-        .join(", "),
-      amount: round2(Number(sale.totalAmount ?? 0)),
-      date: sale.createdAt.toISOString(),
-      type,
-    }));
+  };
+}
 
-  // ─── Commercial alerts ─────────────────────────────────────────────────────
+export type DashboardResponse = Awaited<ReturnType<typeof getDashboard>>;
+
+// =============================================================================
+// CYLINDER POSITION
+// Commercial cylinders only: those are the ones the agency rents out and has
+// to get back. Agency-wide, like the godown itself — who is asking does not
+// change what it holds. Served here rather than from /api/godown so the card
+// can be granted without the whole godown page.
+// =============================================================================
+
+export async function getCylinderPosition() {
+  const { rows } = await getGodownStatus();
+  const commercial = rows.filter(
+    (row) => row.productType === ProductType.COMMERCIAL,
+  );
+
+  const totals = commercial.reduce(
+    (acc, row) => ({
+      filledQty: acc.filledQty + row.filledQty,
+      emptyQty: acc.emptyQty + row.emptyQty,
+      withCustomers: acc.withCustomers + row.withCustomers,
+      outOfSync: acc.outOfSync + (row.inSync ? 0 : 1),
+    }),
+    { filledQty: 0, emptyQty: 0, withCustomers: 0, outOfSync: 0 },
+  );
+
+  return {
+    rows: commercial.map((row) => ({
+      productId: row.productId,
+      productName: row.productName,
+      filledQty: row.filledQty,
+      emptyQty: row.emptyQty,
+      withCustomers: row.withCustomers,
+    })),
+    totals,
+  };
+}
+
+export type CylinderPositionResponse = Awaited<
+  ReturnType<typeof getCylinderPosition>
+>;
+
+// =============================================================================
+// COMMERCIAL ALERTS
+// Agency-wide customer lists. How long counts as "too long" is the viewer's
+// call, separately for cylinders and for money.
+// =============================================================================
+
+export async function getCommercialAlerts(query: DashboardAlertsQuery = {}) {
+  const cylinderDays = Number(query.cylinderDays ?? DEFAULT_PENDING_DAYS);
+  const paymentDays = Number(query.paymentDays ?? DEFAULT_PENDING_DAYS);
+
+  const [cylinderLedgers, balances] = await Promise.all([
+    prisma.customerCylinderLedger.findMany({
+      where: { pendingCylinder: { gt: 0 } },
+      include: { customer: { select: { id: true, name: true, phone: true } } },
+    }),
+    prisma.customerBalance.findMany({
+      where: { pendingAmount: { gt: 0 } },
+      include: { customer: { select: { id: true, name: true, phone: true } } },
+      orderBy: { pendingAmount: "desc" },
+    }),
+  ]);
 
   // How long each customer's cylinders have been out: the newest rent line they
   // have, since a return updates that row.
@@ -403,7 +489,7 @@ export async function getDashboard(
       ...entry,
       daysSinceLastReturn: daysSince(lastActivityByCustomer.get(entry.id)),
     }))
-    .filter((entry) => entry.daysSinceLastReturn >= LONG_PENDING_DAYS)
+    .filter((entry) => entry.daysSinceLastReturn >= cylinderDays)
     .sort((a, b) => b.daysSinceLastReturn - a.daysSinceLastReturn);
 
   // Last payment per customer, for the money-side alerts
@@ -431,39 +517,17 @@ export async function getDashboard(
   }));
 
   return {
-    // The client used to receive a role name and compare it to "OWNER".
-    // These two flags say what it actually needs to know.
-    scope: accessScope,
-    canSeeFinancials,
-    kpis: {
-      totalRevenue: round2(totalRevenue),
-      totalProfit: round2(totalRevenue - totalCost - totalExpenses),
-      totalExpenses: round2(totalExpenses),
-      totalCollections: round2(totalCollections),
-      totalQtySold,
-      customerCount,
-      todayRevenue: round2(todayRevenue),
-      domSaleCount: domSales.length,
-      arbSaleCount: arbSales.length,
-      newComSaleCount: comSales.length,
-    },
-    dailyTrend,
-    productBreakdown,
-    lowStock: lowStock.map((stock) => ({
-      id: stock.id,
-      batchNo: stock.batchNo,
-      productName: stock.product?.name ?? "—",
-      quantity: stock.quantity,
-    })),
-    recentTxns,
-    commercialAnalytics: {
-      pendingCylindersLong,
-      pendingPaymentLong: balanceRows.filter(
-        (row) => row.daysSinceLastPayment >= LONG_PENDING_DAYS,
-      ),
-      highBalanceCustomers: balanceRows.slice(0, 5),
-    },
+    cylinderDays,
+    paymentDays,
+    pendingCylindersLong,
+    // Biggest balance first, like the list below it
+    pendingPaymentLong: balanceRows.filter(
+      (row) => row.daysSinceLastPayment >= paymentDays,
+    ),
+    highBalanceCustomers: balanceRows.slice(0, 5),
   };
 }
 
-export type DashboardResponse = Awaited<ReturnType<typeof getDashboard>>;
+export type CommercialAlertsResponse = Awaited<
+  ReturnType<typeof getCommercialAlerts>
+>;

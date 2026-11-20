@@ -104,7 +104,7 @@ export function CustomerViewComponent() {
       header: "Discount",
       cell: ({ row }) => {
         const d = row.original.discount;
-        return d ? `${d}%` : "";
+        return d ? `₹${d.toLocaleString("en-IN")}` : "";
       },
     },
   ];

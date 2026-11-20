@@ -15,15 +15,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { godownStatusOptions } from "@/lib/query-options";
+import { dashboardCylindersOptions } from "@/lib/query-options";
+import { usePermission } from "@/hooks/use-permissions";
+import { PERMISSIONS } from "@/lib/permissions";
 
 /**
- * The first thing on the dashboard: how many cylinders exist and where they
- * are. Unlike the rest of the dashboard this is not scoped to the person
- * looking — the godown holds what it holds, whoever is asking.
+ * The first thing on the dashboard: how many commercial cylinders the agency
+ * owns and where they are — the ones it rents out and has to get back. Unlike
+ * the rest of the dashboard this is not scoped to the person looking: the
+ * godown holds what it holds, whoever is asking.
  */
 export function GodownPreview() {
-  const { data, isLoading } = useQuery(godownStatusOptions);
+  const { data, isLoading } = useQuery(dashboardCylindersOptions);
+  // The card is its own grant; the full godown page is the stock permission
+  const { hasPermission } = usePermission();
+  const canOpenGodown = hasPermission(PERMISSIONS.STOCK_READ);
 
   if (isLoading) {
     return (
@@ -66,15 +72,17 @@ export function GodownPreview() {
             Cylinder position
           </CardTitle>
           <CardDescription>
-            {owned} cylinder{owned === 1 ? "" : "s"} owned, across{" "}
+            {owned} commercial cylinder{owned === 1 ? "" : "s"} owned, across{" "}
             {rows.length} product{rows.length === 1 ? "" : "s"}
           </CardDescription>
         </div>
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/godown" className="text-xs">
-            Full view <ArrowUpRight className="ml-1 h-3 w-3" />
-          </Link>
-        </Button>
+        {canOpenGodown && (
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/godown" className="text-xs">
+              Full view <ArrowUpRight className="ml-1 h-3 w-3" />
+            </Link>
+          </Button>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-5">
@@ -109,7 +117,7 @@ export function GodownPreview() {
           />
         </div>
 
-        {totals.outOfSync > 0 && (
+        {totals.outOfSync > 0 && canOpenGodown && (
           <Link
             href="/godown"
             className="border-destructive/40 bg-destructive/5 text-destructive flex items-center gap-2 rounded border px-3 py-2 text-sm"
@@ -124,8 +132,8 @@ export function GodownPreview() {
         {shown.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             {rows.length === 0
-              ? "No cylinder products yet. Domestic and commercial products appear here once they exist."
-              : "No cylinders on hand or with customers yet."}
+              ? "No commercial products yet. They appear here once they exist."
+              : "No commercial cylinders on hand or with customers yet."}
           </p>
         ) : (
           <div className="divide-border divide-y border-t pt-1">
@@ -149,7 +157,7 @@ export function GodownPreview() {
               </div>
             ))}
 
-            {hidden > 0 && (
+            {hidden > 0 && canOpenGodown && (
               <Link
                 href="/godown"
                 className="text-muted-foreground hover:text-foreground block py-2 text-sm"

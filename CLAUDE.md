@@ -251,6 +251,7 @@ Cylinder deltas, from the **godown's** perspective (positive = arrived):
 | `SALE_OUT` (dom/arb outright sale) | `-qty` | `0` |
 | `RENT_DELIVERY` (commercial rent) | `-qty` | `0` |
 | `CYLINDER_RETURN` | `0` | `+qty` |
+| `REFILL` (dom/commercial refill swap, no custody) | `-qty` | `+qty` |
 | `ADJUSTMENT` (admin, needs a `StockAdjustment` row with a reason) | `±` | `±` |
 
 **Only `DOMESTIC` and `COMMERCIAL` products are cylinders.** `ARB` (bulk LPG) and
@@ -275,7 +276,9 @@ Other module-specific rules:
 - **Domestic sale is a field staff member's round — no customer.** A field
   staff member goes door to door; each line is `RENT` (a refill:
   `RENT_DELIVERY` out, `emptiesCollected` back as `CYLINDER_RETURN`, the form
-  fills it with the quantity, never more) or `SALE` (outright, `SALE_OUT`).
+  fills it with the quantity, never more), `REFILL` (an even swap: one `REFILL`
+  row, filled out and empty in, nothing to count) or `SALE` (outright,
+  `SALE_OUT`).
   **Paid in full**: `paidAmount = totalAmount`, nothing on the money ledger, no
   `CustomerCylinderLedger` custody. `fieldStaffId` is whose round it was,
   `createdById` who typed it in. Scope pair `SCOPES.DOMESTIC_SALE`, keyed on
@@ -289,7 +292,10 @@ Other module-specific rules:
   what the customer owes) but delete reverses them fully — the customer charge
   and the holding each line recorded (`cylindersDispatched`, `emptiesCollected`),
   refused if those cylinders have since come back.
-- **Commercial sale** — per-line `RENT` or `SALE`. Both draw a filled cylinder
+- **Commercial sale** — per-line `RENT`, `SALE` or `REFILL` (swap: one
+  `REFILL` row, filled out and the customer's empty in, no custody). Picking
+  the customer pre-fills the invoice discount from `Customer.discount`, a flat
+  ₹ amount (it was a % until 2026-11-20). Both draw a filled cylinder
   from a `Stock` batch and out of the godown (`RENT_DELIVERY` / `SALE_OUT`);
   `RENT` additionally tracks custody (`cylindersDispatched` /
   `cylindersReturned`, mirrored in `CustomerCylinderLedger.pendingCylinder`).
@@ -311,7 +317,10 @@ Other module-specific rules:
 - **Expense** — private to its author unless the role holds `expense.read.all`
   (see RBAC below). The service takes an `Actor { userId, permissions }` and both
   filters lists and gates single-record access on it.
-- **Report / dashboard** — read-only modules over the same models. Both scope on
+- **Report / dashboard** — read-only modules over the same models. The
+  dashboard has a Day / Month / Year period (`dashboard.period.ts`, month by
+  default) and one permission per card (`dashboard.cylinder_position`, …); its
+  cylinder position is commercial products only. Both scope on
   an `Actor { userId, permissions }` through `resolveScope`: own-scope users see
   only what they recorded, and all-scope users may narrow to one staff member.
   Every write refreshes the dashboard and godown queries (`use-api.ts`), since

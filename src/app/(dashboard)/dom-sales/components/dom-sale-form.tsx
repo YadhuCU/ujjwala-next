@@ -309,8 +309,10 @@ export function DomSaleForm({
 
                 const lineTotal = qty * cost;
 
-                const isRefill =
-                  watchedItems[index]?.saleType === CommercialSaleType.RENT;
+                const lineType = watchedItems[index]?.saleType;
+                // RENT counts the empties handed back; REFILL is an even swap
+                const isRent = lineType === CommercialSaleType.RENT;
+                const isRefill = lineType === CommercialSaleType.REFILL;
 
                 return (
                   <Card key={field.id} className="p-3 sm:p-4">
@@ -368,7 +370,7 @@ export function DomSaleForm({
                         }}
                       />
 
-                      {/* Rent (refill) or Sale */}
+                      {/* Sale, Rent or Refill */}
                       <FormField
                         control={form.control}
                         name={`items.${index}.saleType`}
@@ -379,7 +381,7 @@ export function DomSaleForm({
                               value={f.value}
                               onValueChange={(value) => {
                                 f.onChange(value);
-                                // A refill brings the empty back; an outright sale does not
+                                // Only RENT counts empties; a refill swaps them implicitly
                                 form.setValue(
                                   `items.${index}.emptiesCollected`,
                                   value === CommercialSaleType.RENT
@@ -391,12 +393,13 @@ export function DomSaleForm({
                             >
                               <FormControl>
                                 <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Rent or Sale" />
+                                  <SelectValue placeholder="Sale type" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
                                 <SelectItem value={CommercialSaleType.SALE}>SALE</SelectItem>
                                 <SelectItem value={CommercialSaleType.RENT}>RENT</SelectItem>
+                                <SelectItem value={CommercialSaleType.REFILL}>REFILL</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -428,8 +431,8 @@ export function DomSaleForm({
                         )}
                       />
 
-                      {/* Empties collected — refills only */}
-                      {isRefill ? (
+                      {/* Empties collected — RENT only; a refill swaps one for one */}
+                      {isRent ? (
                         <FormField
                           control={form.control}
                           name={`items.${index}.emptiesCollected`}
@@ -455,8 +458,17 @@ export function DomSaleForm({
                             </FormItem>
                           )}
                         />
+                      ) : isRefill ? (
+                        <div className="space-y-2">
+                          <p className="text-sm leading-none font-semibold whitespace-nowrap">
+                            Empties back
+                          </p>
+                          <p className="text-muted-foreground flex h-9 items-center text-sm">
+                            {qty} swapped
+                          </p>
+                        </div>
                       ) : (
-                        // Keeps the columns aligned with refill lines
+                        // Keeps the columns aligned with RENT lines
                         <div aria-hidden className="hidden md:block" />
                       )}
 
@@ -466,7 +478,7 @@ export function DomSaleForm({
                         name={`items.${index}.salePrice`}
                         render={({ field: formField }) => (
                           // Alone on its row on a phone unless empties sit beside it
-                          <FormItem className={isRefill ? undefined : "max-md:col-span-2"}>
+                          <FormItem className={isRent || isRefill ? undefined : "max-md:col-span-2"}>
                             <FormLabel>Sale Price (₹)</FormLabel>
                             <FormControl>
                               <Input

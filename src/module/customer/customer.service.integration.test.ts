@@ -39,7 +39,7 @@ describe("updateCustomer", () => {
       phone: "9000000000",
       address: undefined,
       locationId: undefined,
-      discount: 10,
+      discount: 150.5,
       concernedPerson: undefined,
       concernedPersonMobile: undefined,
       gstNumber: undefined,
@@ -47,7 +47,7 @@ describe("updateCustomer", () => {
 
     expect(updated.name).toBe("Hotel Green");
     expect(updated.phone).toBe("9000000000");
-    expect(updated.discount).toBe(10);
+    expect(Number(updated.discount)).toBe(150.5);
     // Fields left out of the payload are cleared, not silently kept
     expect(updated.address).toBeNull();
   });

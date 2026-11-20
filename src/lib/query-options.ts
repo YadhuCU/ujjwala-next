@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { ProductType } from "@/generated/enums";
@@ -52,10 +52,24 @@ export const customerTransactionsOptions = (
     enabled: !!custId,
   });
 
-export const dashboardOptions = (from?: string, to?: string) =>
+export const dashboardOptions = (view: string, from?: string, to?: string) =>
   queryOptions({
-    queryKey: queryKeys.dashboard.detail(from, to),
-    queryFn: () => api.getDashboard(from, to),
+    queryKey: queryKeys.dashboard.detail(view, from, to),
+    queryFn: () => api.getDashboard({ view, from, to }),
+    // Keep the old figures on screen while a new period loads
+    placeholderData: keepPreviousData,
+  });
+
+export const dashboardCylindersOptions = queryOptions({
+  queryKey: queryKeys.dashboard.cylinders(),
+  queryFn: api.getDashboardCylinders,
+});
+
+export const dashboardAlertsOptions = (cylinderDays: number, paymentDays: number) =>
+  queryOptions({
+    queryKey: queryKeys.dashboard.alerts(cylinderDays, paymentDays),
+    queryFn: () => api.getDashboardAlerts({ cylinderDays, paymentDays }),
+    placeholderData: keepPreviousData,
   });
 
 // ─── Reusable Query Options (used in custom hooks) ──────────────────────────

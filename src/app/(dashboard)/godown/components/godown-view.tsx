@@ -38,6 +38,7 @@ const MOVEMENT_LABELS: Record<string, string> = {
   RENT_DELIVERY: "Dispatched on rent",
   CYLINDER_RETURN: "Empties returned",
   ADJUSTMENT: "Manual adjustment",
+  REFILL: "Refill swap (full out, empty in)",
 };
 
 export function GodownViewComponent() {

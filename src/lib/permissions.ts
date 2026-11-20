@@ -91,6 +91,14 @@ export const PERMISSIONS = {
   DASHBOARD_READ_ALL: "dashboard.read.all",
   DASHBOARD_READ_OWN: "dashboard.read.own",
   DASHBOARD_FINANCIALS: "dashboard.financials",
+  // One per dashboard card. The card's data is only served to a holder.
+  DASHBOARD_CYLINDER_POSITION: "dashboard.cylinder_position",
+  DASHBOARD_KPIS: "dashboard.kpis",
+  DASHBOARD_REVENUE_TREND: "dashboard.revenue_trend",
+  DASHBOARD_SALES_BY_TYPE: "dashboard.sales_by_type",
+  DASHBOARD_PRODUCT_BREAKDOWN: "dashboard.product_breakdown",
+  DASHBOARD_LOW_STOCK: "dashboard.low_stock",
+  DASHBOARD_COMMERCIAL_ALERTS: "dashboard.commercial_alerts",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -340,6 +348,51 @@ export const PERMISSION_REGISTRY: PermissionMeta[] = [
     label: "See revenue, profit and expense totals",
     description:
       "Without this the dashboard still shows cylinder and collection figures.",
+  },
+  {
+    code: PERMISSIONS.DASHBOARD_CYLINDER_POSITION,
+    module: "Dashboard",
+    label: "Card: Cylinder position",
+    description:
+      "Commercial cylinders filled and empty in the godown, and with customers. Agency-wide.",
+  },
+  {
+    code: PERMISSIONS.DASHBOARD_KPIS,
+    module: "Dashboard",
+    label: "Card: Headline figures",
+    description:
+      "Collections; revenue, profit and expenses also need the totals permission above.",
+  },
+  {
+    code: PERMISSIONS.DASHBOARD_REVENUE_TREND,
+    module: "Dashboard",
+    label: "Card: Revenue & profit trend",
+    description: "Profit and expense bars also need the totals permission above.",
+  },
+  {
+    code: PERMISSIONS.DASHBOARD_SALES_BY_TYPE,
+    module: "Dashboard",
+    label: "Card: Sales by type",
+    description: "Number of commercial, domestic and ARB invoices per period.",
+  },
+  {
+    code: PERMISSIONS.DASHBOARD_PRODUCT_BREAKDOWN,
+    module: "Dashboard",
+    label: "Card: Revenue by product",
+    description: "Also needs the totals permission above.",
+  },
+  {
+    code: PERMISSIONS.DASHBOARD_LOW_STOCK,
+    module: "Dashboard",
+    label: "Card: Low stock alert",
+    description: "Batches running low. Agency-wide.",
+  },
+  {
+    code: PERMISSIONS.DASHBOARD_COMMERCIAL_ALERTS,
+    module: "Dashboard",
+    label: "Card: Commercial sale alerts",
+    description:
+      "Customers long overdue with cylinders or payments, and the highest balances. Agency-wide.",
   },
 ];
 

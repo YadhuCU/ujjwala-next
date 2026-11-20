@@ -86,7 +86,11 @@ export const queryKeys = {
   },
   dashboard: {
     all: ["dashboard"] as const,
-    detail: (from?: string, to?: string) => ["dashboard", from, to] as const,
+    detail: (view: string, from?: string, to?: string) =>
+      ["dashboard", view, from, to] as const,
+    cylinders: () => ["dashboard", "cylinders"] as const,
+    alerts: (cylinderDays: number, paymentDays: number) =>
+      ["dashboard", "alerts", cylinderDays, paymentDays] as const,
   },
   expenseReport: {
     all: ["expense-report"] as const,

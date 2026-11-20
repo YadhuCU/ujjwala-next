@@ -155,10 +155,12 @@ export function CustomerForm({
                 name="discount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Discount (%)</FormLabel>
+                    <FormLabel>Discount per invoice (₹)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
+                        step="0.01"
+                        min={0}
                         {...field}
                         onChange={(e) =>
                           field.onChange(e.target.valueAsNumber || 0)

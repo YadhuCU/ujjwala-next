@@ -11,12 +11,13 @@ export const DomSaleItemFormSchema = z.object({
 
   salePrice: z.coerce.number().min(0, "Sale price cannot be negative"),
 
-  // RENT is a refill: a full out, the house's empty back. SALE is outright.
+  // RENT: a full out, the empties handed back counted. REFILL: an even swap,
+  // nothing to count. SALE: outright.
   saleType: z
-    .enum(CommercialSaleType, "Select rent or sale")
+    .enum(CommercialSaleType, "Select sale, rent or refill")
     .default(CommercialSaleType.SALE),
 
-  // Filled in with the quantity on a refill; lower it if a house had no empty.
+  // Filled in with the quantity on a RENT line; lower it if a house had no empty.
   emptiesCollected: z.coerce
     .number()
     .int()

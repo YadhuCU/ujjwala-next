@@ -43,7 +43,7 @@ export function serializeCustomer(customer: SerializeCustomerPayload) {
 
     concernedPersonMobile: customer.concernedPersonMobile ?? undefined,
 
-    discount: customer.discount ?? undefined,
+    discount: customer.discount?.toNumber(),
 
     gstNumber: customer.gstNumber ?? undefined,
 

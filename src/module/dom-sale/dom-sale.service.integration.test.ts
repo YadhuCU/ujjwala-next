@@ -316,6 +316,57 @@ describe("refills", () => {
   });
 });
 
+describe("REFILL lines", () => {
+  const swap = (stockId: number, quantity: number) =>
+    line(stockId, quantity, { saleType: CommercialSaleType.REFILL });
+
+  it("swaps one empty in for every full out, with nothing to count", async () => {
+    const { product, stock } = await domesticStock(50);
+
+    await DomSaleService.createDomSale(round([swap(stock.id, 5)]), fieldStaff());
+
+    const godown = await godownOf(product.id);
+    expect(godown.filledQty).toBe(45);
+    expect(godown.emptyQty).toBe(5);
+
+    const txns = await prisma.cylinderTransaction.findMany({
+      where: { productId: product.id, refType: RefType.INVOICE },
+    });
+    expect(txns).toHaveLength(1);
+    expect(txns[0].txnType).toBe(TxnType.REFILL);
+    expect(txns[0].emptyDelta).toBe(5);
+
+    const item = await prisma.domSaleItem.findFirstOrThrow({});
+    expect(item.cylindersDispatched).toBe(0);
+    expect(item.emptiesCollected).toBe(0);
+    await assertGodownMatchesLedger(product.id);
+  });
+
+  it("reverses the whole swap when the round is corrected or deleted", async () => {
+    const { product, stock } = await domesticStock(50);
+    const sale = await DomSaleService.createDomSale(
+      round([swap(stock.id, 5)]),
+      fieldStaff(),
+    );
+
+    await DomSaleService.updateDomSale(
+      sale.id,
+      round([swap(stock.id, 2), line(stock.id, 1)]),
+      fieldStaff(),
+    );
+    let godown = await godownOf(product.id);
+    expect(godown.filledQty).toBe(47);
+    expect(godown.emptyQty).toBe(2);
+    await assertGodownMatchesLedger(product.id);
+
+    await DomSaleService.deleteDomSale(sale.id, fieldStaff());
+    godown = await godownOf(product.id);
+    expect(godown.filledQty).toBe(50);
+    expect(godown.emptyQty).toBe(0);
+    await assertGodownMatchesLedger(product.id);
+  });
+});
+
 // =============================================================================
 // UPDATE
 // =============================================================================

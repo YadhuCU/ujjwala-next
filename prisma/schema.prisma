@@ -73,6 +73,9 @@ enum TxnType {
   CYLINDER_RETURN
   /// Admin-only manual stock correction — requires a StockAdjustment record with reason
   ADJUSTMENT
+  /// Refill swap at the counter: a filled cylinder out, the customer's empty in,
+  /// in one row (filledDelta -qty, emptyDelta +qty). Nothing is held by anyone.
+  REFILL
 
   @@map("txn_type")
 }
@@ -94,10 +97,14 @@ enum PurchaseType {
   @@map("purchase_type")
 }
 
-/// Whether a commercial sale line item is a rental or an outright sale.
+/// What a sale line does with the cylinder. Shared by commercial and domestic.
+/// RENT: the customer holds it (custody tracked). SALE: sold outright.
+/// REFILL: swapped for the customer's empty on the spot — no custody, no count
+/// of empties to enter; the godown gets the empty back automatically.
 enum CommercialSaleType {
   RENT
   SALE
+  REFILL
 }
 
 /// Classification of a CustomerPaymentLedger entry.
@@ -273,8 +280,9 @@ model Customer {
   location              Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
   concernedPerson       String?   @map("concerned_person") @db.VarChar(30)
   concernedPersonMobile String?   @map("concerned_person_mobile") @db.VarChar(30)
-  /// Default discount % applied automatically when creating invoices.
-  discount              Int?
+  /// Flat rupee discount pre-filled on each new commercial invoice for this
+  /// customer (not a percentage, not per cylinder). The invoice can override it.
+  discount              Decimal?  @db.Decimal(10, 2)
   gstNumber             String?   @map("gst_number") @db.VarChar(15)
   initialPendingAmount  Decimal   @default(0.00) @map("initial_pending_amount") @db.Decimal(10, 2)
   isDeleted             Boolean   @default(false) @map("is_deleted")
