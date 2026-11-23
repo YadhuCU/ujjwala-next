@@ -5,6 +5,7 @@ import type {
   CreateStockAdjustmentInput,
   StockAdjustmentQuery,
 } from "./stock-adjustment.payload.schema";
+import { businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -137,10 +138,8 @@ export async function getStockAdjustments(query: StockAdjustmentQuery) {
   const where = {
     ...(productId && { productId }),
     ...((from || to) && {
-      createdAt: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      createdAt: businessDayRange(from, to),
     }),
   };
 

@@ -35,3 +35,19 @@ export function endOfBusinessDay(instant: Date): Date {
 export function addBusinessDays(instant: Date, days: number): Date {
   return new Date(instant.getTime() + days * DAY_MS);
 }
+
+/**
+ * A list filter's `from` / `to` as whole India days: from the first instant of
+ * `from`'s day to the last instant of `to`'s. `?to=2026-09-30` arrives as
+ * midnight UTC, which on its own would leave out the whole of the 30th.
+ * Works for real timestamps and for calendar dates stored at midnight UTC.
+ */
+export function businessDayRange(
+  from?: Date,
+  to?: Date,
+): { gte?: Date; lte?: Date } {
+  return {
+    ...(from && { gte: startOfBusinessDay(from) }),
+    ...(to && { lte: endOfBusinessDay(to) }),
+  };
+}

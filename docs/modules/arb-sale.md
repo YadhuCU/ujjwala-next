@@ -19,8 +19,8 @@ No sale type — an ARB line is neither rented nor sold outright in the cylinder
 - `assertAndFetchStocks` groups lines by `stockId` so two lines on one batch are
   checked against its quantity together; `productId` comes from the stock row.
 - `paidAmount <= totalAmount` (`BadRequestError`).
-- `trNo = ARB-{yyyymmdd}-{00001}`, assigned after the header insert (UTC date —
-  README #2).
+- `trNo = ARB-{yyyymmdd}-{00001}`, assigned after the header insert (India date,
+  `businessDayKey`).
 - Ledger (shared with dom): `SALE_CHARGE +total`, `PAYMENT −paid` if paid > 0,
   `CustomerBalance += total − paid`. Reversal: one `ADJUSTMENT −(total − paid)`.
 - Customer is required by the payload; the service's "walk-in" branches are dead.

@@ -21,8 +21,8 @@ on purpose to prove detection works. `batchQty` is deliberately **not** compared
 batches and the godown drift legitimately on manual corrections.
 
 **`getGodownMovements({ productId?, txnType?, from?, to?, page, limit })`** —
-the ledger, newest first; reversal rows are badged in the UI (raw `from`/`to`,
-README #8).
+the ledger, newest first; reversal rows are badged in the UI (`from`/`to` are
+whole India days, `businessDayRange`).
 
 **UI.** The summary tiles (filled / empty / with customers / total) were
 **removed at the client's request** (2026-08-16) from both `/godown` and the

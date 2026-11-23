@@ -14,7 +14,7 @@ import type {
   CylinderReturnInput,
   UpdateCommercialSaleInput,
 } from "./commercial-sale.payload.schema";
-import { businessDayKey } from "@/lib/business-day";
+import { businessDayKey, businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -708,10 +708,8 @@ export async function getCommercialSales(query: CommercialSaleQuery) {
     isDeleted: false,
     ...(customerId && { customerId }),
     ...((from || to) && {
-      invoiceDate: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      invoiceDate: businessDayRange(from, to),
     }),
   };
 

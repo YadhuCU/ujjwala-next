@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { isCylinderTypeProduct } from "@/module/product/product.rules";
 import type { GodownMovementQuery } from "./godown.payload.schema";
+import { businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -118,10 +119,8 @@ export async function getGodownMovements(query: GodownMovementQuery) {
     ...(productId && { productId }),
     ...(txnType && { txnType }),
     ...((from || to) && {
-      createdAt: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      createdAt: businessDayRange(from, to),
     }),
   };
 

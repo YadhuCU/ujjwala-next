@@ -7,7 +7,7 @@ import {
 } from "@/generated/client";
 import { NotFoundError, BadRequestError, ConflictError } from "@/lib/errors";
 import { ArbSaleQuery, CreateArbSaleInput, UpdateArbSaleInput } from "./arb-sale.payload.schema";
-import { businessDayKey } from "@/lib/business-day";
+import { businessDayKey, businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -318,10 +318,8 @@ export async function getArbSales(query: ArbSaleQuery) {
     isDeleted: false,
     ...(customerId && { customerId }),
     ...((from || to) && {
-      createdAt: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      createdAt: businessDayRange(from, to),
     }),
   };
 

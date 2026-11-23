@@ -25,7 +25,7 @@ batchNo, quantity, unitCost?, totalCost?, purchaseType: FILL | FULL }`.
 **Create.** `assertAndAttachProductTypes` (type read from `Product`, never the
 client) → `assertEmptyStockAvailable` → header → items + batches + ledger rows →
 godown cache. `batchNo` is the vendor's, or `BATCH-{yyyymmdd}-P{purchaseId}-PR{productId}-{n}`
-(UTC date — README #2). The same value is written to `PurchaseItem` and `Stock`.
+(India date, `businessDayKey`). The same value is written to `PurchaseItem` and `Stock`.
 
 **Update / delete.** Allowed only while **none** of the purchase's batches appear
 on any sale line (`assertStockNotInUse`). Void-and-repost: inverted ledger rows

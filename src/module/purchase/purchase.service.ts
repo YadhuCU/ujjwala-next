@@ -13,7 +13,7 @@ import {
 } from "@/generated/client";
 import { BadRequestError, ConflictError, NotFoundError } from "@/lib/errors";
 import { isCylinderTypeProduct } from "@/module/product/product.rules";
-import { businessDayKey } from "@/lib/business-day";
+import { businessDayKey, businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -358,10 +358,8 @@ export async function getPurchases(query: PurchaseQuery) {
     isDeleted: false,
     ...(vendorId && { vendorId }),
     ...((from || to) && {
-      purchaseDate: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      purchaseDate: businessDayRange(from, to),
     }),
   };
 

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   addBusinessDays,
+  businessDayRange,
   businessDayKey,
   endOfBusinessDay,
   startOfBusinessDay,
@@ -55,5 +56,20 @@ describe("start and end of the business day", () => {
     const next = addBusinessDays(day, 1);
 
     expect(startOfBusinessDay(next).getTime()).toBe(endOfBusinessDay(day).getTime() + 1);
+  });
+});
+
+describe("businessDayRange", () => {
+  // `?from=2026-09-29&to=2026-09-30` as `z.coerce.date()` hands it over
+  it("turns bare from/to dates into whole India days", () => {
+    const range = businessDayRange(new Date("2026-09-29"), new Date("2026-09-30"));
+
+    expect(range.gte?.toISOString()).toBe("2026-09-28T18:30:00.000Z");
+    expect(range.lte?.toISOString()).toBe("2026-09-30T18:29:59.999Z");
+  });
+
+  it("leaves out whichever end is missing", () => {
+    expect(businessDayRange(undefined, new Date("2026-09-30"))).not.toHaveProperty("gte");
+    expect(businessDayRange(new Date("2026-09-30"))).not.toHaveProperty("lte");
   });
 });
