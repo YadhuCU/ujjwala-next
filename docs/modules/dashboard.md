@@ -54,7 +54,17 @@ shows to holders of `stock.read`.
 /api/dashboard/alerts` (`dashboard.read` + `dashboard.commercial_alerts`).
 Both thresholds default to 30, are typed into each card's header, debounced,
 and remembered per browser in `localStorage`. High balance accounts has no
-threshold (top 5).
+threshold (top 5). Pending payments times a balance from the customer's last
+payment that still stands (a reversed one does not count); a customer who
+has never paid is timed from the first charge that started the debt and comes
+back with `neverPaid: true` — never as 0 days, which once hid exactly the
+longest debts. Pending empty cylinders works the same way
+(`custodyTimelines`): days since the customer's last return — a collection on
+any invoice (`CommercialSaleReturn`), a return against one line (that line's
+`updatedAt`), or empties on a pre-2026-11-02 domestic sale — and for a customer
+who has never returned one, since the opening holding or first rental, with
+`neverReturned: true`. It reads the documents, not `CylinderTransaction`,
+whose `refId` is shared by every invoice type.
 
 **Client.** Revenue / Net Profit / Total Expenses tiles and the profit/expense
 bars need `canSeeFinancials`; Collections always shows. Revenue & profit trend
