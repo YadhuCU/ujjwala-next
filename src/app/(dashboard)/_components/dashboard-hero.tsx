@@ -5,7 +5,7 @@ import { CylinderImage } from "@/components/cylinder-image";
 // from the dashboard query below it, never from here.
 export function DashboardHero({ name }: { name?: string | null }) {
   return (
-    <section className="border-border relative grid grid-cols-[minmax(0,1fr)_84px] items-center gap-4 overflow-hidden rounded-xl border bg-linear-to-br from-white from-35% to-[#e8f0f9] p-5 sm:grid-cols-[minmax(0,1fr)_128px] sm:p-6 dark:from-[#0f1e33] dark:to-[#12345a]">
+    <section className="border-hero-border bg-hero shadow-card relative grid grid-cols-1 items-center gap-4 overflow-hidden rounded-xl border p-5 sm:grid-cols-[minmax(0,1fr)_155px] sm:p-6 lg:grid-cols-[minmax(0,1fr)_239px]">
       <div className="min-w-0">
         <p className="text-primary text-[10px] font-bold tracking-[0.16em] uppercase sm:text-[11px]">
           {name ? `Welcome back, ${name}` : "Energy for everyday life"}
@@ -30,16 +30,15 @@ export function DashboardHero({ name }: { name?: string | null }) {
         </ul>
       </div>
 
-      {/* The cylinder on a soft floor shadow */}
-      <div className="relative h-[150px] self-center sm:h-[180px]">
-        <span
-          aria-hidden
-          className="absolute inset-x-1 bottom-0 h-3.5 rounded-[50%] bg-[#cbd8e7] dark:bg-black/40"
-        />
+      {/* Three blue cylinders in a reserved box, contained so none is clipped;
+          on a phone they stand below the copy */}
+      <div className="relative mx-auto h-[170px] w-full max-w-[240px] sm:h-[150px] sm:max-w-none lg:h-[185px]">
         <CylinderImage
+          kind="group"
           priority
-          sizes="(min-width: 640px) 128px, 84px"
-          className="relative h-full w-auto mx-auto drop-shadow-[0_12px_9px_rgb(20_42_68/0.13)]"
+          alt="Three blue commercial LPG cylinders"
+          sizes="(min-width: 1024px) 239px, (min-width: 640px) 155px, 240px"
+          className="h-full w-full drop-shadow-[0_9px_8px_rgb(18_51_82/0.1)]"
         />
       </div>
     </section>

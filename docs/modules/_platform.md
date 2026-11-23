@@ -149,25 +149,57 @@ clipped content never widens the document.
 
 ## Theme and graphics
 
-One theme, **Ujjwala**, in light and dark (`next-themes`, the header's sun/moon
-menu). There is no colour-theme picker any more: the old HP Enterprise and
-Enterprise Blue themes, `theme-config.ts`, `theme-store.ts` and the
-`data-theme` attribute are gone. The palette lives on `:root` and `.dark` in
-`src/app/globals.css`:
+One theme, **Ujjwala HP gas agency ERP**, in light and dark (`next-themes`, the
+header's sun/moon menu). There is no colour-theme picker: the old HP
+Enterprise and Enterprise Blue themes and the `data-theme` attribute are gone.
+The palette lives on `:root` and `.dark` in `src/app/globals.css`:
 
 | Token | Light | Use |
 |---|---|---|
-| `--sidebar` | `#071e3c` navy | sidebar, sign-in brand panel |
-| `--primary` | `#004e8f` HPCL-inspired blue | buttons, links, active nav item |
-| `--signal` / `--destructive` | `#df1a14` red | header top rule, active nav marker, brand mark, alerts, delete |
-| `--background` / `--card` | `#f3f6fa` / white | page / surfaces |
+| `--sidebar` / `--sidebar-accent` / `--sidebar-primary` | `#b51b24` / `#9b151d` / `#841019` | HP red sidebar, hover, active item (white marker `--sidebar-active-border`); also the sign-in brand panel |
+| `--sidebar-label` | `#ffe3e1` | section labels on the red |
+| `--sidebar-header` | white | brand header above the red (dark: the card surface) |
+| `--wordmark` / `--wordmark-caption` | `#df1a14` / `#183653` | "Ujjwala" / "HP gas agency ERP" |
+| `--primary` | `#004e8f` HP blue | buttons, links, selected controls outside the sidebar |
+| `--signal` / `--destructive` | `#df1a14` red | header top rule, alerts, delete |
+| `--background` / `--card` / `--border` | `#f3f6fb` / white / `#dfe7f0` | base ground / surfaces / blue-grey borders (inputs, tables, tiles) |
+| `--page` / `--page-gradient` | `#c6ddf8`; `#dcecff → #c6ddf8 → #b3d0f2` with a `#92bfee` glow top right | the page behind the cards — the `bg-page` utility, on `SidebarInset` and the sign-in page; `background-attachment: fixed` |
+| `--card-border` / `--card-shadow` | `#ccddf0` / soft blue shadow | every `Card` (`border-card-border shadow-card`) |
+| `--hero-gradient` / `--hero-border` | white → `#e6f1ff` → `#c9e1fc` / `#c5daf0` | the dashboard hero (`bg-hero`) |
 
-Red is a signal, not decoration — keep it to those places. Components style
-through the tokens (`bg-primary`, `text-muted-foreground`, `bg-signal`,
-`text-sidebar-label`); a hex in a component is a bug, except the sign-in brand
-panel and dashboard hero, which are deliberately the same navy in both modes.
-The HPCL logo and wordmark are not used (trademark); the mark is a red tile
-with a flame (`src/components/brand-mark.tsx`).
+Dark mode keeps the sidebar red but deeper (`#861620`, hover `#701219`, active
+`#5e0c13`); the brand header turns to the card surface and the logo keeps
+its own white plate; the page gradient and the hero turn deep navy rather than
+reusing the pale blue. Red outside the sidebar is a signal — keep it to the
+places above. Components style through the tokens; a hex in a component is a
+bug.
+
+**Brand.** The name is exactly "Ujjwala HP gas agency ERP" (`APP_NAME` in
+`src/components/brand-mark.tsx`, and the page metadata), always HTML text,
+never part of an image. `BrandLogo` is the full HP Gas logo — mascot, Hindi
+lettering, divider, HP GAS emblem, "your friendly gas" — from
+`public/brand/hp-gas-full-logo.webp`. It is an AI-assisted restoration of a
+low-resolution original supplied by the agency, not an official master; the
+original and the full-size PNG stay with the design handoff. Transparent, with
+navy lettering, so it always sits on a white plate (dark mode too),
+`object-contain`, never cropped or recoloured. `BrandLockup` (sidebar header)
+puts it on its own row above `BrandName` (red "Ujjwala" over "HP gas agency
+ERP"); the sign-in plate uses the same pieces, a row on a phone and stacked and
+larger from md up. The logo is unreadable below ~80px tall, so the favicon
+(`src/app/favicon.ico`) is the HP GAS emblem alone. The sidebar collapses
+off-canvas, so there is no icon-only state that would need it.
+
+**Cylinder artwork** (`public/brand/`, through `CylinderImage`):
+`blue-cylinder-single.webp` (one blue commercial cylinder) for the cylinder
+position tiles and the loading screen — `empty` greys it for empty stock;
+`blue-cylinder-group.webp` (three cylinders) for the dashboard hero and the
+sign-in panel only, never for a count. Both are generated illustrations, not
+HPCL photographs. PNG originals stay with the design handoff, not the repo.
+
+**Why `/brand` is excluded from the auth proxy.** The matcher in
+`src/proxy.ts` would otherwise redirect `/brand/*` (and the `/_next/image`
+optimiser's fetch of it) to sign-in, and the sign-in page could not show its
+own logo. Only public artwork belongs in `public/brand/`.
 
 Shared pieces: badges have soft `success` / `warning` / `info` / `muted`
 variants; tables have a tinted header row; entry forms end in `FormSummary`
@@ -175,13 +207,6 @@ variants; tables have a tinted header row; entry forms end in `FormSummary`
 cancel buttons. The sidebar groups links into sections (`navSections` in
 `app-sidebar.tsx`); the header's breadcrumb is `navTrail(pathname)` over the
 same list, so add a page there once and both pick it up.
-
-The cylinder photo is `src/assets/images/lpg-cylinder.webp` (476×720,
-transparent, ~36 KB), drawn through `CylinderImage`
-(`src/components/cylinder-image.tsx`). It is a static import, so it is served
-from `/_next/static` and resized by `/_next/image` — both outside the auth
-proxy, which is why it loads on the sign-in page. Used on sign-in, the
-dashboard hero, the dashboard's cylinder position tiles and the loading screen.
 
 ## Testing
 

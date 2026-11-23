@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, ArrowUpRight, Users, Warehouse } from "lucide-react";
 import { CylinderImage } from "@/components/cylinder-image";
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,7 +86,7 @@ export function GodownPreview() {
 
       <CardContent className="space-y-5">
         {/* The three places a cylinder can be, at a glance */}
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 xl:grid-cols-3">
           <StockTile
             label="Filled cylinders"
             value={totals.filledQty}
@@ -192,12 +191,12 @@ function StockTile({
   return (
     <div className="flex items-center gap-4 rounded-xl border p-3 sm:p-4">
       {image ? (
+        // Always the single cylinder — one picture per count, never the group
         <CylinderImage
-          sizes="48px"
-          className={cn(
-            "h-[72px] w-11 shrink-0",
-            muted && "opacity-75 grayscale",
-          )}
+          kind="single"
+          empty={muted}
+          sizes="60px"
+          className="h-[70px] w-[52px] shrink-0"
         />
       ) : (
         <span className="bg-secondary text-secondary-foreground grid h-11 w-11 shrink-0 place-items-center rounded-lg">

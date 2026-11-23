@@ -19,8 +19,9 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       {/* min-w-0: a wide table scrolls inside its card instead of stretching
-          the whole page past the window */}
-      <SidebarInset className="min-w-0">
+          the whole page past the window. bg-page: the soft blue behind the
+          white cards. */}
+      <SidebarInset className="bg-page min-w-0">
         <Navbar />
         <main className="min-w-0 flex-1 overflow-auto p-4 sm:p-6">{children}</main>
       </SidebarInset>
