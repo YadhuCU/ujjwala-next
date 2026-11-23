@@ -7,6 +7,7 @@ import {
 } from "@/generated/client";
 import { NotFoundError, BadRequestError, ConflictError } from "@/lib/errors";
 import { ArbSaleQuery, CreateArbSaleInput, UpdateArbSaleInput } from "./arb-sale.payload.schema";
+import { businessDayKey } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -51,7 +52,7 @@ function computeTotals(
 }
 
 function generateTrNo(saleId: number): string {
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const date = businessDayKey(new Date()).replace(/-/g, "");
   return `ARB-${date}-${String(saleId).padStart(5, "0")}`;
 }
 

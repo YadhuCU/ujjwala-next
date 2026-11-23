@@ -1,6 +1,7 @@
 import type { ExportFormat } from "./report.payload.schema";
 import type { SaleLine } from "./report.lines";
 import { receiptTypeLabel, type CustomerWiseLine } from "./report.rollup";
+import { businessDayKey } from "@/lib/business-day";
 
 // =============================================================================
 // EXPORT RENDERERS
@@ -217,7 +218,8 @@ export function buildExportResponse<T>({
     ? toText(title, meta, columns, rows)
     : toCsv(columns, rows);
 
-  const date = new Date().toISOString().split("T")[0];
+  // India date, like every other day in the app
+  const date = businessDayKey(new Date());
   const filename = `${filenameBase}_${date}.${isPdf ? "txt" : "csv"}`;
 
   return new Response(body, {

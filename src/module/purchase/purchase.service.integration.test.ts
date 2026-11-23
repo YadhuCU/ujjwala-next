@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ProductType, PurchaseType, TxnType } from "@/generated/client";
 import { prisma } from "@/lib/prisma";
 import {
@@ -146,6 +146,15 @@ describe("createPurchase", () => {
     });
     expect(stock.batchNo).toMatch(/^BATCH-\d{8}-P\d+-PR\d+-1$/);
 
+    const late = await atIndiaEarlyMorning(() =>
+      PurchaseService.createPurchase(purchaseInput(product.id), userId),
+    );
+    const lateStock = await prisma.stock.findFirstOrThrow({
+      where: { purchaseId: late.id },
+    });
+    // Dated by the India day, not UTC
+    expect(lateStock.batchNo).toMatch(/^BATCH-20260815-P\d+-PR\d+-1$/);
+
     // PurchaseItem and Stock must agree on it
     const item = await prisma.purchaseItem.findFirstOrThrow({
       where: { purchaseId: purchase.id },
@@ -272,3 +281,14 @@ describe("deletePurchase", () => {
     expect(deleted.updatedById).toBe(userId);
   });
 });
+
+// 20:00 UTC on 14 Aug is 01:30 on 15 Aug in India — the agency's day
+async function atIndiaEarlyMorning<T>(run: () => Promise<T>): Promise<T> {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-08-14T20:00:00Z"));
+  try {
+    return await run();
+  } finally {
+    vi.useRealTimers();
+  }
+}

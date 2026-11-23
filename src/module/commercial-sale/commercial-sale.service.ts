@@ -14,6 +14,7 @@ import type {
   CylinderReturnInput,
   UpdateCommercialSaleInput,
 } from "./commercial-sale.payload.schema";
+import { businessDayKey } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -64,7 +65,7 @@ function computeTotals(
 }
 
 function generateTrNo(saleId: number): string {
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const date = businessDayKey(new Date()).replace(/-/g, "");
   return `COM-${date}-${String(saleId).padStart(5, "0")}`;
 }
 

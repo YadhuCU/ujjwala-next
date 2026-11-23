@@ -13,6 +13,7 @@ import {
 } from "@/generated/client";
 import { BadRequestError, ConflictError, NotFoundError } from "@/lib/errors";
 import { isCylinderTypeProduct } from "@/module/product/product.rules";
+import { businessDayKey } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -51,7 +52,7 @@ function generateBatchNo(
   productId: number,
   index: number,
 ): string {
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // 20260611
+  const date = businessDayKey(new Date()).replace(/-/g, ""); // 20260611, India date
   return `BATCH-${date}-P${purchaseId}-PR${productId}-${index + 1}`;
   // e.g. "BATCH-20260611-P42-PR3-1"
 }

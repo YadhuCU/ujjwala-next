@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   CommercialSaleType,
   PaymentType,
@@ -51,6 +51,17 @@ function saleInput(
     returns: [],
   };
 }
+
+describe("createCommercialSale — numbering", () => {
+  it("dates the invoice number by the India day, not UTC", async () => {
+    const sale = await atIndiaEarlyMorning(() =>
+      CommercialSaleService.createCommercialSale(saleInput(CommercialSaleType.SALE, 1), userId),
+    );
+
+    const stored = await prisma.commercialSale.findUniqueOrThrow({ where: { id: sale.id } });
+    expect(stored.trNo).toMatch(/^COM-20260815-\d{5}$/);
+  });
+});
 
 describe("createCommercialSale — RENT", () => {
   it("dispatches cylinders and records the customer's custody", async () => {
@@ -493,3 +504,14 @@ describe("correcting an invoice that collected cylinders", () => {
     await assertGodownMatchesLedger(productId);
   });
 });
+
+// 20:00 UTC on 14 Aug is 01:30 on 15 Aug in India — the agency's day
+async function atIndiaEarlyMorning<T>(run: () => Promise<T>): Promise<T> {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-08-14T20:00:00Z"));
+  try {
+    return await run();
+  } finally {
+    vi.useRealTimers();
+  }
+}
