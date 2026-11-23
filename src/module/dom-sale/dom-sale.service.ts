@@ -132,7 +132,26 @@ function toProductQtys(acc: Map<number, number>): ProductQty[] {
     .map(([productId, quantity]) => ({ productId, quantity }));
 }
 
-/** Empties brought back to the godown on refill lines, per product. */
+/**
+ * Empties a REFILL line swaps in, per product — one for every full handed
+ * over. Nobody types them in: a refill is an even exchange by definition.
+ */
+function resolveRefillEmpties(
+  items: CreateDomSaleInput["items"],
+  stockMap: Map<number, StockInfo>,
+): ProductQty[] {
+  const swapped = new Map<number, number>();
+
+  for (const item of items) {
+    if (item.saleType !== CommercialSaleType.REFILL) continue;
+    const productId = stockMap.get(item.stockId)!.productId;
+    swapped.set(productId, (swapped.get(productId) ?? 0) + item.quantity);
+  }
+
+  return toProductQtys(swapped);
+}
+
+/** Empties counted in on RENT lines, per product. */
 function resolveEmpties(
   items: CreateDomSaleInput["items"],
   stockMap: Map<number, StockInfo>,
@@ -363,7 +382,9 @@ async function writeSaleItems(
       salePrice: item.salePrice,
       netTotal: Math.round(item.quantity * item.salePrice * 100) / 100,
       saleType: item.saleType,
-      cylindersDispatched: item.quantity,
+      // A refill leaves nothing with anyone, so it dispatches nothing
+      cylindersDispatched:
+        item.saleType === CommercialSaleType.REFILL ? 0 : item.quantity,
       emptiesCollected: item.emptiesCollected,
     })),
   });
@@ -381,8 +402,9 @@ async function writeSaleItems(
     });
   }
 
-  // 3. Full cylinders out — one row per product and kind, since a refill
-  //    (RENT_DELIVERY) and an outright sale (SALE_OUT) are different movements
+  // 3. Full cylinders out — one row per product and kind, since a rental
+  //    (RENT_DELIVERY), an outright sale (SALE_OUT) and a refill swap (REFILL)
+  //    are different movements. A REFILL row carries the empty coming back too.
   const outgoing = new Map<string, { productId: number; txnType: TxnType; quantity: number }>();
 
   for (const item of items) {
@@ -390,7 +412,9 @@ async function writeSaleItems(
     const txnType =
       item.saleType === CommercialSaleType.RENT
         ? TxnType.RENT_DELIVERY
-        : TxnType.SALE_OUT;
+        : item.saleType === CommercialSaleType.REFILL
+          ? TxnType.REFILL
+          : TxnType.SALE_OUT;
     const key = `${productId}:${txnType}`;
     const row = outgoing.get(key) ?? { productId, txnType, quantity: 0 };
     row.quantity += item.quantity;
@@ -402,7 +426,7 @@ async function writeSaleItems(
       productId,
       txnType,
       filledDelta: -quantity,
-      emptyDelta: 0,
+      emptyDelta: txnType === TxnType.REFILL ? quantity : 0,
       refType: RefType.INVOICE,
       refId: domSaleId,
       notes: `DomSale #${domSaleId}`,
@@ -584,6 +608,7 @@ export async function createDomSale(
     const stockMap = await assertAndFetchStocks(tx, items);
     const productQtys = resolveProductQtys(items, stockMap);
     const collected = resolveEmpties(items, stockMap);
+    const swapped = resolveRefillEmpties(items, stockMap);
 
     // 3. Create sale header. Paid in full at the door: there is no customer
     //    to carry a balance, so nothing goes on the money ledger.
@@ -611,6 +636,7 @@ export async function createDomSale(
     // 6. GodownInventory cache — fulls out, empties in
     await applyGodownDelta(tx, productQtys, -1);
     await applyGodownEmpties(tx, collected);
+    await applyGodownEmpties(tx, swapped);
 
     return tx.domSale.findUniqueOrThrow({
       where: { id: sale.id },
@@ -732,6 +758,7 @@ export async function updateDomSale(
     const stockMap = await assertAndFetchStocks(tx, items);
     const productQtys = resolveProductQtys(items, stockMap);
     const collected = resolveEmpties(items, stockMap);
+    const swapped = resolveRefillEmpties(items, stockMap);
 
     // 5. Write corrected items + Stock.quantity-- + CylinderTransactions
     await writeSaleItems(tx, id, items, stockMap);
@@ -739,6 +766,7 @@ export async function updateDomSale(
     // 6. Apply new GodownInventory delta — fulls out, empties in
     await applyGodownDelta(tx, productQtys, -1);
     await applyGodownEmpties(tx, collected);
+    await applyGodownEmpties(tx, swapped);
 
     // 7. Update sale header in place (keeps original id and trNo)
     return tx.domSale.update({

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BrandMark } from "@/components/brand-mark";
+import { BrandLogo, BrandName } from "@/components/brand-mark";
 import { CylinderImage } from "@/components/cylinder-image";
 
 export default function LoginPage() {
@@ -39,32 +39,37 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="bg-background flex min-h-svh justify-center p-0 sm:items-center sm:p-6">
+    <main className="bg-page flex min-h-svh justify-center p-0 sm:items-center sm:p-6">
       <div className="bg-card grid w-full max-w-5xl grid-rows-[auto_1fr] overflow-hidden max-sm:min-h-svh sm:rounded-2xl md:grid-rows-1 sm:border sm:shadow-[0_24px_60px_-30px_rgb(7_30_60/0.35)] md:grid-cols-2">
-        {/* Brand panel: navy into HP blue, the cylinder standing in the corner */}
-        <section className="relative flex min-h-[300px] flex-col overflow-hidden bg-linear-to-br from-[#071e3c] to-[#004e8f] p-6 text-white sm:min-h-[340px] sm:p-8 md:min-h-[560px] md:p-10">
-          <div className="flex items-center gap-3">
-            <BrandMark />
-            <div className="leading-tight">
-              <p className="text-xl font-bold tracking-tight">Ujjwala</p>
-              <p className="text-[10px] font-medium tracking-[0.14em] text-[#a9bfd7] uppercase">
-                Agency ERP
-              </p>
-            </div>
+        {/* Brand panel: the sidebar's red under a white brand plate (the full
+            logo, then the name), the three blue cylinders in the corner. On a
+            phone the plate is a row, so it leaves room for the cylinders. */}
+        <section className="bg-sidebar text-sidebar-foreground relative flex min-h-[320px] flex-col overflow-hidden p-6 sm:min-h-[360px] sm:p-8 md:min-h-[560px] md:p-10">
+          <div className="bg-sidebar-header flex items-center gap-3 self-start rounded-xl p-3 shadow-[0_8px_24px_-12px_rgb(40_0_4/0.5)] md:flex-col md:items-start md:gap-3 md:p-4">
+            <BrandLogo
+              priority
+              sizes="(min-width: 768px) 200px, 110px"
+              className="h-[84px] w-[106px] p-1 md:h-[150px] md:w-[188px]"
+            />
+            <BrandName size="lg" className="pr-1" />
           </div>
 
           <h2 className="mt-8 max-w-[13ch] text-[27px] leading-[1.15] font-bold tracking-tight text-balance md:mt-10 md:text-[34px]">
             Good energy. Better business.
           </h2>
-          <p className="mt-3 max-w-[30ch] text-[13px] text-[#c8ddf0] max-md:max-w-[22ch]">
+          <p className="text-sidebar-label mt-3 max-w-[30ch] text-[13px] max-md:max-w-[22ch]">
             One connected workspace for your agency&apos;s everyday operations.
           </p>
 
+          {/* Reserved box, artwork contained: no cylinder ever leaves the frame.
+              In the corner on a phone; below the copy from md up, where the
+              taller brand plate would otherwise push the heading into it. */}
           <CylinderImage
+            kind="group"
             priority
-            sizes="(min-width: 768px) 170px, 110px"
-            alt="A domestic LPG cylinder"
-            className="absolute right-5 bottom-5 w-[96px] drop-shadow-[0_14px_16px_rgb(0_19_38/0.45)] sm:w-[118px] md:right-12 md:bottom-10 md:w-[170px]"
+            sizes="(min-width: 768px) 200px, 150px"
+            alt="Three blue commercial LPG cylinders"
+            className="absolute right-4 bottom-4 h-[118px] w-[130px] drop-shadow-[0_14px_16px_rgb(40_0_4/0.45)] sm:h-[140px] sm:w-[154px] md:static md:mt-auto md:h-[180px] md:w-[198px] md:self-end md:pt-6"
           />
         </section>
 

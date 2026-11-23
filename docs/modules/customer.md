@@ -8,7 +8,7 @@ tests `customer.service.integration.test.ts`
 
 **Models.**
 - `Customer { id, name, address?, phone?, locationId?, concernedPerson?,
-  concernedPersonMobile?, discount? (int %), gstNumber?, initialPendingAmount, isDeleted }`
+  concernedPersonMobile?, discount? (Decimal ₹, flat per commercial invoice — was an int % until 2026-11-20; the migration cleared the old percentages), gstNumber?, initialPendingAmount, isDeleted }`
 - `CustomerInitialCylinderBalance { customerId, productId, qty }` — immutable
   record of what they held at onboarding.
 - `CustomerCylinderLedger { customerId, productId, pendingCylinder }` — the

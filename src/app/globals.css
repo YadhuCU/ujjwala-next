@@ -50,6 +50,13 @@
   --color-brand-muted: var(--brand-muted);
   --color-signal: var(--signal);
   --color-sidebar-label: var(--sidebar-label);
+  --color-sidebar-header: var(--sidebar-header);
+  --color-sidebar-header-border: var(--sidebar-header-border);
+  --color-wordmark: var(--wordmark);
+  --color-wordmark-caption: var(--wordmark-caption);
+  --color-card-border: var(--card-border);
+  --color-hero-border: var(--hero-border);
+  --shadow-card: var(--card-shadow);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -60,16 +67,19 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   THEME: Ujjwala — the only theme
-   A navy sidebar, HPCL-inspired blue for actions, and red kept for the few
-   things that must catch the eye: the active nav marker, the header's top
-   rule, destructive actions and alerts. White surfaces on a cool light page.
-   Components read these tokens; nothing styles a colour per theme.
+   THEME: Ujjwala HP gas agency ERP — the only theme
+   An HP red sidebar under a white brand header (the HP Gas emblem and the red
+   wordmark need a white ground), HP blue for actions and selected controls
+   everywhere else, white cards on a soft blue page (a gradient with a glow in
+   the top right corner — `bg-page`). Red outside the sidebar
+   stays for what must catch the eye: the header's top rule, destructive
+   actions and alerts. Components read these tokens; nothing styles a colour
+   per theme.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
   --radius: 0.5rem;
-  --background: #f3f6fa;
+  --background: #f3f6fb;
   --foreground: #172c47;
   --card: #ffffff;
   --card-foreground: #172c47;
@@ -84,7 +94,7 @@
   --accent: #eaf2f9;
   --accent-foreground: #004e8f;
   --destructive: #df1a14;
-  --border: #e4eaf1;
+  --border: #dfe7f0;
   --input: #cbd5e1;
   --ring: #2b7bd0;
   --chart-1: #004e8f;
@@ -92,16 +102,22 @@
   --chart-3: #57a5e8;
   --chart-4: #1e7a4c;
   --chart-5: #e3a008;
-  --sidebar: #071e3c;
-  --sidebar-foreground: #c9d7e6;
-  --sidebar-label: #93abc5;
-  --sidebar-primary: #004e8f;
+  /* Sidebar: HP red; hover darker, the active item darker still with a
+     white marker down its left edge. White text and icons throughout. */
+  --sidebar: #b51b24;
+  --sidebar-foreground: #ffffff;
+  --sidebar-label: #ffe3e1;
+  --sidebar-primary: #841019;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #143b62;
+  --sidebar-accent: #9b151d;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1d3553;
-  --sidebar-ring: #57a5e8;
-  --sidebar-active-border: #df1a14;
+  --sidebar-border: #9b151d;
+  --sidebar-ring: #ffe3e1;
+  --sidebar-active-border: #ffffff;
+  --sidebar-header: #ffffff;
+  --sidebar-header-border: #dfe7f0;
+  --wordmark: #df1a14;
+  --wordmark-caption: #183653;
   --success: #1e7a4c;
   --success-foreground: #ffffff;
   --warning: #a2600c;
@@ -112,6 +128,15 @@
   --brand-foreground: #ffffff;
   --brand-muted: #eaf2f9;
   --signal: #df1a14;
+  /* The page behind the cards, and the cards' edge against it */
+  --page: #c6ddf8;
+  --page-gradient:
+    radial-gradient(ellipse at 95% 0%, #92bfee 0%, transparent 48%),
+    linear-gradient(135deg, #dcecff 0%, #c6ddf8 55%, #b3d0f2 100%);
+  --card-border: #ccddf0;
+  --card-shadow: 0 3px 12px rgb(23 74 128 / 0.06);
+  --hero-gradient: linear-gradient(110deg, #ffffff 15%, #e6f1ff 58%, #c9e1fc 100%);
+  --hero-border: #c5daf0;
 }
 
 .dark {
@@ -138,16 +163,23 @@
   --chart-3: #8cc4f5;
   --chart-4: #34c48a;
   --chart-5: #f5b83d;
-  --sidebar: #050f20;
-  --sidebar-foreground: #b4c6da;
-  --sidebar-label: #7f97b2;
-  --sidebar-primary: #1d5fa3;
+  /* A deeper red at night: still the brand, but not a lit panel beside dark
+     content. The brand header turns to the card surface; the emblem keeps
+     its own white plate. */
+  --sidebar: #861620;
+  --sidebar-foreground: #ffffff;
+  --sidebar-label: #ffd6d3;
+  --sidebar-primary: #5e0c13;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #12304f;
+  --sidebar-accent: #701219;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #172a44;
-  --sidebar-ring: #5aa2ea;
-  --sidebar-active-border: #f0524c;
+  --sidebar-border: #5e0c13;
+  --sidebar-ring: #ffd6d3;
+  --sidebar-active-border: #ffffff;
+  --sidebar-header: #0f1e33;
+  --sidebar-header-border: #1f3450;
+  --wordmark: #ff5a52;
+  --wordmark-caption: #c9d7e6;
   --success: #34c48a;
   --success-foreground: #04170f;
   --warning: #f5b83d;
@@ -158,6 +190,29 @@
   --brand-foreground: #061a33;
   --brand-muted: #16304f;
   --signal: #f0524c;
+  /* Night: the same glow and gradient, in deep navy rather than pale blue */
+  --page: #0a1526;
+  --page-gradient:
+    radial-gradient(ellipse at 95% 0%, #173a63 0%, transparent 48%),
+    linear-gradient(135deg, #0d1c31 0%, #0a1526 55%, #081120 100%);
+  --card-border: #1f3450;
+  --card-shadow: 0 3px 12px rgb(0 0 0 / 0.25);
+  --hero-gradient: linear-gradient(110deg, #0f1e33 15%, #112a48 58%, #15355e 100%);
+  --hero-border: #23406a;
+}
+
+/* The page behind the cards. Fixed, so the glow stays in the window's top
+   right corner however long the page; browsers that ignore `fixed` (iOS)
+   scroll it with the page instead. */
+@utility bg-page {
+  background-color: var(--page);
+  background-image: var(--page-gradient);
+  background-attachment: fixed;
+}
+
+@utility bg-hero {
+  background-color: var(--card);
+  background-image: var(--hero-gradient);
 }
 
 @layer base {

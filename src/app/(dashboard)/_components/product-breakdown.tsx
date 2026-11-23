@@ -19,7 +19,7 @@ const COLORS = [
 ];
 
 export function ProductBreakdown({ data }: { data: DashboardData }) {
-  const { productBreakdown, canSeeFinancials } = data;
+  const { productBreakdown, cards } = data;
 
   const productConfig = React.useMemo(() => {
     if (!productBreakdown) return {} as ChartConfig;
@@ -30,16 +30,16 @@ export function ProductBreakdown({ data }: { data: DashboardData }) {
     return cfg;
   }, [productBreakdown]);
 
-  if (!canSeeFinancials) return null;
+  if (!cards.productBreakdown) return null;
 
   return (
-    <Card className="lg:col-span-2">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Package className="w-5 h-5 text-primary" />
           Revenue by Product
         </CardTitle>
-        <CardDescription>Product-wise revenue distribution</CardDescription>
+        <CardDescription>Revenue per product over the period</CardDescription>
       </CardHeader>
       <CardContent>
         {productBreakdown.length === 0 ? (

@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils";
 import { DashboardData } from "./types";
 
 export function KpiCards({ data }: { data: DashboardData }) {
-  const { kpis, canSeeFinancials } = data;
+  const { kpis, canSeeFinancials, period, cards } = data;
+  if (!cards.kpis) return null;
   const profitMargin =
     kpis.totalRevenue > 0
       ? ((kpis.totalProfit / kpis.totalRevenue) * 100).toFixed(1)
@@ -16,7 +17,7 @@ export function KpiCards({ data }: { data: DashboardData }) {
     {
       title: "Total Revenue",
       value: `₹${kpis.totalRevenue.toLocaleString("en-IN")}`,
-      subtitle: `Today: ₹${kpis.todayRevenue.toLocaleString("en-IN")}`,
+      subtitle: `${period.currentLabel}: ₹${kpis.currentRevenue.toLocaleString("en-IN")}`,
       icon: IndianRupee,
       negative: false,
       financial: true,

@@ -247,7 +247,7 @@ async function writeSaleItems(
   stockMap: Map<number, StockInfo>,
 ) {
   // 1. Item rows — productId derived from stock, not trusted from client.
-  //    RENT lines dispatch cylinders; SALE lines are outright and track none.
+  //    RENT lines dispatch cylinders; SALE and REFILL lines track none.
   await tx.commercialSaleItem.createMany({
     data: items.map((item) => ({
       commercialSaleId,
@@ -276,8 +276,9 @@ async function writeSaleItems(
     });
   }
 
-  // 3. CylinderTransaction — RENT_DELIVERY for rentals, SALE_OUT for sales.
-  //    Both leave the godown as filled cylinders.
+  // 3. CylinderTransaction — RENT_DELIVERY for rentals, SALE_OUT for sales,
+  //    REFILL for a swap. All three leave the godown as filled cylinders; a
+  //    refill also brings the customer's empty back, on the same row.
   const rentQtys = resolveProductQtys(
     items,
     stockMap,
@@ -288,23 +289,29 @@ async function writeSaleItems(
     stockMap,
     (item) => item.saleType === CommercialSaleType.SALE,
   );
+  const refillQtys = resolveProductQtys(
+    items,
+    stockMap,
+    (item) => item.saleType === CommercialSaleType.REFILL,
+  );
 
   await tx.cylinderTransaction.createMany({
     data: [
       ...rentQtys.map((row) => ({ ...row, txnType: TxnType.RENT_DELIVERY })),
       ...saleQtys.map((row) => ({ ...row, txnType: TxnType.SALE_OUT })),
+      ...refillQtys.map((row) => ({ ...row, txnType: TxnType.REFILL })),
     ].map(({ productId, quantity, txnType }) => ({
       productId,
       txnType,
       filledDelta: -quantity,
-      emptyDelta: 0,
+      emptyDelta: txnType === TxnType.REFILL ? quantity : 0,
       refType: RefType.INVOICE,
       refId: commercialSaleId,
       notes: `CommercialSale #${commercialSaleId}`,
     })),
   });
 
-  return { rentQtys, saleQtys };
+  return { rentQtys, saleQtys, refillQtys };
 }
 
 // Updates GodownInventory.filledQty by direction (+1 restore, -1 deduct)
@@ -317,6 +324,20 @@ async function applyGodownDelta(
     await tx.godownInventory.update({
       where: { productId },
       data: { filledQty: { increment: direction * quantity } },
+    });
+  }
+}
+
+// A refill swaps: the customer's empty lands in the godown as the filled one
+// leaves (the filled half is in applyGodownDelta with everything else).
+async function applyGodownRefillEmpties(
+  tx: Prisma.TransactionClient,
+  refillQtys: ProductQty[],
+) {
+  for (const { productId, quantity } of refillQtys) {
+    await tx.godownInventory.update({
+      where: { productId },
+      data: { emptyQty: { increment: quantity } },
     });
   }
 }
@@ -607,10 +628,16 @@ export async function createCommercialSale(
     });
 
     // 5. Items + Stock.quantity-- + CylinderTransactions
-    const { rentQtys } = await writeSaleItems(tx, sale.id, items, stockMap);
+    const { rentQtys, refillQtys } = await writeSaleItems(
+      tx,
+      sale.id,
+      items,
+      stockMap,
+    );
 
-    // 6. Godown cache — filled cylinders left the godown
+    // 6. Godown cache — filled cylinders left the godown; refill empties came in
     await applyGodownDelta(tx, productQtys, -1);
+    await applyGodownRefillEmpties(tx, refillQtys);
 
     // 7. Customer cylinder custody — RENT lines only
     await applyCustomerCylinderDelta(tx, customerId, rentQtys, 1);
@@ -752,10 +779,16 @@ export async function updateCommercialSale(
     await assertGodownHasFilled(tx, productQtys);
 
     // 7. Write corrected items + Stock.quantity-- + CylinderTransactions
-    const { rentQtys } = await writeSaleItems(tx, id, items, stockMap);
+    const { rentQtys, refillQtys } = await writeSaleItems(
+      tx,
+      id,
+      items,
+      stockMap,
+    );
 
     // 8. Apply new godown delta
     await applyGodownDelta(tx, productQtys, -1);
+    await applyGodownRefillEmpties(tx, refillQtys);
 
     // 9. Apply new cylinder custody + money ledger
     await applyCustomerCylinderDelta(tx, customerId, rentQtys, 1);
@@ -812,7 +845,7 @@ export async function returnCylinders(
 
       if (item.saleType !== CommercialSaleType.RENT)
         throw new BadRequestError(
-          "Only rented cylinders can be returned — line is an outright sale",
+          "Only rented cylinders can be returned — this line is not a rental",
         );
 
       const outstanding = item.cylindersDispatched - item.cylindersReturned;

@@ -8,19 +8,20 @@ export const DomSaleItemPayloadSchema = z
     stockId: z.number().int(), // optional batch traceability
     quantity: z.number().int().min(1),
     salePrice: z.number().min(0),
-    // RENT is a refill (full out, empty back); SALE is sold outright. Defaults
-    // to SALE, which is what every domestic line was before RENT existed.
+    // RENT: full out, the empties actually handed back counted in. REFILL: an
+    // even swap, full for empty, nothing to count. SALE: sold outright.
+    // Defaults to SALE, which is what every domestic line was before RENT.
     saleType: z.enum(CommercialSaleType).default(CommercialSaleType.SALE),
-    // Empties brought back on this line. The form fills it with the quantity
-    // on a refill — one empty for each full — and it can be lowered when a
-    // house had none to give.
+    // Empties brought back on a RENT line. The form fills it with the quantity
+    // — one empty for each full — and it can be lowered when a house had none
+    // to give. A REFILL swaps one for one, so it carries none here.
     emptiesCollected: z.number().int().min(0).default(0),
   })
   .refine(
     (item) =>
       item.saleType === CommercialSaleType.RENT || item.emptiesCollected === 0,
     {
-      message: "Empties are only collected on a refill (RENT)",
+      message: "Empties are only counted on a RENT line",
       path: ["emptiesCollected"],
     },
   )

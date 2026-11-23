@@ -5,6 +5,7 @@ import {
   ProductType,
 } from "@/generated/client";
 import { PERMISSIONS } from "@/lib/permissions";
+import { businessDayKey } from "@/lib/business-day";
 import { prisma } from "@/lib/prisma";
 import {
   makeCustomer,
@@ -24,23 +25,36 @@ let ownerId: number;
 let staffId: number;
 let customerId: number;
 
+// Every card, as a role set up to see the whole dashboard would hold
+const ALL_CARDS = [
+  PERMISSIONS.DASHBOARD_CYLINDER_POSITION,
+  PERMISSIONS.DASHBOARD_KPIS,
+  PERMISSIONS.DASHBOARD_REVENUE_TREND,
+  PERMISSIONS.DASHBOARD_SALES_BY_TYPE,
+  PERMISSIONS.DASHBOARD_PRODUCT_BREAKDOWN,
+  PERMISSIONS.DASHBOARD_LOW_STOCK,
+  PERMISSIONS.DASHBOARD_COMMERCIAL_ALERTS,
+];
+
 const owner = () => ({
   userId: ownerId,
   permissions: [
     PERMISSIONS.DASHBOARD_READ_ALL,
     PERMISSIONS.DASHBOARD_FINANCIALS,
+    ...ALL_CARDS,
   ],
 });
 const staff = () => ({
   userId: staffId,
-  permissions: [PERMISSIONS.DASHBOARD_READ_OWN],
+  permissions: [PERMISSIONS.DASHBOARD_READ_OWN, ...ALL_CARDS],
 });
 
-// The dashboard defaults to the last 30 days, so tests use today's date
+// Rows are stamped "now", so the range is relative to today, never pinned
 const today = new Date();
 const range = {
-  from: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000),
-  to: today,
+  view: "day" as const,
+  from: businessDayKey(new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)),
+  to: businessDayKey(today),
 };
 
 beforeEach(async () => {
@@ -187,7 +201,7 @@ describe("staff scoping", () => {
 
     const forFieldStaff = await DashboardService.getDashboard(range, {
       userId: fieldStaffId,
-      permissions: [PERMISSIONS.DASHBOARD_READ_OWN],
+      permissions: [PERMISSIONS.DASHBOARD_READ_OWN, ...ALL_CARDS],
     });
     const forOffice = await DashboardService.getDashboard(range, staff());
 
@@ -202,6 +216,7 @@ describe("staff scoping", () => {
       permissions: [
         PERMISSIONS.DASHBOARD_READ_OWN,
         PERMISSIONS.DASHBOARD_FINANCIALS,
+        ...ALL_CARDS,
       ],
     });
 
@@ -226,17 +241,6 @@ describe("breakdowns", () => {
     ).toBe(1000);
   });
 
-  it("lists recent transactions newest first", async () => {
-    await sell(ownerId, 100, 1);
-    await sell(ownerId, 200, 1);
-
-    const data = await DashboardService.getDashboard(range, owner());
-
-    expect(data.recentTxns).toHaveLength(2);
-    expect(data.recentTxns[0].amount).toBe(200);
-    expect(data.recentTxns[0].type).toBe("Domestic");
-  });
-
   it("flags batches at or below the low-stock threshold", async () => {
     const product = await makeProduct(ProductType.DOMESTIC);
     await makeStock(product.id, 3);
@@ -252,8 +256,8 @@ describe("breakdowns", () => {
     const data = await DashboardService.getDashboard(range, owner());
 
     // Seven days back plus today
-    expect(data.dailyTrend).toHaveLength(8);
-    expect(data.dailyTrend.every((d) => typeof d.date === "string")).toBe(true);
+    expect(data.trend).toHaveLength(8);
+    expect(data.trend.every((d) => typeof d.date === "string")).toBe(true);
   });
 });
 
@@ -287,15 +291,11 @@ describe("commercial alerts", () => {
       ownerId,
     );
 
-    const data = await DashboardService.getDashboard(range, owner());
-    const names = data.commercialAnalytics.highBalanceCustomers.map(
-      (c) => c.name,
-    );
+    const alerts = await DashboardService.getCommercialAlerts();
+    const names = alerts.highBalanceCustomers.map((c) => c.name);
 
     expect(names[0]).toBe("Big Debtor");
-    expect(
-      data.commercialAnalytics.highBalanceCustomers[0].pendingAmount,
-    ).toBeGreaterThan(100);
+    expect(alerts.highBalanceCustomers[0].pendingAmount).toBeGreaterThan(100);
   });
 });
 
@@ -320,18 +320,18 @@ describe("day boundaries follow India time, not the server's", () => {
       });
 
       const the29th = await DashboardService.getDashboard(
-        { from: new Date("2026-09-29"), to: new Date("2026-09-29") },
+        { view: "day", from: "2026-09-29", to: "2026-09-29" },
         owner(),
       );
       const the28th = await DashboardService.getDashboard(
-        { from: new Date("2026-09-28"), to: new Date("2026-09-28") },
+        { view: "day", from: "2026-09-28", to: "2026-09-28" },
         owner(),
       );
 
       expect(the29th.kpis.totalRevenue).toBe(450);
       expect(the28th.kpis.totalRevenue).toBe(0);
 
-      const bucket = the29th.dailyTrend.find((d) => d.date === "2026-09-29");
+      const bucket = the29th.trend.find((d) => d.date === "2026-09-29");
       expect(bucket?.revenue).toBe(450);
     } finally {
       process.env.TZ = originalTz;
@@ -349,7 +349,7 @@ describe("day boundaries follow India time, not the server's", () => {
       });
 
       const data = await DashboardService.getDashboard(
-        { from: new Date("2026-09-29"), to: new Date("2026-09-29") },
+        { view: "day", from: "2026-09-29", to: "2026-09-29" },
         owner(),
       );
 
@@ -357,5 +357,155 @@ describe("day boundaries follow India time, not the server's", () => {
     } finally {
       process.env.TZ = originalTz;
     }
+  });
+});
+
+// =============================================================================
+// PERIODS
+// The view decides both the range and the size of every chart bucket.
+// =============================================================================
+
+describe("periods", () => {
+  it("opens on the month view: twelve whole months ending this one", async () => {
+    const data = await DashboardService.getDashboard({}, owner());
+
+    expect(data.period.view).toBe("month");
+    expect(data.trend).toHaveLength(12);
+    expect(data.trend.at(-1)?.date).toBe(businessDayKey(today).slice(0, 7));
+    expect(data.period.currentLabel).toBe("This month");
+  });
+
+  it("puts a sale in its month and calls this month's revenue out", async () => {
+    await sell(ownerId, 700, 1);
+
+    const data = await DashboardService.getDashboard({ view: "month" }, owner());
+    const thisMonth = businessDayKey(today).slice(0, 7);
+
+    expect(data.trend.find((b) => b.date === thisMonth)?.revenue).toBe(700);
+    expect(data.kpis.currentRevenue).toBe(700);
+  });
+
+  it("sums whole years in the year view", async () => {
+    await sell(ownerId, 300, 1);
+    const sale = await sell(ownerId, 200, 1);
+    // Mid-June two years back
+    const year = Number(businessDayKey(today).slice(0, 4)) - 2;
+    await prisma.domSale.update({
+      where: { id: sale.id },
+      data: { createdAt: new Date(`${year}-06-15T06:00:00.000Z`) },
+    });
+
+    const data = await DashboardService.getDashboard({ view: "year" }, owner());
+
+    expect(data.trend).toHaveLength(5);
+    expect(data.trend.find((b) => b.date === String(year))?.revenue).toBe(200);
+    expect(data.kpis.totalRevenue).toBe(500);
+    expect(data.kpis.currentRevenue).toBe(300);
+  });
+});
+
+// =============================================================================
+// CARD PERMISSIONS
+// Each card is its own grant, and the server holds back the data of a card the
+// actor cannot see — hiding it in the browser alone would not be a boundary.
+// =============================================================================
+
+describe("card permissions", () => {
+  it("serves only the cards granted", async () => {
+    await sell(ownerId, 900, 1);
+    const product = await makeProduct(ProductType.DOMESTIC);
+    await makeStock(product.id, 2);
+
+    const data = await DashboardService.getDashboard(range, {
+      userId: ownerId,
+      permissions: [
+        PERMISSIONS.DASHBOARD_READ_ALL,
+        PERMISSIONS.DASHBOARD_FINANCIALS,
+        PERMISSIONS.DASHBOARD_CYLINDER_POSITION,
+      ],
+    });
+
+    expect(data.cards.cylinderPosition).toBe(true);
+    expect(data.cards.kpis).toBe(false);
+    expect(data.cards.lowStock).toBe(false);
+    expect(data.lowStock).toEqual([]);
+    expect(data.trend).toEqual([]);
+    expect(data.productBreakdown).toEqual([]);
+  });
+
+  it("needs the money grant as well for revenue by product", async () => {
+    const data = await DashboardService.getDashboard(range, {
+      userId: staffId,
+      permissions: [
+        PERMISSIONS.DASHBOARD_READ_OWN,
+        PERMISSIONS.DASHBOARD_PRODUCT_BREAKDOWN,
+      ],
+    });
+
+    expect(data.cards.productBreakdown).toBe(false);
+  });
+
+  it("shows a system role every card", async () => {
+    const data = await DashboardService.getDashboard(range, {
+      userId: ownerId,
+      permissions: [],
+      isOwner: true,
+    });
+
+    expect(Object.values(data.cards).every(Boolean)).toBe(true);
+  });
+});
+
+describe("cylinder position", () => {
+  it("counts commercial cylinders only", async () => {
+    const commercial = await makeProduct(ProductType.COMMERCIAL);
+    const domestic = await makeProduct(ProductType.DOMESTIC);
+    await seedGodown(commercial.id, { filledQty: 12, emptyQty: 3 });
+    await seedGodown(domestic.id, { filledQty: 40 });
+
+    const position = await DashboardService.getCylinderPosition();
+
+    expect(position.rows.map((r) => r.productId)).toEqual([commercial.id]);
+    expect(position.totals.filledQty).toBe(12);
+    expect(position.totals.emptyQty).toBe(3);
+  });
+});
+
+describe("alert thresholds", () => {
+  it("lists a balance only once its last payment is older than the chosen days", async () => {
+    await ArbSaleService.createArbSale(
+      {
+        customerId,
+        paymentType: PaymentType.CASH,
+        paidAmount: 0,
+        discount: undefined,
+        notes: undefined,
+        items: [
+          {
+            stockId: (await makeStock((await makeProduct(ProductType.ARB)).id, 10)).id,
+            quantity: 1,
+            salePrice: 1000,
+          },
+        ],
+      },
+      ownerId,
+    );
+    await CustomerTxnService.recordPayment(
+      customerId,
+      { amount: 100, paymentMethod: PaymentType.CASH, notes: undefined },
+      ownerId,
+    );
+    // The last payment was ten days ago
+    await prisma.customerPaymentLedger.updateMany({
+      where: { customerId, entryType: "PAYMENT" },
+      data: { createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
+    });
+
+    const at30 = await DashboardService.getCommercialAlerts({ paymentDays: 30 });
+    const at7 = await DashboardService.getCommercialAlerts({ paymentDays: 7 });
+
+    expect(at30.pendingPaymentLong).toHaveLength(0);
+    expect(at7.pendingPaymentLong.map((r) => r.id)).toEqual([customerId]);
+    expect(at7.paymentDays).toBe(7);
   });
 });

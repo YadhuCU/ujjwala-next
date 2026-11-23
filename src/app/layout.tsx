@@ -10,8 +10,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Ujjwala - Gas Agency Management",
-  description: "Gas Agency Management System",
+  title: "Ujjwala HP gas agency ERP",
+  applicationName: "Ujjwala HP gas agency ERP",
+  description:
+    "Cylinders, sales, stock and collections for an HP gas agency, in one workspace.",
 };
 
 export default function RootLayout({

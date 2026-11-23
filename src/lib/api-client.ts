@@ -25,6 +25,11 @@ import { UserResponse } from "@/module/user/user.serializer";
 import { StockResponse } from "@/module/stock/stock.serializer";
 import { StockAdjustmentResponse } from "@/module/stock-adjustment/stock-adjustment.serializer";
 import { GodownStatusResponse } from "@/module/godown/godown.service";
+import type {
+  CommercialAlertsResponse,
+  CylinderPositionResponse,
+  DashboardResponse,
+} from "@/module/dashboard/dashboard.service";
 import { MovementResponse } from "@/module/godown/godown.serializer";
 import { RoleResponse } from "@/module/role/role.serializer";
 import { RbacAuditResponse } from "@/module/role/rbac-audit.serializer";
@@ -236,15 +241,20 @@ export const api = {
       >(`/api/customer-txn/${customerId}/transactions`, { params })
       .then((r) => r.data),
 
-  getDashboard: (from?: string, to?: string) => {
-    const params = new URLSearchParams();
-    if (from) params.set("from", from);
-    if (to) params.set("to", to);
-    const qs = params.toString();
-    return apiClient
-      .get<Record<string, unknown>>(`/api/dashboard${qs ? `?${qs}` : ""}`)
-      .then((r) => r.data);
-  },
+  getDashboard: (params: { view: string; from?: string; to?: string }) =>
+    apiClient
+      .get<DashboardResponse>("/api/dashboard", { params })
+      .then((r) => r.data),
+
+  getDashboardCylinders: () =>
+    apiClient
+      .get<CylinderPositionResponse>("/api/dashboard/cylinders")
+      .then((r) => r.data),
+
+  getDashboardAlerts: (params: { cylinderDays: number; paymentDays: number }) =>
+    apiClient
+      .get<CommercialAlertsResponse>("/api/dashboard/alerts", { params })
+      .then((r) => r.data),
 
   getExpenseReport: (params: {
     from: string;

@@ -10,5 +10,8 @@ export const config = {
   // produced racing `Set-Cookie` headers, including two on /api/auth/session
   // (one from middleware carrying the old token, one from the handler carrying
   // the refreshed one).
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  //
+  // `/brand` is excluded too: the logo and cylinder artwork in public/brand
+  // must load on the sign-in page, before there is a session to check.
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|brand/).*)"],
 };

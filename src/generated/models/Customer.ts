@@ -29,14 +29,14 @@ export type AggregateCustomer = {
 export type CustomerAvgAggregateOutputType = {
   id: number | null
   locationId: number | null
-  discount: number | null
+  discount: runtime.Decimal | null
   initialPendingAmount: runtime.Decimal | null
 }
 
 export type CustomerSumAggregateOutputType = {
   id: number | null
   locationId: number | null
-  discount: number | null
+  discount: runtime.Decimal | null
   initialPendingAmount: runtime.Decimal | null
 }
 
@@ -48,7 +48,7 @@ export type CustomerMinAggregateOutputType = {
   locationId: number | null
   concernedPerson: string | null
   concernedPersonMobile: string | null
-  discount: number | null
+  discount: runtime.Decimal | null
   gstNumber: string | null
   initialPendingAmount: runtime.Decimal | null
   isDeleted: boolean | null
@@ -64,7 +64,7 @@ export type CustomerMaxAggregateOutputType = {
   locationId: number | null
   concernedPerson: string | null
   concernedPersonMobile: string | null
-  discount: number | null
+  discount: runtime.Decimal | null
   gstNumber: string | null
   initialPendingAmount: runtime.Decimal | null
   isDeleted: boolean | null
@@ -247,7 +247,7 @@ export type CustomerGroupByOutputType = {
   locationId: number | null
   concernedPerson: string | null
   concernedPersonMobile: string | null
-  discount: number | null
+  discount: runtime.Decimal | null
   gstNumber: string | null
   initialPendingAmount: runtime.Decimal
   isDeleted: boolean
@@ -286,7 +286,7 @@ export type CustomerWhereInput = {
   locationId?: Prisma.IntNullableFilter<"Customer"> | number | null
   concernedPerson?: Prisma.StringNullableFilter<"Customer"> | string | null
   concernedPersonMobile?: Prisma.StringNullableFilter<"Customer"> | string | null
-  discount?: Prisma.IntNullableFilter<"Customer"> | number | null
+  discount?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.StringNullableFilter<"Customer"> | string | null
   initialPendingAmount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
@@ -337,7 +337,7 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   locationId?: Prisma.IntNullableFilter<"Customer"> | number | null
   concernedPerson?: Prisma.StringNullableFilter<"Customer"> | string | null
   concernedPersonMobile?: Prisma.StringNullableFilter<"Customer"> | string | null
-  discount?: Prisma.IntNullableFilter<"Customer"> | number | null
+  discount?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.StringNullableFilter<"Customer"> | string | null
   initialPendingAmount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
@@ -385,7 +385,7 @@ export type CustomerScalarWhereWithAggregatesInput = {
   locationId?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
   concernedPerson?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   concernedPersonMobile?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
-  discount?: Prisma.IntNullableWithAggregatesFilter<"Customer"> | number | null
+  discount?: Prisma.DecimalNullableWithAggregatesFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   initialPendingAmount?: Prisma.DecimalWithAggregatesFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolWithAggregatesFilter<"Customer"> | boolean
@@ -399,7 +399,7 @@ export type CustomerCreateInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -423,7 +423,7 @@ export type CustomerUncheckedCreateInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -444,7 +444,7 @@ export type CustomerUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -468,7 +468,7 @@ export type CustomerUncheckedUpdateInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -491,7 +491,7 @@ export type CustomerCreateManyInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -505,7 +505,7 @@ export type CustomerUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -521,7 +521,7 @@ export type CustomerUncheckedUpdateManyInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -653,6 +653,14 @@ export type CustomerUncheckedUpdateManyWithoutLocationNestedInput = {
   deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type DecimalFieldUpdateOperationsInput = {
   set?: runtime.Decimal | runtime.DecimalJsLike | number | string
   increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -769,7 +777,7 @@ export type CustomerCreateWithoutLocationInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -791,7 +799,7 @@ export type CustomerUncheckedCreateWithoutLocationInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -843,7 +851,7 @@ export type CustomerScalarWhereInput = {
   locationId?: Prisma.IntNullableFilter<"Customer"> | number | null
   concernedPerson?: Prisma.StringNullableFilter<"Customer"> | string | null
   concernedPersonMobile?: Prisma.StringNullableFilter<"Customer"> | string | null
-  discount?: Prisma.IntNullableFilter<"Customer"> | number | null
+  discount?: Prisma.DecimalNullableFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.StringNullableFilter<"Customer"> | string | null
   initialPendingAmount?: Prisma.DecimalFilter<"Customer"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFilter<"Customer"> | boolean
@@ -857,7 +865,7 @@ export type CustomerCreateWithoutInitialCylinderBalancesInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -880,7 +888,7 @@ export type CustomerUncheckedCreateWithoutInitialCylinderBalancesInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -916,7 +924,7 @@ export type CustomerUpdateWithoutInitialCylinderBalancesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -939,7 +947,7 @@ export type CustomerUncheckedUpdateWithoutInitialCylinderBalancesInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -959,7 +967,7 @@ export type CustomerCreateWithoutDomSalesInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -982,7 +990,7 @@ export type CustomerUncheckedCreateWithoutDomSalesInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1018,7 +1026,7 @@ export type CustomerUpdateWithoutDomSalesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1041,7 +1049,7 @@ export type CustomerUncheckedUpdateWithoutDomSalesInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1061,7 +1069,7 @@ export type CustomerCreateWithoutArbSalesInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1084,7 +1092,7 @@ export type CustomerUncheckedCreateWithoutArbSalesInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1120,7 +1128,7 @@ export type CustomerUpdateWithoutArbSalesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1143,7 +1151,7 @@ export type CustomerUncheckedUpdateWithoutArbSalesInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1163,7 +1171,7 @@ export type CustomerCreateWithoutCommercialSalesInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1186,7 +1194,7 @@ export type CustomerUncheckedCreateWithoutCommercialSalesInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1222,7 +1230,7 @@ export type CustomerUpdateWithoutCommercialSalesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1245,7 +1253,7 @@ export type CustomerUncheckedUpdateWithoutCommercialSalesInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1265,7 +1273,7 @@ export type CustomerCreateWithoutCustomerPaymentLedgerInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1288,7 +1296,7 @@ export type CustomerUncheckedCreateWithoutCustomerPaymentLedgerInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1324,7 +1332,7 @@ export type CustomerUpdateWithoutCustomerPaymentLedgerInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1347,7 +1355,7 @@ export type CustomerUncheckedUpdateWithoutCustomerPaymentLedgerInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1367,7 +1375,7 @@ export type CustomerCreateWithoutCustomerBalanceInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1390,7 +1398,7 @@ export type CustomerUncheckedCreateWithoutCustomerBalanceInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1426,7 +1434,7 @@ export type CustomerUpdateWithoutCustomerBalanceInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1449,7 +1457,7 @@ export type CustomerUncheckedUpdateWithoutCustomerBalanceInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1469,7 +1477,7 @@ export type CustomerCreateWithoutCustomerCylinderLedgersInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1492,7 +1500,7 @@ export type CustomerUncheckedCreateWithoutCustomerCylinderLedgersInput = {
   locationId?: number | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1528,7 +1536,7 @@ export type CustomerUpdateWithoutCustomerCylinderLedgersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1551,7 +1559,7 @@ export type CustomerUncheckedUpdateWithoutCustomerCylinderLedgersInput = {
   locationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1572,7 +1580,7 @@ export type CustomerCreateManyLocationInput = {
   phone?: string | null
   concernedPerson?: string | null
   concernedPersonMobile?: string | null
-  discount?: number | null
+  discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: string | null
   initialPendingAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: boolean
@@ -1586,7 +1594,7 @@ export type CustomerUpdateWithoutLocationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1608,7 +1616,7 @@ export type CustomerUncheckedUpdateWithoutLocationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1630,7 +1638,7 @@ export type CustomerUncheckedUpdateManyWithoutLocationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   concernedPersonMobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   initialPendingAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1838,9 +1846,10 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     concernedPerson: string | null
     concernedPersonMobile: string | null
     /**
-     * Default discount % applied automatically when creating invoices.
+     * Flat rupee discount pre-filled on each new commercial invoice for this
+     * customer (not a percentage, not per cylinder). The invoice can override it.
      */
-    discount: number | null
+    discount: runtime.Decimal | null
     gstNumber: string | null
     initialPendingAmount: runtime.Decimal
     isDeleted: boolean
@@ -2284,7 +2293,7 @@ export interface CustomerFieldRefs {
   readonly locationId: Prisma.FieldRef<"Customer", 'Int'>
   readonly concernedPerson: Prisma.FieldRef<"Customer", 'String'>
   readonly concernedPersonMobile: Prisma.FieldRef<"Customer", 'String'>
-  readonly discount: Prisma.FieldRef<"Customer", 'Int'>
+  readonly discount: Prisma.FieldRef<"Customer", 'Decimal'>
   readonly gstNumber: Prisma.FieldRef<"Customer", 'String'>
   readonly initialPendingAmount: Prisma.FieldRef<"Customer", 'Decimal'>
   readonly isDeleted: Prisma.FieldRef<"Customer", 'Boolean'>

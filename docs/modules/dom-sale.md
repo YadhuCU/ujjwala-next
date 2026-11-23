@@ -1,8 +1,9 @@
 # dom-sale
 
 **Purpose.** A field staff member's round. They go door to door: each line is
-**RENT** (a refill: a full cylinder out, the house's empty back) or **SALE** (a
-cylinder sold outright, nothing back), paid in full at each door. **There is no
+**RENT** (a full cylinder out, the empties actually handed back counted in),
+**REFILL** (an even swap, full for empty, nothing to count — added 2026-11-20)
+or **SALE** (a cylinder sold outright, nothing back), paid in full at each door. **There is no
 customer.** Changed 2026-11-02; before that a domestic sale was charged to a
 customer and moved their cylinder holding (see "Sales from before" below).
 
@@ -39,9 +40,11 @@ counts a customer-less domestic sale's `paidAmount` as collections, because that
 cash never reaches the money ledger the collections figure reads.
 
 **Cylinders.** Fulls out grouped per (product, kind): `RENT_DELIVERY` for RENT,
-`SALE_OUT` for SALE, filled `−q`. Empties per product: `CYLINDER_RETURN`, empty
-`+q`. Godown: filled −q, empty +collected. Empties are RENT-only and at most
-the line's quantity (payload refine). **No custody** — nothing is written to
+`SALE_OUT` for SALE, filled `−q`; `REFILL` for REFILL, filled `−q` **and empty
+`+q` on the same row**. Empties counted on RENT lines: `CYLINDER_RETURN`, empty
+`+q`. Godown: filled −q, empty +collected +swapped. Empties are RENT-only and
+at most the line's quantity (payload refine); a REFILL line carries
+`emptiesCollected = 0` and `cylindersDispatched = 0`. **No custody** — nothing is written to
 `CustomerCylinderLedger`.
 
 **Reversal (update / delete).** `reverseCylinderTransactions` voids every row

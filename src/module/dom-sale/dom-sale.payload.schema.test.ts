@@ -19,7 +19,7 @@ describe("CreateDomSaleSchema", () => {
     expect(parsed.items[0].emptiesCollected).toBe(0);
   });
 
-  it("accepts empties on a refill", () => {
+  it("accepts empties on a RENT line", () => {
     const parsed = CreateDomSaleSchema.parse({
       ...base,
       items: [
@@ -51,7 +51,7 @@ describe("CreateDomSaleSchema", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(JSON.stringify(result.error?.issues)).toMatch(/only collected on a refill/i);
+    expect(JSON.stringify(result.error?.issues)).toMatch(/only counted on a RENT line/i);
   });
 
   it("refuses a negative number of empties", () => {

@@ -502,7 +502,12 @@ export async function getProductWiseReport(query: ProductWiseQuery) {
         ]);
         // `0 -`, not unary minus: −0 would print as "-0" in the export
         const salesQty =
-          0 - ledgerMoves(id, [TxnType.SALE_OUT, TxnType.RENT_DELIVERY]);
+          0 -
+          ledgerMoves(id, [
+            TxnType.SALE_OUT,
+            TxnType.RENT_DELIVERY,
+            TxnType.REFILL,
+          ]);
         const adjustments = ledgerMoves(id, [TxnType.ADJUSTMENT]);
         return {
           productId: id,
@@ -627,7 +632,7 @@ async function customerMoneyEvents(toDate: Date): Promise<MoneyEvent[]> {
 /**
  * Every dated change to what customers hold, plus outright sales:
  * - the opening holding captured at onboarding;
- * - commercial RENT lines (out) and SALE lines (sold, never held);
+ * - commercial RENT lines (out); SALE and REFILL lines (sold, never held);
  * - cylinders collected on an invoice (`CommercialSaleReturn`);
  * - returns recorded against one line (`PATCH …/return`). The line only keeps
  *   a running count, so their dates come from the cylinder ledger rows that
@@ -728,7 +733,8 @@ async function customerCylinderEvents(
     const productId = line.productId;
     const at = line.commercialSale.createdAt;
 
-    if (line.saleType === CommercialSaleType.SALE) {
+    // An outright sale and a refill swap both leave nothing with the customer
+    if (line.saleType !== CommercialSaleType.RENT) {
       events.push({ customerId, productId, at, kind: "sold", quantity: line.quantity });
       continue;
     }

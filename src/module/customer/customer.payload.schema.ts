@@ -12,9 +12,15 @@ const CustomerBaseSchema = z.object({
   ),
   address: z.preprocess(emptyToUndefined, z.string().optional()),
   locationId: z.preprocess(emptyToUndefined, z.number().int().optional()),
+  // Flat rupees off each new commercial invoice — pre-filled, never forced.
+  // Rounded to paise here, in the field itself, so create and update share it.
   discount: z.preprocess(
     emptyToUndefined,
-    z.number().int().min(0).max(100).optional(),
+    z
+      .number()
+      .min(0)
+      .transform((value) => Math.round(value * 100) / 100)
+      .optional(),
   ),
   concernedPerson: z.preprocess(
     emptyToUndefined,

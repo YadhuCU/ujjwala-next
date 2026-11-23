@@ -44,7 +44,7 @@ import {
   FileBarChart,
 } from "lucide-react";
 import { Permission, PERMISSIONS } from "@/lib/permissions";
-import { BrandMark } from "@/components/brand-mark";
+import { APP_NAME, BrandLockup } from "@/components/brand-mark";
 
 type NavItem = {
   title: string;
@@ -248,24 +248,19 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="px-5 pt-6 pb-4">
+      {/* White brand header: the HP Gas emblem and the red wordmark need a
+          white ground, so they sit above the red navigation, not on it */}
+      <SidebarHeader className="bg-sidebar-header border-sidebar-header-border border-b px-4 py-4">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-md outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          aria-label={`${APP_NAME} — dashboard`}
+          className="focus-visible:ring-ring rounded-md outline-hidden focus-visible:ring-2"
           onClick={closeOnNavigate}
         >
-          <BrandMark />
-          <span className="flex flex-col leading-tight">
-            <span className="text-xl font-bold tracking-tight text-white">
-              Ujjwala
-            </span>
-            <span className="text-sidebar-label text-[10px] font-medium tracking-[0.14em] uppercase">
-              Agency ERP
-            </span>
-          </span>
+          <BrandLockup priority />
         </Link>
       </SidebarHeader>
-      <SidebarContent className="gap-0 px-1">
+      <SidebarContent className="gap-0 px-1 pt-2">
         {navSections.map((section) => {
           const items = section.items.filter(canSee);
           if (items.length === 0) return null;
@@ -308,9 +303,10 @@ export function navTrail(pathname: string): string[] {
   return [];
 }
 
-// Active: HP blue with a red marker down its left edge, as in the reference
+// Active: the darkest red, with a white marker down its left edge. It keeps
+// that colour under the pointer rather than flashing to the hover shade.
 const ACTIVE_ITEM =
-  "max-md:h-10 h-9 px-3 text-[13px] data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-[inset_3px_0_0_var(--sidebar-active-border)]";
+  "max-md:h-10 h-9 px-3 text-[13px] data-[active=true]:bg-sidebar-primary data-[active=true]:hover:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:shadow-[inset_3px_0_0_var(--sidebar-active-border)]";
 
 /**
  * Is this link the section the user is currently in?
@@ -424,7 +420,7 @@ function SubNavbarItemComponent({
                 <SidebarMenuSubButton
                   asChild
                   isActive={isRouteActive(pathname, item.href)}
-                  className="text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-white data-[active=true]:font-medium max-md:h-9 h-8 text-[13px]"
+                  className="text-sidebar-foreground data-[active=true]:bg-sidebar-primary data-[active=true]:hover:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground data-[active=true]:font-medium max-md:h-9 h-8 text-[13px]"
                 >
                   <Link href={item.href} onClick={closeOnNavigate}>
                     {item.title}

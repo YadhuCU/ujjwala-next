@@ -100,6 +100,16 @@ shows cylinder counts and Collections. It is separate from scope on purpose:
 a supervisor can see agency-wide *volumes* without seeing agency-wide *money*,
 or see their own revenue without seeing anyone else's.
 
+**Every dashboard card is its own tick** (2026-11-20), labelled "Card: …":
+Cylinder position, Headline figures, Revenue & profit trend, Sales by type,
+Revenue by product, Low stock alert, Commercial sale alerts. A card the role
+does not hold is not drawn and its data is not sent. Cylinder position, low
+stock and the commercial alerts are agency-wide whatever the scope — granting
+them is the decision. Money inside a card still needs `dashboard.financials`
+(Revenue by product is all money, so it needs both). The upgrade granted each
+card to the roles that could already see it, plus Cylinder position to every
+dashboard role so field staff get it.
+
 ---
 
 ## 5. The system role, and why it cannot be edited

@@ -49,7 +49,7 @@ entered it. The customer filter does not apply to domestic (the UI hides it).
 Qty, Sales Qty, Adjustments, Closing Stock, Total Amount — and **Opening +
 Purchase − Sales + Adjustments = Closing** on every row (asserted in tests).
 - Cylinders read the cylinder ledger: opening = Σ `filledDelta` before the
-  range; purchase = `PURCHASE_FULL/FILL`, sales = −(`SALE_OUT` + `RENT_DELIVERY`),
+  range; purchase = `PURCHASE_FULL/FILL`, sales = −(`SALE_OUT` + `RENT_DELIVERY` + `REFILL`),
   adjustments = `ADJUSTMENT`, all inside it. Reversal rows keep their type with
   the sign flipped, so a sale voided in the range nets out. Closing is what the
   godown held — equal to `GodownInventory.filledQty` when the range ends today.
