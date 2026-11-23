@@ -89,46 +89,28 @@ Cylinder deltas are from the **godown's** point of view (positive = arrived):
 | `CYLINDER_RETURN` | 0 | +q | dom empties, commercial collections/returns |
 | `ADJUSTMENT` | ± | ± | stock-adjustment (with a reason), manual stock |
 
-## Known issues (open, verified 2026-09-30)
+## Known issues (open, verified 2026-11-23)
 
-1. **Commercial update can drive custody negative.** `updateCommercialSale`'s
-   reverse phase subtracts the invoice's outstanding rentals from
-   `CustomerCylinderLedger` without checking the result stays `>= 0`. If those
-   cylinders were since collected on a *later* invoice (invoice-level
-   collections do not decrement the original line's counters), editing the
-   original leaves the customer holding a negative count. Domestic has the guard
-   for its old customer-linked sales (`assertReversalKeepsCustody`); commercial
-   needs the same. Delete is safe:
-   `assertNoOutstandingCylinders` refuses it.
-2. **Some generated numbers still date by UTC.** ARB and commercial
-   `generateTrNo`, and purchase `generateBatchNo`, use `new Date().toISOString()`,
-   so anything recorded between 00:00 and 05:30 IST carries the previous day's
-   date. Domestic `trNo` uses `businessDayKey`. Cosmetic — numbers stay unique —
-   but inconsistent; the fix is `businessDayKey(new Date())`.
-3. **Customer opening holdings cannot be changed after creation.** The update
-   payload does not carry them; a mistake at onboarding stays.
-4. **ARB, commercial and purchase lists are not author-scoped.** Anyone with
+Fixed 2026-11-23, kept here so old references resolve: commercial edits can
+no longer leave custody negative (`assertCustodyNotNegative`); ARB/commercial
+numbers, batch numbers and export filenames are dated by India day; a
+product cannot move across the cylinder line once it has history
+(`assertTypeChangeAllowed`); list `from`/`to` filters are whole India days
+(`businessDayRange` in `src/lib/business-day.ts`).
+
+1. **Customer opening holdings cannot be changed after creation.** The update
+   payload does not carry them; a mistake at onboarding stays. A product
+   decision (opening figures are migration data), not a bug.
+2. **ARB, commercial and purchase lists are not author-scoped.** Anyone with
    the module's read permission sees every invoice. Domestic sales are scoped
    on the field staff (since 2026-11-02); expense, report and dashboard on the
    author. A deliberate choice, not a bug — see `role.md`.
-5. **No UAT product has a sale price.** The sale forms auto-fill price from
-   `Product.salePrice`; on UAT staff type it every time. `TODO.md` wants
-   `Product.salePrice` dropped in favour of batch pricing.
-6. **Customer payments are not capped.** `recordPayment` accepts more than the
+3. **Customer payments are not capped.** `recordPayment` accepts more than the
    customer owes, leaving a negative balance (a credit). Intended or not has
    never been decided.
-7. **A product's type can be changed after it has history.** `updateProduct`
-   writes `type` unconditionally. DOMESTIC → ARB strands its cylinder ledger and
-   custody (they stop being read); ARB → DOMESTIC gives existing batches no
-   ledger rows, so sales can push `GodownInventory.filledQty` negative. It should
-   refuse a cylinder/non-cylinder change once the product has stock, ledger rows
-   or custody.
-8. **List endpoints apply `from`/`to` raw.** Nine list services (dom, arb and
-   commercial sales, purchase, expense, stock-adjustment, godown movements,
-   customer transactions) filter `createdAt: { gte: from, lte: to }` with no
-   day normalisation, so `?to=2026-09-30` means 00:00 UTC and excludes that whole
-   day. Only report and dashboard use `business-day.ts`. **Latent**: no screen
-   sends a range to these lists today; it bites the first time one does.
+4. **Most products have no sale price.** The sale forms auto-fill price from
+   `Product.salePrice`; without one staff type it every time. `TODO.md` wants
+   `Product.salePrice` dropped in favour of batch pricing.
 
 ## Environments
 

@@ -14,6 +14,7 @@ import type {
   CylinderReturnInput,
   UpdateCommercialSaleInput,
 } from "./commercial-sale.payload.schema";
+import { businessDayKey, businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -64,7 +65,7 @@ function computeTotals(
 }
 
 function generateTrNo(saleId: number): string {
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const date = businessDayKey(new Date()).replace(/-/g, "");
   return `COM-${date}-${String(saleId).padStart(5, "0")}`;
 }
 
@@ -232,6 +233,38 @@ async function assertCustomerHoldsCylinders(
         { productId, holding, quantity },
       );
     }
+  }
+}
+
+/**
+ * After an edit has been reversed and reposted, nobody may hold a negative
+ * count. It happens when this invoice's rentals were since collected on a
+ * *later* invoice — those collections never touch this invoice's lines — and
+ * the edit then rents out fewer, or moves the invoice to another customer.
+ * Checked on the final position, so an edit that leaves the rentals as they
+ * were (a price, a note) still goes through.
+ */
+async function assertCustodyNotNegative(
+  tx: Prisma.TransactionClient,
+  customerId: number,
+  productIds: number[],
+) {
+  if (productIds.length === 0) return;
+
+  const held = await fetchCustomerHoldings(tx, customerId);
+
+  for (const productId of new Set(productIds)) {
+    const holding = held.get(productId) ?? 0;
+    if (holding >= 0) continue;
+
+    const product = await tx.product.findUnique({
+      where: { id: productId },
+      select: { name: true },
+    });
+    throw new ConflictError(
+      `Cannot change this invoice — ${product?.name ?? `product #${productId}`} it rented out ${holding === -1 ? "has" : "have"} since been collected on a later invoice. Correct that invoice first.`,
+      { customerId, productId, holding },
+    );
   }
 }
 
@@ -675,10 +708,8 @@ export async function getCommercialSales(query: CommercialSaleQuery) {
     isDeleted: false,
     ...(customerId && { customerId }),
     ...((from || to) && {
-      invoiceDate: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      invoiceDate: businessDayRange(from, to),
     }),
   };
 
@@ -802,6 +833,16 @@ export async function updateCommercialSale(
       userId,
       header.paymentType,
     );
+
+    // 9b. Nobody may end up holding a negative count
+    const touched = outstandingCylinderQtys(original.items).map((q) => q.productId);
+    await assertCustodyNotNegative(tx, original.customerId!, touched);
+    if (customerId !== original.customerId)
+      await assertCustodyNotNegative(
+        tx,
+        customerId,
+        [...rentQtys, ...returns].map((q) => q.productId),
+      );
 
     // 10. Update sale header in place (keeps original id and trNo)
     return tx.commercialSale.update({

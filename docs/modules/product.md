@@ -17,8 +17,12 @@ so client components can use it (the purchase form and customer form do).
 - Soft delete, refused by `assertGodownEmpty` (filled or empty > 0) and
   `assertNoStockOnHand` (a batch with quantity > 0).
 - `salePrice` is only used to pre-fill the sale forms. **No UAT product has one.**
+- `assertTypeChangeAllowed`: moving a product across the cylinder line
+  (DOMESTIC/COMMERCIAL ↔ ARB/OTHER) is refused once it has any stock batch,
+  cylinder movement, customer holding or opening holding — it would strand
+  what it already posted, or give existing batches no ledger rows. A change
+  within one side, or before any history, is allowed.
 
 **Routes.** `GET/POST /api/products` (`?type=` filter), `GET/PUT/DELETE /api/products/[id]`
 — `product.read / create / update / delete`.
 
-**Known issue.** `updateProduct` changes `type` with no guard — see README #7.

@@ -5,6 +5,7 @@ import type {
   TransactionQueryInput,
 } from "./customer-txn.payload.schema";
 import { LedgerEntryType, Prisma, RefType } from "@/generated/client";
+import { businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -109,10 +110,8 @@ export async function getCustomerTransactions(
     customerId,
     ...(entryType && { entryType }),
     ...((from || to) && {
-      createdAt: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      createdAt: businessDayRange(from, to),
     }),
   };
 

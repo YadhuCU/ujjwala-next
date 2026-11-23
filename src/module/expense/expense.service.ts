@@ -13,6 +13,7 @@ import type {
   ExpenseQuery,
   UpdateExpenseInput,
 } from "./expense.payload.schema";
+import { businessDayRange } from "@/lib/business-day";
 
 // =============================================================================
 // CONSTANTS
@@ -86,10 +87,8 @@ export async function getExpenses(query: ExpenseQuery, actor: ExpenseActor) {
       expense: { contains: search, mode: "insensitive" as const },
     }),
     ...((from || to) && {
-      date: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      date: businessDayRange(from, to),
     }),
   };
 

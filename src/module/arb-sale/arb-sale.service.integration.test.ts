@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LedgerEntryType, PaymentType, ProductType } from "@/generated/client";
 import { prisma } from "@/lib/prisma";
+import { businessDayKey } from "@/lib/business-day";
 import {
   assertBalanceMatchesLedger,
   balanceOf,
@@ -47,6 +48,15 @@ describe("createArbSale", () => {
     expect(stored.trNo).toMatch(/^ARB-\d{8}-\d{5}$/);
   });
 
+  it("dates the number by the India day, not UTC", async () => {
+    const sale = await atIndiaEarlyMorning(() =>
+      ArbSaleService.createArbSale(saleInput(), userId),
+    );
+
+    const stored = await prisma.arbSale.findUniqueOrThrow({ where: { id: sale.id } });
+    expect(stored.trNo).toMatch(/^ARB-20260815-\d{5}$/);
+  });
+
   it("takes the discount off the total", async () => {
     await ArbSaleService.createArbSale(saleInput(5, 0, 100), userId);
 
@@ -63,6 +73,23 @@ describe("createArbSale", () => {
 
 // ARB is bulk LPG: stock and money move, the cylinder ledger never does. The
 // update and delete paths have to hold that line too, not just create.
+describe("getArbSales — dates", () => {
+  // `?to=` names a whole day; as bare midnight UTC it used to leave the day out
+  it("includes a sale made today when filtered to today", async () => {
+    await ArbSaleService.createArbSale(saleInput(), userId);
+    const today = new Date(businessDayKey(new Date()));
+
+    const { meta } = await ArbSaleService.getArbSales({
+      page: 1,
+      limit: 20,
+      from: today,
+      to: today,
+    });
+
+    expect(meta.total).toBe(1);
+  });
+});
+
 describe("updateArbSale", () => {
   it("reposts stock and money without ever touching the godown", async () => {
     const sale = await ArbSaleService.createArbSale(saleInput(5), userId);
@@ -163,3 +190,14 @@ describe("deleteArbSale", () => {
     ).rejects.toThrow(/not found/);
   });
 });
+
+// 20:00 UTC on 14 Aug is 01:30 on 15 Aug in India — the agency's day
+async function atIndiaEarlyMorning<T>(run: () => Promise<T>): Promise<T> {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-08-14T20:00:00Z"));
+  try {
+    return await run();
+  } finally {
+    vi.useRealTimers();
+  }
+}

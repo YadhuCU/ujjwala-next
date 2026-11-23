@@ -11,14 +11,14 @@ and standalone payments.
   allCylinderLedgers }`. The sale forms use this for the "Pending cylinders"
   banner and the "N held" / "Customer holds N" hints.
 - `getCustomerTransactions(customerId, { entryType?, from?, to?, page, limit })`
-  — the ledger, newest first. (`from`/`to` are raw — README #8.)
+  — the ledger, newest first. (`from`/`to` are whole India days — `businessDayRange`.)
 - `recordPayment` — appends a `PAYMENT` row with **negative** amount
   (`refId = customerId` for a standalone payment) and its `paymentMethod`
   (CASH / CHEQUE), decrements `CustomerBalance`. Until 2026-11-18 the method was
   validated and then dropped, so older standalone payments have none; invoice
   payments (commercial, ARB) carry their sale's `paymentType`, and migration
   `ledger_payment_method` backfilled them where the sale was unambiguous.
-  Needs an existing balance row. **Not capped** at what is owed (README #6).
+  Needs an existing balance row. **Not capped** at what is owed (README #3).
 - `reversePayment` — never deletes. `assertPaymentReversible` then an
   `ADJUSTMENT` row of the opposite sign with `voidedEntryId = paymentId`,
   balance incremented back. `voidedEntryId` is `@unique`, so the database

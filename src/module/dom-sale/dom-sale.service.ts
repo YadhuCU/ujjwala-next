@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { businessDayKey } from "@/lib/business-day";
+import { businessDayKey, businessDayRange } from "@/lib/business-day";
 import {
   CommercialSaleType,
   LedgerEntryType,
@@ -670,10 +670,8 @@ export async function getDomSales(query: DomSaleQuery, actor: DomSaleActor) {
     ...scopeFilter(actor, scope, "fieldStaffId"),
     ...(scope === "all" && fieldStaffId && { fieldStaffId }),
     ...((from || to) && {
-      createdAt: {
-        ...(from && { gte: from }),
-        ...(to && { lte: to }),
-      },
+      // Whole India days — see businessDayRange
+      createdAt: businessDayRange(from, to),
     }),
   };
 

@@ -20,6 +20,9 @@ import * as DomSaleService from "@/module/dom-sale/dom-sale.service";
 import * as ArbSaleService from "@/module/arb-sale/arb-sale.service";
 import * as ExpenseService from "@/module/expense/expense.service";
 import * as CustomerTxnService from "@/module/customer-txn/customer-txn.service";
+import * as CustomerService from "@/module/customer/customer.service";
+import { CreateCustomerSchema } from "@/module/customer/customer.payload.schema";
+import * as CommercialSaleService from "@/module/commercial-sale/commercial-sale.service";
 
 let ownerId: number;
 let staffId: number;
@@ -507,5 +510,217 @@ describe("alert thresholds", () => {
     expect(at30.pendingPaymentLong).toHaveLength(0);
     expect(at7.pendingPaymentLong.map((r) => r.id)).toEqual([customerId]);
     expect(at7.paymentDays).toBe(7);
+  });
+
+  // A customer who has never paid used to count as 0 days, so the longest
+  // debts were the ones the alert never showed
+  it("times a customer who never paid from the charge that started the debt", async () => {
+    await chargeOnCredit(1000);
+    await backdateLedger(45);
+
+    const alerts = await DashboardService.getCommercialAlerts({ paymentDays: 30 });
+
+    expect(alerts.pendingPaymentLong).toEqual([
+      expect.objectContaining({
+        id: customerId,
+        neverPaid: true,
+        daysSinceLastPayment: 45,
+        pendingAmount: 1000,
+      }),
+    ]);
+  });
+
+  it("does not list a never-paid debt younger than the chosen days", async () => {
+    await chargeOnCredit(1000);
+    await backdateLedger(5);
+
+    const alerts = await DashboardService.getCommercialAlerts({ paymentDays: 30 });
+
+    expect(alerts.pendingPaymentLong).toHaveLength(0);
+  });
+
+  it("treats a reversed payment as never paid", async () => {
+    await chargeOnCredit(1000);
+    await CustomerTxnService.recordPayment(
+      customerId,
+      { amount: 100, paymentMethod: PaymentType.CASH, notes: undefined },
+      ownerId,
+    );
+    const payment = await prisma.customerPaymentLedger.findFirstOrThrow({
+      where: { customerId, entryType: "PAYMENT" },
+    });
+    await CustomerTxnService.reversePayment(customerId, payment.id, ownerId);
+    await backdateLedger(40);
+
+    const alerts = await DashboardService.getCommercialAlerts({ paymentDays: 30 });
+
+    expect(alerts.pendingPaymentLong).toEqual([
+      expect.objectContaining({ id: customerId, neverPaid: true, daysSinceLastPayment: 40 }),
+    ]);
+  });
+});
+
+/** An ARB sale left wholly unpaid: the customer owes `amount`. */
+async function chargeOnCredit(amount: number) {
+  await ArbSaleService.createArbSale(
+    {
+      customerId,
+      paymentType: PaymentType.CASH,
+      paidAmount: 0,
+      discount: undefined,
+      notes: undefined,
+      items: [
+        {
+          stockId: (await makeStock((await makeProduct(ProductType.ARB)).id, 10)).id,
+          quantity: 1,
+          salePrice: amount,
+        },
+      ],
+    },
+    ownerId,
+  );
+}
+
+/** Move every money-ledger row of the customer `days` into the past. */
+async function backdateLedger(days: number) {
+  await prisma.customerPaymentLedger.updateMany({
+    where: { customerId },
+    data: { createdAt: new Date(Date.now() - days * 24 * 60 * 60 * 1000 - 60_000) },
+  });
+}
+
+describe("pending empty cylinders", () => {
+  const daysAgo = (days: number) =>
+    new Date(Date.now() - days * 24 * 60 * 60 * 1000 - 60_000);
+
+  async function commercialProduct() {
+    const product = await makeProduct(ProductType.COMMERCIAL);
+    await seedGodown(product.id, { filledQty: 50 });
+    const stock = await makeStock(product.id, 50);
+    return { productId: product.id, stockId: stock.id };
+  }
+
+  function invoice(
+    forCustomer: number,
+    items: { stockId: number; saleType: CommercialSaleType; quantity: number }[],
+    returns: { productId: number; quantity: number }[] = [],
+  ) {
+    return CommercialSaleService.createCommercialSale(
+      {
+        customerId: forCustomer,
+        invoiceDate: new Date(),
+        paymentType: PaymentType.CASH,
+        paidAmount: 0,
+        discount: undefined,
+        notes: undefined,
+        items: items.map((i) => ({ ...i, salePrice: 100 })),
+        returns,
+      },
+      ownerId,
+    );
+  }
+
+  // Opening custody with no invoice behind it used to count as 0 days
+  it("times an opening holding that was never returned from when it began", async () => {
+    const { productId } = await commercialProduct();
+    const customer = await CustomerService.createCustomer(
+      CreateCustomerSchema.parse({
+        name: "Opening Holder",
+        initialCylinderBalances: [{ productId, qty: 4 }],
+      }),
+      ownerId,
+    );
+    await prisma.customerInitialCylinderBalance.updateMany({
+      where: { customerId: customer.id },
+      data: { createdAt: daysAgo(50) },
+    });
+
+    const alerts = await DashboardService.getCommercialAlerts({ cylinderDays: 30 });
+
+    expect(alerts.pendingCylindersLong).toEqual([
+      expect.objectContaining({
+        id: customer.id,
+        rentQty: 4,
+        neverReturned: true,
+        daysSinceLastReturn: 50,
+      }),
+    ]);
+  });
+
+  it("times a rental that was never returned from the invoice", async () => {
+    const { stockId } = await commercialProduct();
+    const sale = await invoice(customerId, [
+      { stockId, saleType: CommercialSaleType.RENT, quantity: 3 },
+    ]);
+    await prisma.commercialSale.update({
+      where: { id: sale.id },
+      data: { createdAt: daysAgo(35) },
+    });
+
+    const alerts = await DashboardService.getCommercialAlerts({ cylinderDays: 30 });
+
+    expect(alerts.pendingCylindersLong).toEqual([
+      expect.objectContaining({ id: customerId, neverReturned: true, daysSinceLastReturn: 35 }),
+    ]);
+  });
+
+  // A collection recorded on a later invoice has no sale line, so it used to
+  // be invisible and the clock kept running from the old rental
+  it("counts a collection on a later invoice as the last return", async () => {
+    const { productId, stockId } = await commercialProduct();
+    const rental = await invoice(customerId, [
+      { stockId, saleType: CommercialSaleType.RENT, quantity: 5 },
+    ]);
+    await prisma.commercialSale.update({
+      where: { id: rental.id },
+      data: { createdAt: daysAgo(60) },
+    });
+    await prisma.commercialSaleItem.updateMany({
+      where: { commercialSaleId: rental.id },
+      data: { createdAt: daysAgo(60), updatedAt: daysAgo(60) },
+    });
+    const visit = await invoice(customerId, [], [{ productId, quantity: 2 }]);
+    await prisma.commercialSaleReturn.updateMany({
+      where: { commercialSaleId: visit.id },
+      data: { createdAt: daysAgo(3) },
+    });
+
+    const at30 = await DashboardService.getCommercialAlerts({ cylinderDays: 30 });
+    const at2 = await DashboardService.getCommercialAlerts({ cylinderDays: 2 });
+
+    expect(at30.pendingCylindersLong).toHaveLength(0);
+    expect(at2.pendingCylindersLong).toEqual([
+      expect.objectContaining({
+        id: customerId,
+        rentQty: 3,
+        neverReturned: false,
+        daysSinceLastReturn: 3,
+      }),
+    ]);
+  });
+
+  it("counts a return against one line as the last return", async () => {
+    const { stockId } = await commercialProduct();
+    const sale = await invoice(customerId, [
+      { stockId, saleType: CommercialSaleType.RENT, quantity: 5 },
+    ]);
+    const item = await prisma.commercialSaleItem.findFirstOrThrow({
+      where: { commercialSaleId: sale.id },
+    });
+    await CommercialSaleService.returnCylinders(
+      sale.id,
+      { items: [{ itemId: item.id, returnQty: 1 }] },
+      ownerId,
+    );
+    await prisma.commercialSaleItem.update({
+      where: { id: item.id },
+      data: { updatedAt: daysAgo(40) },
+    });
+
+    const alerts = await DashboardService.getCommercialAlerts({ cylinderDays: 30 });
+
+    expect(alerts.pendingCylindersLong).toEqual([
+      expect.objectContaining({ id: customerId, neverReturned: false, daysSinceLastReturn: 40 }),
+    ]);
   });
 });

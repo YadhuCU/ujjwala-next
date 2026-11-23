@@ -45,8 +45,11 @@ increments `cylindersReturned`, writes `CYLINDER_RETURN`, godown, custody.
 Otherwise reverse (ledger + godown via the invoice's own rows, stock, custody of
 outstanding rentals, `reverseRecordedReturns` restores collected custody and
 deletes the return rows, money) then repost; the holding check for new
-collections runs after the reversal. **Known issue #1**: the custody reversal has
-no `>= 0` guard.
+collections runs after the reversal. `assertCustodyNotNegative` then checks the
+final position: if this invoice's rentals were since collected on a later
+invoice and the edit rents out fewer (or moves them to another customer), it is
+refused rather than leaving a negative holding; an edit that keeps the rentals
+as they were still goes through.
 
 **Delete.** Refused while any RENT line has cylinders outstanding
 (`assertNoOutstandingCylinders`); then the same reversal and a soft delete.

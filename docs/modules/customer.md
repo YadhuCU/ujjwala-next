@@ -28,7 +28,7 @@ tests `customer.service.integration.test.ts`
 
 **Update.** Master fields only. The update payload does **not** carry opening
 balances — they are migration data. There is no way to correct a holding later
-(README known issue #3).
+(README known issue #1).
 
 **Delete.** Soft, refused by `assertCustomerSettled` while
 `pendingAmount !== 0` or any `pendingCylinder > 0`.

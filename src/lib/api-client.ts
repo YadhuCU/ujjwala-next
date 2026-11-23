@@ -52,6 +52,7 @@ import {
   ProductWiseResponse,
   SaleReportResponse,
 } from "@/module/report/report.serializer";
+import { format } from "date-fns";
 
 // ─── Prisma Payload Types ───────────────────────────────────────────────────
 // These types match exactly what the server endpoints return, including joined relations.
@@ -294,7 +295,7 @@ export const api = {
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
       match?.[1] ||
-      `expense_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      `expense_report_${format(new Date(), "yyyy-MM-dd")}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -345,7 +346,7 @@ export const api = {
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
       match?.[1] ||
-      `arb_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      `arb_sale_report_${format(new Date(), "yyyy-MM-dd")}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -396,7 +397,7 @@ export const api = {
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
       match?.[1] ||
-      `commercial_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      `commercial_sale_report_${format(new Date(), "yyyy-MM-dd")}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -447,7 +448,7 @@ export const api = {
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
       match?.[1] ||
-      `dom_sale_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      `dom_sale_report_${format(new Date(), "yyyy-MM-dd")}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;
@@ -494,7 +495,7 @@ export const api = {
     const fallbackExt = params.format === "excel" ? "csv" : "txt";
     const filename =
       match?.[1] ||
-      `purchase_report_${new Date().toISOString().split("T")[0]}.${fallbackExt}`;
+      `purchase_report_${format(new Date(), "yyyy-MM-dd")}.${fallbackExt}`;
     const url = URL.createObjectURL(response.data);
     const a = document.createElement("a");
     a.href = url;

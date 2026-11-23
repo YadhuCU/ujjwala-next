@@ -71,10 +71,9 @@ export function CommercialAlerts() {
             name: c.name,
             phone: c.phone,
             figure: `${c.rentQty} pending`,
-            note:
-              c.daysSinceLastReturn > 10000
-                ? "Never returned"
-                : `${c.daysSinceLastReturn} days ago`,
+            note: c.neverReturned
+              ? `None returned · held ${c.daysSinceLastReturn} days`
+              : `Last return ${c.daysSinceLastReturn} days ago`,
           }))}
         />
         <AlertCard
@@ -90,10 +89,9 @@ export function CommercialAlerts() {
             name: c.name,
             phone: c.phone,
             figure: `₹${c.pendingAmount.toLocaleString("en-IN")}`,
-            note:
-              c.daysSinceLastPayment > 10000
-                ? "No payment"
-                : `${c.daysSinceLastPayment} days ago`,
+            note: c.neverPaid
+              ? `Never paid · owed ${c.daysSinceLastPayment} days`
+              : `Paid ${c.daysSinceLastPayment} days ago`,
           }))}
         />
         <AlertCard

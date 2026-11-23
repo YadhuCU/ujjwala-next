@@ -434,39 +434,12 @@ export async function getCommercialAlerts(query: DashboardAlertsQuery = {}) {
     }),
   ]);
 
-  // How long each customer's cylinders have been out: the newest rent line they
-  // have, since a return updates that row.
+  // How long each customer's cylinders have gone without a return.
   const custodyCustomerIds = [
     ...new Set(cylinderLedgers.map((l) => l.customerId)),
   ];
-
-  const lastRentActivity = await prisma.commercialSaleItem.groupBy({
-    by: ["commercialSaleId"],
-    where: {
-      commercialSale: {
-        isDeleted: false,
-        customerId: { in: custodyCustomerIds },
-      },
-    },
-    _max: { updatedAt: true },
-  });
-
-  const saleOwners = await prisma.commercialSale.findMany({
-    where: { id: { in: lastRentActivity.map((r) => r.commercialSaleId) } },
-    select: { id: true, customerId: true },
-  });
-
-  const lastActivityByCustomer = new Map<number, Date>();
-  for (const row of lastRentActivity) {
-    const customerId = saleOwners.find(
-      (s) => s.id === row.commercialSaleId,
-    )?.customerId;
-    if (!customerId || !row._max.updatedAt) continue;
-
-    const current = lastActivityByCustomer.get(customerId);
-    if (!current || row._max.updatedAt > current)
-      lastActivityByCustomer.set(customerId, row._max.updatedAt);
-  }
+  const { lastReturn, custodySince } =
+    await custodyTimelines(custodyCustomerIds);
 
   const cylindersByCustomer = new Map<
     number,
@@ -484,37 +457,66 @@ export async function getCommercialAlerts(query: DashboardAlertsQuery = {}) {
     cylindersByCustomer.set(ledger.customerId, entry);
   }
 
+  // Since the last return; a customer who has never returned one is timed
+  // from when they first held cylinders. Counting "never" as 0 days hid
+  // exactly the customers who have held them longest.
   const pendingCylindersLong = [...cylindersByCustomer.values()]
-    .map((entry) => ({
-      ...entry,
-      daysSinceLastReturn: daysSince(lastActivityByCustomer.get(entry.id)),
-    }))
+    .map((entry) => {
+      const returnedAt = lastReturn.get(entry.id);
+      return {
+        ...entry,
+        neverReturned: !returnedAt,
+        daysSinceLastReturn: daysSince(returnedAt ?? custodySince.get(entry.id)),
+      };
+    })
     .filter((entry) => entry.daysSinceLastReturn >= cylinderDays)
     .sort((a, b) => b.daysSinceLastReturn - a.daysSinceLastReturn);
 
-  // Last payment per customer, for the money-side alerts
-  const lastPayments = await prisma.customerPaymentLedger.groupBy({
-    by: ["customerId"],
-    where: {
-      entryType: LedgerEntryType.PAYMENT,
-      customerId: { in: balances.map((b) => b.customerId) },
-    },
-    _max: { createdAt: true },
-  });
+  // How long each balance has gone unpaid: since the customer's last payment
+  // that still stands (a reversed one never happened), or — for a customer
+  // who has never paid — since the first charge that started the debt.
+  // Counting "no payment" as 0 days hid exactly the customers who owe longest.
+  const balanceCustomerIds = balances.map((b) => b.customerId);
+  const [lastPayments, firstCharges] = await Promise.all([
+    prisma.customerPaymentLedger.groupBy({
+      by: ["customerId"],
+      where: {
+        entryType: LedgerEntryType.PAYMENT,
+        customerId: { in: balanceCustomerIds },
+        voidedBy: { none: {} },
+      },
+      _max: { createdAt: true },
+    }),
+    prisma.customerPaymentLedger.groupBy({
+      by: ["customerId"],
+      where: {
+        customerId: { in: balanceCustomerIds },
+        amount: { gt: 0 },
+      },
+      _min: { createdAt: true },
+    }),
+  ]);
 
   const lastPaymentByCustomer = new Map(
     lastPayments.map((p) => [p.customerId, p._max.createdAt]),
   );
+  const firstChargeByCustomer = new Map(
+    firstCharges.map((c) => [c.customerId, c._min.createdAt]),
+  );
 
-  const balanceRows = balances.map((balance) => ({
-    id: balance.customerId,
-    name: balance.customer.name,
-    phone: balance.customer.phone ?? "",
-    pendingAmount: round2(Number(balance.pendingAmount)),
-    daysSinceLastPayment: daysSince(
-      lastPaymentByCustomer.get(balance.customerId),
-    ),
-  }));
+  const balanceRows = balances.map((balance) => {
+    const lastPayment = lastPaymentByCustomer.get(balance.customerId);
+    return {
+      id: balance.customerId,
+      name: balance.customer.name,
+      phone: balance.customer.phone ?? "",
+      pendingAmount: round2(Number(balance.pendingAmount)),
+      neverPaid: !lastPayment,
+      daysSinceLastPayment: daysSince(
+        lastPayment ?? firstChargeByCustomer.get(balance.customerId),
+      ),
+    };
+  });
 
   return {
     cylinderDays,
@@ -526,6 +528,72 @@ export async function getCommercialAlerts(query: DashboardAlertsQuery = {}) {
     ),
     highBalanceCustomers: balanceRows.slice(0, 5),
   };
+}
+
+/**
+ * Per customer: when they last returned a cylinder, and when they first held
+ * one. Read from the documents, not the cylinder ledger — its `refId` is
+ * shared by dom, ARB and commercial invoices, so it cannot be tied to a
+ * customer on its own.
+ *
+ * Returns: a collection recorded on any invoice (`CommercialSaleReturn`), a
+ * return against one line (`PATCH …/return` bumps the line's
+ * `cylindersReturned`, so its `updatedAt` is that moment), and empties
+ * collected on a domestic sale from before 2026-11-02, when those still had a
+ * customer. Custody began at the opening holding, or the first rental.
+ */
+async function custodyTimelines(customerIds: number[]) {
+  const lastReturn = new Map<number, Date>();
+  const custodySince = new Map<number, Date>();
+  if (customerIds.length === 0) return { lastReturn, custodySince };
+
+  const latest = (map: Map<number, Date>, id: number | null, at: Date) => {
+    if (id == null) return;
+    const current = map.get(id);
+    if (!current || at > current) map.set(id, at);
+  };
+  const earliest = (map: Map<number, Date>, id: number | null, at: Date) => {
+    if (id == null) return;
+    const current = map.get(id);
+    if (!current || at < current) map.set(id, at);
+  };
+
+  const live = { isDeleted: false, customerId: { in: customerIds } };
+  const [collections, lineReturns, domReturns, openings, rentals, domRentals] =
+    await Promise.all([
+      prisma.commercialSaleReturn.findMany({
+        where: { commercialSale: live },
+        select: { createdAt: true, commercialSale: { select: { customerId: true } } },
+      }),
+      prisma.commercialSaleItem.findMany({
+        where: { cylindersReturned: { gt: 0 }, commercialSale: live },
+        select: { updatedAt: true, commercialSale: { select: { customerId: true } } },
+      }),
+      prisma.domSale.findMany({
+        where: { ...live, items: { some: { emptiesCollected: { gt: 0 } } } },
+        select: { createdAt: true, customerId: true },
+      }),
+      prisma.customerInitialCylinderBalance.findMany({
+        where: { customerId: { in: customerIds }, qty: { gt: 0 } },
+        select: { createdAt: true, customerId: true },
+      }),
+      prisma.commercialSale.findMany({
+        where: { ...live, items: { some: { cylindersDispatched: { gt: 0 } } } },
+        select: { createdAt: true, customerId: true },
+      }),
+      prisma.domSale.findMany({
+        where: { ...live, items: { some: { cylindersDispatched: { gt: 0 } } } },
+        select: { createdAt: true, customerId: true },
+      }),
+    ]);
+
+  for (const r of collections) latest(lastReturn, r.commercialSale.customerId, r.createdAt);
+  for (const r of lineReturns) latest(lastReturn, r.commercialSale.customerId, r.updatedAt);
+  for (const r of domReturns) latest(lastReturn, r.customerId, r.createdAt);
+  for (const r of [...openings, ...rentals, ...domRentals])
+    earliest(custodySince, r.customerId, r.createdAt);
+
+  return { lastReturn, custodySince };
 }
 
 export type CommercialAlertsResponse = Awaited<
