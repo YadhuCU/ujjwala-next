@@ -264,6 +264,73 @@ describe("updateCommercialSale", () => {
     expect(filled[0]).toBe(filled[1]);
   });
 
+  // Its rentals were collected on a later invoice, which never touches this
+  // invoice's lines; renting out fewer would leave the customer holding -6
+  it("refuses an edit that would leave the customer holding a negative count", async () => {
+    const sale = await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.RENT, 10),
+      userId,
+    );
+    await CommercialSaleService.createCommercialSale(
+      { ...saleInput(CommercialSaleType.SALE, 1), items: [], returns: [{ productId, quantity: 10 }] },
+      userId,
+    );
+    expect(await custodyOf(customerId, productId)).toBe(0);
+
+    await expect(
+      CommercialSaleService.updateCommercialSale(
+        sale.id,
+        saleInput(CommercialSaleType.RENT, 4),
+        userId,
+      ),
+    ).rejects.toThrow(/collected on a later invoice/);
+
+    // Refused whole: nothing moved
+    expect(await custodyOf(customerId, productId)).toBe(0);
+    expect((await godownOf(productId)).filledQty).toBe(90);
+  });
+
+  it("still allows an edit that leaves those rentals as they were", async () => {
+    const sale = await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.RENT, 10),
+      userId,
+    );
+    await CommercialSaleService.createCommercialSale(
+      { ...saleInput(CommercialSaleType.SALE, 1), items: [], returns: [{ productId, quantity: 10 }] },
+      userId,
+    );
+
+    await CommercialSaleService.updateCommercialSale(
+      sale.id,
+      { ...saleInput(CommercialSaleType.RENT, 10), notes: "price corrected" },
+      userId,
+    );
+
+    expect(await custodyOf(customerId, productId)).toBe(0);
+    const { filled } = await assertGodownMatchesLedger(productId);
+    expect(filled[0]).toBe(filled[1]);
+  });
+
+  it("refuses moving those rentals to another customer", async () => {
+    const sale = await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.RENT, 10),
+      userId,
+    );
+    await CommercialSaleService.createCommercialSale(
+      { ...saleInput(CommercialSaleType.SALE, 1), items: [], returns: [{ productId, quantity: 10 }] },
+      userId,
+    );
+    const other = (await makeCustomer()).id;
+
+    await expect(
+      CommercialSaleService.updateCommercialSale(
+        sale.id,
+        { ...saleInput(CommercialSaleType.RENT, 10), customerId: other },
+        userId,
+      ),
+    ).rejects.toThrow(/collected on a later invoice/);
+  });
+
   // Rewriting an invoice whose custody has already moved on cannot be made
   // correct, so it is refused rather than guessed at.
   it("refuses once a return has been recorded", async () => {
