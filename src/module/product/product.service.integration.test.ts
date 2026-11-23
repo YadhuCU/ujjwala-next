@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ProductType } from "@/generated/client";
 import { prisma } from "@/lib/prisma";
+import { makeStock, seedGodown } from "@/test/factories";
 import * as ProductService from "./product.service";
 
 function productInput(name = "14.2 kg Domestic") {
@@ -30,6 +31,54 @@ describe("createProduct", () => {
     await expect(
       ProductService.createProduct(productInput("Duplicate")),
     ).rejects.toThrow();
+  });
+});
+
+describe("updateProduct — type", () => {
+  const update = (id: number, type: ProductType) =>
+    ProductService.updateProduct(id, { ...productInput(), type });
+
+  it("allows any type change before the product has history", async () => {
+    const product = await ProductService.createProduct(productInput());
+
+    const updated = await update(product.id, ProductType.ARB);
+
+    expect(updated.type).toBe(ProductType.ARB);
+  });
+
+  it("refuses cylinder → non-cylinder once it has cylinder history", async () => {
+    const product = await ProductService.createProduct(productInput());
+    await seedGodown(product.id, { filledQty: 5 });
+
+    await expect(update(product.id, ProductType.ARB)).rejects.toThrow(
+      /already has stock or cylinder history/,
+    );
+  });
+
+  it("refuses non-cylinder → cylinder once it has a batch", async () => {
+    const product = await ProductService.createProduct({
+      ...productInput("Bulk LPG"),
+      type: ProductType.ARB,
+    });
+    await makeStock(product.id, 10);
+
+    await expect(update(product.id, ProductType.DOMESTIC)).rejects.toThrow(
+      /already has stock or cylinder history/,
+    );
+  });
+
+  it("allows a change within the cylinder types, and leaves other fields editable", async () => {
+    const product = await ProductService.createProduct(productInput());
+    await seedGodown(product.id, { filledQty: 5 });
+
+    const renamed = await ProductService.updateProduct(product.id, {
+      ...productInput("Renamed"),
+      type: ProductType.DOMESTIC,
+    });
+    const switched = await update(product.id, ProductType.COMMERCIAL);
+
+    expect(renamed.name).toBe("Renamed");
+    expect(switched.type).toBe(ProductType.COMMERCIAL);
   });
 });
 

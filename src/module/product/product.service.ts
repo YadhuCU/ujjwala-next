@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/client";
+import { Prisma, ProductType } from "@/generated/client";
 import { ConflictError, NotFoundError } from "@/lib/errors";
 import type {
   CreateProductInput,
   ProductQuery,
   UpdateProductInput,
 } from "./product.payload.schema";
+import { isCylinderTypeProduct } from "./product.rules";
 
 // =============================================================================
 // GUARDS
@@ -49,6 +50,38 @@ async function assertNoStockOnHand(
     throw new ConflictError(
       "Cannot delete — stock batches of this product still have quantity",
       { batches },
+    );
+}
+
+// Whether a product is a cylinder decides which ledgers it posts to. Moving it
+// across that line once it has history would strand what it already posted
+// (DOMESTIC → ARB: its cylinder ledger and custody stop being read) or give
+// existing batches no ledger rows (ARB → DOMESTIC: the next sale pushes the
+// godown negative). A change within one side, or on a product with no
+// history yet, is fine.
+async function assertTypeChangeAllowed(
+  tx: Prisma.TransactionClient,
+  id: number,
+  from: ProductType,
+  to: ProductType,
+) {
+  if (isCylinderTypeProduct(from) === isCylinderTypeProduct(to)) return;
+
+  const [batches, movements, holdings, openings] = await Promise.all([
+    tx.stock.count({ where: { productId: id } }),
+    tx.cylinderTransaction.count({ where: { productId: id } }),
+    tx.customerCylinderLedger.count({
+      where: { productId: id, pendingCylinder: { not: 0 } },
+    }),
+    tx.customerInitialCylinderBalance.count({
+      where: { productId: id, qty: { gt: 0 } },
+    }),
+  ]);
+
+  if (batches + movements + holdings + openings > 0)
+    throw new ConflictError(
+      `Cannot change ${from} to ${to} — this product already has stock or cylinder history. Create a new product instead.`,
+      { batches, movements, holdings, openings },
     );
 }
 
@@ -103,7 +136,8 @@ export async function getProductById(id: number) {
 
 export async function updateProduct(id: number, input: UpdateProductInput) {
   return prisma.$transaction(async (tx) => {
-    await assertProductExists(tx, id);
+    const product = await assertProductExists(tx, id);
+    await assertTypeChangeAllowed(tx, id, product.type, input.type);
 
     return tx.product.update({
       where: { id },
