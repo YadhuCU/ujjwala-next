@@ -10,13 +10,13 @@ export function DashboardHero({ name }: { name?: string | null }) {
         <p className="text-primary text-[10px] font-bold tracking-[0.16em] uppercase sm:text-[11px]">
           {name ? `Welcome back, ${name}` : "Energy for everyday life"}
         </p>
-        <h2 className="mt-2 text-xl leading-[1.18] font-bold tracking-tight text-balance text-[#071e3c] sm:text-[28px] dark:text-white">
+        <h2 className="mt-2 text-xl leading-[1.18] font-bold tracking-tight text-foreground text-balance sm:text-[28px]">
           Every cylinder counts. Every detail, connected.
         </h2>
         <p className="text-muted-foreground mt-2 max-w-[42ch] text-[13px] max-sm:hidden">
           A clearer view of the business that keeps your community moving.
         </p>
-        <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#355674] dark:text-[#a9c3dd]">
+        <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-secondary-foreground text-[11px]">
           {[
             { label: "Inventory", icon: PackageCheck },
             { label: "Sales", icon: Receipt },
