@@ -2,6 +2,7 @@ import type { ExportFormat } from "./report.payload.schema";
 import type { SaleLine } from "./report.lines";
 import { receiptTypeLabel, type CustomerWiseLine } from "./report.rollup";
 import { businessDayKey } from "@/lib/business-day";
+import type { ProfitRow } from "./report.profit";
 
 // =============================================================================
 // EXPORT RENDERERS
@@ -159,6 +160,23 @@ export function productWiseExportColumns(): ExportColumn<ProductWiseExportRow>[]
     { header: "Total Amount", value: (r) => r.totalAmount.toFixed(2) },
     { header: "Adjustments", value: (r) => r.adjustments },
     { header: "Closing Stock", value: (r) => r.closingStock },
+  ];
+}
+
+// ─── Profit ──────────────────────────────────────────────────────────────────
+
+/** Category rows leave Item blank; item rows name it. Same columns either way. */
+export function profitExportColumns(): ExportColumn<ProfitRow>[] {
+  return [
+    { header: "Category", value: (r) => r.categoryLabel },
+    { header: "Item", value: (r) => r.productName ?? "" },
+    { header: "Invoices", value: (r) => r.invoiceCount },
+    { header: "Qty Sold", value: (r) => r.qty },
+    { header: "Sales", value: (r) => r.sales.toFixed(2) },
+    { header: "Cost", value: (r) => r.cost.toFixed(2) },
+    { header: "Gross Profit", value: (r) => r.profit.toFixed(2) },
+    { header: "Margin %", value: (r) => (r.margin === null ? "" : r.margin.toFixed(1)) },
+    { header: "Qty Without Cost", value: (r) => r.uncostedQty },
   ];
 }
 

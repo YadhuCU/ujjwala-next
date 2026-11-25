@@ -85,6 +85,7 @@ export const PERMISSIONS = {
   REPORT_READ_OWN: "report.read.own",
   REPORT_PRODUCT_WISE: "report.product_wise",
   REPORT_CUSTOMER_WISE: "report.customer_wise",
+  REPORT_PROFIT: "report.profit",
   REPORT_EXPORT: "report.export",
 
   DASHBOARD_READ: "dashboard.read",
@@ -324,6 +325,13 @@ export const PERMISSION_REGISTRY: PermissionMeta[] = [
     label: "Customer wise report",
     description:
       "Every customer's cylinders and money over a period, agency-wide.",
+  },
+  {
+    code: PERMISSIONS.REPORT_PROFIT,
+    module: "Reports",
+    label: "Profit report",
+    description:
+      "Sales, cost and gross profit by category and by item, agency-wide. Shows what stock cost.",
   },
 
   {

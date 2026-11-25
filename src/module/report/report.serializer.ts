@@ -1,6 +1,7 @@
 import type {
   getCustomerWiseReport,
   getProductWiseReport,
+  getProfitReport,
 } from "./report.service";
 import { Prisma } from "@/generated/client";
 
@@ -152,6 +153,9 @@ export type ExpenseReportResponse = {
 // client takes its shape straight from the service, as the dashboard does.
 export type ProductWiseResponse = Awaited<
   ReturnType<typeof getProductWiseReport>
+>;
+export type ProfitReportResponse = Awaited<
+  ReturnType<typeof getProfitReport>
 >;
 export type CustomerWiseResponse = Awaited<
   ReturnType<typeof getCustomerWiseReport>

@@ -50,6 +50,7 @@ import {
   PurchaseReportResponse,
   CustomerWiseResponse,
   ProductWiseResponse,
+  ProfitReportResponse,
   SaleReportResponse,
 } from "@/module/report/report.serializer";
 import { format } from "date-fns";
@@ -121,6 +122,25 @@ async function downloadReport(
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+export type ProfitReportParams = {
+  from: string;
+  to: string;
+  view: "category" | "item";
+  /** "all" or a category code */
+  category?: string;
+};
+
+function profitReportParams(params: ProfitReportParams) {
+  const sp = new URLSearchParams({
+    from: params.from,
+    to: params.to,
+    view: params.view,
+  });
+  if (params.category && params.category !== "all")
+    sp.set("category", params.category);
+  return sp;
 }
 
 // ─── API Functions ──────────────────────────────────────────────────────────
@@ -522,6 +542,24 @@ export const api = {
       "product_wise_report",
       params.format,
     ),
+
+  getProfitReport: (params: ProfitReportParams) =>
+    apiClient
+      .get<ProfitReportResponse>(
+        `/api/reports/profit?${profitReportParams(params).toString()}`,
+      )
+      .then((r) => r.data),
+
+  exportProfitReport: (params: ProfitReportParams & { format: "excel" | "pdf" }) => {
+    const sp = profitReportParams(params);
+    sp.set("format", params.format);
+    return downloadReport(
+      "/api/reports/profit/export",
+      sp,
+      params.view === "item" ? "profit_report_item_wise" : "profit_report_category_wise",
+      params.format,
+    );
+  },
 
   getCustomerWiseReport: (params: {
     from: string;
