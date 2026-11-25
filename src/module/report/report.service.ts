@@ -17,7 +17,15 @@ import {
   type CylinderEvent,
   type MoneyEvent,
 } from "./report.rollup";
+import {
+  PROFIT_CATEGORIES,
+  buildProfitRows,
+  summarizeProfit,
+  type ProfitCategory,
+  type ProfitInvoice,
+} from "./report.profit";
 import type {
+  ProfitReportQuery,
   ExpenseReportQuery,
   PurchaseReportQuery,
   CustomerWiseQuery,
@@ -841,4 +849,114 @@ export async function getCustomerWiseReport(query: CustomerWiseQuery) {
 /** Every row, unpaginated — for the export. */
 export async function getCustomerWiseReportRows(query: CustomerWiseQuery) {
   return buildCustomerWiseReport(query);
+}
+
+// =============================================================================
+// PROFIT
+// Sales less what the stock sold cost, by category (sale module) or by item.
+// Agency-wide, so it has a permission of its own (`report.profit`) rather than
+// a scope. Sales are dated on `createdAt`, like the sale reports and the
+// dashboard, so the three agree on the same range. The fold is report.profit.ts.
+// =============================================================================
+
+const profitItemSelect = {
+  productId: true,
+  quantity: true,
+  salePrice: true,
+  netTotal: true,
+  product: { select: { name: true } },
+  stock: {
+    select: {
+      productCost: true,
+      productId: true,
+      product: { select: { name: true } },
+    },
+  },
+} as const;
+
+type ProfitSaleRow = {
+  id: number;
+  totalAmount: { toNumber(): number } | null;
+  items: {
+    productId: number | null;
+    quantity: number;
+    salePrice: { toNumber(): number } | null;
+    netTotal: { toNumber(): number } | null;
+    product: { name: string } | null;
+    stock: {
+      productCost: { toNumber(): number } | null;
+      productId: number | null;
+      product: { name: string } | null;
+    } | null;
+  }[];
+};
+
+function toProfitInvoice(
+  category: ProfitCategory,
+  sale: ProfitSaleRow,
+): ProfitInvoice {
+  return {
+    category,
+    invoiceId: sale.id,
+    totalAmount: Number(sale.totalAmount ?? 0),
+    lines: sale.items.map((item) => ({
+      // An old commercial line may carry no product; its batch still does
+      productId: item.productId ?? item.stock?.productId ?? null,
+      productName:
+        item.product?.name ?? item.stock?.product?.name ?? "Unknown item",
+      quantity: item.quantity,
+      lineValue:
+        item.netTotal !== null
+          ? Number(item.netTotal)
+          : item.quantity * Number(item.salePrice ?? 0),
+      unitCost:
+        item.stock?.productCost == null ? null : Number(item.stock.productCost),
+    })),
+  };
+}
+
+export async function getProfitReport(query: ProfitReportQuery) {
+  const { fromDate, toDate } = assertAndNormalizeRange(query.from, query.to);
+  const where = { isDeleted: false, createdAt: { gte: fromDate, lte: toDate } };
+  const categories: readonly ProfitCategory[] = query.category
+    ? [query.category]
+    : PROFIT_CATEGORIES;
+  const wants = (category: ProfitCategory) => categories.includes(category);
+  const select = { id: true, totalAmount: true, items: { select: profitItemSelect } };
+
+  const [commercial, domestic, arb, expenses] = await Promise.all([
+    wants("COMMERCIAL")
+      ? prisma.commercialSale.findMany({ where, select })
+      : [],
+    wants("DOMESTIC") ? prisma.domSale.findMany({ where, select }) : [],
+    wants("ARB") ? prisma.arbSale.findMany({ where, select }) : [],
+    // Expenses belong to no category, so they only apply to the whole agency
+    query.category
+      ? null
+      : prisma.expense.aggregate({
+          where: { isDeleted: false, date: { gte: fromDate, lte: toDate } },
+          _sum: { amount: true },
+        }),
+  ]);
+
+  const invoices = [
+    ...commercial.map((s) => toProfitInvoice("COMMERCIAL", s)),
+    ...domestic.map((s) => toProfitInvoice("DOMESTIC", s)),
+    ...arb.map((s) => toProfitInvoice("ARB", s)),
+  ];
+  const data = buildProfitRows(invoices, query.view, categories);
+  const gross = summarizeProfit(invoices, data, categories);
+  const totalExpenses =
+    expenses === null ? null : round2(Number(expenses._sum.amount ?? 0));
+
+  return {
+    summary: {
+      ...gross,
+      expenses: totalExpenses,
+      netProfit:
+        totalExpenses === null ? null : round2(gross.grossProfit - totalExpenses),
+    },
+    data,
+    pagination: paginate(1, data.length || 1, data.length),
+  };
 }

@@ -1,5 +1,5 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import { api } from "@/lib/api-client";
+import { api, type ProfitReportParams } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
 import { ProductType } from "@/generated/enums";
 
@@ -205,6 +205,12 @@ export const productWiseReportOptions = (params: { from: string; to: string }) =
   queryOptions({
     queryKey: queryKeys.productWiseReport.list(params),
     queryFn: () => api.getProductWiseReport(params),
+  });
+
+export const profitReportOptions = (params: ProfitReportParams) =>
+  queryOptions({
+    queryKey: queryKeys.profitReport.list(params),
+    queryFn: () => api.getProfitReport(params),
   });
 
 export const customerWiseReportOptions = (params: {

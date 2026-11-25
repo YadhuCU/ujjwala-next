@@ -75,7 +75,11 @@ export function BrandName({
 }
 
 /**
- * The sidebar's brand block: the full logo on its own row, the name beneath.
+ * The sidebar's brand block: the full logo on its own row, the name beneath,
+ * both on one left edge. The plate is sized to the artwork (800 × 638) rather
+ * than the column, so the logo cannot drift to the centre while the name sits
+ * left; `-ml-1` cancels the plate's padding, so the artwork itself, not its
+ * plate, lines up with the "U" of Ujjwala.
  * Designed for a white ground; in dark mode the caller's surface turns dark,
  * the logo keeps its white plate and the wordmark lightens.
  */
@@ -87,8 +91,12 @@ export function BrandLockup({
   priority?: boolean;
 }) {
   return (
-    <span className={cn("flex flex-col gap-3", className)}>
-      <BrandLogo priority={priority} sizes="220px" className="h-[116px] w-full" />
+    <span className={cn("flex flex-col items-start gap-2", className)}>
+      <BrandLogo
+        priority={priority}
+        sizes="110px"
+        className="-ml-1 h-[84px] w-[104px] p-1"
+      />
       <BrandName />
     </span>
   );

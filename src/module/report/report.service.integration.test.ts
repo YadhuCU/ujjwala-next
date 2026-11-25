@@ -633,3 +633,135 @@ describe("expense report", () => {
     expect(forStaff.summary.totalAmount).toBe(200);
   });
 });
+
+describe("profit report", () => {
+  const profitRange = { from: daysAgo(30), to: today };
+
+  /** A commercial invoice of two items with a ₹100 discount; costs 800 and 500. */
+  async function commercialInvoice() {
+    const cyl19 = await makeProduct(ProductType.COMMERCIAL, { name: "19 kg" });
+    const cyl47 = await makeProduct(ProductType.COMMERCIAL, { name: "47.5 kg" });
+    await seedGodown(cyl19.id, { filledQty: 10 });
+    await seedGodown(cyl47.id, { filledQty: 10 });
+    const stock19 = await makeStock(cyl19.id, 10); // costs 800 a unit
+    const stock47 = await makeStock(cyl47.id, 10);
+    await prisma.stock.update({
+      where: { id: stock47.id },
+      data: { productCost: 500 },
+    });
+
+    await CommercialSaleService.createCommercialSale(
+      {
+        customerId,
+        invoiceDate: today,
+        paymentType: PaymentType.CASH,
+        paidAmount: 0,
+        discount: 100,
+        notes: undefined,
+        items: [
+          { stockId: stock19.id, saleType: CommercialSaleType.SALE, quantity: 2, salePrice: 1000 },
+          { stockId: stock47.id, saleType: CommercialSaleType.RENT, quantity: 1, salePrice: 1000 },
+        ],
+        returns: [],
+      },
+      ownerId,
+    );
+    return { cyl19, cyl47 };
+  }
+
+  it("totals each category, and lists all three even with no sales", async () => {
+    await commercialInvoice(); // 3000 − 100 = 2900, cost 2100
+    await domSale(ownerId, 1000); // cost 800
+    await arbSale(ownerId, customerId); // 100, cost 800: a loss
+
+    const report = await ReportService.getProfitReport({
+      ...profitRange,
+      view: "category",
+    });
+
+    expect(
+      report.data.map((r) => [r.categoryLabel, r.invoiceCount, r.qty, r.sales, r.cost, r.profit]),
+    ).toEqual([
+      ["Commercial", 1, 3, 2900, 2100, 800],
+      ["Domestic", 1, 1, 1000, 800, 200],
+      ["ARB", 1, 1, 100, 800, -700],
+    ]);
+    expect(report.summary).toMatchObject({
+      invoiceCount: 3,
+      sales: 4000,
+      cost: 3700,
+      grossProfit: 300,
+      margin: 7.5,
+    });
+  });
+
+  it("shares an invoice's discount over its items, so items sum to the invoice", async () => {
+    const { cyl19, cyl47 } = await commercialInvoice();
+
+    const report = await ReportService.getProfitReport({
+      ...profitRange,
+      view: "item",
+    });
+
+    // 2900 split 2000 : 1000
+    expect(report.data.map((r) => [r.productId, r.qty, r.sales, r.cost, r.profit])).toEqual([
+      [cyl19.id, 2, 1933.33, 1600, 333.33],
+      [cyl47.id, 1, 966.67, 500, 466.67],
+    ]);
+    const sale = await prisma.commercialSale.findFirstOrThrow();
+    expect(report.summary.sales).toBe(Number(sale.totalAmount));
+  });
+
+  it("takes expenses off for net profit, only across every category", async () => {
+    await domSale(ownerId, 1000);
+    await ExpenseService.createExpense(
+      { expense: "Fuel", date: daysAgo(2), amount: 150 },
+      staffId,
+    );
+
+    const all = await ReportService.getProfitReport({ ...profitRange, view: "category" });
+    expect(all.summary.expenses).toBe(150);
+    expect(all.summary.netProfit).toBe(50); // 200 gross − 150
+
+    const domestic = await ReportService.getProfitReport({
+      ...profitRange,
+      view: "item",
+      category: "DOMESTIC",
+    });
+    expect(domestic.data.every((r) => r.category === "DOMESTIC")).toBe(true);
+    expect(domestic.summary.expenses).toBeNull();
+    expect(domestic.summary.netProfit).toBeNull();
+  });
+
+  it("flags a sale from a batch with no cost instead of hiding it", async () => {
+    const product = await makeProduct(ProductType.ARB);
+    const stock = await makeStock(product.id, 5);
+    await prisma.stock.update({ where: { id: stock.id }, data: { productCost: null } });
+    await ArbSaleService.createArbSale(
+      {
+        customerId,
+        paymentType: PaymentType.CASH,
+        paidAmount: 0,
+        discount: undefined,
+        notes: undefined,
+        items: [{ stockId: stock.id, quantity: 2, salePrice: 50 }],
+      },
+      ownerId,
+    );
+
+    const report = await ReportService.getProfitReport({ ...profitRange, view: "item" });
+    expect(report.data[0]).toMatchObject({ cost: 0, profit: 100, uncostedQty: 2 });
+    expect(report.summary.uncostedQty).toBe(2);
+  });
+
+  it("leaves out deleted sales and sales outside the range", async () => {
+    const deleted = await arbSale(ownerId, customerId);
+    await ArbSaleService.deleteArbSale(deleted.id, ownerId);
+    const old = await arbSale(ownerId, customerId);
+    await prisma.arbSale.update({ where: { id: old.id }, data: { createdAt: daysAgo(60) } });
+
+    const report = await ReportService.getProfitReport({ ...profitRange, view: "category" });
+    expect(report.summary.invoiceCount).toBe(0);
+    expect(report.summary.sales).toBe(0);
+  });
+});

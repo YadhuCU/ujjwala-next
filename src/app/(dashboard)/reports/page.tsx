@@ -51,6 +51,13 @@ const REPORTS: {
     permission: PERMISSIONS.REPORT_CUSTOMER_WISE,
   },
   {
+    title: "Profit Report",
+    href: "/reports/profit",
+    description:
+      "Sales, cost and gross profit by category (Commercial, Domestic, ARB) or by item.",
+    permission: PERMISSIONS.REPORT_PROFIT,
+  },
+  {
     title: "Expense Report",
     href: "/reports/expense",
     description: "Spending over a date range.",

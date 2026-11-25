@@ -40,9 +40,19 @@ export const CustomerWiseQuerySchema = DateRangeSchema.extend({
   customerId: z.preprocess(allToUndefined, z.coerce.number().int().optional()),
 });
 
+// Agency-wide, like product wise. `category` narrows to one sale module.
+export const ProfitReportQuerySchema = DateRangeSchema.extend({
+  view: z.enum(["category", "item"]).default("category"),
+  category: z.preprocess(
+    allToUndefined,
+    z.enum(["COMMERCIAL", "DOMESTIC", "ARB"]).optional(),
+  ),
+});
+
 export type SaleReportQuery = z.infer<typeof SaleReportQuerySchema>;
 export type PurchaseReportQuery = z.infer<typeof PurchaseReportQuerySchema>;
 export type ExpenseReportQuery = z.infer<typeof ExpenseReportQuerySchema>;
 export type ProductWiseQuery = z.infer<typeof ProductWiseQuerySchema>;
 export type CustomerWiseQuery = z.infer<typeof CustomerWiseQuerySchema>;
+export type ProfitReportQuery = z.infer<typeof ProfitReportQuerySchema>;
 export type ExportFormat = z.infer<typeof ExportFormatSchema>;

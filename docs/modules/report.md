@@ -2,14 +2,14 @@
 
 **Purpose.** Read-only reports over the same models, with Excel/PDF export.
 
-**Files.** `src/module/report/{report.service,report.payload.schema,report.serializer,report.export,report.lines,report.rollup}.ts`
+**Files.** `src/module/report/{report.service,report.payload.schema,report.serializer,report.export,report.lines,report.rollup,report.profit}.ts`
 · UI `src/app/(dashboard)/reports/` (shared `_components/`: filter card, summary
 tiles, results table, filter state, `SaleReportView`) · tests
 `report.service.integration.test.ts`, `report.export.test.ts`, `report.lines.test.ts`,
-`report.rollup.test.ts`
+`report.rollup.test.ts`, `report.profit.test.ts`
 
 **Reports.** Sale (`DOM` / `ARB` / `COM`), **product wise**, **customer wise**,
-expense, purchase. Each has `/export`. (Product wise replaced sale-by-product on
+**profit**, expense, purchase. Each has `/export`. (Product wise replaced sale-by-product on
 2026-11-18.) They return `{ summary, data, pagination }` — **not** the
 `ApiResponse` envelope; the pages consume that shape directly.
 
@@ -84,9 +84,30 @@ the customer line only).
   `CustomerCylinderLedger.pendingCylinder` when the range ends today (tested).
 - Customers registered after the range, or with nothing to show, are left out.
 
+**Profit** (`getProfitReport`, pure fold in `report.profit.ts`, added
+2026-11-25). `view = category | item`, optional `category` (`COMMERCIAL` /
+`DOMESTIC` / `ARB`); a category is a sale module, not a product type.
+- Sales per line = the invoice's `totalAmount` (net of discount) shared over
+  its lines by line value (`allocateInvoice`; quantity if every line is ₹0;
+  the last line takes the rounding), so item rows sum to the invoice and the
+  items of a category sum to its row. Cost = `Stock.productCost` × quantity of
+  the batch the line drew from — the dashboard's rule, so the summary's gross
+  profit equals dashboard revenue − cost for the same range (checked against
+  the dev data). Dated on `createdAt`, like the sale reports.
+- Category view always lists all three (zeros included) unless filtered. A
+  line from a batch with no cost counts as ₹0 and is flagged (`uncostedQty`,
+  a warning on the page, "Qty Without Cost" in the export) rather than hidden.
+- Summary adds the period's expenses (agency-wide, by `date`) and net profit,
+  only when no category is picked — expenses belong to no category.
+- Agency-wide, permission `report.profit` (migration
+  `20261125090000_profit_report_permission`), held by no role: owner only
+  until granted. Collection-only commercial invoices have no lines and count
+  for nothing.
+
 **Routes.** `GET /api/reports/{dom-sale,arb-sale,commercial-sale,expense,purchase}`
 (`report.read`), `/product-wise` (`report.read` + `report.product_wise`),
-`/customer-wise` (`report.read` + `report.customer_wise`); each `…/export` adds
+`/customer-wise` (`report.read` + `report.customer_wise`), `/profit`
+(`report.read` + `report.profit`); each `…/export` adds
 `report.export`.
 
 **Open client requests** (`TODO.md`): lock the date range for sales users; hide

@@ -116,6 +116,10 @@ export const queryKeys = {
     all: ["product-wise-report"] as const,
     list: (params: object) => ["product-wise-report", params] as const,
   },
+  profitReport: {
+    all: ["profit-report"] as const,
+    list: (params: object) => ["profit-report", params] as const,
+  },
   customerWiseReport: {
     all: ["customer-wise-report"] as const,
     list: (params: object) => ["customer-wise-report", params] as const,

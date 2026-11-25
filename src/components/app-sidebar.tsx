@@ -194,6 +194,11 @@ export const navSections: NavSection[] = [
             requiredPermissions: [PERMISSIONS.REPORT_CUSTOMER_WISE],
           },
           {
+            title: "Profit Report",
+            href: "/reports/profit",
+            requiredPermissions: [PERMISSIONS.REPORT_PROFIT],
+          },
+          {
             title: "Expense Report",
             href: "/reports/expense",
             requiredPermissions: [PERMISSIONS.REPORT_READ],

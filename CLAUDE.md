@@ -330,8 +330,12 @@ Other module-specific rules:
   `{ summary, data, pagination }` (not the `ApiResponse` envelope — the report
   pages consume that shape directly); every `/export` route renders through
   `report.export.ts`, where `excel` is CSV and `pdf` is tab-separated text.
-  **Product wise** and **customer wise** are agency-wide, so each has its own
-  permission (`report.product_wise`, `report.customer_wise`) instead of a scope.
+  **Product wise**, **customer wise** and **profit** are agency-wide, so each
+  has its own permission (`report.product_wise`, `report.customer_wise`,
+  `report.profit`) instead of a scope. Profit (`report.profit.ts`) is by
+  category (sale module) or by item: sales are each invoice's net total shared
+  over its lines by value, cost is the batch's `productCost`, the same rule as
+  the dashboard, so the two agree.
   Both reconcile on every row — Opening + Purchase − Sales ± Adjustments =
   Closing (stock: the cylinder ledger, or batches walked back for ARB/other);
   Opening + Rented − Taken back = Balance per cylinder size, and Opening +

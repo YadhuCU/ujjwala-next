@@ -184,7 +184,9 @@ original and the full-size PNG stay with the design handoff. Transparent, with
 navy lettering, so it always sits on a white plate (dark mode too),
 `object-contain`, never cropped or recoloured. `BrandLockup` (sidebar header)
 puts it on its own row above `BrandName` (red "Ujjwala" over "HP gas agency
-ERP"); the sign-in plate uses the same pieces, a row on a phone and stacked and
+ERP"), on a plate sized to the artwork (84 × 104 px) and pulled left by its
+padding, so the logo's left edge meets the "U" of Ujjwala. It used to span the
+column and sat centred over left-aligned text (fixed 2026-11-25); the sign-in plate uses the same pieces, a row on a phone and stacked and
 larger from md up. The logo is unreadable below ~80px tall, so the favicon
 (`src/app/favicon.ico`) is the HP GAS emblem alone. The sidebar collapses
 off-canvas, so there is no icon-only state that would need it.
