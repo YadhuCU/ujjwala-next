@@ -6,6 +6,7 @@ import type {
   UpdateVendorInput,
   VendorQuery,
 } from "./vendor.payload.schema";
+import { NAME_MAX_LENGTH, retiredName } from "@/lib/soft-delete";
 
 // =============================================================================
 // GUARDS
@@ -101,9 +102,16 @@ export async function updateVendor(id: number, input: UpdateVendorInput) {
 
 export async function deleteVendor(id: number) {
   return prisma.$transaction(async (tx) => {
-    await assertVendorExists(tx, id);
+    const vendor = await assertVendorExists(tx, id);
     await assertVendorHasNoHistory(tx, id);
 
-    return tx.vendor.update({ where: { id }, data: { isDeleted: true } });
+    // Frees the name so the vendor can be added again (soft-delete.ts)
+    return tx.vendor.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        name: retiredName(vendor.name, id, NAME_MAX_LENGTH.vendor),
+      },
+    });
   });
 }

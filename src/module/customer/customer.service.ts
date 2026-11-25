@@ -6,6 +6,7 @@ import type {
   CustomerQuery,
   UpdateCustomerInput,
 } from "./customer.payload.schema";
+import { NAME_MAX_LENGTH, retiredName } from "@/lib/soft-delete";
 
 // =============================================================================
 // CONSTANTS
@@ -237,9 +238,16 @@ export async function updateCustomer(id: number, input: UpdateCustomerInput) {
 
 export async function deleteCustomer(id: number) {
   return prisma.$transaction(async (tx) => {
-    await assertCustomerExists(tx, id);
+    const customer = await assertCustomerExists(tx, id);
     await assertCustomerSettled(tx, id);
 
-    return tx.customer.update({ where: { id }, data: { isDeleted: true } });
+    // Frees the name so the customer can be registered again (soft-delete.ts)
+    return tx.customer.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        name: retiredName(customer.name, id, NAME_MAX_LENGTH.customer),
+      },
+    });
   });
 }

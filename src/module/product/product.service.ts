@@ -7,6 +7,7 @@ import type {
   UpdateProductInput,
 } from "./product.payload.schema";
 import { isCylinderTypeProduct } from "./product.rules";
+import { NAME_MAX_LENGTH, retiredName } from "@/lib/soft-delete";
 
 // =============================================================================
 // GUARDS
@@ -159,10 +160,17 @@ export async function updateProduct(id: number, input: UpdateProductInput) {
 
 export async function deleteProduct(id: number) {
   return prisma.$transaction(async (tx) => {
-    await assertProductExists(tx, id);
+    const product = await assertProductExists(tx, id);
     await assertGodownEmpty(tx, id);
     await assertNoStockOnHand(tx, id);
 
-    return tx.product.update({ where: { id }, data: { isDeleted: true } });
+    // Frees the name so the product can be added again (soft-delete.ts)
+    return tx.product.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        name: retiredName(product.name, id, NAME_MAX_LENGTH.product),
+      },
+    });
   });
 }

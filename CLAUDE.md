@@ -451,6 +451,9 @@ stock adjustment → expense.
 
 - Path alias `@/*` → `src/*`.
 - Soft delete (`isDeleted`) everywhere; every read filters `isDeleted: false`.
+  A soft-deleted row with a `@unique` name (customer, product, vendor) is
+  renamed `<name> (deleted #<id>)` by `retiredName` (`src/lib/soft-delete.ts`)
+  so the name is free to use again.
 - Master data uses `onDelete: Restrict` where history exists (product, vendor,
   customer), `SetNull` for `Location → Customer`, `Cascade` for owned line items.
 - Errors: throw `NotFoundError` / `BadRequestError` / `ConflictError` /

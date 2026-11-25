@@ -47,4 +47,12 @@ describe("deleteVendor", () => {
     const deleted = await VendorService.deleteVendor(vendor.id);
     expect(deleted.isDeleted).toBe(true);
   });
+
+  it("frees a deleted vendor's name, so it can be added again", async () => {
+    const vendor = await VendorService.createVendor({ name: "HPCL Kochi" });
+    await VendorService.deleteVendor(vendor.id);
+
+    const again = await VendorService.createVendor({ name: "HPCL Kochi" });
+    expect(again.id).not.toBe(vendor.id);
+  });
 });

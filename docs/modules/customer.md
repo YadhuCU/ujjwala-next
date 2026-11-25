@@ -31,7 +31,12 @@ balances — they are migration data. There is no way to correct a holding later
 (README known issue #1).
 
 **Delete.** Soft, refused by `assertCustomerSettled` while
-`pendingAmount !== 0` or any `pendingCylinder > 0`.
+`pendingAmount !== 0` or any `pendingCylinder > 0`. The row is renamed
+`<name> (deleted #<id>)` (`retiredName`, `src/lib/soft-delete.ts`): `name` is
+`@unique` across deleted rows too, so without it the customer could never be
+registered again. Old invoices show the renamed row, which tells it apart from
+the new one. Rows deleted before 2026-11-25 were renamed by the
+`20261125120000_free_deleted_names` migration.
 
 **Onboarding UI.** `customer-form.tsx` offers **commercial products only** for
 opening holdings, and `assertProductsExist` refuses anything else. From

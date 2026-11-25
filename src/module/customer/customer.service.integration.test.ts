@@ -128,6 +128,33 @@ describe("getCustomers", () => {
     expect(list.map((c) => c.id)).toEqual([kept.id]);
   });
 
+  it("frees a deleted customer's name, so they can be registered again", async () => {
+    const first = await CustomerService.createCustomer(
+      customerInput({ name: "Hotel Blue" }),
+      userId,
+    );
+    await CustomerService.deleteCustomer(first.id);
+
+    const again = await CustomerService.createCustomer(
+      customerInput({ name: "Hotel Blue" }),
+      userId,
+    );
+    expect(again.id).not.toBe(first.id);
+
+    // The old row keeps its history, renamed so the two can be told apart
+    const old = await prisma.customer.findUniqueOrThrow({ where: { id: first.id } });
+    expect(old.isDeleted).toBe(true);
+    expect(old.name).toBe(`Hotel Blue (deleted #${first.id})`);
+
+    // and a second delete of the same name does not collide with the first
+    await CustomerService.deleteCustomer(again.id);
+    const third = await CustomerService.createCustomer(
+      customerInput({ name: "Hotel Blue" }),
+      userId,
+    );
+    expect((await CustomerService.getCustomers({})).map((c) => c.id)).toEqual([third.id]);
+  });
+
   it("searches by name and phone", async () => {
     await CustomerService.createCustomer(
       customerInput({ name: "Seaside Hotel", phone: "9111111111" }),
