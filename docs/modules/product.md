@@ -15,7 +15,9 @@ so client components can use it (the purchase form and customer form do).
 - `createProduct` also creates the `GodownInventory` row (0/0) so the ledger
   always has somewhere to post — for every type, though non-cylinders never use it.
 - Soft delete, refused by `assertGodownEmpty` (filled or empty > 0) and
-  `assertNoStockOnHand` (a batch with quantity > 0).
+  `assertNoStockOnHand` (a batch with quantity > 0). The row is renamed
+  `<name> (deleted #<id>)` so the name can be used again — see
+  `src/lib/soft-delete.ts`.
 - `salePrice` is only used to pre-fill the sale forms. **No UAT product has one.**
 - `assertTypeChangeAllowed`: moving a product across the cylinder line
   (DOMESTIC/COMMERCIAL ↔ ARB/OTHER) is refused once it has any stock batch,

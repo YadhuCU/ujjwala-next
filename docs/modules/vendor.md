@@ -10,7 +10,8 @@
 **Rules.**
 - Soft delete, refused by `assertVendorHasNoHistory` while any non-deleted
   purchase **or** stock batch references it — retiring it would orphan that
-  paperwork in the UI.
+  paperwork in the UI. The row is renamed `<name> (deleted #<id>)` so the
+  name can be used again — see `src/lib/soft-delete.ts`.
 
 **Routes.** `GET/POST /api/vendors`, `GET/PUT/DELETE /api/vendors/[id]` —
 `vendor.read / create / update / delete`.

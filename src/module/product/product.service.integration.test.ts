@@ -126,6 +126,17 @@ describe("deleteProduct", () => {
 
     expect(await ProductService.getProducts({})).toHaveLength(0);
   });
+
+  it("frees a deleted product's name, so it can be added again", async () => {
+    const product = await ProductService.createProduct(productInput("19 kg Commercial"));
+    await ProductService.deleteProduct(product.id);
+
+    const again = await ProductService.createProduct(productInput("19 kg Commercial"));
+    expect(again.id).not.toBe(product.id);
+
+    const old = await prisma.product.findUniqueOrThrow({ where: { id: product.id } });
+    expect(old.name).toBe(`19 kg Commercial (deleted #${product.id})`);
+  });
 });
 
 describe("getProducts", () => {
