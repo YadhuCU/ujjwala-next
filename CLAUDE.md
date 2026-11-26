@@ -242,6 +242,14 @@ filledQty, emptyQty, Stock.quantity, pendingCylinder  >= 0 always
 3. the document header is updated **in place** (keeps its `id` and `trNo`), or
    soft-deleted (`isDeleted = true`) on delete.
 
+A document finds "its own" cylinder rows by `(refType, refId)`, so the
+`refType` must name the module: `DOMESTIC_SALE` and `COMMERCIAL_SALE` on the
+cylinder ledger, never the shared `INVOICE` (now money ledger only). The sale
+modules number their documents separately; until 2026-11-26 domestic sale #6
+and commercial invoice #6 were both `INVOICE 6`, and editing one voided the
+other's rows. `20261126090100_split_sale_cylinder_refs` relabelled the
+history and re-posted the movements that were lost.
+
 Cylinder deltas, from the **godown's** perspective (positive = arrived):
 
 | TxnType | filledDelta | emptyDelta |

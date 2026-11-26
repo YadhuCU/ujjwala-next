@@ -83,8 +83,16 @@ enum TxnType {
 /// Identifies which business document a CylinderTransaction or ledger entry relates to.
 enum RefType {
   PURCHASE // references Purchase.id
-  INVOICE // references CommercialSale.id | DomSale.id | ArbSale.id
+  /// Money ledger only: a sale's entry in CustomerPaymentLedger
+  /// (CommercialSale.id | DomSale.id | ArbSale.id). The cylinder ledger
+  /// used it too until 2026-11-26 — but the sale modules number their
+  /// documents separately, so domestic sale #6 and commercial invoice #6 were
+  /// both "INVOICE 6" and a reversal of one voided the other's rows. The
+  /// cylinder ledger now names the module.
+  INVOICE
   MANUAL // references StockAdjustment.id or CustomerPaymentLedger manual entry
+  DOMESTIC_SALE // cylinder ledger: references DomSale.id
+  COMMERCIAL_SALE // cylinder ledger: references CommercialSale.id
 
   @@map("ref_type")
 }
