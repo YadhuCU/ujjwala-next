@@ -85,6 +85,12 @@ export type ReportColumn<T, S = never> = {
   cell: (row: T) => React.ReactNode;
   /** What this column shows on a sub row; blank where it has nothing to say. */
   sub?: (sub: S, row: T) => React.ReactNode;
+  /**
+   * With `lines`: the column belongs to the whole row (an invoice's number,
+   * date, total), so it is one cell spanning every line instead of repeating.
+   * The other columns show `sub` for each line.
+   */
+  merge?: boolean;
 };
 
 type ReportResultsProps<T, S = never> = {
@@ -97,6 +103,12 @@ type ReportResultsProps<T, S = never> = {
    */
   subRows?: (row: T) => S[];
   subRowKey?: (sub: S) => string | number;
+  /**
+   * The row is a group of lines — a purchase invoice and its items. Each line
+   * is a normal table row; `merge` columns span them as one cell, so the group
+   * reads as one row with the lines inside it. Takes the place of `subRows`.
+   */
+  lines?: (row: T) => S[];
   pagination?: ReportPagination;
   isLoading: boolean;
   isFetching: boolean;
@@ -117,6 +129,7 @@ export function ReportResults<T, S = never>({
   rowKey,
   subRows,
   subRowKey = (sub) => String(sub),
+  lines,
   pagination,
   isLoading,
   isFetching,
@@ -203,6 +216,7 @@ export function ReportResults<T, S = never>({
           rowKey={rowKey}
           subRows={subRows}
           subRowKey={subRowKey}
+          lines={lines}
           isLoading={isLoading}
         />
         <div className="hidden overflow-x-auto md:block">
@@ -245,6 +259,16 @@ export function ReportResults<T, S = never>({
                     No results found for the selected filters.
                   </TableCell>
                 </TableRow>
+              ) : lines ? (
+                rows.map((row) => (
+                  <GroupedRows
+                    key={rowKey(row)}
+                    row={row}
+                    lines={lines(row)}
+                    lineKey={subRowKey}
+                    columns={shownColumns}
+                  />
+                ))
               ) : (
                 rows.map((row) => (
                   <Fragment key={rowKey(row)}>
@@ -320,6 +344,67 @@ export function ReportResults<T, S = never>({
   );
 }
 
+// One group: a table row per line, the `merge` columns drawn once on the first
+// line and spanning the rest, so no row line crosses them. A group with no
+// lines still gets one row, for its merged cells.
+function GroupedRows<T, S>({
+  row,
+  lines,
+  lineKey,
+  columns,
+}: {
+  row: T;
+  lines: S[];
+  lineKey: (line: S) => string | number;
+  columns: ReportColumn<T, S>[];
+}) {
+  const span = Math.max(lines.length, 1);
+  const slots: (S | undefined)[] = lines.length > 0 ? lines : [undefined];
+
+  return (
+    <>
+      {slots.map((line, index) => (
+        <TableRow
+          key={line === undefined ? "empty" : lineKey(line)}
+          // Hovering any line lights the group's own lines only; a group is
+          // set apart from the next by its last line's border
+          className={cn(index < span - 1 && "border-b-0")}
+        >
+          {columns.map((column) => {
+            if (column.merge) {
+              if (index > 0) return null;
+              return (
+                <TableCell
+                  key={column.header}
+                  rowSpan={span}
+                  className={cn(
+                    "border-r border-b align-top last:border-r-0",
+                    column.align === "right" && "text-right",
+                  )}
+                >
+                  {column.cell(row)}
+                </TableCell>
+              );
+            }
+            return (
+              <TableCell
+                key={column.header}
+                className={cn(
+                  "border-r last:border-r-0",
+                  index < span - 1 && "border-b border-dashed",
+                  column.align === "right" && "text-right",
+                )}
+              >
+                {line === undefined ? "—" : column.sub?.(line, row)}
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      ))}
+    </>
+  );
+}
+
 // Eleven columns do not fit a phone. Each row becomes a card instead: the
 // first column (the document number, the product) is its title, the last — the
 // money, in every report — sits opposite it, and the rest read as label /
@@ -331,10 +416,11 @@ function MobileResults<T, S>({
   rowKey,
   subRows,
   subRowKey,
+  lines,
   isLoading,
 }: Pick<
   ReportResultsProps<T, S>,
-  "columns" | "rows" | "rowKey" | "subRows" | "subRowKey" | "isLoading"
+  "columns" | "rows" | "rowKey" | "subRows" | "subRowKey" | "lines" | "isLoading"
 >) {
   if (isLoading) {
     return (
@@ -359,6 +445,67 @@ function MobileResults<T, S>({
   const middle = last ? rest.slice(0, -1) : rest;
   const isEmpty = (node: React.ReactNode) =>
     node === null || node === undefined || node === "" || node === "—";
+
+  if (lines) {
+    // The merged columns describe the card; each line is listed inside it,
+    // titled by its first column
+    const merged = columns.filter((column) => column.merge);
+    const lineColumns = columns.filter((column) => !column.merge);
+    const [title, ...restMerged] = merged;
+    const total = restMerged.length > 0 ? restMerged[restMerged.length - 1] : undefined;
+    const details = total ? restMerged.slice(0, -1) : restMerged;
+    const [lineTitle, ...lineRest] = lineColumns;
+
+    return (
+      <ul className="space-y-3 md:hidden">
+        {rows.map((row) => (
+          <li key={rowKey(row)} className="bg-card rounded-xl border p-3 text-sm">
+            <div className="flex items-start justify-between gap-3">
+              <span className="min-w-0 font-semibold break-words">
+                {title?.cell(row)}
+              </span>
+              {total && (
+                <span className="shrink-0 font-semibold tabular-nums">
+                  {total.cell(row)}
+                </span>
+              )}
+            </div>
+            <dl className="mt-2 grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-x-3 gap-y-1.5">
+              {details.map((column) => {
+                const value = column.cell(row);
+                if (isEmpty(value)) return null;
+                return (
+                  <div key={column.header} className="contents">
+                    <dt className="text-muted-foreground">{column.header}</dt>
+                    <dd className="min-w-0 text-right break-words">{value}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+            <ul className="mt-2 space-y-2 border-t pt-2">
+              {lines(row).map((line) => (
+                <li key={subRowKey!(line)} className="bg-muted/40 rounded px-2 py-1.5">
+                  <p className="font-medium">{lineTitle?.sub?.(line, row)}</p>
+                  <div className="text-muted-foreground mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
+                    {lineRest
+                      .filter((column) => !isEmpty(column.sub?.(line, row)))
+                      .map((column) => (
+                        <span key={column.header}>
+                          {column.header}{" "}
+                          <span className="text-foreground tabular-nums">
+                            {column.sub?.(line, row)}
+                          </span>
+                        </span>
+                      ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    );
+  }
 
   return (
     <ul className="space-y-3 md:hidden">

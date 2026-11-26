@@ -234,7 +234,7 @@ function buildPurchaseWhere(query: PurchaseReportQuery, actor: ReportActor) {
 
 const purchaseInclude = {
   vendor: { select: { id: true, name: true } },
-  items: { include: { product: { select: { name: true } } } },
+  items: { include: { product: { select: { name: true } } }, orderBy: { id: "asc" } },
 } as const;
 
 export async function getPurchaseReport(
