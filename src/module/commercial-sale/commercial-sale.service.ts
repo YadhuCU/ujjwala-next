@@ -338,7 +338,7 @@ async function writeSaleItems(
       txnType,
       filledDelta: -quantity,
       emptyDelta: txnType === TxnType.REFILL ? quantity : 0,
-      refType: RefType.INVOICE,
+      refType: RefType.COMMERCIAL_SALE,
       refId: commercialSaleId,
       notes: `CommercialSale #${commercialSaleId}`,
     })),
@@ -420,7 +420,7 @@ async function writeRecordedReturns(
         txnType: TxnType.CYLINDER_RETURN,
         filledDelta: 0,
         emptyDelta: quantity,
-        refType: RefType.INVOICE,
+        refType: RefType.COMMERCIAL_SALE,
         refId: commercialSaleId,
         notes: `Cylinders collected — COM #${commercialSaleId}`,
       },
@@ -560,7 +560,9 @@ async function reverseCustomerLedger(
 }
 
 // Voids every active CylinderTransaction of this invoice and undoes the exact
-// godown movement each row caused — dispatches and returns alike.
+// godown movement each row caused — dispatches and returns alike. Keyed on
+// COMMERCIAL_SALE, never a shared "INVOICE": a domestic sale can carry the same
+// number, and its rows are not ours to void.
 async function reverseCylinderTransactions(
   tx: Prisma.TransactionClient,
   commercialSaleId: number,
@@ -568,7 +570,7 @@ async function reverseCylinderTransactions(
 ) {
   const originalTxns = await tx.cylinderTransaction.findMany({
     where: {
-      refType: RefType.INVOICE,
+      refType: RefType.COMMERCIAL_SALE,
       refId: commercialSaleId,
       voidedTxnId: null,
       voidedBy: { none: {} },
@@ -582,7 +584,7 @@ async function reverseCylinderTransactions(
         txnType: txn.txnType,
         filledDelta: -txn.filledDelta,
         emptyDelta: -txn.emptyDelta,
-        refType: RefType.INVOICE,
+        refType: RefType.COMMERCIAL_SALE,
         refId: commercialSaleId,
         voidedTxnId: txn.id,
         notes: note,
@@ -911,7 +913,7 @@ export async function returnCylinders(
           txnType: TxnType.CYLINDER_RETURN,
           filledDelta: 0,
           emptyDelta: returnQty,
-          refType: RefType.INVOICE,
+          refType: RefType.COMMERCIAL_SALE,
           refId: id,
           notes: `Cylinder return — COM #${id} item #${itemId}`,
         },

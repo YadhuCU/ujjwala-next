@@ -43,7 +43,9 @@ export type TxnType = (typeof TxnType)[keyof typeof TxnType]
 export const RefType = {
   PURCHASE: 'PURCHASE',
   INVOICE: 'INVOICE',
-  MANUAL: 'MANUAL'
+  MANUAL: 'MANUAL',
+  DOMESTIC_SALE: 'DOMESTIC_SALE',
+  COMMERCIAL_SALE: 'COMMERCIAL_SALE'
 } as const
 
 export type RefType = (typeof RefType)[keyof typeof RefType]

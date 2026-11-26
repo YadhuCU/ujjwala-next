@@ -41,6 +41,15 @@ const MOVEMENT_LABELS: Record<string, string> = {
   REFILL: "Refill swap (full out, empty in)",
 };
 
+/** What each movement belongs to, by the ledger's reference type. */
+const REFERENCE_LABELS: Record<string, string> = {
+  PURCHASE: "Purchase",
+  DOMESTIC_SALE: "Domestic sale",
+  COMMERCIAL_SALE: "Commercial invoice",
+  MANUAL: "Adjustment",
+  INVOICE: "Invoice",
+};
+
 export function GodownViewComponent() {
   const { data: status } = useSuspenseQuery(godownStatusOptions);
   const [txnType, setTxnType] = useState(ALL);
@@ -265,7 +274,7 @@ export function GodownViewComponent() {
                       {" · "}
                       {MOVEMENT_LABELS[movement.txnType] ?? movement.txnType}
                       {" · "}
-                      {movement.refType} #{movement.refId}
+                      {REFERENCE_LABELS[movement.refType] ?? movement.refType} #{movement.refId}
                       {movement.voidedTxnId ? (
                         <Badge variant="outline" className="ml-2">
                           reversal
@@ -329,7 +338,7 @@ export function GodownViewComponent() {
                           <Delta value={movement.emptyDelta} />
                         </TableCell>
                         <TableCell className="text-muted-foreground text-xs">
-                          {movement.refType} #{movement.refId}
+                          {REFERENCE_LABELS[movement.refType] ?? movement.refType} #{movement.refId}
                         </TableCell>
                         <TableCell className="max-w-[280px] truncate text-xs">
                           {movement.notes ?? "—"}

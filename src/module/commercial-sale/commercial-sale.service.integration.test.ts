@@ -13,12 +13,15 @@ import {
   custodyOf,
   godownOf,
   makeCustomer,
+  makeFieldStaff,
   makeProduct,
   makeStock,
   makeUser,
   seedGodown,
 } from "@/test/factories";
+import { PERMISSIONS } from "@/lib/permissions";
 import * as CommercialSaleService from "./commercial-sale.service";
+import * as DomSaleService from "@/module/dom-sale/dom-sale.service";
 
 let userId: number;
 let customerId: number;
@@ -75,7 +78,7 @@ describe("createCommercialSale — RENT", () => {
     expect(await balanceOf(customerId)).toBe(1000);
 
     const txn = await prisma.cylinderTransaction.findFirstOrThrow({
-      where: { productId, refType: RefType.INVOICE },
+      where: { productId, refType: RefType.COMMERCIAL_SALE },
     });
     expect(txn.txnType).toBe(TxnType.RENT_DELIVERY);
     expect(txn.filledDelta).toBe(-10);
@@ -102,7 +105,7 @@ describe("createCommercialSale — REFILL", () => {
 
     // One row carries both halves of the swap
     const txns = await prisma.cylinderTransaction.findMany({
-      where: { productId, refType: RefType.INVOICE },
+      where: { productId, refType: RefType.COMMERCIAL_SALE },
     });
     expect(txns).toHaveLength(1);
     expect(txns[0].txnType).toBe(TxnType.REFILL);
@@ -150,7 +153,7 @@ describe("createCommercialSale — SALE", () => {
     expect(await custodyOf(customerId, productId)).toBe(0);
 
     const txn = await prisma.cylinderTransaction.findFirstOrThrow({
-      where: { productId, refType: RefType.INVOICE },
+      where: { productId, refType: RefType.COMMERCIAL_SALE },
     });
     expect(txn.txnType).toBe(TxnType.SALE_OUT);
   });
@@ -450,7 +453,7 @@ describe("collecting cylinders on a new invoice", () => {
 
     const txns = await prisma.cylinderTransaction.findMany({
       where: {
-        refType: RefType.INVOICE,
+        refType: RefType.COMMERCIAL_SALE,
         refId: sale.id,
         txnType: TxnType.CYLINDER_RETURN,
       },
@@ -582,3 +585,124 @@ async function atIndiaEarlyMorning<T>(run: () => Promise<T>): Promise<T> {
     vi.useRealTimers();
   }
 }
+
+// =============================================================================
+// A DOMESTIC SALE WITH THE SAME NUMBER
+// The sale modules number their documents separately, so domestic sale #1 and
+// commercial invoice #1 coexist. Both used to post to the cylinder ledger as
+// "INVOICE 1", and editing or deleting one voided the other's rows too — the
+// godown then disagreed with the batches (production, 2026-11-26).
+// =============================================================================
+
+describe("a domestic sale carrying the same number", () => {
+  async function domesticSaleNumberedLikeTheInvoice() {
+    const officeId = (await makeUser("Office")).id;
+    const staffId = (await makeFieldStaff("Ravi")).id;
+    const office = {
+      userId: officeId,
+      permissions: [
+        PERMISSIONS.DOMESTIC_SALE_CREATE,
+        PERMISSIONS.DOMESTIC_SALE_READ,
+        PERMISSIONS.DOMESTIC_SALE_READ_ALL,
+        PERMISSIONS.DOMESTIC_SALE_UPDATE,
+        PERMISSIONS.DOMESTIC_SALE_DELETE,
+      ],
+    };
+
+    const domestic = await makeProduct(ProductType.DOMESTIC);
+    await seedGodown(domestic.id, { filledQty: 50 });
+    const domesticStock = await makeStock(domestic.id, 50);
+
+    const round = (quantity: number) => ({
+      paymentType: PaymentType.CASH,
+      discount: undefined,
+      notes: undefined,
+      fieldStaffId: staffId,
+      items: [
+        {
+          stockId: domesticStock.id,
+          quantity,
+          salePrice: 900,
+          saleType: CommercialSaleType.RENT,
+          emptiesCollected: quantity,
+        },
+      ],
+    });
+
+    const invoice = await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.RENT, 10),
+      userId,
+    );
+    const domSale = await DomSaleService.createDomSale(round(3), office);
+    expect(domSale.id).toBe(invoice.id);
+
+    return { invoice, domSale, domestic, office, round };
+  }
+
+  /** The godown's filled count agrees with what the batches hold. */
+  async function expectFilledMatchesBatches(id: number) {
+    const batches = await prisma.stock.aggregate({
+      where: { productId: id, isDeleted: false },
+      _sum: { quantity: true },
+    });
+    expect((await godownOf(id)).filledQty).toBe(batches._sum.quantity);
+    await assertGodownMatchesLedger(id);
+  }
+
+  it("deleting the domestic sale leaves the invoice's movements alone", async () => {
+    const { domSale, domestic, office } = await domesticSaleNumberedLikeTheInvoice();
+
+    await DomSaleService.deleteDomSale(domSale.id, office);
+
+    expect((await godownOf(productId)).filledQty).toBe(90);
+    await expectFilledMatchesBatches(productId);
+    expect((await godownOf(domestic.id)).filledQty).toBe(50);
+    await expectFilledMatchesBatches(domestic.id);
+  });
+
+  it("editing the invoice leaves the domestic sale's movements alone", async () => {
+    const { invoice, domestic } = await domesticSaleNumberedLikeTheInvoice();
+
+    await CommercialSaleService.updateCommercialSale(
+      invoice.id,
+      saleInput(CommercialSaleType.RENT, 4),
+      userId,
+    );
+
+    expect((await godownOf(productId)).filledQty).toBe(96);
+    await expectFilledMatchesBatches(productId);
+    const domesticGodown = await godownOf(domestic.id);
+    expect(domesticGodown.filledQty).toBe(47);
+    expect(domesticGodown.emptyQty).toBe(3);
+    await expectFilledMatchesBatches(domestic.id);
+  });
+
+  it("editing the domestic sale leaves the invoice's movements alone", async () => {
+    const { domSale, domestic, office, round } =
+      await domesticSaleNumberedLikeTheInvoice();
+
+    await DomSaleService.updateDomSale(domSale.id, round(5), office);
+
+    expect((await godownOf(productId)).filledQty).toBe(90);
+    await expectFilledMatchesBatches(productId);
+    expect((await godownOf(domestic.id)).filledQty).toBe(45);
+    await expectFilledMatchesBatches(domestic.id);
+  });
+
+  it("labels each module's rows with its own reference type", async () => {
+    const { invoice, domestic } = await domesticSaleNumberedLikeTheInvoice();
+
+    // Leave out the seed stock adjustment, which is MANUAL with its own id
+    const saleRows = { refId: invoice.id, txnType: { not: TxnType.ADJUSTMENT } };
+    const commercialRows = await prisma.cylinderTransaction.findMany({
+      where: { productId, ...saleRows },
+    });
+    const domesticRows = await prisma.cylinderTransaction.findMany({
+      where: { productId: domestic.id, ...saleRows },
+    });
+    expect(commercialRows.map((r) => r.refType)).toEqual([RefType.COMMERCIAL_SALE]);
+    expect(new Set(domesticRows.map((r) => r.refType))).toEqual(
+      new Set([RefType.DOMESTIC_SALE]),
+    );
+  });
+});

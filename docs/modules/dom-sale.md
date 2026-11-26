@@ -48,7 +48,8 @@ at most the line's quantity (payload refine); a REFILL line carries
 `CustomerCylinderLedger`.
 
 **Reversal (update / delete).** `reverseCylinderTransactions` voids every row
-the invoice wrote and undoes each row's own godown movement, filled and empty;
+the sale wrote — keyed on `RefType.DOMESTIC_SALE`, since a commercial invoice
+can carry the same number (see the 2026-11-26 note in `CLAUDE.md`) — and undoes each row's own godown movement, filled and empty;
 then `Stock.quantity` is restored. Update reposts with the new lines and keeps
 the field staff unless the office names another.
 

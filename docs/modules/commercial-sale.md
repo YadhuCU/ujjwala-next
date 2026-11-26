@@ -42,7 +42,8 @@ checks the godown) → header → `trNo` → items + ledger (`RENT_DELIVERY` / `
 increments `cylindersReturned`, writes `CYLINDER_RETURN`, godown, custody.
 
 **Update.** Refused if any **per-line** return exists (`assertNoReturnsRecorded`).
-Otherwise reverse (ledger + godown via the invoice's own rows, stock, custody of
+Otherwise reverse (ledger + godown via the invoice's own rows — keyed on
+`RefType.COMMERCIAL_SALE`, since a domestic sale can carry the same number — stock, custody of
 outstanding rentals, `reverseRecordedReturns` restores collected custody and
 deletes the return rows, money) then repost; the holding check for new
 collections runs after the reversal. `assertCustodyNotNegative` then checks the

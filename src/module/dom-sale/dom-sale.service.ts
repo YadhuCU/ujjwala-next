@@ -427,7 +427,7 @@ async function writeSaleItems(
       txnType,
       filledDelta: -quantity,
       emptyDelta: txnType === TxnType.REFILL ? quantity : 0,
-      refType: RefType.INVOICE,
+      refType: RefType.DOMESTIC_SALE,
       refId: domSaleId,
       notes: `DomSale #${domSaleId}`,
     })),
@@ -443,7 +443,7 @@ async function writeSaleItems(
         txnType: TxnType.CYLINDER_RETURN,
         filledDelta: 0,
         emptyDelta: quantity,
-        refType: RefType.INVOICE,
+        refType: RefType.DOMESTIC_SALE,
         refId: domSaleId,
         notes: `Empties collected — DomSale #${domSaleId}`,
       })),
@@ -544,7 +544,9 @@ async function reverseCustomerLedger(
   });
 }
 
-// Fetches and voids all active CylinderTransactions for a sale
+// Fetches and voids all active CylinderTransactions for a sale. Keyed on
+// DOMESTIC_SALE, never a shared "INVOICE": a commercial invoice can carry the
+// same number, and its rows are not ours to void.
 async function reverseCylinderTransactions(
   tx: Prisma.TransactionClient,
   domSaleId: number,
@@ -552,7 +554,7 @@ async function reverseCylinderTransactions(
 ) {
   const originalTxns = await tx.cylinderTransaction.findMany({
     where: {
-      refType: RefType.INVOICE,
+      refType: RefType.DOMESTIC_SALE,
       refId: domSaleId,
       voidedTxnId: null,
       voidedBy: { none: {} },
@@ -566,7 +568,7 @@ async function reverseCylinderTransactions(
         txnType: txn.txnType,
         filledDelta: -txn.filledDelta,
         emptyDelta: -txn.emptyDelta,
-        refType: RefType.INVOICE,
+        refType: RefType.DOMESTIC_SALE,
         refId: domSaleId,
         voidedTxnId: txn.id,
         notes: note,

@@ -222,7 +222,7 @@ describe("createDomSale", () => {
     expect((await godownOf(product.id)).filledQty).toBe(48);
 
     const txn = await prisma.cylinderTransaction.findFirstOrThrow({
-      where: { productId: product.id, refType: RefType.INVOICE },
+      where: { productId: product.id, refType: RefType.DOMESTIC_SALE },
     });
     expect(txn.txnType).toBe(TxnType.SALE_OUT);
     expect(txn.filledDelta).toBe(-2);
@@ -283,7 +283,7 @@ describe("refills", () => {
 
     const types = (
       await prisma.cylinderTransaction.findMany({
-        where: { productId: product.id, refType: RefType.INVOICE },
+        where: { productId: product.id, refType: RefType.DOMESTIC_SALE },
       })
     ).map((t) => t.txnType);
     expect(types.sort()).toEqual(
@@ -330,7 +330,7 @@ describe("REFILL lines", () => {
     expect(godown.emptyQty).toBe(5);
 
     const txns = await prisma.cylinderTransaction.findMany({
-      where: { productId: product.id, refType: RefType.INVOICE },
+      where: { productId: product.id, refType: RefType.DOMESTIC_SALE },
     });
     expect(txns).toHaveLength(1);
     expect(txns[0].txnType).toBe(TxnType.REFILL);
@@ -599,7 +599,7 @@ async function legacyCustomerSale(quantity: number, empties: number) {
         txnType: TxnType.RENT_DELIVERY,
         filledDelta: -quantity,
         emptyDelta: 0,
-        refType: RefType.INVOICE,
+        refType: RefType.DOMESTIC_SALE,
         refId: sale.id,
       },
       {
@@ -607,7 +607,7 @@ async function legacyCustomerSale(quantity: number, empties: number) {
         txnType: TxnType.CYLINDER_RETURN,
         filledDelta: 0,
         emptyDelta: empties,
-        refType: RefType.INVOICE,
+        refType: RefType.DOMESTIC_SALE,
         refId: sale.id,
       },
     ],
@@ -625,14 +625,14 @@ async function legacyCustomerSale(quantity: number, empties: number) {
         customerId: customer.id,
         entryType: LedgerEntryType.SALE_CHARGE,
         amount: total,
-        refType: RefType.INVOICE,
+        refType: RefType.DOMESTIC_SALE,
         refId: sale.id,
       },
       {
         customerId: customer.id,
         entryType: LedgerEntryType.PAYMENT,
         amount: -paid,
-        refType: RefType.INVOICE,
+        refType: RefType.DOMESTIC_SALE,
         refId: sale.id,
       },
     ],

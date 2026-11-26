@@ -695,7 +695,7 @@ async function customerCylinderEvents(
       prisma.cylinderTransaction.findMany({
         where: {
           txnType: TxnType.CYLINDER_RETURN,
-          refType: RefType.INVOICE,
+          refType: RefType.COMMERCIAL_SALE,
           voidedTxnId: null,
           voidedBy: { none: {} },
           notes: { startsWith: "Cylinder return — COM #" },
