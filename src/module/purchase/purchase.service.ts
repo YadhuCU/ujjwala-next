@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type {
+  CorrectPurchasePricesInput,
   CreatePurchasePayloadInput,
   UpdatePurchasePayloadInput,
   PurchaseQuery,
@@ -21,8 +22,17 @@ import { businessDayKey, businessDayRange } from "@/lib/business-day";
 
 const purchaseInclude = {
   vendor: true,
-  items: { include: { product: true } },
+  items: { include: { product: true }, orderBy: { id: "asc" } },
   stocks: { where: { isDeleted: false } },
+} as const;
+
+// The single-record read also carries the price-correction history
+const purchaseDetailInclude = {
+  ...purchaseInclude,
+  priceCorrections: {
+    include: { product: true, createdBy: { select: { id: true, name: true } } },
+    orderBy: { id: "desc" },
+  },
 } as const;
 
 // =============================================================================
@@ -109,12 +119,13 @@ async function assertAndAttachProductTypes(
   });
 }
 
-// A purchase can only be corrected while none of its batches have been sold.
-async function assertStockNotInUse(
+// Has any sale drawn from these batches? A full edit replaces the batches, so
+// it would leave those sales pointing at one that no longer exists.
+async function isSoldFrom(
   tx: Prisma.TransactionClient,
   stockIds: number[],
-) {
-  if (stockIds.length === 0) return;
+): Promise<boolean> {
+  if (stockIds.length === 0) return false;
 
   const [dom, arb, com] = await Promise.all([
     tx.domSaleItem.count({ where: { stockId: { in: stockIds } } }),
@@ -122,9 +133,18 @@ async function assertStockNotInUse(
     tx.commercialSaleItem.count({ where: { stockId: { in: stockIds } } }),
   ]);
 
-  if (dom + arb + com > 0)
+  return dom + arb + com > 0;
+}
+
+// A purchase can only be edited in full while none of its batches have been
+// sold. Its prices can still be corrected (correctPurchasePrices).
+async function assertStockNotInUse(
+  tx: Prisma.TransactionClient,
+  stockIds: number[],
+) {
+  if (await isSoldFrom(tx, stockIds))
     throw new ConflictError(
-      "Cannot modify — stock batches from this purchase are used in sales",
+      "Cannot modify — stock batches from this purchase are used in sales. Correct its prices instead.",
     );
 }
 
@@ -385,7 +405,19 @@ export async function getPurchases(query: PurchaseQuery) {
 // =============================================================================
 
 export async function getPurchaseById(id: number) {
-  return assertPurchaseExists(prisma, id);
+  const purchase = await prisma.purchase.findFirst({
+    where: { id, isDeleted: false },
+    include: purchaseDetailInclude,
+  });
+  if (!purchase) throw new NotFoundError(`Purchase #${id} not found`);
+
+  // Tells the edit page which form to open: the full edit, or prices only
+  const soldFrom = await isSoldFrom(
+    prisma,
+    purchase.stocks.map((s) => s.id),
+  );
+
+  return { ...purchase, soldFrom };
 }
 
 // =============================================================================
@@ -444,6 +476,100 @@ export async function updatePurchase(
     return tx.purchase.update({
       where: { id },
       data: { ...header, totalCost, updatedById: userId },
+      include: purchaseInclude,
+    });
+  });
+}
+
+// =============================================================================
+// CORRECT PRICES
+// Strategy: in place. A unit cost moves no cylinders and no customer money —
+// it is only what each batch cost us — so nothing is voided or reposted, and
+// it is allowed after the batches have been sold from. The line, its batch's
+// `productCost` and the purchase total change together; the profit report and
+// the dashboard read `productCost`, so past profit on those batches follows.
+// Each changed line is logged in PurchasePriceCorrection.
+// =============================================================================
+
+export async function correctPurchasePrices(
+  id: number,
+  input: CorrectPurchasePricesInput,
+  userId: number,
+) {
+  return prisma.$transaction(async (tx) => {
+    const original = await assertPurchaseExists(tx, id);
+    const lines = new Map(original.items.map((item) => [item.id, item]));
+
+    const changed = input.items.flatMap(({ id: itemId, unitCost }) => {
+      const line = lines.get(itemId);
+      if (!line)
+        throw new BadRequestError(`Line #${itemId} is not on purchase #${id}`);
+
+      const before = line.unitCost === null ? null : Number(line.unitCost);
+      return before === unitCost ? [] : [{ line, before, unitCost }];
+    });
+
+    const invoiceNo = input.invoiceNo ?? null;
+    const notes = input.notes ?? null;
+    const headerChanged =
+      invoiceNo !== original.invoiceNo || notes !== original.notes;
+
+    if (changed.length === 0 && !headerChanged)
+      throw new BadRequestError("Nothing to correct — no price was changed");
+
+    for (const { line, before, unitCost } of changed) {
+      await tx.purchaseItem.update({
+        where: { id: line.id },
+        data: {
+          unitCost,
+          totalCost: Math.round(unitCost * line.quantity * 100) / 100,
+        },
+      });
+
+      // The batch shares the line's batchNo (writePurchaseItems)
+      const batch = await tx.stock.updateMany({
+        where: { purchaseId: id, batchNo: line.batchNo, isDeleted: false },
+        data: { productCost: unitCost },
+      });
+      if (batch.count !== 1)
+        throw new ConflictError(
+          `Batch ${line.batchNo} of purchase #${id} could not be found`,
+        );
+
+      await tx.purchasePriceCorrection.create({
+        data: {
+          purchaseId: id,
+          productId: line.productId,
+          batchNo: line.batchNo,
+          quantity: line.quantity,
+          oldUnitCost: before,
+          newUnitCost: unitCost,
+          reason: input.reason,
+          createdById: userId,
+        },
+      });
+    }
+
+    // The batches carry a copy of the invoice number
+    if (invoiceNo !== original.invoiceNo)
+      await tx.stock.updateMany({
+        where: { purchaseId: id, isDeleted: false },
+        data: { invoiceNo },
+      });
+
+    const totals = await tx.purchaseItem.aggregate({
+      where: { purchaseId: id },
+      _sum: { totalCost: true },
+    });
+
+    return tx.purchase.update({
+      where: { id },
+      data: {
+        invoiceNo,
+        notes,
+        totalCost: Number(totals._sum.totalCost ?? 0),
+        updatedById: userId,
+      },
       include: purchaseInclude,
     });
   });

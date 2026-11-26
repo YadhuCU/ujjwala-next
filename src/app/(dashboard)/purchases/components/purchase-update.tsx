@@ -6,8 +6,9 @@ import { toast } from "sonner";
 import { useApiMutation } from "@/hooks/use-api";
 import { api } from "@/lib/api-client";
 import { queryKeys } from "@/lib/query-keys";
-import { PurchaseResponse } from "@/module/purchase/purchase.serializer";
+import type { PurchaseDetailResponse } from "@/module/purchase/purchase.serializer";
 import { PurchaseForm } from "./purchase-form";
+import { PurchasePriceCorrection } from "./purchase-price-correction";
 import { PurchaseFormValues } from "@/module/purchase/purchase.form.schema";
 
 export function UpdatePurchaseComponent() {
@@ -17,7 +18,7 @@ export function UpdatePurchaseComponent() {
 
   const { data: purchase } = useSuspenseQuery({
     queryKey: queryKeys.purchases.detail(id),
-    queryFn: () => api.getById<PurchaseResponse>("purchases", id),
+    queryFn: () => api.getById<PurchaseDetailResponse>("purchases", id),
     select: (res) => res.data,
   });
 
@@ -42,6 +43,10 @@ export function UpdatePurchaseComponent() {
       productId: x.productId,
     })),
   } satisfies PurchaseFormValues;
+
+  // Sold from: a full edit would replace the batches under those sales, so
+  // only the prices can be corrected
+  if (purchase.soldFrom) return <PurchasePriceCorrection purchase={purchase} />;
 
   return (
     <PurchaseForm

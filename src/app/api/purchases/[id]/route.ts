@@ -2,7 +2,7 @@ import { withAuth } from "@/lib/api-auth";
 import { PERMISSIONS } from "@/lib/permissions";
 import * as PurchaseService from "@/module/purchase/purchase.service";
 import { formatResponse } from "@/lib/response";
-import { serializePurchase } from "@/module/purchase/purchase.serializer";
+import { serializePurchaseDetail } from "@/module/purchase/purchase.serializer";
 import { UpdatePurchasePayloadSchema } from "@/module/purchase/purchase.payload.schema";
 
 export async function GET(
@@ -12,7 +12,7 @@ export async function GET(
   return withAuth(async () => {
     const { id } = await params;
     const purchase = await PurchaseService.getPurchaseById(Number(id));
-    return formatResponse({ data: serializePurchase(purchase) });
+    return formatResponse({ data: serializePurchaseDetail(purchase) });
   }, [PERMISSIONS.PURCHASE_READ]);
 }
 

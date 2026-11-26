@@ -66,6 +66,7 @@ export const ModelName = {
   CylinderTransaction: 'CylinderTransaction',
   Stock: 'Stock',
   Purchase: 'Purchase',
+  PurchasePriceCorrection: 'PurchasePriceCorrection',
   PurchaseItem: 'PurchaseItem',
   StockAdjustment: 'StockAdjustment',
   DomSale: 'DomSale',
@@ -306,6 +307,22 @@ export const PurchaseScalarFieldEnum = {
 } as const
 
 export type PurchaseScalarFieldEnum = (typeof PurchaseScalarFieldEnum)[keyof typeof PurchaseScalarFieldEnum]
+
+
+export const PurchasePriceCorrectionScalarFieldEnum = {
+  id: 'id',
+  purchaseId: 'purchaseId',
+  productId: 'productId',
+  batchNo: 'batchNo',
+  quantity: 'quantity',
+  oldUnitCost: 'oldUnitCost',
+  newUnitCost: 'newUnitCost',
+  reason: 'reason',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PurchasePriceCorrectionScalarFieldEnum = (typeof PurchasePriceCorrectionScalarFieldEnum)[keyof typeof PurchasePriceCorrectionScalarFieldEnum]
 
 
 export const PurchaseItemScalarFieldEnum = {

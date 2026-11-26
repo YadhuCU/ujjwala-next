@@ -276,6 +276,10 @@ Other module-specific rules:
   cylinders. Every line creates a `Stock` batch; `batchNo` comes from the vendor
   or is generated as `BATCH-{yyyymmdd}-P{purchaseId}-PR{productId}-{n}`. A purchase
   can only be updated or deleted while **none** of its batches appear in a sale.
+  Its **prices** can be corrected at any time (`correctPurchasePrices`): unit
+  cost moves no cylinders, so the line, its batch's `productCost` and the total
+  change in place, past profit follows, and each change is logged in the
+  append-only `PurchasePriceCorrection`.
 - **Dom / ARB sale** — `trNo` is `DOM-` / `ARB-{yyyymmdd}-{00001}` (India
   date) and is assigned after the header insert.
 - **ARB** — `paidAmount <= totalAmount`. Ledger: `SALE_CHARGE +total`,

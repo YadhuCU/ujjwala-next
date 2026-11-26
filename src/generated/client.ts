@@ -149,6 +149,20 @@ export type Stock = Prisma.StockModel
  */
 export type Purchase = Prisma.PurchaseModel
 /**
+ * Model PurchasePriceCorrection
+ * APPEND-ONLY. One row per purchase line whose unit cost was corrected in
+ * place (purchase.service correctPurchasePrices). A unit cost moves no
+ * cylinders and no customer money — it is only what the batch cost us, which
+ * the profit report and the dashboard read — so it can be fixed after the
+ * batch has been sold from, where a full purchase edit cannot. Fixing it
+ * rewrites past profit, so every change is kept here with who, when and why.
+ * 
+ * The line is denormalised (product, batch, quantity) rather than referenced:
+ * a full edit of the purchase, once nothing is sold from it again, replaces
+ * its PurchaseItem rows, and the history has to outlive them.
+ */
+export type PurchasePriceCorrection = Prisma.PurchasePriceCorrectionModel
+/**
  * Model PurchaseItem
  * 
  */

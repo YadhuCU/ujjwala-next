@@ -61,6 +61,37 @@ export const UpdatePurchasePayloadSchema = PurchasePayloadSchema.transform(
   }),
 );
 
+// Unit costs only, plus the header fields nothing else depends on. Allowed even
+// after the batches have been sold from — see correctPurchasePrices. Quantity,
+// product, line type, vendor and date are not here: each of those moves
+// cylinders or a report period, so they stay with the full edit.
+export const CorrectPurchasePricesSchema = z.object({
+  invoiceNo: z.preprocess(
+    emptyToUndefined,
+    z.string().trim().max(50).optional(),
+  ),
+
+  notes: z.preprocess(emptyToUndefined, z.string().trim().optional()),
+
+  reason: z
+    .string()
+    .trim()
+    .min(3, "Say why the price is being corrected")
+    .max(500),
+
+  items: z
+    .array(
+      z.object({
+        id: z.number().int(),
+        unitCost: z
+          .number()
+          .min(0)
+          .transform((value) => Math.round(value * 100) / 100),
+      }),
+    )
+    .min(1),
+});
+
 export const PurchaseQuerySchema = z.object({
   vendorId: z.coerce.number().int().optional(),
   from: z.coerce.date().optional(),
@@ -76,3 +107,6 @@ export type UpdatePurchasePayloadInput = z.infer<
   typeof UpdatePurchasePayloadSchema
 >;
 export type PurchaseQuery = z.infer<typeof PurchaseQuerySchema>;
+export type CorrectPurchasePricesInput = z.infer<
+  typeof CorrectPurchasePricesSchema
+>;
