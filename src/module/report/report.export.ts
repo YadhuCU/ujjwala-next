@@ -157,7 +157,7 @@ export function productWiseExportColumns(): ExportColumn<ProductWiseExportRow>[]
     { header: "Opening Stock", value: (r) => r.openingStock },
     { header: "Purchase Qty", value: (r) => r.purchaseQty },
     { header: "Sales Qty", value: (r) => r.salesQty },
-    { header: "Total Amount", value: (r) => r.totalAmount.toFixed(2) },
+    { header: "Total Sale Amount", value: (r) => r.totalAmount.toFixed(2) },
     { header: "Adjustments", value: (r) => r.adjustments },
     { header: "Closing Stock", value: (r) => r.closingStock },
   ];

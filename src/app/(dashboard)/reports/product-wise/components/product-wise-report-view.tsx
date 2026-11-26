@@ -49,7 +49,7 @@ export function ProductWiseReportView() {
       cell: (row) => <span className="font-semibold">{row.closingStock}</span>,
     },
     {
-      header: "Total Amount",
+      header: "Total Sale Amount",
       align: "right",
       cell: (row) => (
         <span className="font-semibold">{formatCurrency(row.totalAmount)}</span>
@@ -71,7 +71,7 @@ export function ProductWiseReportView() {
               { title: "Sold", value: report?.summary.salesQty },
               { title: "Adjustments", value: report?.summary.adjustments },
               {
-                title: "Total Amount",
+                title: "Total Sale Amount",
                 value: report?.summary.totalAmount,
                 format: formatCurrency,
                 highlight: true,

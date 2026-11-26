@@ -6,6 +6,7 @@ import { useVendors } from "@/hooks/use-api";
 import { api } from "@/lib/api-client";
 import { purchaseReportOptions } from "@/lib/query-options";
 import type { PurchaseReportResponse } from "@/module/report/report.serializer";
+import { Badge } from "@/components/ui/badge";
 import {
   ReportFilterCard,
   ReportSelectFilter,
@@ -20,8 +21,6 @@ import {
   REPORT_PAGE_LIMIT,
   useReportFilters,
 } from "../../_components/use-report-filters";
-
-type PurchaseRow = PurchaseReportResponse["data"][number];
 
 const ALL = "all";
 
@@ -42,38 +41,50 @@ export function PurchaseReportView() {
     enabled: filters.searchTriggered,
   });
 
-  const columns: ReportColumn<PurchaseRow>[] = [
-    { header: "Invoice No", cell: (row) => row.invoiceNo ?? "—" },
+  // One row per invoice: its number, date, vendor and total are single cells
+  // spanning its items, and each item is a line of its own beside them — so an
+  // invoice's items read as one group, with nothing repeated.
+  type Purchase = PurchaseReportResponse["data"][number];
+  type Item = Purchase["items"][number];
+
+  const money = (value: number | undefined) =>
+    value === undefined ? "—" : formatCurrency(value);
+  const none = () => null;
+
+  const columns: ReportColumn<Purchase, Item>[] = [
+    { header: "Invoice No", merge: true, cell: (p) => p.invoiceNo ?? "—" },
     {
       header: "Date",
-      cell: (row) => new Date(row.purchaseDate).toLocaleDateString("en-IN"),
+      merge: true,
+      cell: (p) => new Date(p.purchaseDate).toLocaleDateString("en-IN"),
     },
-    { header: "Vendor", cell: (row) => row.vendor?.name ?? "—" },
-    {
-      header: "Products (Qty)",
-      cell: (row) =>
-        row.items
-          .map((item) => `${item.product?.name ?? ""} (${item.quantity})`)
-          .join(", "),
-    },
+    { header: "Vendor", merge: true, cell: (p) => p.vendor?.name ?? "—" },
+    { header: "Item", cell: none, sub: (item) => item.product?.name ?? "—" },
+    { header: "Qty", align: "right", cell: none, sub: (item) => item.quantity },
     {
       header: "Type",
-      cell: (row) =>
-        [...new Set(row.items.map((item) => item.purchaseType))].join(", "),
+      cell: none,
+      sub: (item) => <Badge variant="outline">{item.purchaseType}</Badge>,
     },
+    { header: "Batch", cell: none, sub: (item) => item.batchNo || "—" },
     {
-      header: "Batches",
-      cell: (row) =>
-        row.items
-          .map((item) => item.batchNo)
-          .filter(Boolean)
-          .join(", ") || "—",
-    },
-    {
-      header: "Total Cost",
+      header: "Unit Cost",
       align: "right",
-      cell: (row) => (
-        <span className="font-semibold">{formatCurrency(row.totalCost)}</span>
+      cell: none,
+      sub: (item) => money(item.unitCost),
+    },
+    {
+      header: "Line Total",
+      align: "right",
+      cell: none,
+      sub: (item) => money(item.totalCost),
+    },
+    {
+      header: "Invoice Total",
+      align: "right",
+      merge: true,
+      cell: (p) => (
+        <span className="font-semibold">{formatCurrency(p.totalCost)}</span>
       ),
     },
   ];
@@ -107,7 +118,10 @@ export function PurchaseReportView() {
           <ReportResults
             columns={columns}
             rows={report?.data ?? []}
-            rowKey={(row) => row.id}
+            rowKey={(p) => p.id}
+            lines={(p) => p.items}
+            subRowKey={(item) => item.id}
+            countNoun="invoices"
             pagination={report?.pagination}
             isLoading={isLoading}
             isFetching={isFetching}

@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
           `Date Range: ${params.from} to ${params.to}`,
           `Generated: ${new Date().toLocaleString("en-IN")}`,
           `Total Sales Qty: ${summary.salesQty}`,
-          `Total Amount: ${summary.totalAmount.toFixed(2)}`,
+          `Total Sale Amount: ${summary.totalAmount.toFixed(2)}`,
         ],
         columns: productWiseExportColumns(),
         rows: data,
