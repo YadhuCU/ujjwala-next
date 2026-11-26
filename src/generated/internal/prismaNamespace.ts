@@ -399,6 +399,7 @@ export const ModelName = {
   CylinderTransaction: 'CylinderTransaction',
   Stock: 'Stock',
   Purchase: 'Purchase',
+  PurchasePriceCorrection: 'PurchasePriceCorrection',
   PurchaseItem: 'PurchaseItem',
   StockAdjustment: 'StockAdjustment',
   DomSale: 'DomSale',
@@ -427,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userRole" | "role" | "permission" | "rbacAuditLog" | "rolePermission" | "location" | "customer" | "customerInitialCylinderBalance" | "product" | "vendor" | "godownInventory" | "cylinderTransaction" | "stock" | "purchase" | "purchaseItem" | "stockAdjustment" | "domSale" | "domSaleItem" | "arbSale" | "arbSaleItem" | "commercialSale" | "commercialSaleReturn" | "commercialSaleItem" | "expense" | "customerPaymentLedger" | "customerBalance" | "customerCylinderLedger"
+    modelProps: "user" | "userRole" | "role" | "permission" | "rbacAuditLog" | "rolePermission" | "location" | "customer" | "customerInitialCylinderBalance" | "product" | "vendor" | "godownInventory" | "cylinderTransaction" | "stock" | "purchase" | "purchasePriceCorrection" | "purchaseItem" | "stockAdjustment" | "domSale" | "domSaleItem" | "arbSale" | "arbSaleItem" | "commercialSale" | "commercialSaleReturn" | "commercialSaleItem" | "expense" | "customerPaymentLedger" | "customerBalance" | "customerCylinderLedger"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1538,6 +1539,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PurchaseCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PurchaseCountAggregateOutputType> | number
+        }
+      }
+    }
+    PurchasePriceCorrection: {
+      payload: Prisma.$PurchasePriceCorrectionPayload<ExtArgs>
+      fields: Prisma.PurchasePriceCorrectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PurchasePriceCorrectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PurchasePriceCorrectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>
+        }
+        findFirst: {
+          args: Prisma.PurchasePriceCorrectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PurchasePriceCorrectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>
+        }
+        findMany: {
+          args: Prisma.PurchasePriceCorrectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>[]
+        }
+        create: {
+          args: Prisma.PurchasePriceCorrectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>
+        }
+        createMany: {
+          args: Prisma.PurchasePriceCorrectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PurchasePriceCorrectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>[]
+        }
+        delete: {
+          args: Prisma.PurchasePriceCorrectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>
+        }
+        update: {
+          args: Prisma.PurchasePriceCorrectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.PurchasePriceCorrectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PurchasePriceCorrectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PurchasePriceCorrectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.PurchasePriceCorrectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PurchasePriceCorrectionPayload>
+        }
+        aggregate: {
+          args: Prisma.PurchasePriceCorrectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePurchasePriceCorrection>
+        }
+        groupBy: {
+          args: Prisma.PurchasePriceCorrectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PurchasePriceCorrectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PurchasePriceCorrectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PurchasePriceCorrectionCountAggregateOutputType> | number
         }
       }
     }
@@ -2753,6 +2828,22 @@ export const PurchaseScalarFieldEnum = {
 export type PurchaseScalarFieldEnum = (typeof PurchaseScalarFieldEnum)[keyof typeof PurchaseScalarFieldEnum]
 
 
+export const PurchasePriceCorrectionScalarFieldEnum = {
+  id: 'id',
+  purchaseId: 'purchaseId',
+  productId: 'productId',
+  batchNo: 'batchNo',
+  quantity: 'quantity',
+  oldUnitCost: 'oldUnitCost',
+  newUnitCost: 'newUnitCost',
+  reason: 'reason',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type PurchasePriceCorrectionScalarFieldEnum = (typeof PurchasePriceCorrectionScalarFieldEnum)[keyof typeof PurchasePriceCorrectionScalarFieldEnum]
+
+
 export const PurchaseItemScalarFieldEnum = {
   id: 'id',
   purchaseId: 'purchaseId',
@@ -3300,6 +3391,7 @@ export type GlobalOmitConfig = {
   cylinderTransaction?: Prisma.CylinderTransactionOmit
   stock?: Prisma.StockOmit
   purchase?: Prisma.PurchaseOmit
+  purchasePriceCorrection?: Prisma.PurchasePriceCorrectionOmit
   purchaseItem?: Prisma.PurchaseItemOmit
   stockAdjustment?: Prisma.StockAdjustmentOmit
   domSale?: Prisma.DomSaleOmit

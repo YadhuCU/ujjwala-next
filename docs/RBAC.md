@@ -54,7 +54,7 @@ Legend: **View / Add / Edit / Delete** are the four codes for that module.
 | **Godown** | `/godown` | `stock.read` | No | Read-only. Cylinder position per product and the movement ledger. |
 | **Stock** | `/stock` | `stock.*` | No | `stock.update` also gates posting a stock adjustment. |
 | **Stock adjustments** | `/stock-adjustments` | View: `stock.read`, Post: `stock.update` | No | Append-only; nothing can edit or delete one. |
-| **Purchases** | `/purchases` | `purchase.*` | No | Everyone who can view purchases sees all of them. |
+| **Purchases** | `/purchases` | `purchase.*` | No | Everyone who can view purchases sees all of them. `purchase.update` also allows correcting the prices of a purchase whose stock has been sold. |
 | **Domestic sale** | `/dom-sales` | `domestic_sale.read` + a scope, `domestic_sale.create/update/delete` | **Yes** | Scoped on the **field staff** a sale belongs to, not its author. "Every field staff's sales" (`domestic_sale.read.all`) is also what shows the Field staff dropdown — give it to the office; field staff get "Own sales only". |
 | **ARB sale** | `/arb-sales` | `arb_sale.*` | No | |
 | **Commercial sale** | `/commercial-sales` | `commercial_sale.*` | No | Recording a cylinder return needs `commercial_sale.update`. |

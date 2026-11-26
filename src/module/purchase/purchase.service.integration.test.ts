@@ -1,15 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ProductType, PurchaseType, TxnType } from "@/generated/client";
+import {
+  CommercialSaleType,
+  PaymentType,
+  ProductType,
+  PurchaseType,
+  TxnType,
+} from "@/generated/client";
 import { prisma } from "@/lib/prisma";
 import {
   assertGodownMatchesLedger,
   godownOf,
+  makeCustomer,
   makeProduct,
   makeUser,
   makeVendor,
   seedGodown,
 } from "@/test/factories";
 import * as PurchaseService from "./purchase.service";
+import * as CommercialSaleService from "@/module/commercial-sale/commercial-sale.service";
+import * as ReportService from "@/module/report/report.service";
 
 let userId: number;
 let vendorId: number;
@@ -279,6 +288,193 @@ describe("deletePurchase", () => {
     });
     expect(deleted.isDeleted).toBe(true);
     expect(deleted.updatedById).toBe(userId);
+  });
+});
+
+// =============================================================================
+// CORRECTING PRICES
+// A unit cost moves no cylinders, so it can be fixed after the batch has been
+// sold from — the one correction a full edit cannot make by then.
+// =============================================================================
+
+describe("correctPurchasePrices", () => {
+  /** A commercial purchase at ₹800 a cylinder, 4 of its 10 sold on rent. */
+  async function soldPurchase() {
+    const product = await makeProduct(ProductType.COMMERCIAL);
+    const purchase = await PurchaseService.createPurchase(
+      { ...purchaseInput(product.id), invoiceNo: "INV-1" },
+      userId,
+    );
+    const batch = purchase.stocks[0];
+    const customer = await makeCustomer();
+
+    await CommercialSaleService.createCommercialSale(
+      {
+        customerId: customer.id,
+        invoiceDate: new Date(),
+        paymentType: PaymentType.CASH,
+        paidAmount: 0,
+        discount: undefined,
+        notes: undefined,
+        items: [
+          {
+            stockId: batch.id,
+            saleType: CommercialSaleType.RENT,
+            quantity: 4,
+            salePrice: 1000,
+          },
+        ],
+        returns: [],
+      },
+      userId,
+    );
+
+    return { product, purchase, batch, line: purchase.items[0] };
+  }
+
+  const correction = (lineId: number, unitCost: number, extra = {}) => ({
+    invoiceNo: "INV-1",
+    notes: undefined,
+    reason: "Vendor bill says ₹850",
+    items: [{ id: lineId, unitCost }],
+    ...extra,
+  });
+
+  it("is the way to fix a sold purchase — the full edit is refused", async () => {
+    const { product, purchase } = await soldPurchase();
+
+    await expect(
+      PurchaseService.updatePurchase(purchase.id, purchaseInput(product.id), userId),
+    ).rejects.toThrow(/Correct its prices instead/);
+    expect((await PurchaseService.getPurchaseById(purchase.id)).soldFrom).toBe(true);
+  });
+
+  it("changes the line, the batch's cost and the purchase total together", async () => {
+    const { purchase, batch, line } = await soldPurchase();
+
+    const corrected = await PurchaseService.correctPurchasePrices(
+      purchase.id,
+      correction(line.id, 850),
+      userId,
+    );
+
+    expect(Number(corrected.totalCost)).toBe(8500);
+    expect(corrected.updatedById).toBe(userId);
+    const item = await prisma.purchaseItem.findUniqueOrThrow({ where: { id: line.id } });
+    expect(Number(item.unitCost)).toBe(850);
+    expect(Number(item.totalCost)).toBe(8500);
+    const stock = await prisma.stock.findUniqueOrThrow({ where: { id: batch.id } });
+    expect(Number(stock.productCost)).toBe(850);
+  });
+
+  it("moves no cylinders and leaves the batch and its sale alone", async () => {
+    const { product, purchase, batch, line } = await soldPurchase();
+    const ledgerBefore = await prisma.cylinderTransaction.count();
+    const godownBefore = await godownOf(product.id);
+
+    await PurchaseService.correctPurchasePrices(purchase.id, correction(line.id, 850), userId);
+
+    expect(await prisma.cylinderTransaction.count()).toBe(ledgerBefore);
+    expect(await godownOf(product.id)).toMatchObject({
+      filledQty: godownBefore.filledQty,
+      emptyQty: godownBefore.emptyQty,
+    });
+    const stock = await prisma.stock.findUniqueOrThrow({ where: { id: batch.id } });
+    expect(stock.quantity).toBe(6);
+    expect(stock.isDeleted).toBe(false);
+    expect(await prisma.commercialSaleItem.count({ where: { stockId: batch.id } })).toBe(1);
+    await assertGodownMatchesLedger(product.id);
+  });
+
+  it("carries through to the profit on what was already sold", async () => {
+    const { purchase, line } = await soldPurchase();
+    const range = {
+      from: new Date(Date.now() - 86_400_000),
+      to: new Date(Date.now() + 86_400_000),
+      view: "category" as const,
+      category: "COMMERCIAL" as const,
+    };
+
+    const before = await ReportService.getProfitReport(range);
+    expect(before.summary.cost).toBe(3200); // 4 × 800
+
+    await PurchaseService.correctPurchasePrices(purchase.id, correction(line.id, 850), userId);
+
+    const after = await ReportService.getProfitReport(range);
+    expect(after.summary.cost).toBe(3400); // 4 × 850
+    expect(after.summary.sales).toBe(before.summary.sales);
+  });
+
+  it("logs each changed line with the old and new price, who and why", async () => {
+    const { purchase, line, product } = await soldPurchase();
+
+    await PurchaseService.correctPurchasePrices(purchase.id, correction(line.id, 850), userId);
+
+    const detail = await PurchaseService.getPurchaseById(purchase.id);
+    expect(detail.priceCorrections).toHaveLength(1);
+    const [entry] = detail.priceCorrections;
+    expect(entry).toMatchObject({
+      productId: product.id,
+      batchNo: line.batchNo,
+      quantity: 10,
+      reason: "Vendor bill says ₹850",
+      createdById: userId,
+    });
+    expect(Number(entry.oldUnitCost)).toBe(800);
+    expect(Number(entry.newUnitCost)).toBe(850);
+  });
+
+  it("copies a corrected invoice number onto the batches", async () => {
+    const { purchase, batch, line } = await soldPurchase();
+
+    await PurchaseService.correctPurchasePrices(
+      purchase.id,
+      correction(line.id, 800, { invoiceNo: "INV-1A" }),
+      userId,
+    );
+
+    const stock = await prisma.stock.findUniqueOrThrow({ where: { id: batch.id } });
+    expect(stock.invoiceNo).toBe("INV-1A");
+    // only the header changed, so there is no price to log
+    expect(await prisma.purchasePriceCorrection.count()).toBe(0);
+  });
+
+  it("refuses a line from another purchase", async () => {
+    const { purchase } = await soldPurchase();
+    const other = await PurchaseService.createPurchase(
+      purchaseInput((await makeProduct(ProductType.COMMERCIAL)).id),
+      userId,
+    );
+
+    await expect(
+      PurchaseService.correctPurchasePrices(
+        purchase.id,
+        correction(other.items[0].id, 850),
+        userId,
+      ),
+    ).rejects.toThrow(/not on purchase/);
+  });
+
+  it("refuses a correction that changes nothing", async () => {
+    const { purchase, line } = await soldPurchase();
+
+    await expect(
+      PurchaseService.correctPurchasePrices(purchase.id, correction(line.id, 800), userId),
+    ).rejects.toThrow(/Nothing to correct/);
+  });
+
+  it("refuses a deleted purchase", async () => {
+    const product = await makeProduct(ProductType.COMMERCIAL);
+    const purchase = await PurchaseService.createPurchase(purchaseInput(product.id), userId);
+    await PurchaseService.deletePurchase(purchase.id, userId);
+
+    await expect(
+      PurchaseService.correctPurchasePrices(
+        purchase.id,
+        correction(purchase.items[0].id, 850),
+        userId,
+      ),
+    ).rejects.toThrow(/not found/);
   });
 });
 

@@ -54,3 +54,32 @@ export const PurchaseCreateFormSchema = z.object({
 });
 
 export type PurchaseFormValues = z.infer<typeof PurchaseCreateFormSchema>;
+
+/* ---------- Price correction ---------- */
+// The purchase's batches have been sold from, so only the unit costs (and the
+// invoice number and notes) can change — see CorrectPurchasePricesSchema.
+
+export const PurchasePriceCorrectionFormSchema = z.object({
+  invoiceNo: z.string().trim().max(50, "Invoice number cannot exceed 50 characters"),
+
+  notes: z.string().trim(),
+
+  reason: z
+    .string()
+    .trim()
+    .min(3, "Say why the price is being corrected")
+    .max(500, "Keep the reason under 500 characters"),
+
+  items: z.array(
+    z.object({
+      id: z.number(),
+      unitCost: z.coerce
+        .number("Unit cost required")
+        .min(0, "Unit cost cannot be negative"),
+    }),
+  ),
+});
+
+export type PurchasePriceCorrectionFormValues = z.infer<
+  typeof PurchasePriceCorrectionFormSchema
+>;

@@ -285,6 +285,7 @@ export type PurchaseWhereInput = {
   updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.PurchaseItemListRelationFilter
   stocks?: Prisma.StockListRelationFilter
+  priceCorrections?: Prisma.PurchasePriceCorrectionListRelationFilter
 }
 
 export type PurchaseOrderByWithRelationInput = {
@@ -304,6 +305,7 @@ export type PurchaseOrderByWithRelationInput = {
   updatedBy?: Prisma.UserOrderByWithRelationInput
   items?: Prisma.PurchaseItemOrderByRelationAggregateInput
   stocks?: Prisma.StockOrderByRelationAggregateInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionOrderByRelationAggregateInput
 }
 
 export type PurchaseWhereUniqueInput = Prisma.AtLeast<{
@@ -326,6 +328,7 @@ export type PurchaseWhereUniqueInput = Prisma.AtLeast<{
   updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   items?: Prisma.PurchaseItemListRelationFilter
   stocks?: Prisma.StockListRelationFilter
+  priceCorrections?: Prisma.PurchasePriceCorrectionListRelationFilter
 }, "id" | "invoiceNo">
 
 export type PurchaseOrderByWithAggregationInput = {
@@ -377,6 +380,7 @@ export type PurchaseCreateInput = {
   updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUncheckedCreateInput = {
@@ -393,6 +397,7 @@ export type PurchaseUncheckedCreateInput = {
   updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUpdateInput = {
@@ -408,6 +413,7 @@ export type PurchaseUpdateInput = {
   updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateInput = {
@@ -424,6 +430,7 @@ export type PurchaseUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseCreateManyInput = {
@@ -684,6 +691,20 @@ export type PurchaseUpdateOneWithoutStocksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PurchaseUpdateToOneWithWhereWithoutStocksInput, Prisma.PurchaseUpdateWithoutStocksInput>, Prisma.PurchaseUncheckedUpdateWithoutStocksInput>
 }
 
+export type PurchaseCreateNestedOneWithoutPriceCorrectionsInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutPriceCorrectionsInput, Prisma.PurchaseUncheckedCreateWithoutPriceCorrectionsInput>
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutPriceCorrectionsInput
+  connect?: Prisma.PurchaseWhereUniqueInput
+}
+
+export type PurchaseUpdateOneRequiredWithoutPriceCorrectionsNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseCreateWithoutPriceCorrectionsInput, Prisma.PurchaseUncheckedCreateWithoutPriceCorrectionsInput>
+  connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutPriceCorrectionsInput
+  upsert?: Prisma.PurchaseUpsertWithoutPriceCorrectionsInput
+  connect?: Prisma.PurchaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PurchaseUpdateToOneWithWhereWithoutPriceCorrectionsInput, Prisma.PurchaseUpdateWithoutPriceCorrectionsInput>, Prisma.PurchaseUncheckedUpdateWithoutPriceCorrectionsInput>
+}
+
 export type PurchaseCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.PurchaseCreateWithoutItemsInput, Prisma.PurchaseUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.PurchaseCreateOrConnectWithoutItemsInput
@@ -710,6 +731,7 @@ export type PurchaseCreateWithoutCreatedByInput = {
   updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUncheckedCreateWithoutCreatedByInput = {
@@ -725,6 +747,7 @@ export type PurchaseUncheckedCreateWithoutCreatedByInput = {
   updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseCreateOrConnectWithoutCreatedByInput = {
@@ -749,6 +772,7 @@ export type PurchaseCreateWithoutUpdatedByInput = {
   createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUncheckedCreateWithoutUpdatedByInput = {
@@ -764,6 +788,7 @@ export type PurchaseUncheckedCreateWithoutUpdatedByInput = {
   updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseCreateOrConnectWithoutUpdatedByInput = {
@@ -837,6 +862,7 @@ export type PurchaseCreateWithoutVendorInput = {
   updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUncheckedCreateWithoutVendorInput = {
@@ -852,6 +878,7 @@ export type PurchaseUncheckedCreateWithoutVendorInput = {
   updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseCreateOrConnectWithoutVendorInput = {
@@ -892,6 +919,7 @@ export type PurchaseCreateWithoutStocksInput = {
   createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
   updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUncheckedCreateWithoutStocksInput = {
@@ -907,6 +935,7 @@ export type PurchaseUncheckedCreateWithoutStocksInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseCreateOrConnectWithoutStocksInput = {
@@ -937,6 +966,7 @@ export type PurchaseUpdateWithoutStocksInput = {
   createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
   updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateWithoutStocksInput = {
@@ -952,6 +982,85 @@ export type PurchaseUncheckedUpdateWithoutStocksInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseCreateWithoutPriceCorrectionsInput = {
+  invoiceNo?: string | null
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  vendor: Prisma.VendorCreateNestedOneWithoutPurchasesInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
+  items?: Prisma.PurchaseItemCreateNestedManyWithoutPurchaseInput
+  stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
+}
+
+export type PurchaseUncheckedCreateWithoutPriceCorrectionsInput = {
+  id?: number
+  invoiceNo?: string | null
+  vendorId: number
+  totalCost: runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Date | string
+  notes?: string | null
+  isDeleted?: boolean
+  createdById?: number | null
+  updatedById?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.PurchaseItemUncheckedCreateNestedManyWithoutPurchaseInput
+  stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
+}
+
+export type PurchaseCreateOrConnectWithoutPriceCorrectionsInput = {
+  where: Prisma.PurchaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutPriceCorrectionsInput, Prisma.PurchaseUncheckedCreateWithoutPriceCorrectionsInput>
+}
+
+export type PurchaseUpsertWithoutPriceCorrectionsInput = {
+  update: Prisma.XOR<Prisma.PurchaseUpdateWithoutPriceCorrectionsInput, Prisma.PurchaseUncheckedUpdateWithoutPriceCorrectionsInput>
+  create: Prisma.XOR<Prisma.PurchaseCreateWithoutPriceCorrectionsInput, Prisma.PurchaseUncheckedCreateWithoutPriceCorrectionsInput>
+  where?: Prisma.PurchaseWhereInput
+}
+
+export type PurchaseUpdateToOneWithWhereWithoutPriceCorrectionsInput = {
+  where?: Prisma.PurchaseWhereInput
+  data: Prisma.XOR<Prisma.PurchaseUpdateWithoutPriceCorrectionsInput, Prisma.PurchaseUncheckedUpdateWithoutPriceCorrectionsInput>
+}
+
+export type PurchaseUpdateWithoutPriceCorrectionsInput = {
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchasesNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
+  items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
+  stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+}
+
+export type PurchaseUncheckedUpdateWithoutPriceCorrectionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  invoiceNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vendorId?: Prisma.IntFieldUpdateOperationsInput | number
+  totalCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  purchaseDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  updatedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
+  stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseCreateWithoutItemsInput = {
@@ -966,6 +1075,7 @@ export type PurchaseCreateWithoutItemsInput = {
   createdBy?: Prisma.UserCreateNestedOneWithoutPurchasesCreatedInput
   updatedBy?: Prisma.UserCreateNestedOneWithoutPurchasesUpdatedInput
   stocks?: Prisma.StockCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseUncheckedCreateWithoutItemsInput = {
@@ -981,6 +1091,7 @@ export type PurchaseUncheckedCreateWithoutItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   stocks?: Prisma.StockUncheckedCreateNestedManyWithoutPurchaseInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedCreateNestedManyWithoutPurchaseInput
 }
 
 export type PurchaseCreateOrConnectWithoutItemsInput = {
@@ -1011,6 +1122,7 @@ export type PurchaseUpdateWithoutItemsInput = {
   createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
   updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateWithoutItemsInput = {
@@ -1026,6 +1138,7 @@ export type PurchaseUncheckedUpdateWithoutItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseCreateManyCreatedByInput = {
@@ -1066,6 +1179,7 @@ export type PurchaseUpdateWithoutCreatedByInput = {
   updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateWithoutCreatedByInput = {
@@ -1081,6 +1195,7 @@ export type PurchaseUncheckedUpdateWithoutCreatedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateManyWithoutCreatedByInput = {
@@ -1108,6 +1223,7 @@ export type PurchaseUpdateWithoutUpdatedByInput = {
   createdBy?: Prisma.UserUpdateOneWithoutPurchasesCreatedNestedInput
   items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateWithoutUpdatedByInput = {
@@ -1123,6 +1239,7 @@ export type PurchaseUncheckedUpdateWithoutUpdatedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -1163,6 +1280,7 @@ export type PurchaseUpdateWithoutVendorInput = {
   updatedBy?: Prisma.UserUpdateOneWithoutPurchasesUpdatedNestedInput
   items?: Prisma.PurchaseItemUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateWithoutVendorInput = {
@@ -1178,6 +1296,7 @@ export type PurchaseUncheckedUpdateWithoutVendorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.PurchaseItemUncheckedUpdateManyWithoutPurchaseNestedInput
   stocks?: Prisma.StockUncheckedUpdateManyWithoutPurchaseNestedInput
+  priceCorrections?: Prisma.PurchasePriceCorrectionUncheckedUpdateManyWithoutPurchaseNestedInput
 }
 
 export type PurchaseUncheckedUpdateManyWithoutVendorInput = {
@@ -1201,11 +1320,13 @@ export type PurchaseUncheckedUpdateManyWithoutVendorInput = {
 export type PurchaseCountOutputType = {
   items: number
   stocks: number
+  priceCorrections: number
 }
 
 export type PurchaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | PurchaseCountOutputTypeCountItemsArgs
   stocks?: boolean | PurchaseCountOutputTypeCountStocksArgs
+  priceCorrections?: boolean | PurchaseCountOutputTypeCountPriceCorrectionsArgs
 }
 
 /**
@@ -1232,6 +1353,13 @@ export type PurchaseCountOutputTypeCountStocksArgs<ExtArgs extends runtime.Types
   where?: Prisma.StockWhereInput
 }
 
+/**
+ * PurchaseCountOutputType without action
+ */
+export type PurchaseCountOutputTypeCountPriceCorrectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PurchasePriceCorrectionWhereInput
+}
+
 
 export type PurchaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1250,6 +1378,7 @@ export type PurchaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.Purchase$itemsArgs<ExtArgs>
   stocks?: boolean | Prisma.Purchase$stocksArgs<ExtArgs>
+  priceCorrections?: boolean | Prisma.Purchase$priceCorrectionsArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["purchase"]>
 
@@ -1308,6 +1437,7 @@ export type PurchaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedBy?: boolean | Prisma.Purchase$updatedByArgs<ExtArgs>
   items?: boolean | Prisma.Purchase$itemsArgs<ExtArgs>
   stocks?: boolean | Prisma.Purchase$stocksArgs<ExtArgs>
+  priceCorrections?: boolean | Prisma.Purchase$priceCorrectionsArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PurchaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1329,6 +1459,7 @@ export type $PurchasePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     updatedBy: Prisma.$UserPayload<ExtArgs> | null
     items: Prisma.$PurchaseItemPayload<ExtArgs>[]
     stocks: Prisma.$StockPayload<ExtArgs>[]
+    priceCorrections: Prisma.$PurchasePriceCorrectionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1741,6 +1872,7 @@ export interface Prisma__PurchaseClient<T, Null = never, ExtArgs extends runtime
   updatedBy<T extends Prisma.Purchase$updatedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$updatedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Purchase$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stocks<T extends Prisma.Purchase$stocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$stocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  priceCorrections<T extends Prisma.Purchase$priceCorrectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Purchase$priceCorrectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchasePriceCorrectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2265,6 +2397,30 @@ export type Purchase$stocksArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.StockScalarFieldEnum | Prisma.StockScalarFieldEnum[]
+}
+
+/**
+ * Purchase.priceCorrections
+ */
+export type Purchase$priceCorrectionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PurchasePriceCorrection
+   */
+  select?: Prisma.PurchasePriceCorrectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PurchasePriceCorrection
+   */
+  omit?: Prisma.PurchasePriceCorrectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PurchasePriceCorrectionInclude<ExtArgs> | null
+  where?: Prisma.PurchasePriceCorrectionWhereInput
+  orderBy?: Prisma.PurchasePriceCorrectionOrderByWithRelationInput | Prisma.PurchasePriceCorrectionOrderByWithRelationInput[]
+  cursor?: Prisma.PurchasePriceCorrectionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PurchasePriceCorrectionScalarFieldEnum | Prisma.PurchasePriceCorrectionScalarFieldEnum[]
 }
 
 /**
