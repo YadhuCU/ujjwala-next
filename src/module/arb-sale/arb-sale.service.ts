@@ -5,7 +5,7 @@ import {
   Prisma,
   RefType,
 } from "@/generated/client";
-import { NotFoundError, BadRequestError, ConflictError } from "@/lib/errors";
+import { NotFoundError, ConflictError } from "@/lib/errors";
 import { ArbSaleQuery, CreateArbSaleInput, UpdateArbSaleInput } from "./arb-sale.payload.schema";
 import { businessDayKey, businessDayRange } from "@/lib/business-day";
 
@@ -257,10 +257,9 @@ async function reverseCustomerLedger(
 
 export async function createArbSale(input: CreateArbSaleInput, userId: number) {
   const { items, customerId, paidAmount, discount, ...header } = input;
+  // No cap on paidAmount: a customer may pay part of this invoice now, or more
+  // than it comes to — the excess settles what they already owed.
   const { totalAmount } = computeTotals(items, discount ?? 0);
-
-  if (paidAmount > totalAmount)
-    throw new BadRequestError("Paid amount cannot exceed total amount");
 
   return prisma.$transaction(async (tx) => {
     // 1. Validate stock batches + build stockMap { stockId → { productId, batchNo, qty } }
@@ -365,10 +364,9 @@ export async function updateArbSale(
   userId: number,
 ) {
   const { items, customerId, paidAmount, discount, ...header } = input;
+  // No cap on paidAmount: a customer may pay part of this invoice now, or more
+  // than it comes to — the excess settles what they already owed.
   const { totalAmount } = computeTotals(items, discount ?? 0);
-
-  if (paidAmount > totalAmount)
-    throw new BadRequestError("Paid amount cannot exceed total amount");
 
   return prisma.$transaction(async (tx) => {
     const original = await assertArbSaleExists(tx, id);

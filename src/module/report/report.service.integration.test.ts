@@ -437,7 +437,7 @@ describe("customer wise report", () => {
         invoiceDate: LONG_AGO(),
         paymentType: PaymentType.CASH,
         paidAmount: 0,
-        discount: undefined,
+        unitDiscount: undefined,
         notes: undefined,
         items: [{ stockId: stock19.id, saleType: CommercialSaleType.RENT, quantity: 5, salePrice: 1000 }],
         returns: [],
@@ -461,7 +461,7 @@ describe("customer wise report", () => {
         invoiceDate: daysAgo(2),
         paymentType: PaymentType.CHEQUE,
         paidAmount: 2000,
-        discount: undefined,
+        unitDiscount: undefined,
         notes: undefined,
         items: [
           { stockId: stock19.id, saleType: CommercialSaleType.RENT, quantity: 4, salePrice: 1000 },
@@ -637,7 +637,7 @@ describe("expense report", () => {
 describe("profit report", () => {
   const profitRange = { from: daysAgo(30), to: today };
 
-  /** A commercial invoice of two items with a ₹100 discount; costs 800 and 500. */
+  /** A commercial invoice of three cylinders at ₹50 off each; costs 800 and 500. */
   async function commercialInvoice() {
     const cyl19 = await makeProduct(ProductType.COMMERCIAL, { name: "19 kg" });
     const cyl47 = await makeProduct(ProductType.COMMERCIAL, { name: "47.5 kg" });
@@ -656,7 +656,7 @@ describe("profit report", () => {
         invoiceDate: today,
         paymentType: PaymentType.CASH,
         paidAmount: 0,
-        discount: 100,
+        unitDiscount: 50,
         notes: undefined,
         items: [
           { stockId: stock19.id, saleType: CommercialSaleType.SALE, quantity: 2, salePrice: 1000 },
@@ -670,7 +670,7 @@ describe("profit report", () => {
   }
 
   it("totals each category, and lists all three even with no sales", async () => {
-    await commercialInvoice(); // 3000 − 100 = 2900, cost 2100
+    await commercialInvoice(); // 3000 − 3 × 50 = 2850, cost 2100
     await domSale(ownerId, 1000); // cost 800
     await arbSale(ownerId, customerId); // 100, cost 800: a loss
 
@@ -682,16 +682,16 @@ describe("profit report", () => {
     expect(
       report.data.map((r) => [r.categoryLabel, r.invoiceCount, r.qty, r.sales, r.cost, r.profit]),
     ).toEqual([
-      ["Commercial", 1, 3, 2900, 2100, 800],
+      ["Commercial", 1, 3, 2850, 2100, 750],
       ["Domestic", 1, 1, 1000, 800, 200],
       ["ARB", 1, 1, 100, 800, -700],
     ]);
     expect(report.summary).toMatchObject({
       invoiceCount: 3,
-      sales: 4000,
+      sales: 3950,
       cost: 3700,
-      grossProfit: 300,
-      margin: 7.5,
+      grossProfit: 250,
+      margin: 6.3,
     });
   });
 
@@ -703,10 +703,10 @@ describe("profit report", () => {
       view: "item",
     });
 
-    // 2900 split 2000 : 1000
+    // 2850 split 2000 : 1000
     expect(report.data.map((r) => [r.productId, r.qty, r.sales, r.cost, r.profit])).toEqual([
-      [cyl19.id, 2, 1933.33, 1600, 333.33],
-      [cyl47.id, 1, 966.67, 500, 466.67],
+      [cyl19.id, 2, 1900, 1600, 300],
+      [cyl47.id, 1, 950, 500, 450],
     ]);
     const sale = await prisma.commercialSale.findFirstOrThrow();
     expect(report.summary.sales).toBe(Number(sale.totalAmount));

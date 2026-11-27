@@ -289,8 +289,10 @@ model Customer {
   location              Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
   concernedPerson       String?   @map("concerned_person") @db.VarChar(30)
   concernedPersonMobile String?   @map("concerned_person_mobile") @db.VarChar(30)
-  /// Flat rupee discount pre-filled on each new commercial invoice for this
-  /// customer (not a percentage, not per cylinder). The invoice can override it.
+  /// Unit discount: rupees off every cylinder on a commercial invoice for this
+  /// customer (not a percentage, not a flat amount per invoice). Pre-filled on
+  /// each new invoice, which can override it. It was a flat ₹ per invoice until
+  /// 2026-11-27, and the stored values were kept as they were.
   discount              Decimal?  @db.Decimal(10, 2)
   gstNumber             String?   @map("gst_number") @db.VarChar(15)
   initialPendingAmount  Decimal   @default(0.00) @map("initial_pending_amount") @db.Decimal(10, 2)
@@ -687,23 +689,28 @@ model ArbSaleItem {
 // =============================================================================
 
 model CommercialSale {
-  id          Int         @id @default(autoincrement())
-  trNo        String?     @unique @map("tr_no") @db.VarChar(30)
-  customerId  Int?        @map("customer_id")
-  customer    Customer?   @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  totalAmount Decimal?    @map("total_amount") @db.Decimal(10, 2)
-  paidAmount  Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
-  discount    Decimal?    @db.Decimal(10, 2)
-  paymentType PaymentType @default(CASH) @map("payment_type")
-  invoiceDate DateTime    @map("invoice_date") @db.Date
-  notes       String?
-  isDeleted   Boolean     @default(false) @map("is_deleted")
-  createdById Int?        @map("created_by_id")
-  createdBy   User?       @relation("CommercialSalesCreatedBy", fields: [createdById], references: [id])
-  updatedById Int?        @map("updated_by_id")
-  updatedBy   User?       @relation("CommercialSalesUpdatedBy", fields: [updatedById], references: [id])
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  id           Int         @id @default(autoincrement())
+  trNo         String?     @unique @map("tr_no") @db.VarChar(30)
+  customerId   Int?        @map("customer_id")
+  customer     Customer?   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  totalAmount  Decimal?    @map("total_amount") @db.Decimal(10, 2)
+  paidAmount   Decimal     @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  /// Rupees off each cylinder on this invoice; `discount` is what it came to
+  /// (unitDiscount × cylinders). Null on invoices from before 2026-11-27,
+  /// whose `discount` was a flat amount.
+  unitDiscount Decimal?    @map("unit_discount") @db.Decimal(10, 2)
+  /// The rupees taken off this invoice's total.
+  discount     Decimal?    @db.Decimal(10, 2)
+  paymentType  PaymentType @default(CASH) @map("payment_type")
+  invoiceDate  DateTime    @map("invoice_date") @db.Date
+  notes        String?
+  isDeleted    Boolean     @default(false) @map("is_deleted")
+  createdById  Int?        @map("created_by_id")
+  createdBy    User?       @relation("CommercialSalesCreatedBy", fields: [createdById], references: [id])
+  updatedById  Int?        @map("updated_by_id")
+  updatedBy    User?       @relation("CommercialSalesUpdatedBy", fields: [updatedById], references: [id])
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
 
   items   CommercialSaleItem[]
   returns CommercialSaleReturn[]

@@ -35,12 +35,22 @@ export function CommercialSaleUpdateComponent() {
     },
   });
 
+  // Invoices from before the discount was per cylinder carry only the flat
+  // amount. Spread it over their cylinders so saving one keeps its total (to
+  // the paisa, if it did not divide evenly).
+  const cylinders = data.items.reduce((sum, item) => sum + item.quantity, 0);
+  const unitDiscount =
+    data.unitDiscount ??
+    (data.discount && cylinders > 0
+      ? Math.round((data.discount / cylinders) * 100) / 100
+      : undefined);
+
   const formDefaults = {
     ...data,
     invoiceDate: new Date(data.invoiceDate),
     notes: data.notes ?? "",
     // No discount comes back as undefined, which would leave the input uncontrolled
-    discount: data.discount ?? "",
+    unitDiscount: unitDiscount ?? "",
     // What this invoice already collected. The form merges these with what the
     // customer currently holds, so a product returned in full still shows.
     returns: data.returns.map((row) => ({
@@ -53,6 +63,12 @@ export function CommercialSaleUpdateComponent() {
     <CommercialSaleForm
       defaultValues={formDefaults}
       isEditMode
+      // What this invoice already added to the customer's balance, so the form
+      // can show the due from before it
+      original={{
+        customerId: data.customerId ?? undefined,
+        netCharge: data.totalAmount - data.paidAmount,
+      }}
       onSubmit={(values) => updateMutation.mutate(values)}
       isPending={updateMutation.isPending}
     />

@@ -19,6 +19,10 @@ export function serializeCommercialSale(sale: CommercialSaleWithRelations) {
 
     notes: sale.notes ?? undefined,
 
+    // Rupees off each cylinder; absent on invoices from before it was per
+    // cylinder, whose `discount` was a flat amount
+    unitDiscount: sale.unitDiscount?.toNumber(),
+
     discount: sale.discount?.toNumber(),
 
     totalAmount: sale.totalAmount?.toNumber() ?? 0,

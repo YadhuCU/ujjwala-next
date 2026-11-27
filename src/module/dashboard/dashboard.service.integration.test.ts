@@ -611,7 +611,7 @@ describe("pending empty cylinders", () => {
         invoiceDate: new Date(),
         paymentType: PaymentType.CASH,
         paidAmount: 0,
-        discount: undefined,
+        unitDiscount: undefined,
         notes: undefined,
         items: items.map((i) => ({ ...i, salePrice: 100 })),
         returns,

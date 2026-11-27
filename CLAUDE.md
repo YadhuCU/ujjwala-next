@@ -282,9 +282,16 @@ Other module-specific rules:
   append-only `PurchasePriceCorrection`.
 - **Dom / ARB sale** — `trNo` is `DOM-` / `ARB-{yyyymmdd}-{00001}` (India
   date) and is assigned after the header insert.
-- **ARB** — `paidAmount <= totalAmount`. Ledger: `SALE_CHARGE +total`,
-  `PAYMENT -paid`, `CustomerBalance += (total - paid)`. An outright sale of a
-  non-cylinder: no cylinder is expected back.
+- **ARB** — Ledger: `SALE_CHARGE +total`, `PAYMENT -paid`,
+  `CustomerBalance += (total - paid)`. An outright sale of a non-cylinder: no
+  cylinder is expected back.
+- **Paid amount on an ARB or commercial invoice is uncapped** (since
+  2026-11-27): a customer may pay part now, or more than the invoice — the
+  excess settles an earlier due, or stays as an advance (a negative
+  `CustomerBalance`). The ledger needs nothing special. Showing one invoice on
+  its own goes through `invoiceBalance` (`src/lib/invoice-balance.ts`): balance
+  never below zero, plus "paid toward earlier due". A customer's outstanding
+  is always the ledger's, never a sum of invoice balances.
 - **Domestic sale is a field staff member's round — no customer.** A field
   staff member goes door to door; each line is `RENT` (a refill:
   `RENT_DELIVERY` out, `emptiesCollected` back as `CYLINDER_RETURN`, the form
@@ -306,8 +313,13 @@ Other module-specific rules:
   refused if those cylinders have since come back.
 - **Commercial sale** — per-line `RENT`, `SALE` or `REFILL` (swap: one
   `REFILL` row, filled out and the customer's empty in, no custody). Picking
-  the customer pre-fills the invoice discount from `Customer.discount`, a flat
-  ₹ amount (it was a % until 2026-11-20). Both draw a filled cylinder
+  the customer pre-fills the invoice's **unit discount** from
+  `Customer.discount` — ₹ off **every cylinder** on the invoice, all line
+  types (a % until 2026-11-20, a flat ₹ per invoice until 2026-11-27). The
+  invoice stores the rate (`unitDiscount`) and what it came to (`discount`),
+  which the service computes; a rate above the cheapest line's price is
+  refused. Older invoices have a null rate and a flat `discount`; their edit
+  form spreads it over their cylinders. Both draw a filled cylinder
   from a `Stock` batch and out of the godown (`RENT_DELIVERY` / `SALE_OUT`);
   `RENT` additionally tracks custody (`cylindersDispatched` /
   `cylindersReturned`, mirrored in `CustomerCylinderLedger.pendingCylinder`).

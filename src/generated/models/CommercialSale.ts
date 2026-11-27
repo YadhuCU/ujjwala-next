@@ -31,6 +31,7 @@ export type CommercialSaleAvgAggregateOutputType = {
   customerId: number | null
   totalAmount: runtime.Decimal | null
   paidAmount: runtime.Decimal | null
+  unitDiscount: runtime.Decimal | null
   discount: runtime.Decimal | null
   createdById: number | null
   updatedById: number | null
@@ -41,6 +42,7 @@ export type CommercialSaleSumAggregateOutputType = {
   customerId: number | null
   totalAmount: runtime.Decimal | null
   paidAmount: runtime.Decimal | null
+  unitDiscount: runtime.Decimal | null
   discount: runtime.Decimal | null
   createdById: number | null
   updatedById: number | null
@@ -52,6 +54,7 @@ export type CommercialSaleMinAggregateOutputType = {
   customerId: number | null
   totalAmount: runtime.Decimal | null
   paidAmount: runtime.Decimal | null
+  unitDiscount: runtime.Decimal | null
   discount: runtime.Decimal | null
   paymentType: $Enums.PaymentType | null
   invoiceDate: Date | null
@@ -69,6 +72,7 @@ export type CommercialSaleMaxAggregateOutputType = {
   customerId: number | null
   totalAmount: runtime.Decimal | null
   paidAmount: runtime.Decimal | null
+  unitDiscount: runtime.Decimal | null
   discount: runtime.Decimal | null
   paymentType: $Enums.PaymentType | null
   invoiceDate: Date | null
@@ -86,6 +90,7 @@ export type CommercialSaleCountAggregateOutputType = {
   customerId: number
   totalAmount: number
   paidAmount: number
+  unitDiscount: number
   discount: number
   paymentType: number
   invoiceDate: number
@@ -104,6 +109,7 @@ export type CommercialSaleAvgAggregateInputType = {
   customerId?: true
   totalAmount?: true
   paidAmount?: true
+  unitDiscount?: true
   discount?: true
   createdById?: true
   updatedById?: true
@@ -114,6 +120,7 @@ export type CommercialSaleSumAggregateInputType = {
   customerId?: true
   totalAmount?: true
   paidAmount?: true
+  unitDiscount?: true
   discount?: true
   createdById?: true
   updatedById?: true
@@ -125,6 +132,7 @@ export type CommercialSaleMinAggregateInputType = {
   customerId?: true
   totalAmount?: true
   paidAmount?: true
+  unitDiscount?: true
   discount?: true
   paymentType?: true
   invoiceDate?: true
@@ -142,6 +150,7 @@ export type CommercialSaleMaxAggregateInputType = {
   customerId?: true
   totalAmount?: true
   paidAmount?: true
+  unitDiscount?: true
   discount?: true
   paymentType?: true
   invoiceDate?: true
@@ -159,6 +168,7 @@ export type CommercialSaleCountAggregateInputType = {
   customerId?: true
   totalAmount?: true
   paidAmount?: true
+  unitDiscount?: true
   discount?: true
   paymentType?: true
   invoiceDate?: true
@@ -263,6 +273,7 @@ export type CommercialSaleGroupByOutputType = {
   customerId: number | null
   totalAmount: runtime.Decimal | null
   paidAmount: runtime.Decimal
+  unitDiscount: runtime.Decimal | null
   discount: runtime.Decimal | null
   paymentType: $Enums.PaymentType
   invoiceDate: Date
@@ -303,6 +314,7 @@ export type CommercialSaleWhereInput = {
   customerId?: Prisma.IntNullableFilter<"CommercialSale"> | number | null
   totalAmount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFilter<"CommercialSale"> | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFilter<"CommercialSale"> | Date | string
@@ -325,6 +337,7 @@ export type CommercialSaleOrderByWithRelationInput = {
   customerId?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  unitDiscount?: Prisma.SortOrderInput | Prisma.SortOrder
   discount?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentType?: Prisma.SortOrder
   invoiceDate?: Prisma.SortOrder
@@ -350,6 +363,7 @@ export type CommercialSaleWhereUniqueInput = Prisma.AtLeast<{
   customerId?: Prisma.IntNullableFilter<"CommercialSale"> | number | null
   totalAmount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFilter<"CommercialSale"> | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFilter<"CommercialSale"> | Date | string
@@ -372,6 +386,7 @@ export type CommercialSaleOrderByWithAggregationInput = {
   customerId?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  unitDiscount?: Prisma.SortOrderInput | Prisma.SortOrder
   discount?: Prisma.SortOrderInput | Prisma.SortOrder
   paymentType?: Prisma.SortOrder
   invoiceDate?: Prisma.SortOrder
@@ -397,6 +412,7 @@ export type CommercialSaleScalarWhereWithAggregatesInput = {
   customerId?: Prisma.IntNullableWithAggregatesFilter<"CommercialSale"> | number | null
   totalAmount?: Prisma.DecimalNullableWithAggregatesFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalWithAggregatesFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.DecimalNullableWithAggregatesFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.DecimalNullableWithAggregatesFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeWithAggregatesFilter<"CommercialSale"> | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeWithAggregatesFilter<"CommercialSale"> | Date | string
@@ -412,6 +428,7 @@ export type CommercialSaleCreateInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -432,6 +449,7 @@ export type CommercialSaleUncheckedCreateInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -449,6 +467,7 @@ export type CommercialSaleUpdateInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -469,6 +488,7 @@ export type CommercialSaleUncheckedUpdateInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -488,6 +508,7 @@ export type CommercialSaleCreateManyInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -503,6 +524,7 @@ export type CommercialSaleUpdateManyMutationInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -518,6 +540,7 @@ export type CommercialSaleUncheckedUpdateManyInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -545,6 +568,7 @@ export type CommercialSaleCountOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  unitDiscount?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   paymentType?: Prisma.SortOrder
   invoiceDate?: Prisma.SortOrder
@@ -561,6 +585,7 @@ export type CommercialSaleAvgOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  unitDiscount?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -572,6 +597,7 @@ export type CommercialSaleMaxOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  unitDiscount?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   paymentType?: Prisma.SortOrder
   invoiceDate?: Prisma.SortOrder
@@ -589,6 +615,7 @@ export type CommercialSaleMinOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  unitDiscount?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   paymentType?: Prisma.SortOrder
   invoiceDate?: Prisma.SortOrder
@@ -605,6 +632,7 @@ export type CommercialSaleSumOrderByAggregateInput = {
   customerId?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
   paidAmount?: Prisma.SortOrder
+  unitDiscount?: Prisma.SortOrder
   discount?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
@@ -773,6 +801,7 @@ export type CommercialSaleCreateWithoutCreatedByInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -792,6 +821,7 @@ export type CommercialSaleUncheckedCreateWithoutCreatedByInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -818,6 +848,7 @@ export type CommercialSaleCreateWithoutUpdatedByInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -837,6 +868,7 @@ export type CommercialSaleUncheckedCreateWithoutUpdatedByInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -884,6 +916,7 @@ export type CommercialSaleScalarWhereInput = {
   customerId?: Prisma.IntNullableFilter<"CommercialSale"> | number | null
   totalAmount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.DecimalNullableFilter<"CommercialSale"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFilter<"CommercialSale"> | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFilter<"CommercialSale"> | Date | string
@@ -915,6 +948,7 @@ export type CommercialSaleCreateWithoutCustomerInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -933,6 +967,7 @@ export type CommercialSaleUncheckedCreateWithoutCustomerInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -976,6 +1011,7 @@ export type CommercialSaleCreateWithoutReturnsInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -995,6 +1031,7 @@ export type CommercialSaleUncheckedCreateWithoutReturnsInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -1027,6 +1064,7 @@ export type CommercialSaleUpdateWithoutReturnsInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1046,6 +1084,7 @@ export type CommercialSaleUncheckedUpdateWithoutReturnsInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1062,6 +1101,7 @@ export type CommercialSaleCreateWithoutItemsInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -1081,6 +1121,7 @@ export type CommercialSaleUncheckedCreateWithoutItemsInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -1113,6 +1154,7 @@ export type CommercialSaleUpdateWithoutItemsInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1132,6 +1174,7 @@ export type CommercialSaleUncheckedUpdateWithoutItemsInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1150,6 +1193,7 @@ export type CommercialSaleCreateManyCreatedByInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -1166,6 +1210,7 @@ export type CommercialSaleCreateManyUpdatedByInput = {
   customerId?: number | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -1180,6 +1225,7 @@ export type CommercialSaleUpdateWithoutCreatedByInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1199,6 +1245,7 @@ export type CommercialSaleUncheckedUpdateWithoutCreatedByInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1217,6 +1264,7 @@ export type CommercialSaleUncheckedUpdateManyWithoutCreatedByInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1231,6 +1279,7 @@ export type CommercialSaleUpdateWithoutUpdatedByInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1250,6 +1299,7 @@ export type CommercialSaleUncheckedUpdateWithoutUpdatedByInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1268,6 +1318,7 @@ export type CommercialSaleUncheckedUpdateManyWithoutUpdatedByInput = {
   customerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1283,6 +1334,7 @@ export type CommercialSaleCreateManyCustomerInput = {
   trNo?: string | null
   totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: $Enums.PaymentType
   invoiceDate: Date | string
@@ -1298,6 +1350,7 @@ export type CommercialSaleUpdateWithoutCustomerInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1316,6 +1369,7 @@ export type CommercialSaleUncheckedUpdateWithoutCustomerInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1334,6 +1388,7 @@ export type CommercialSaleUncheckedUpdateManyWithoutCustomerInput = {
   trNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitDiscount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   discount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentType?: Prisma.EnumPaymentTypeFieldUpdateOperationsInput | $Enums.PaymentType
   invoiceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1391,6 +1446,7 @@ export type CommercialSaleSelect<ExtArgs extends runtime.Types.Extensions.Intern
   customerId?: boolean
   totalAmount?: boolean
   paidAmount?: boolean
+  unitDiscount?: boolean
   discount?: boolean
   paymentType?: boolean
   invoiceDate?: boolean
@@ -1414,6 +1470,7 @@ export type CommercialSaleSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   customerId?: boolean
   totalAmount?: boolean
   paidAmount?: boolean
+  unitDiscount?: boolean
   discount?: boolean
   paymentType?: boolean
   invoiceDate?: boolean
@@ -1434,6 +1491,7 @@ export type CommercialSaleSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   customerId?: boolean
   totalAmount?: boolean
   paidAmount?: boolean
+  unitDiscount?: boolean
   discount?: boolean
   paymentType?: boolean
   invoiceDate?: boolean
@@ -1454,6 +1512,7 @@ export type CommercialSaleSelectScalar = {
   customerId?: boolean
   totalAmount?: boolean
   paidAmount?: boolean
+  unitDiscount?: boolean
   discount?: boolean
   paymentType?: boolean
   invoiceDate?: boolean
@@ -1465,7 +1524,7 @@ export type CommercialSaleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CommercialSaleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trNo" | "customerId" | "totalAmount" | "paidAmount" | "discount" | "paymentType" | "invoiceDate" | "notes" | "isDeleted" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["commercialSale"]>
+export type CommercialSaleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "trNo" | "customerId" | "totalAmount" | "paidAmount" | "unitDiscount" | "discount" | "paymentType" | "invoiceDate" | "notes" | "isDeleted" | "createdById" | "updatedById" | "createdAt" | "updatedAt", ExtArgs["result"]["commercialSale"]>
 export type CommercialSaleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CommercialSale$customerArgs<ExtArgs>
   createdBy?: boolean | Prisma.CommercialSale$createdByArgs<ExtArgs>
@@ -1500,6 +1559,15 @@ export type $CommercialSalePayload<ExtArgs extends runtime.Types.Extensions.Inte
     customerId: number | null
     totalAmount: runtime.Decimal | null
     paidAmount: runtime.Decimal
+    /**
+     * Rupees off each cylinder on this invoice; `discount` is what it came to
+     * (unitDiscount × cylinders). Null on invoices from before 2026-11-27,
+     * whose `discount` was a flat amount.
+     */
+    unitDiscount: runtime.Decimal | null
+    /**
+     * The rupees taken off this invoice's total.
+     */
     discount: runtime.Decimal | null
     paymentType: $Enums.PaymentType
     invoiceDate: Date
@@ -1942,6 +2010,7 @@ export interface CommercialSaleFieldRefs {
   readonly customerId: Prisma.FieldRef<"CommercialSale", 'Int'>
   readonly totalAmount: Prisma.FieldRef<"CommercialSale", 'Decimal'>
   readonly paidAmount: Prisma.FieldRef<"CommercialSale", 'Decimal'>
+  readonly unitDiscount: Prisma.FieldRef<"CommercialSale", 'Decimal'>
   readonly discount: Prisma.FieldRef<"CommercialSale", 'Decimal'>
   readonly paymentType: Prisma.FieldRef<"CommercialSale", 'PaymentType'>
   readonly invoiceDate: Prisma.FieldRef<"CommercialSale", 'DateTime'>

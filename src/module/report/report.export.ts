@@ -2,6 +2,7 @@ import type { ExportFormat } from "./report.payload.schema";
 import type { SaleLine } from "./report.lines";
 import { receiptTypeLabel, type CustomerWiseLine } from "./report.rollup";
 import { businessDayKey } from "@/lib/business-day";
+import { invoiceBalance } from "@/lib/invoice-balance";
 import type { ProfitRow } from "./report.profit";
 
 // =============================================================================
@@ -124,12 +125,22 @@ export function saleExportColumns({
     { header: "Discount", value: (l) => invoiceMoney(l, money(l.sale.discount)) },
     { header: "Total Amount", value: (l) => invoiceMoney(l, money(l.sale.totalAmount)) },
     { header: "Paid Amount", value: (l) => invoiceMoney(l, money(l.sale.paidAmount)) },
+    // Never negative: a payment beyond the invoice went toward an earlier due,
+    // and says so in its own column rather than as a negative balance
     {
       header: "Balance",
       value: (l) =>
         invoiceMoney(
           l,
-          (Number(l.sale.totalAmount ?? 0) - Number(l.sale.paidAmount ?? 0)).toFixed(2),
+          invoiceBalance(Number(l.sale.totalAmount ?? 0), Number(l.sale.paidAmount ?? 0)).balance.toFixed(2),
+        ),
+    },
+    {
+      header: "Paid Toward Earlier Due",
+      value: (l) =>
+        invoiceMoney(
+          l,
+          invoiceBalance(Number(l.sale.totalAmount ?? 0), Number(l.sale.paidAmount ?? 0)).towardEarlierDue.toFixed(2),
         ),
     },
     { header: "Payment Type", value: (l) => l.sale.paymentType ?? "" },

@@ -18,6 +18,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArbSaleResponse } from "@/module/arb-sale/arb-sale.serializer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { invoiceBalance } from "@/lib/invoice-balance";
 
 export function ARBSalesViewComponent() {
   const router = useRouter();
@@ -152,6 +153,7 @@ export function ARBSaleDetailsDialog({
     (sum, item) => sum + item.quantity,
     0,
   );
+  const balance = invoiceBalance(sale.totalAmount, sale.paidAmount);
 
   return (
     <Dialog>
@@ -208,17 +210,20 @@ export function ARBSaleDetailsDialog({
 
               <InfoField
                 label="Discount"
-                value={`₹${Number(sale.discount).toFixed(2)}`}
+                value={`₹${Number(sale.discount ?? 0).toFixed(2)}`}
               />
 
+              {/* The total is already net of the discount */}
               <InfoField
                 label="Balance"
-                value={`₹${(
-                  Number(sale.totalAmount) -
-                  Number(sale.paidAmount) -
-                  Number(sale.discount)
-                ).toFixed(2)}`}
+                value={`₹${balance.balance.toFixed(2)}`}
               />
+              {balance.towardEarlierDue > 0 && (
+                <InfoField
+                  label="Paid toward earlier due"
+                  value={`₹${balance.towardEarlierDue.toFixed(2)}`}
+                />
+              )}
             </div>
 
             {sale.notes && (

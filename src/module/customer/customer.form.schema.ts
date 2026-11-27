@@ -27,7 +27,7 @@ export const CustomerFormSchema = z.object({
 
   discount: z.preprocess(
     emptyToUndefined,
-    z.coerce.number().min(0, "Discount cannot be negative").optional(),
+    z.coerce.number().min(0, "Unit discount cannot be negative").optional(),
   ),
 
   concernedPerson: z.preprocess(

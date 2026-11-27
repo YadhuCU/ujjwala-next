@@ -27,7 +27,9 @@ const CommercialSalePayloadSchema = z.object({
   invoiceDate: z.coerce.date(),
   paymentType: z.enum(PaymentType),
   paidAmount: z.number().min(0),
-  discount: z.preprocess(emptyToUndefined, z.number().min(0).optional()),
+  // Rupees off every cylinder on the invoice. The amount it comes to is
+  // worked out by the service from the quantities — never sent.
+  unitDiscount: z.preprocess(emptyToUndefined, z.number().min(0).optional()),
   notes: z.preprocess(emptyToUndefined, z.string().optional()),
   // May be empty when the visit was a collection only — see the refinement below
   items: z.array(CommercialSaleItemPayloadSchema),
@@ -37,9 +39,9 @@ const CommercialSalePayloadSchema = z.object({
 const roundItems = (data: z.infer<typeof CommercialSalePayloadSchema>) => ({
   ...data,
   paidAmount: Math.round(data.paidAmount * 100) / 100,
-  discount:
-    data.discount !== undefined
-      ? Math.round(data.discount * 100) / 100
+  unitDiscount:
+    data.unitDiscount !== undefined
+      ? Math.round(data.unitDiscount * 100) / 100
       : undefined,
   items: data.items.map((item) => ({
     ...item,

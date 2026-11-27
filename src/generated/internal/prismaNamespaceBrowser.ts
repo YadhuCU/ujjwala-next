@@ -432,6 +432,7 @@ export const CommercialSaleScalarFieldEnum = {
   customerId: 'customerId',
   totalAmount: 'totalAmount',
   paidAmount: 'paidAmount',
+  unitDiscount: 'unitDiscount',
   discount: 'discount',
   paymentType: 'paymentType',
   invoiceDate: 'invoiceDate',

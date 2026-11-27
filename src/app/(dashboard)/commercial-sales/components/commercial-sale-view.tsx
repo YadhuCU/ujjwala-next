@@ -26,6 +26,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CommercialSaleResponse } from "@/module/commercial-sale/commercial-sale.serializer";
 import { CylinderReturnDialog } from "./commercial-sale-return-dialog";
+import { invoiceBalance } from "@/lib/invoice-balance";
 
 export function CommercialSalesViewComponent() {
   const router = useRouter();
@@ -181,6 +182,7 @@ export function CommercialSaleDetailsDialog({
   sale,
 }: CommercialSaleDetailsDialogProps) {
   const totalQty = sale.items.reduce((sum, item) => sum + item.quantity, 0);
+  const balance = invoiceBalance(sale.totalAmount, sale.paidAmount);
 
   return (
     <Dialog>
@@ -217,14 +219,22 @@ export function CommercialSaleDetailsDialog({
               />
               <InfoField
                 label="Discount"
-                value={`₹${Number(sale.discount ?? 0).toFixed(2)}`}
+                value={
+                  sale.unitDiscount && Number(sale.discount ?? 0) > 0
+                    ? `₹${Number(sale.discount).toFixed(2)} (₹${sale.unitDiscount.toFixed(2)} × ${totalQty})`
+                    : `₹${Number(sale.discount ?? 0).toFixed(2)}`
+                }
               />
               <InfoField
                 label="Balance"
-                value={`₹${(
-                  Number(sale.totalAmount) - Number(sale.paidAmount)
-                ).toFixed(2)}`}
+                value={`₹${balance.balance.toFixed(2)}`}
               />
+              {balance.towardEarlierDue > 0 && (
+                <InfoField
+                  label="Paid toward earlier due"
+                  value={`₹${balance.towardEarlierDue.toFixed(2)}`}
+                />
+              )}
             </div>
 
             {sale.notes && (

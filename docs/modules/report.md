@@ -39,7 +39,9 @@ invoice is one row, "Collection only". The results header says "N invoices"
 **Export (`report.export.ts`).** `excel` is CSV Excel opens natively; `pdf` is a
 tab-separated text listing (no PDF renderer bundled). `saleExportColumns({ withType,
 withCustody, withFieldStaff })`: dom `{ withType, withFieldStaff }`, commercial
-`{ withType, withCustody }`, ARB `{}`.
+`{ withType, withCustody }`, ARB `{}`. Its "Balance" is per invoice through
+`invoiceBalance` — never negative; a payment beyond the invoice (an earlier
+due settled, since 2026-11-27) shows in "Paid Toward Earlier Due" instead.
 
 **Domestic scopes on the field staff.** `ownerColumn("DOM") = "fieldStaffId"`:
 own scope and the staff filter key on whose round it was rather than who
