@@ -101,10 +101,10 @@ export function CustomerViewComponent() {
     },
     {
       accessorKey: "discount",
-      header: "Discount",
+      header: "Unit Discount",
       cell: ({ row }) => {
         const d = row.original.discount;
-        return d ? `₹${d.toLocaleString("en-IN")}` : "";
+        return d ? `₹${d.toLocaleString("en-IN")} / cylinder` : "";
       },
     },
   ];

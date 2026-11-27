@@ -8,6 +8,7 @@ import {
 } from "@/generated/client";
 import { prisma } from "@/lib/prisma";
 import {
+  assertBalanceMatchesLedger,
   assertGodownMatchesLedger,
   balanceOf,
   custodyOf,
@@ -48,7 +49,7 @@ function saleInput(
     invoiceDate: new Date("2026-08-14"),
     paymentType: PaymentType.CASH,
     paidAmount,
-    discount: undefined,
+    unitDiscount: undefined,
     notes: undefined,
     items: [{ stockId, saleType, quantity, salePrice: 100 }],
     returns: [],
@@ -704,5 +705,115 @@ describe("a domestic sale carrying the same number", () => {
     expect(new Set(domesticRows.map((r) => r.refType))).toEqual(
       new Set([RefType.DOMESTIC_SALE]),
     );
+  });
+});
+
+// The customer's discount is per cylinder: the rate times every cylinder on
+// the invoice, whatever the line type.
+describe("commercial sale — unit discount", () => {
+  function discountedInput(unitDiscount?: number) {
+    return {
+      ...saleInput(CommercialSaleType.RENT, 4),
+      unitDiscount,
+      items: [
+        { stockId, saleType: CommercialSaleType.RENT, quantity: 4, salePrice: 100 },
+        { stockId, saleType: CommercialSaleType.SALE, quantity: 2, salePrice: 100 },
+        { stockId, saleType: CommercialSaleType.REFILL, quantity: 1, salePrice: 100 },
+      ],
+    };
+  }
+
+  it("takes the rate off every cylinder and stores both the rate and the amount", async () => {
+    const sale = await CommercialSaleService.createCommercialSale(
+      discountedInput(10),
+      userId,
+    );
+
+    // 7 cylinders × 100 = 700, less 7 × 10
+    const stored = await prisma.commercialSale.findUniqueOrThrow({ where: { id: sale.id } });
+    expect(Number(stored.unitDiscount)).toBe(10);
+    expect(Number(stored.discount)).toBe(70);
+    expect(Number(stored.totalAmount)).toBe(630);
+    expect(await balanceOf(customerId)).toBe(630);
+  });
+
+  it("recomputes the amount when an edit changes the quantities", async () => {
+    const sale = await CommercialSaleService.createCommercialSale(
+      discountedInput(10),
+      userId,
+    );
+    await CommercialSaleService.updateCommercialSale(
+      sale.id,
+      { ...saleInput(CommercialSaleType.SALE, 3), unitDiscount: 10 },
+      userId,
+    );
+
+    const stored = await prisma.commercialSale.findUniqueOrThrow({ where: { id: sale.id } });
+    expect(Number(stored.discount)).toBe(30);
+    expect(Number(stored.totalAmount)).toBe(270);
+    expect(await balanceOf(customerId)).toBe(270);
+    await assertBalanceMatchesLedger(customerId);
+  });
+
+  it("refuses a rate above the price of a cylinder on the invoice", async () => {
+    await expect(
+      CommercialSaleService.createCommercialSale(discountedInput(150), userId),
+    ).rejects.toThrow(/more than the price of a cylinder/i);
+  });
+});
+
+// A customer may pay part of an invoice now and settle the rest on the next.
+describe("commercial sale — paid amount", () => {
+  it("records a part payment, leaving the rest on the customer's balance", async () => {
+    await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.SALE, 10, 400),
+      userId,
+    );
+    expect(await balanceOf(customerId)).toBe(600);
+    await assertBalanceMatchesLedger(customerId);
+  });
+
+  it("puts a payment above the invoice toward the earlier due", async () => {
+    await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.SALE, 10, 400),
+      userId,
+    ); // owes 600
+    const second = await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.SALE, 2, 800),
+      userId,
+    ); // 200, pays 800
+
+    expect(await balanceOf(customerId)).toBe(0);
+    const payment = await prisma.customerPaymentLedger.findFirstOrThrow({
+      where: { refId: second.id, entryType: "PAYMENT" },
+    });
+    expect(Number(payment.amount)).toBe(-800);
+    await assertBalanceMatchesLedger(customerId);
+  });
+
+  it("keeps a payment beyond everything owed as an advance, through edit and delete", async () => {
+    const sale = await CommercialSaleService.createCommercialSale(
+      saleInput(CommercialSaleType.SALE, 2, 500),
+      userId,
+    );
+    expect(await balanceOf(customerId)).toBe(-300);
+
+    await CommercialSaleService.updateCommercialSale(
+      sale.id,
+      saleInput(CommercialSaleType.SALE, 2, 200),
+      userId,
+    );
+    expect(await balanceOf(customerId)).toBe(0);
+
+    await CommercialSaleService.updateCommercialSale(
+      sale.id,
+      saleInput(CommercialSaleType.SALE, 1, 600),
+      userId,
+    );
+    expect(await balanceOf(customerId)).toBe(-500);
+
+    await CommercialSaleService.deleteCommercialSale(sale.id, userId);
+    expect(await balanceOf(customerId)).toBe(0);
+    await assertBalanceMatchesLedger(customerId);
   });
 });

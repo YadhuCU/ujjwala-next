@@ -28,7 +28,11 @@ export const CommercialSaleFormSchema = z.object({
     .min(0, "Paid amount cannot be negative")
     .default(0),
 
-  discount: z.coerce.number().min(0, "Discount cannot be negative").optional(),
+  // Rupees off each cylinder — pre-filled from the customer, editable here
+  unitDiscount: z.coerce
+    .number()
+    .min(0, "Unit discount cannot be negative")
+    .optional(),
 
   notes: z
     .string()

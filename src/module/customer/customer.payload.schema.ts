@@ -12,7 +12,8 @@ const CustomerBaseSchema = z.object({
   ),
   address: z.preprocess(emptyToUndefined, z.string().optional()),
   locationId: z.preprocess(emptyToUndefined, z.number().int().optional()),
-  // Flat rupees off each new commercial invoice — pre-filled, never forced.
+  // Unit discount: rupees off each cylinder on a new commercial invoice —
+  // pre-filled, never forced.
   // Rounded to paise here, in the field itself, so create and update share it.
   discount: z.preprocess(
     emptyToUndefined,

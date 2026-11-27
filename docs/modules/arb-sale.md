@@ -18,7 +18,10 @@ No sale type — an ARB line is neither rented nor sold outright in the cylinder
   commented-out line in update, on purpose.)
 - `assertAndFetchStocks` groups lines by `stockId` so two lines on one batch are
   checked against its quantity together; `productId` comes from the stock row.
-- `paidAmount <= totalAmount` (`BadRequestError`).
+- `paidAmount` is uncapped (since 2026-11-27): the part beyond this invoice
+  settles an earlier due, or stays as an advance. The detail view's balance
+  goes through `invoiceBalance`; it used to take the discount off a second
+  time.
 - `trNo = ARB-{yyyymmdd}-{00001}`, assigned after the header insert (India date,
   `businessDayKey`).
 - Ledger (shared with dom): `SALE_CHARGE +total`, `PAYMENT −paid` if paid > 0,

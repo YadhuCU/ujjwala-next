@@ -53,15 +53,25 @@ type OriginalSaleItem = {
 // PURE HELPERS
 // =============================================================================
 
+// The discount is per cylinder: the customer's unit discount times every
+// cylinder on the invoice — rent, sale and refill lines alike. A
+// collection-only invoice has no cylinders going out, so no discount.
 function computeTotals(
   items: CreateCommercialSaleInput["items"],
-  discount = 0,
-): { totalAmount: number } {
+  unitDiscount = 0,
+): { subtotal: number; cylinders: number; discount: number; totalAmount: number } {
   const subtotal = items.reduce(
     (sum, item) => sum + Math.round(item.quantity * item.salePrice * 100) / 100,
     0,
   );
-  return { totalAmount: Math.round((subtotal - discount) * 100) / 100 };
+  const cylinders = items.reduce((sum, item) => sum + item.quantity, 0);
+  const discount = Math.round(unitDiscount * cylinders * 100) / 100;
+  return {
+    subtotal,
+    cylinders,
+    discount,
+    totalAmount: Math.round((subtotal - discount) * 100) / 100,
+  };
 }
 
 function generateTrNo(saleId: number): string {
@@ -92,6 +102,20 @@ function resolveProductQtys(
 // =============================================================================
 // GUARDS
 // =============================================================================
+
+// A unit discount larger than a cylinder's price would sell that line below
+// nothing. Checked against the cheapest line, since the rate applies to all.
+function assertUnitDiscountFits(
+  items: CreateCommercialSaleInput["items"],
+  unitDiscount = 0,
+) {
+  if (unitDiscount <= 0 || items.length === 0) return;
+  const cheapest = Math.min(...items.map((item) => item.salePrice));
+  if (unitDiscount > cheapest)
+    throw new BadRequestError(
+      `Unit discount ₹${unitDiscount.toFixed(2)} is more than the price of a cylinder on this invoice (₹${cheapest.toFixed(2)})`,
+    );
+}
 
 async function assertCommercialSaleExists(
   tx: Prisma.TransactionClient,
@@ -625,11 +649,13 @@ export async function createCommercialSale(
   input: CreateCommercialSaleInput,
   userId: number,
 ) {
-  const { items, returns, customerId, paidAmount, discount, ...header } = input;
-  const { totalAmount } = computeTotals(items, discount ?? 0);
-
-  if (paidAmount > totalAmount)
-    throw new BadRequestError("Paid amount cannot exceed total amount");
+  const { items, returns, customerId, paidAmount, unitDiscount, ...header } =
+    input;
+  // No cap on paidAmount: a customer may pay part of this invoice now, or more
+  // than it comes to — the excess settles what they already owed (the ledger
+  // records the payment in full; see applyCustomerLedger).
+  assertUnitDiscountFits(items, unitDiscount);
+  const { totalAmount, discount } = computeTotals(items, unitDiscount ?? 0);
 
   return prisma.$transaction(async (tx) => {
     // 0. Collected cylinders must be ones the customer already held — checked
@@ -650,7 +676,8 @@ export async function createCommercialSale(
         customerId,
         totalAmount,
         paidAmount,
-        discount: discount ?? null,
+        unitDiscount: unitDiscount ?? null,
+        discount: discount > 0 ? discount : null,
         createdById: userId,
         updatedById: userId,
       },
@@ -756,11 +783,13 @@ export async function updateCommercialSale(
   input: UpdateCommercialSaleInput,
   userId: number,
 ) {
-  const { items, returns, customerId, paidAmount, discount, ...header } = input;
-  const { totalAmount } = computeTotals(items, discount ?? 0);
-
-  if (paidAmount > totalAmount)
-    throw new BadRequestError("Paid amount cannot exceed total amount");
+  const { items, returns, customerId, paidAmount, unitDiscount, ...header } =
+    input;
+  // No cap on paidAmount: a customer may pay part of this invoice now, or more
+  // than it comes to — the excess settles what they already owed (the ledger
+  // records the payment in full; see applyCustomerLedger).
+  assertUnitDiscountFits(items, unitDiscount);
+  const { totalAmount, discount } = computeTotals(items, unitDiscount ?? 0);
 
   return prisma.$transaction(async (tx) => {
     const original = await assertCommercialSaleExists(tx, id);
@@ -854,7 +883,8 @@ export async function updateCommercialSale(
         customerId,
         totalAmount,
         paidAmount,
-        discount: discount ?? null,
+        unitDiscount: unitDiscount ?? null,
+        discount: discount > 0 ? discount : null,
         updatedById: userId,
       },
       include: commercialSaleInclude,

@@ -64,10 +64,22 @@ describe("createArbSale", () => {
     expect(await balanceOf(customerId)).toBe(900);
   });
 
-  it("refuses a paid amount above the total", async () => {
-    await expect(
-      ArbSaleService.createArbSale(saleInput(1, 5000), userId),
-    ).rejects.toThrow(/cannot exceed total/i);
+  // A customer often clears the last invoice's due on the next one
+  it("puts a payment above the total toward what the customer already owed", async () => {
+    await ArbSaleService.createArbSale(saleInput(5, 0), userId); // owes 1000
+    await ArbSaleService.createArbSale(saleInput(1, 700), userId); // 200, pays 700
+
+    expect(await balanceOf(customerId)).toBe(500);
+    await assertBalanceMatchesLedger(customerId);
+  });
+
+  it("keeps a payment beyond everything owed as an advance, and unwinds it on delete", async () => {
+    const sale = await ArbSaleService.createArbSale(saleInput(1, 500), userId);
+    expect(await balanceOf(customerId)).toBe(-300);
+
+    await ArbSaleService.deleteArbSale(sale.id, userId);
+    expect(await balanceOf(customerId)).toBe(0);
+    await assertBalanceMatchesLedger(customerId);
   });
 });
 

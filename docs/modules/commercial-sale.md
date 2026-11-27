@@ -30,9 +30,22 @@ checks the godown) → header → `trNo` → items + ledger (`RENT_DELIVERY` / `
   the spot. One `REFILL` ledger row per product (filled `−q`, empty `+q`), the
   godown moves both ways (`applyGodownRefillEmpties`), no custody,
   `cylindersDispatched = 0`. The reversal unwinds it from the row like any other.
-- **Discount**: picking a customer pre-fills the invoice discount with
-  `Customer.discount` (flat ₹ per invoice); it stays editable, and the summary
-  shows subtotal less discount.
+- **Unit discount** (2026-11-27): picking a customer pre-fills the invoice's
+  `unitDiscount` with `Customer.discount` — ₹ off **each cylinder**, across
+  every line (RENT, SALE, REFILL); it stays editable. The payload carries the
+  rate only; `computeTotals` works out `discount = unitDiscount × cylinders`
+  and both are stored. `assertUnitDiscountFits` refuses a rate above the
+  cheapest line's price. A collection-only invoice has no discount. The form
+  shows "₹20 × 12 cylinders = ₹240 off this invoice" and the detail view
+  "₹240 (₹20 × 12)". Invoices from before have `unitDiscount = null` and a
+  flat `discount`, kept as saved; the edit form spreads that flat amount over
+  their cylinders (to the paisa), so saving one keeps its total.
+- **Paid amount is uncapped** (2026-11-27): part payment, or more than the
+  invoice — the excess settles the customer's earlier due, or stays as an
+  advance. The form shows due before / this invoice / paid now / balance
+  after (on edit, "due before" takes this invoice's own `total − paid` back
+  out). Per-invoice balance displays go through `invoiceBalance` (never
+  negative, plus "paid toward earlier due").
 - An invoice may have **zero items** if it has returns (a collection-only visit;
   appears at ₹0 in reports). Both empty is refused. A product may appear once in
   `returns`.

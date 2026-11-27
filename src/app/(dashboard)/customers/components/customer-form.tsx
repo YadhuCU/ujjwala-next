@@ -155,7 +155,7 @@ export function CustomerForm({
                 name="discount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Discount per invoice (₹)</FormLabel>
+                    <FormLabel>Unit Discount (₹ per cylinder)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"

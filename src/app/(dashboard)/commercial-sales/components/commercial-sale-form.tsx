@@ -44,15 +44,32 @@ import {
 interface CommercialSaleFormProps {
   defaultValues?: CommercialSaleFormValues;
   isEditMode?: boolean;
+  /**
+   * On edit: the customer and what this invoice already added to their balance
+   * (total − paid). The customer's balance includes it, so it comes off to show
+   * the due from before this invoice.
+   */
+  original?: { customerId?: number; netCharge: number };
   onSubmit: (values: CommercialSaleFormValues) => void;
   isPending: boolean;
 }
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const inr = (value: number) =>
+  `₹${value.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const round2 = (value: number) => Math.round(value * 100) / 100;
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function CommercialSaleForm({
   defaultValues,
   isEditMode = false,
+  original,
   onSubmit,
   isPending,
 }: CommercialSaleFormProps) {
@@ -82,7 +99,7 @@ export function CommercialSaleForm({
       paidAmount: 0,
       paymentType: PaymentType.CASH,
       // Controlled from the start: picking a customer fills it in
-      discount: "" as never,
+      unitDiscount: "" as never,
     },
   });
 
@@ -167,8 +184,37 @@ export function CommercialSaleForm({
     const price = Number(item.salePrice) || 0;
     return sum + qty * price;
   }, 0);
-  const watchedDiscount = Number(form.watch("discount")) || 0;
-  const grandTotal = subtotal - watchedDiscount;
+  // The discount is per cylinder, across every line
+  const cylinders = (watchedItems ?? []).reduce(
+    (sum, item) => sum + (Number(item.quantity) || 0),
+    0,
+  );
+  const unitDiscount = Number(form.watch("unitDiscount")) || 0;
+  const discountAmount = round2(unitDiscount * cylinders);
+  const grandTotal = round2(subtotal - discountAmount);
+  const cheapestPrice = Math.min(
+    ...(watchedItems ?? [])
+      .map((item) => Number(item.salePrice))
+      .filter((price) => Number.isFinite(price) && price > 0),
+  );
+  const discountTooLarge = unitDiscount > 0 && unitDiscount > cheapestPrice;
+
+  // Where the customer's account stands. A payment may cover part of this
+  // invoice, all of it, or more — the rest settles an earlier due.
+  const paidNow = Number(form.watch("paidAmount")) || 0;
+  const previousDue = customerSummary
+    ? round2(
+        Number(customerSummary.pendingAmount ?? 0) -
+          (original && original.customerId === selectedCustomerId
+            ? original.netCharge
+            : 0),
+      )
+    : undefined;
+  const balanceAfter =
+    previousDue === undefined
+      ? undefined
+      : round2(previousDue + grandTotal - paidNow);
+  const beyondInvoice = round2(Math.max(paidNow - grandTotal, 0));
 
   if (
     process.env.NODE_ENV !== "production" &&
@@ -205,12 +251,12 @@ export function CommercialSaleForm({
                     <Select
                       onValueChange={(v) => {
                         field.onChange(Number(v));
-                        // The customer's agreed discount, in rupees, as a
-                        // starting point — it stays editable on the invoice
+                        // The customer's agreed unit discount (₹ per
+                        // cylinder) as a starting point — editable here
                         const discount = customers.find(
                           (c) => c.id === Number(v),
                         )?.discount;
-                        form.setValue("discount", discount ?? ("" as never), {
+                        form.setValue("unitDiscount", discount ?? ("" as never), {
                           shouldDirty: true,
                           shouldValidate: true,
                         });
@@ -251,10 +297,10 @@ export function CommercialSaleForm({
 
               <FormField
                 control={form.control}
-                name="discount"
+                name="unitDiscount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Discount (₹)</FormLabel>
+                    <FormLabel>Unit Discount (₹ per cylinder)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -263,9 +309,24 @@ export function CommercialSaleForm({
                         onChange={(e) =>
                           field.onChange(e.target.valueAsNumber || 0)
                         }
-                        placeholder="Enter Discount in amount"
+                        placeholder="₹ off each cylinder"
                       />
                     </FormControl>
+                    {discountTooLarge ? (
+                      <p className="text-destructive text-xs">
+                        More than the price of a cylinder on this invoice (
+                        {inr(cheapestPrice)})
+                      </p>
+                    ) : unitDiscount > 0 ? (
+                      <p className="text-muted-foreground text-xs tabular-nums">
+                        {inr(unitDiscount)} × {cylinders}{" "}
+                        {cylinders === 1 ? "cylinder" : "cylinders"} ={" "}
+                        <span className="text-foreground font-medium">
+                          {inr(discountAmount)}
+                        </span>{" "}
+                        off this invoice
+                      </p>
+                    ) : null}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -579,12 +640,52 @@ export function CommercialSaleForm({
               </div>
             ) : null}
 
+            {previousDue !== undefined && balanceAfter !== undefined && (
+              <div className="space-y-2 rounded-xl border p-4">
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm md:grid-cols-4">
+                  <div>
+                    <dt className="text-muted-foreground text-xs">
+                      {previousDue < 0 ? "Advance before this invoice" : "Due before this invoice"}
+                    </dt>
+                    <dd className="font-medium tabular-nums">
+                      {inr(Math.abs(previousDue))}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground text-xs">This invoice</dt>
+                    <dd className="font-medium tabular-nums">{inr(grandTotal)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground text-xs">Paid now</dt>
+                    <dd className="font-medium tabular-nums">{inr(paidNow)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground text-xs">
+                      {balanceAfter < 0 ? "Advance after this invoice" : "Balance after this invoice"}
+                    </dt>
+                    <dd className="font-semibold tabular-nums">
+                      {inr(Math.abs(balanceAfter))}
+                    </dd>
+                  </div>
+                </dl>
+                {beyondInvoice > 0 && (
+                  <p className="text-muted-foreground text-xs">
+                    {balanceAfter >= 0
+                      ? `${inr(beyondInvoice)} of the payment goes toward the earlier due.`
+                      : previousDue > 0
+                        ? `${inr(beyondInvoice)} more than this invoice clears the earlier due of ${inr(previousDue)}; ${inr(-balanceAfter)} is kept as an advance for the next invoice.`
+                        : `${inr(beyondInvoice)} more than this invoice is kept as an advance for the next invoice.`}
+                  </p>
+                )}
+              </div>
+            )}
+
             <FormSummary
               label="Invoice total"
               amount={grandTotal}
               detail={
-                watchedDiscount > 0
-                  ? `₹${subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })} less ₹${watchedDiscount.toLocaleString("en-IN", { minimumFractionDigits: 2 })} discount`
+                discountAmount > 0
+                  ? `${inr(subtotal)} less ${inr(discountAmount)} discount (${inr(unitDiscount)} × ${cylinders})`
                   : undefined
               }
             >

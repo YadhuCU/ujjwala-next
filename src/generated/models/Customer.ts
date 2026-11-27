@@ -1846,8 +1846,10 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     concernedPerson: string | null
     concernedPersonMobile: string | null
     /**
-     * Flat rupee discount pre-filled on each new commercial invoice for this
-     * customer (not a percentage, not per cylinder). The invoice can override it.
+     * Unit discount: rupees off every cylinder on a commercial invoice for this
+     * customer (not a percentage, not a flat amount per invoice). Pre-filled on
+     * each new invoice, which can override it. It was a flat ₹ per invoice until
+     * 2026-11-27, and the stored values were kept as they were.
      */
     discount: runtime.Decimal | null
     gstNumber: string | null

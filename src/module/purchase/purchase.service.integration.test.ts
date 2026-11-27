@@ -314,7 +314,7 @@ describe("correctPurchasePrices", () => {
         invoiceDate: new Date(),
         paymentType: PaymentType.CASH,
         paidAmount: 0,
-        discount: undefined,
+        unitDiscount: undefined,
         notes: undefined,
         items: [
           {
